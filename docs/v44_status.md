@@ -60,6 +60,33 @@ the HU→S dose-response is unchanged by adding HH (S 5.6→16.5 h, EZH2-in-S bo
 **STRUCTURE COMPLETE.** Next phase per plan: compile all experimental data and do a single
 whole-model parameter-calibration pass (not piecemeal).
 
+## Calibration progress (vs docs/Ezh2_CcnD1_model_targets.md)
+
+**LOCKED — EZH2 / HU core targets** (`simulations/v44_calibrate_ezh2.py`, MB context):
+- HU 10µM → EZH2(protein)-in-S / DMSO = **1.29×** (target 1.31×, alt-text 1.22×) ✓
+- EZH2 **transcript** within-cycle gradient: S/G0 = 2.0, G2/G0 = 2.05 (Section D MB range 1.8–2.5) ✓
+- Monotone gradient G0 < G1 < S < G2 ✓
+- Calibrated `kDeEZ = 0.0003` (stable EZH2 integrates S-duration); boost is decoupled from the
+  within-cycle gradient (tunable independently).
+- Division reset starts the daughter in a true G1 (low CyclinA/E) — biologically correct, and
+  lengthened G1 (preS 21% → 33%).
+
+**DEFERRED — absolute MB phase proportions** (Section F: G1 58 / S 21 / G2 21 among cycling).
+The current model is S-dominated (S ≈ 63%, G1 ≈ 11%, G2 ≈ 2%) and cannot reach these by parameter
+tuning — three structural walls (mapped in `v44_calibrate_phases.py`):
+- **G1** capped ~33–40%: below `kPhRbCd ≈ 0.14` the bistable restriction point either quiesces or
+  makes the HU response pathological (S decreases under HU).
+- **G2** intrinsically ~2%: mitosis fires immediately after replication (the checkpoint holds a
+  preMPF reservoir that flips instantly). Needs a redesigned mitotic switch (CyclinB-CDK1 building
+  *after* S) for a genuine multi-hour G2.
+- **G0**: the within-cycle low-pRb window is a proxy; the experimental ~25% G0 is a separate
+  quiescent/exited pool. This also explains the steep **protein** EZH2 gradient (model G2/G0 ≈ 1.9
+  vs Section E 1.48×): the model's brief post-mitotic G0 reference is artificially low.
+
+Next structural task: (a) mitotic-switch redesign for a real G2, (b) model G0 as a separate
+quiescent pool. Then absolute proportions + the protein gradient + absolute period (~22 h) become
+fittable. The HU/EZH2 mechanism (the project's core claim) is already captured.
+
 ## What is weak / open (honest assessment)
 
 1. **The "longer S → longer *next* G1" loop is weak.** G1 does not lengthen with HU (the

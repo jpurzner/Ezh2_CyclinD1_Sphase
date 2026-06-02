@@ -96,7 +96,9 @@ EZH2_CORE_BLOCK = """
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
   kEZbas = 0.0003; kEZE2f = 0.010; K_E2f_EZ = 0.3;
   K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.5;        // CycE(S-onset)/CycA(S-G2) gate weights
-  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.0008;   // stable EZH2 -> integrates S-duration
+  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.0003;   // stable EZH2 -> integrates S-duration
+  // kDeEZ=0.0003 calibrated (v44_calibrate_ezh2.py): HU->EZH2-in-S boost 1.28x (target 1.31,
+  // alt 1.22); transcript gradient S/G0=2.0, G2/G0=2.1 (Section D 1.8-2.5). Decoupled from gradient.
   EZH2_tx: => EZH2m; Cell*(kEZbas + kEZE2f*E2f/(K_E2f_EZ + E2f)*(wCe*Ce/(K_Ce_EZ + Ce) + (1 - wCe)*Ca/(K_Ca_EZ + Ca)));
   EZH2m_deg: EZH2m => ; Cell*kDeEZm*EZH2m;
   EZH2_tl: EZH2m => EZH2m + EZH2; Cell*kTlEZ*EZH2m;
