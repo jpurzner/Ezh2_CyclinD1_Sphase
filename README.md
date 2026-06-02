@@ -1,92 +1,145 @@
-# Ezh2_Hh_Ccnd1_model
+# Ezh2_CyclinD1_Sphase
 
-ODE model of MYCN–EZH2–Cyclin D1–Hedgehog regulation of the mammalian cell cycle, applied to cerebellar granule neuron progenitors (GNPs) and SHH-subgroup medulloblastoma (SHH-MB). This is the v42 model accompanying Chahin et al. on Ezh2/Cyclin D1 negative feedback in GNPs and medulloblastoma.
+Modeling the **intra-S-phase checkpoint** extension of the published MYCN–EZH2–Cyclin D1–Hedgehog
+cell-cycle model, applied to cerebellar granule-neuron progenitors (GNPs) and SHH-subgroup
+medulloblastoma (SHH-MB).
 
-## Model overview
+This repository extends the published **v42** model (Chahin et al., on EZH2/Cyclin D1 negative
+feedback in GNPs and medulloblastoma) to test a specific hypothesis:
 
-The model integrates four modules into the Gérard & Goldbeter (2009) mammalian cell cycle engine:
+> **Longer S-phase → more EZH2 → stronger Cyclin D1 repression → longer subsequent G0/G1.**
 
-1. **Hedgehog signaling** — SHH → Ptch1 → Smo → Gli_act/Gli_rep → Gli1 → CycD1 transcription
-2. **EZH2 module** — E2F- and pRB-hyperphosphorylation–driven transcription; represses CycD1 via `K / (K + EZH2·(1 − EZH2i))`
-3. **MYCN module** — autonomous basal synthesis (amplified 2.8× in MB) plus a small Gli-dependent term; drives CycD1 through a Hill function (n = 3), producing a threshold effect
-4. **Cell cycle engine (Gérard 2009)** — Rb–E2F bistable switch, p27/Skp2, cyclin D/E/A/B–CDK complexes, Cdc25 phosphatases, APC/C (Cdc20, Cdh1), time-scaled by ε = 150 to produce ~22 h periods
+Experimental anchors driving the work: 10 µM hydroxyurea (HU) → **1.31× EZH2 in S-phase**
+(p = 0.005); within-cycle DMSO EZH2 ratios vs G0 of **G1 = 1.16×, S = 1.32×, G2 = 1.48×**; and a
+small HU-induced increase in the G0 fraction (delineated experimentally by Rb phosphorylation).
 
-CycD1 mRNA is the integration node:
+> ⚠️ The published model `src/build_model_v42_mycn.py` is **frozen** (byte-identical to the
+> `v42-published-baseline` tag) and is never modified. All extensions are built on top of it.
 
-```
-d[Cd_mRNA]/dt = [ k_basal
-                  + k_Gli · (Gli_act + Gli1)^2 / (K_Gli^2 + (Gli_act + Gli1)^2)
-                                                · K_Gli_rep^2 / (K_Gli_rep^2 + Gli_rep^2)
-                  + k_MYCN · MYCN^3 / (K_MYCN^3 + MYCN^3) ]
-                · K_EZH2 / (K_EZH2 + EZH2 · (1 − EZH2i))
-                − k_deg · Cd_mRNA
-```
+---
 
-## Key predictions
+## The three model versions
 
-- **GNPs**: CycD1 is ~86% Gli-driven; HHi causes near-complete CycD1 loss and cell cycle arrest.
-- **MYCN-amplified MB**: MYCN contributes ~41% of CycD1, rising to ~82% under HHi, producing partial HHi resistance.
-- **EZH2 brake**: EZH2 feedback lengthens the GNP cycle by ~4.3 h but MB by only ~0.9 h (MYCN saturates the Rb–E2F switch).
-- **Rescue specificity**: EZH2i rescues HHi-arrested MB (upstream blockade) but *not* CDK4/6i-arrested MB (downstream blockade), because EZH2i acts by de-repressing CycD1 transcription.
+| Version | File | What it is | Status |
+|---------|------|-----------|--------|
+| **v42** | `src/build_model_v42_mycn.py` | Published MYCN–EZH2–CyclinD1–HH model on the Gérard–Goldbeter (2009) cell-cycle engine (ε = 150 global clock). | Frozen baseline |
+| **v43** | `src/build_model_v43_checkpoint.py` | Intra-S checkpoint via a **phase-gated clock**: φ(HU) slows ε *specifically during S* (gated on Cyclin A). EZH2 transcription rewired to a Cyclin E + Cyclin A (S-window) gate. 12/12 validation; emergent 1.31× S-phase EZH2 at HU = 1.0. | Complete (tag `v43-milestone`) |
+| **v44** | `src/build_model_v44_heldt.py` | **Ground-up rebuild** on the Heldt et al. 2018 (PNAS) real-time core with **explicit DNA replication**, so S-phase duration is genuinely **concentration-dependent** (set by replication fork speed). | Structure complete; calibration pending |
 
-Sixteen of 18 validation targets from GNP/MB RNA-seq and functional assays are recovered. See `simulations/V42_MODEL_SUMMARY.md` for the full calibration/validation table.
+### Why v44 exists (the key scientific finding)
+
+The Gérard–Goldbeter engine is a **relaxation oscillator**, and its S-phase duration turns out to
+be a **structural invariant** — exhaustive testing (`simulations/diag_v44_*.py`) showed that *no*
+molecular concentration (CHK1→Cdc25, Cdk1 throttling, replication-licensing gates, …) can lengthen
+S; only the global time-scale ε can. The v43 "phase-gated ε" checkpoint works and matches the data,
+but slowing a clock is phenomenological. To make S-phase length emerge from real replication
+kinetics, v44 rebuilds the engine on **Heldt 2018** (BioModels `BIOMD0000000700`): a real-time
+(minutes, **no ε**) model in which DNA is synthesized by active replication forks. Full rationale and
+the literature survey are in `docs/`.
+
+---
+
+## v44 architecture
+
+Built by `build_model_v44(hu=, with_ezh2=, with_hh=)` on top of the Heldt core:
+
+1. **Heldt G1/S core** — Rb–E2F restriction point, Cyclin E/A–CDK2, p21/p53, PCNA, and **explicit
+   DNA replication** (`Dna` synthesized by active replication complexes `aRc` at fork speed `kSyDna`).
+2. **HU → fork speed** — hydroxyurea/dNTP depletion slows forks: `vfork(HU)` scales `kSyDna`, so S
+   lengthens concentration-dependently (G1 unchanged, mitosis waits for `Dna = 1`, no arrest).
+3. **CyclinB/CDK1 (MPF) mitotic switch** — Cdc25/Wee1 hysteresis; ignites once the checkpoint clears.
+4. **CHK1 intra-S checkpoint** — gated on active forks (`aRc`); holds mitosis until replication completes.
+5. **Mitotic APC/Cdc20 + division-reset event** — gives sustained cycling (Heldt alone is one-shot).
+6. **EZH2 layer** — transcription gated on `E2f × (CycE + CycA)`; EZH2 is a stable protein diluted at
+   division, so it **integrates** S-phase duration. EZH2 represses Cyclin D1 (`EZH2i` toggles the feedback).
+7. **Hedgehog + MYCN → Cyclin D1** — ported from v42; SHH → Ptch1 → Smo → Gli → CyclinD1, MYCN drives
+   CyclinD1 GDC-independently. Inputs: `SHH`, `GDC0449`, `Ptch1_copy_number`, `MYCN_amplification`.
+
+### What v44 reproduces so far (qualitative; magnitudes pending calibration)
+
+- **Concentration-dependent S-phase**: fork speed ↓ → S 5.5 → 16.5 h, G1 flat, mitosis always at
+  `Dna ≈ 1.0`, no arrest (`simulations/v44_fork_doseresponse.py`).
+- **EZH2 integrates S-duration**: EZH2-in-S boost 1.18× at HU = 1.0, 1.59× at HU = 2.0
+  (`simulations/v44_ezh2_hypothesis.py`).
+- **Weak S→next-G1 coupling** (EZH2 brake ≈ cancelled by residual CyclinA carried into the daughter)
+  — consistent with the small HU-induced G0 increase and with Chao et al. 2018 (largely uncoupled phases).
+- **HH/MYCN/GDC biology**: GDC0449 ablates CyclinD1 in WT (~84%) but MYCN-amplified MB retains much
+  more (~55%) — the MB GDC-resistance.
+
+---
 
 ## Repository layout
 
 ```
 src/
-  build_model_v42_mycn.py          # Antimony model builder
+  build_model_v42_mycn.py        # FROZEN published v42 model (do not modify)
+  build_model_v43_checkpoint.py  # v43: phase-gated-ε intra-S checkpoint + EZH2 rewire
+  build_model_v44_heldt.py       # v44: Heldt-based explicit-replication rebuild (current)
+models_external/
+  heldt2018_BIOMD700.xml         # Heldt 2018 source SBML (BIOMD0000000700)
+  heldt2018.ant                  # Antimony conversion (what the v44 builder reads)
+docs/
+  model_dynamics.md                          # how the model sets phase durations; cycle walkthrough
+  research_concentration_dependent_checkpoint.md  # literature survey -> the v44 decision
+  v44_verification_findings.md               # proof GG cannot give concentration-dependent S
+  v44_status.md                              # current v44 state + open items
 simulations/
-  validate_v42.py                  # 10-condition validation (drug panel, rescue, CDK4/6i)
-  sim_ezh2_feedback_impact.py      # EZH2 feedback on/off comparison (168 h)
-  sim_ezh2_compensation.py         # EZH2-boost sweep
-  sim_ezh2_data_constrained.py     # RNA-seq-anchored EZH2 analysis
-  sweep_mycn_hill.py               # MYCN Hill parameter sweep (960 combos)
-  fig_v42_architecture.py          # Model wiring diagram
-  V42_MODEL_SUMMARY.md             # Construction, calibration, results
-  V42_MODEL_EQUATIONS.md           # Full ODE listing
-  PAPER_MODEL_SECTIONS.md/.txt     # Results + Methods sections for the paper
-  fig_v42_*.png/pdf                # Architecture, validation, rescue, CycB traces
-  fig_ezh2_*.png/pdf               # EZH2 feedback impact, periods, compensation
+  validate_v42.py / validate_v43.py          # validation suites (v43: 12/12)
+  calibrate_ezh2_rewire.py                   # v43 EZH2-gate calibration + phase helpers
+  v44_build_test.py                          # v44 mitotic switch + cycling
+  v44_fork_doseresponse.py                   # v44 fork speed -> S-phase duration
+  v44_ezh2_hypothesis.py                     # v44 HU -> EZH2 -> CyclinD1 -> G1 test
+  diag_v44_*.py                              # diagnostics: why GG fails; coupling-point search
+  diag_phi_*.py                              # v43 phase-gated-clock calibration diagnostics
+CHECKPOINT_PLAN.md                           # original extension plan
 ```
+
+(The v42 paper figures and `V42_MODEL_*.md` summaries from the published release also live under
+`simulations/`.)
+
+---
+
+## Branches & tags
+
+- `v44-explicit-replication` — current work (the v44 rebuild). **Active branch.**
+- `feature/intra_s_checkpoint` — the v43 milestone (`v43-milestone` tag) — the retreat point.
+- `main` — published v42 release.
+- Tags: `v42-published-baseline`, `v43-milestone`.
+
+---
 
 ## Getting started
 
 ```bash
-pip install -r requirements.txt
+python -m venv venv && ./venv/bin/pip install -r requirements.txt
 ```
 
-Use system `python3` (tellurium can be fragile inside some virtualenvs).
-
-## Reproducing the figures
-
-All scripts must be run **from the repository root** (they use relative paths for the output figures and resolve the `src/` module with `os.path.dirname(__file__)`). Each script regenerates its figures in-place under `simulations/`.
-
-| Figure(s) | Script | Approx. runtime |
-|-----------|--------|-----------------|
-| `fig_v42_architecture.png/pdf` | `python simulations/fig_v42_architecture.py` | <10 s (schematic, no simulation) |
-| `fig_v42_validation.png/pdf`, `fig_v42_cycb_traces.png`, `fig_v42_ezh2i_rescue.png`, `validation_v42_results.json` | `python simulations/validate_v42.py` | ~3–5 min (10 conditions × 96 h + 5-condition 168 h rescue panel) |
-| `fig_ezh2_feedback_impact.png/pdf`, `fig_ezh2_feedback_periods.png` | `python simulations/sim_ezh2_feedback_impact.py` | ~2 min (4 × 168 h simulations) |
-| `fig_ezh2_compensation.png/pdf` | `python simulations/sim_ezh2_compensation.py` | ~2 min |
-| `fig_ezh2_data_constrained.png/pdf` | `python simulations/sim_ezh2_data_constrained.py` | ~5 min |
-| `sweep_mycn_hill_results.json` (parameter calibration) | `python simulations/sweep_mycn_hill.py` | ~30–60 min (960 parameter combinations) |
-
-The model itself can be printed/inspected with:
+Built on Antimony/Tellurium (libRoadRunner, CVODE integrator). Inspect any model with, e.g.:
 
 ```bash
-python src/build_model_v42_mycn.py
+./venv/bin/python -m src.build_model_v44_heldt     # builds + prints a cycling sanity check
 ```
 
-All simulations use the CVODE stiff integrator via tellurium/roadrunner (default). Because the ODEs are deterministic and CVODE is stable, re-running should produce results numerically identical to the checked-in figures modulo tellurium/roadrunner version differences.
+Run a v44 experiment (from the repo root):
 
-## Drug implementations
+```bash
+./venv/bin/python simulations/v44_fork_doseresponse.py   # fork speed (HU) -> S-phase duration
+./venv/bin/python simulations/v44_ezh2_hypothesis.py     # HU -> EZH2 -> CyclinD1 -> G1
+```
 
-| Drug | Target | Model action |
-|------|--------|--------------|
-| HHi (vismodegib) | SMO | `Smo_activation · (1 − GDC0449)` |
-| EZH2i (tazemetostat) | EZH2 methyltransferase | Removes EZH2 repression term |
-| CDK4/6i (palbociclib) | CDK4 kinase | Sets `V1 = 0` (blocks pRB phosphorylation by CycD/CDK4) |
+---
+
+## Status / next step
+
+All v44 structural modules are present and the model cycles. The next phase is a **single
+whole-model parameter-calibration pass** against the full experimental dataset (phase-duration
+absolutes ~20 h, the HU 1.31× EZH2 anchor + G0 shift, the DMSO within-cycle EZH2 gradient,
+GDC0449/MYCN CyclinD1 reductions, EZH2 mean/G0 ratios), producing a `validate_v44.py` suite.
+Parameter *magnitudes* in v44 are currently placeholders pending that fit.
 
 ## Citation
 
-If you use this model, please cite Gérard & Goldbeter (2009) *PNAS* for the cell cycle engine and Chahin et al. (in preparation) for the EZH2/CycD1/MYCN/HH integration.
+Cite Gérard & Goldbeter (2009) *PNAS* for the original cell-cycle engine, Heldt, Barr, Cooper,
+Bakal & Novák (2018) *PNAS* (`BIOMD0000000700`) for the v44 real-time core, and Chahin et al.
+(in preparation) for the EZH2/CyclinD1/MYCN/Hedgehog integration and the intra-S-checkpoint extension.
+```
