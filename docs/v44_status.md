@@ -37,6 +37,29 @@ not produce (`simulations/v44_fork_doseresponse.py`, `v44_ezh2_hypothesis.py`):
   experimental 1.31× at 10 µM — close; tunable via EZH2 turnover/gate).
 - EZH2→CyclinD feedback is a real tonic brake (G1 with feedback ON 2.38 h vs OFF 1.99 h).
 
+## HH/MYCN module (added) — all structural modules now present
+
+`Cd` (CyclinD) is now driven by the full Hedgehog/MYCN module ported from v42
+(`with_hh=True`): SHH→Ptch1→Smo→Gli→CyclinD1, MYCN→CyclinD1 (GDC-independent), EZH2 represses
+CyclinD1 transcription. HH species are initialized near the proliferating steady state so the
+cell does not false-quiesce during the startup transient. Inputs: `SHH`, `GDC0449`,
+`Ptch1_copy_number`, `MYCN_amplification`. Condition responses (qualitatively correct,
+magnitudes pending calibration):
+
+| condition | Cd | note |
+|---|---|---|
+| baseline (SHH=0.5) | 0.70 | — |
+| SHH=0 | 0.38 | HH off (MYCN floor) |
+| GDC0449=1 (WT) | 0.11 | ~84% CyclinD1 reduction |
+| MYCN_amp=2.8 (MB) | 1.20 | MYCN drives CyclinD1 |
+| GDC + MYCN_amp (MB+GDC) | 0.66 | only ~45% reduction → **MYCN buffers GDC (MB GDC-resistance)** |
+
+Builder: `build_model_v44(hu=, with_ezh2=, with_hh=)`. All three configs compile and cycle;
+the HU→S dose-response is unchanged by adding HH (S 5.6→16.5 h, EZH2-in-S boost 1.18× at HU=1.0).
+
+**STRUCTURE COMPLETE.** Next phase per plan: compile all experimental data and do a single
+whole-model parameter-calibration pass (not piecemeal).
+
 ## What is weak / open (honest assessment)
 
 1. **The "longer S → longer *next* G1" loop is weak.** G1 does not lengthen with HU (the
