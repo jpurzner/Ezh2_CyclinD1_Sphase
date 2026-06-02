@@ -63,8 +63,12 @@ MITOSIS_BLOCK = """
   wChk = 12; wChkW = 4; jChk = 0.03;
   kaCdc20 = 0.3; kiCdc20 = 0.12; KmCdc20 = 0.5; nCdc20 = 8; kDeCaCdc20 = 1.0;
 
-  // Division at mitotic entry (MPF crosses high): reset to a G1 daughter.
-  E_div: at (MPF > 1): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, Ce = Ce/2, Ca = Ca/2, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
+  // Division at mitotic entry (MPF crosses high): reset to a TRUE G1 daughter.
+  // CyclinA (Ca) and CyclinE (Ce) are set low (mitotic APC/SCF degradation), so the daughter
+  // starts Rb-hypophosphorylated with low CDK2 -> G1 length is the slow CyclinD-driven Rb
+  // phosphorylation + cyclin rebuild time (otherwise inherited Ca/2 fires the R-point instantly).
+  Ca_div = 0.02; Ce_div = 0.10;
+  E_div: at (MPF > 1): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, Ce = Ce_div, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
 """
 
 # ---- HU -> replication fork speed (dNTP depletion slows forks) ----
@@ -166,7 +170,23 @@ def _load_heldt():
         return f.read()
 
 
-def build_model_v44(hu=None, with_ezh2=True, with_hh=True):
+import re as _re
+
+
+def _apply_overrides(model, overrides):
+    """Substitute scalar parameter initial values (`name = value;`) in the Antimony string.
+    Used for calibration sweeps over `const` kinetic parameters that cannot be set at runtime.
+    """
+    for name, val in overrides.items():
+        pat = _re.compile(rf"(\b{_re.escape(name)}\s*=\s*)[-0-9.eE]+(\s*;)")
+        new, n = pat.subn(rf"\g<1>{val}\g<2>", model, count=1)
+        if n == 0:
+            raise RuntimeError(f"override parameter not found: {name}")
+        model = new
+    return model
+
+
+def build_model_v44(hu=None, with_ezh2=True, with_hh=True, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -202,6 +222,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True):
     m = m.replace("\nend", blocks + "\nend")
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
+    if params:
+        m = _apply_overrides(m, params)
     return m
 
 
