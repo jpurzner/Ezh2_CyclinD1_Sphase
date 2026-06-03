@@ -83,7 +83,7 @@ HU_BLOCK = """
   // ===== v44: HU -> fork speed (hydroxyurea depletes dNTPs -> slower replication) =====
   HU = 0;                 // hydroxyurea dose (0 = none; 1 ~ 10 uM experiment)
   vmin_fork = 0.1;        // residual fork speed at saturating HU (>0 -> S finite, no arrest)
-  KmHU_fork = 1.0;        // HU IC50 for fork slowing
+  KmHU_fork = 0.4;        // HU IC50 (HU=1~10uM gives ~2.5x S -> EZH2-in-S boost ~1.3)
   hHU_fork = 3;           // Hill coefficient
   vfork := vmin_fork + (1 - vmin_fork)*KmHU_fork^hHU_fork/(KmHU_fork^hHU_fork + HU^hHU_fork);
 """
@@ -150,7 +150,7 @@ EZH2_CORE_BLOCK = """
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
   kEZbas = 0.0003; kEZE2f = 0.010; K_E2f_EZ = 0.3;
   K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.5;        // CycE(S-onset)/CycA(S-G2) gate weights
-  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.0002;   // stable EZH2 -> integrates S-duration
+  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.00005;   // stable EZH2 -> integrates S-duration
   // kDeEZ=0.0002 calibrated (v44_calibrate_ezh2.py, post-G2-redesign): HU->EZH2-in-S boost 1.24x
   // (experimental 1.22-1.31); transcript gradient S/G0=2.0, G2/G0=2.1 (Section D 1.8-2.5).
   EZH2_tx: => EZH2m; Cell*(kEZbas + kEZE2f*E2f/(K_E2f_EZ + E2f)*(wCe*Ce/(K_Ce_EZ + Ce) + (1 - wCe)*Ca/(K_Ca_EZ + Ca)));
@@ -261,7 +261,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
     if "\nend" not in m:
         raise RuntimeError("Heldt model 'end' marker not found.")
 
-    # 1. HU-scale the replication fork flux
+    # 1. HU-scale the replication fork flux (+ faster default fork speed for S proportions)
+    m = m.replace("kSyDna = 0.0093;", "kSyDna = 0.018;")
     m = m.replace(_DNA_RXN_OLD, _DNA_RXN_NEW)
     # 2. inject mitotic switch + HU blocks
     blocks = MITOSIS_BLOCK + HU_BLOCK
