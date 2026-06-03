@@ -226,3 +226,24 @@ OPTIONS for a clean transient G0 (decision pending):
  (c) add a mono-/hyper-Rb distinction (two phospho steps) so phospho-Rb-negative (mono, G0) vs
      phospho-Rb-positive (hyper, committed) is represented explicitly, matching the D20B12 readout.
 Also: the unconditional-growth artifact (G0 mass grows unbounded) should be fixed under any option.
+
+### G0 definition clarified (union) + p27-reset prototype
+
+Experimental G0 = phospho-Rb(Ser807/811) NEGATIVE **OR** p27 POSITIVE (union); a cell is cycling
+only if BOTH phospho-Rb+ AND p27-. Since phospho-Rb rises fast, the transient G0 is best carried by
+**p27 (=Heldt P21) staying high** for a few hours post-division -- matching newborn cells inheriting
+high p27. Found: the division event did NOT reset P21, so the daughter inherited already-degraded
+p21 -> no p27+ window.
+
+PROTOTYPE (reverted): reset P21 high at division (P21_div=0.6) + reset CeP21/CaP21=0. This DID
+create a transient G0 -- MB showed **18% G0, period 23 h** by the union criterion. But P21_div in
+the MB-G0 range stalls GNP (lower mitogen) in the **p27-CDK2 bistable trap** (deadlock, no cycling).
+Adding CyclinD-promoted p27 clearance (kDeP21Cd*Cd, the canonical CycD-CDK4/6->p27 escape) let GNP
+cycle again, BUT made the G0 window mitogen-DEPENDENT (GNP gets a G0, MB clears p27 too fast -> 0%),
+the opposite of the ~22% G0 seen in BOTH. 
+
+CONCLUSION: the p27-reset is the right mechanism for the transient G0, but a clean, ~uniform G0
+across GNP and MB needs a proper p27-CDK2 module (e.g. explicit CyclinD-CDK4/6 sequestration of p27,
+or retuned p27-CDK2 binding/bistability) -- dedicated work, not a parameter tweak. Reverted to the
+clean working model. (Two G0 mechanisms now prototyped & characterized: commitment size-gate, and
+p27-reset; both create a transient G0 but both hit condition-dependent bistability fragility.)
