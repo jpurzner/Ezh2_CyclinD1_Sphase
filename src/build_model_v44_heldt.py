@@ -72,8 +72,10 @@ MITOSIS_BLOCK = """
   // CyclinA (Ca) and CyclinE (Ce) are set low (mitotic APC/SCF degradation), so the daughter
   // starts Rb-hypophosphorylated with low CDK2 -> G1 length is the slow CyclinD-driven Rb
   // phosphorylation + cyclin rebuild time (otherwise inherited Ca/2 fires the R-point instantly).
-  Ca_div = 0.30; Ce_div = 0.10; MPF_div = 0.5;          // Ca_div=0.30 keeps BOTH GNP (low drive) & MB cycling
-  E_div: at (MPF > MPF_div): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, Ce = Ce_div, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
+  // Daughter is born with HIGH p27 (P21_div) + low Skp2 -> transient G0 (p27-positive / phospho-Rb-
+  // negative) until the Skp2-p27-E2F feedforward commits it. (G0 = phospho-Rb(Ser807/811)- OR p27+.)
+  Ca_div = 0.30; Ce_div = 0.10; MPF_div = 0.5; P21_div = 0.6;   // Ca_div=0.30 keeps GNP & MB cycling
+  E_div: at (MPF > MPF_div): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, P21 = P21_div, CeP21 = 0, CaP21 = 0, Skp2 = 0.05, Ce = Ce_div, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
 """
 
 # ---- HU -> replication fork speed (dNTP depletion slows forks) ----
@@ -112,6 +114,26 @@ _FIRE_OLD = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
              "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*Rc);")
 _FIRE_NEW = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
              "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*size_gate*Rc);")
+
+# ---- Structural redesign #3: Skp2-p27 feedforward restriction-point switch ----
+# Heldt's Skp2 is constant; here it becomes a dynamic E2F target degraded by APC/C-Cdh1 (C1).
+# G0: E2F off -> low Skp2 synthesis AND active Cdh1 (C1) degrades Skp2 -> Skp2 low -> p27 (P21) NOT
+# degraded -> p27 stays HIGH (constitutive), CDK2 inhibited, Rb hypophosphorylated, E2F off -- a
+# self-reinforcing, p27-POSITIVE transient G0. CyclinD partially phosphorylates Rb -> some E2F ->
+# Skp2 rises -> p27 degraded -> CyclinE/CDK2 active -> phosphorylates Cdh1 OFF (C1->pC1) -> Skp2 no
+# longer destroyed -> more Skp2 -> p27 gone -> full Rb-P -> more E2F. This Skp2-p27-Rb-E2F feedforward
+# IS the bistable R-point and yields the transient G0 (high p27 / phospho-Rb-negative) seen in all
+# GNP and MB cells. p27 is reset HIGH at division (P21_div).
+SKP2_BLOCK = """
+  // ===== v44 structural #3: Skp2-p27 feedforward R-point (Skp2 = dynamic E2F target, Cdh1-degraded) =====
+  kSySkp2 = 0.02;          // E2F-driven Skp2 transcription (Skp2 is a direct E2F target)
+  kSySkp2bas = 0.002;      // basal Skp2 synthesis
+  kDeSkp2C1 = 1.0;         // APC/C-Cdh1 (C1)-mediated Skp2 degradation (keeps Skp2 low in G0/G1)
+  kDeSkp2bas = 0.02;       // basal Skp2 turnover
+  Skp2_synthesis: => Skp2; Cell*(kSySkp2bas + kSySkp2*E2f);
+  Skp2_degradation_Cdh1: Skp2 => ; Cell*kDeSkp2C1*C1*Skp2;
+  Skp2_decay: Skp2 => ; Cell*kDeSkp2bas*Skp2;
+"""
 
 # ---- EZH2 epigenetic layer (transcription + protein; the Cd repression lives downstream) ----
 # EZH2 transcription tracks E2f x (CycE + CycA) -- the Heldt analogs of v43's E2F x (Me+Ma)
@@ -217,7 +239,8 @@ def _apply_overrides(model, overrides):
     return model
 
 
-def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True, params=None):
+def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
+                    with_skp2=True, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -261,6 +284,16 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True, par
         blocks = blocks.replace("preMPF = 0, Cdc20 = 0",
                                 "preMPF = 0, Cdc20 = 0, mass = mass/2")
 
+    if with_skp2:
+        # Skp2 becomes a dynamic E2F-target species (Cdh1-degraded) -> Skp2-p27 feedforward R-point.
+        if ", Skp2," not in m:
+            raise RuntimeError("Heldt Skp2 const declaration not found in expected form.")
+        m = m.replace(", Skp2,", ",", 1)            # remove Skp2 from the const list
+        m = m.replace("\n  Skp2 = 1;", "\n  Skp2 = 0.05;")   # low initial (G0 level)
+        # raise CyclinD->Rb so the feedforward fires for GNP+SHH (Cd~0.5) but not GNP-SHH (Cd~0.28)
+        m = m.replace("kPhRbCd = 0.2;", "kPhRbCd = 0.5;")
+        blocks += SKP2_BLOCK
+
     m = m.replace("\nend", blocks + "\nend")
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
@@ -273,7 +306,7 @@ if __name__ == "__main__":
     m = build_model_v44()
     print("v44 model built:", len(m), "chars")
     for tok in ["MPF", "Chk1 := aRc", "Cdc25a", "Wee1a", "vfork :=", "kSyDna*vfork*aRc",
-                "E_div: at (MPF > MPF_div)", "size_gate :=", "*size_gate*Rc", "mass = mass/2"]:
+                "E_div: at (MPF > MPF_div)", "size_gate :=", "*size_gate*Rc", "mass = mass/2", "Skp2_synthesis:", "P21 = P21_div"]:
         assert tok in m, f"missing {tok}"
     print("mitotic switch + HU fork coupling present.")
     import tellurium as te

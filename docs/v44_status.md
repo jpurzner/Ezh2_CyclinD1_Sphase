@@ -247,3 +247,27 @@ across GNP and MB needs a proper p27-CDK2 module (e.g. explicit CyclinD-CDK4/6 s
 or retuned p27-CDK2 binding/bistability) -- dedicated work, not a parameter tweak. Reverted to the
 clean working model. (Two G0 mechanisms now prototyped & characterized: commitment size-gate, and
 p27-reset; both create a transient G0 but both hit condition-dependent bistability fragility.)
+
+## STRUCTURAL REDESIGN #3 — Skp2-p27 feedforward restriction-point switch (ADDED)
+
+Implemented the user-specified mechanism: Skp2 is now a DYNAMIC E2F target degraded by APC/C-Cdh1
+(Heldt's `C1`, already active in G0/G1 and phosphorylated off by CyclinE/A in S). This builds the
+canonical Skp2-p27-Rb-E2F feedforward:
+  G0: E2F off -> low Skp2 synthesis + active Cdh1 degrades Skp2 -> Skp2 low -> p27(P21) NOT degraded
+      -> p27 HIGH (constitutive), CDK2 inhibited, Rb hypo-P, E2F off (self-reinforcing, p27+).
+  Commit: CyclinD partially phosphorylates Rb -> some E2F -> Skp2 rises -> p27 degraded -> CyclinE/CDK2
+      active -> Cdh1 phosphorylated OFF -> Skp2 stabilized -> more Skp2 -> full Rb-P -> more E2F.
+p27 is reset HIGH at division (P21_div=0.6) + Skp2 low (0.05). New params: kSySkp2, kSySkp2bas,
+kDeSkp2C1, kDeSkp2bas; and kPhRbCd raised 0.2->0.5 so the feedforward fires for GNP+SHH (Cd~0.5) but
+not GNP-SHH (Cd~0.28). Toggle: build_model_v44(with_skp2=True).
+
+WORKS: the R-point is now a genuine bistable feedforward switch. Proliferation-quiescence CORRECT --
+GNP+SHH cycles, GNP-SHH and GNP+HHi quiesce, MB cycles; Skp2 0.05->2.5 on commitment, clearing p27.
+Period ~23h; EZH2 transcript gradient still on target (S/G0 2.0).
+
+STILL OPEN (re-calibration on this new structure):
+ - transient G0 is brief (~1-5%): commitment fires fast once over threshold. A SUBSTANTIAL
+   growth-timed transient G0 needs commitment coupled to cell size (grow in G0 -> commit at size),
+   i.e. combine the size gate with the feedforward at the commitment step.
+ - HU->EZH2-in-S boost dropped to ~0.96 (was 1.23): re-tune kDeEZ on the 23h cycle.
+ - S/G2 proportions (S~50%, G2~8%): re-tune fork speed + G2 params.
