@@ -174,3 +174,26 @@ AND substantial G1 (Section F).** The between-condition HH calibration and the p
 calibration therefore hit the SAME wall -- both need the **growth/size-gated restriction point**
 (structural redesign #2) to decouple CyclinD1 level from G1 length, as in real cells. The optimized
 HH params should be applied AFTER that structural change.
+
+## STRUCTURAL REDESIGN #2 — growth-gated restriction point (DONE)
+
+The binding constraint (G1 too short; CyclinD1 level tied to G1 length) is resolved. Added a cell
+`mass` that grows exponentially and halves at division (size homeostasis), with a **size gate on
+S-entry (origin firing)**: origins fire only once `mass >= M_size`. Commitment (E2f release) still
+requires mitogen (CyclinD), so low-CyclinD cells stay quiescent — but committed cells then WAIT for
+size, so **G1 length = the growth time, DECOUPLED from CyclinD level.**
+
+Results (defaults `mu=0.0005`, `M_size=2.5`):
+- **Period ~22h** (was ~11h) — matches the soft target.
+- **G1 ~48%** (was ~8–30%), and **nearly identical in GNP and MB** despite different CyclinD
+  (GNP Cd 0.42 / MB Cd 0.72) — G1 is now decoupled from CyclinD, the whole point.
+- **HH-dependence preserved**: GNP cycles only +SHH; GNP−SHH and GNP+HHi quiesce; MB cycles.
+- First gate attempt (mass-scaled CyclinE/A synthesis) was rejected — it weakened the mitogen
+  requirement (GNP−SHH cycled). The size-gate-on-S-entry keeps commitment mitogen-dependent.
+
+This reconciles MB-high-CyclinD1 with a long G1, so the HH-optimizer params (recorded earlier) can
+now be applied without collapsing G1.
+
+**Re-calibration needed on the new ~22h structure** (cycle changed substantially): S still long
+(~46% vs 21%) / G2 short (~11% vs 21%) — re-tune fork speed + mitotic timing; EZH2/HU boost dropped
+(re-tune kDeEZ); then apply the HH-optimizer params for MB GDC-resistance + the CyclinD1 ratios.

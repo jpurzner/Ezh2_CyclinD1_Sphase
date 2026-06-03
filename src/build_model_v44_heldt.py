@@ -89,6 +89,30 @@ HU_BLOCK = """
 _DNA_RXN_OLD = "Synthesis_of_DNA: aRc => aRc + Dna; Cell*kSyDna*aRc;"
 _DNA_RXN_NEW = "Synthesis_of_DNA: aRc => aRc + Dna; Cell*kSyDna*vfork*aRc;"
 
+# ---- Structural redesign #2: cell-growth-gated restriction point ----
+# Cell mass grows exponentially and halves at division (size homeostasis). A SIZE GATE is
+# placed on S-ENTRY (origin firing, Phosphorylation_priming_of_replication_complexes): origins
+# fire only once mass >= a critical size. Commitment (E2f release) STILL requires mitogen
+# (CyclinD), so low-CyclinD cells (GNP without SHH, or +HHi) never commit and stay quiescent --
+# HH-dependence preserved. Committed cells then WAIT for size before replicating, so G1 length =
+# the GROWTH TIME, DECOUPLED from CyclinD level: high CyclinD (MB) no longer collapses G1 to ~0,
+# letting the model have MB with high CyclinD1 AND a substantial G1 (reconciling the
+# phase-proportion and HH between-condition calibrations).
+GROWTH_BLOCK = """
+  // ===== v44 structural #2: cell-growth-gated restriction point (size gate on S-entry) =====
+  species mass in Cell;
+  mass = 1.0;
+  mu = 0.0005;            // specific growth rate (1/min); ~ ln2/period for size homeostasis (~22h)
+  M_size = 2.5;           // critical cell size for S-entry (origin firing) -> G1 ~48%, period ~22h
+  n_size = 6;             // steepness of the size gate
+  size_gate := mass^n_size/(M_size^n_size + mass^n_size);
+  Growth: => mass; Cell*mu*mass;
+"""
+_FIRE_OLD = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
+             "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*Rc);")
+_FIRE_NEW = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
+             "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*size_gate*Rc);")
+
 # ---- EZH2 epigenetic layer (transcription + protein; the Cd repression lives downstream) ----
 # EZH2 transcription tracks E2f x (CycE + CycA) -- the Heldt analogs of v43's E2F x (Me+Ma)
 # gate. EZH2 protein is STABLE (slow turnover) and reset by DILUTION at division (halved in
@@ -193,7 +217,7 @@ def _apply_overrides(model, overrides):
     return model
 
 
-def build_model_v44(hu=None, with_ezh2=True, with_hh=True, params=None):
+def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -201,6 +225,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, params=None):
       (SHH, GDC0449, MYCN, Ptch1_copy_number inputs) with EZH2 repression of CyclinD1.
     with_hh=False: Cd is a placeholder (constant mitogen x EZH2 repression).
     with_ezh2=False: Heldt's constant Cd=0.65 (core engine only).
+    with_growth=True (default): cell-growth-gated restriction point (mass-scaled CyclinE/A
+      synthesis) so G1 length is the growth time, decoupled from CyclinD level.
     `hu` optionally overrides the default HU=0 in the string.
     """
     m = _load_heldt()
@@ -226,6 +252,15 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, params=None):
         blocks = blocks.replace("MPF = 0, preMPF = 0, Cdc20 = 0 ;",
                                 "MPF = 0, preMPF = 0, Cdc20 = 0, EZH2 = EZH2/2, EZH2m = EZH2m/2 ;")
 
+    if with_growth:
+        # size gate on S-entry (origin firing) + mass growth + halving at division
+        if _FIRE_OLD not in m:
+            raise RuntimeError("Heldt origin-firing reaction not found in expected form.")
+        m = m.replace(_FIRE_OLD, _FIRE_NEW)
+        blocks += GROWTH_BLOCK
+        blocks = blocks.replace("preMPF = 0, Cdc20 = 0",
+                                "preMPF = 0, Cdc20 = 0, mass = mass/2")
+
     m = m.replace("\nend", blocks + "\nend")
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
@@ -238,7 +273,7 @@ if __name__ == "__main__":
     m = build_model_v44()
     print("v44 model built:", len(m), "chars")
     for tok in ["MPF", "Chk1 := aRc", "Cdc25a", "Wee1a", "vfork :=", "kSyDna*vfork*aRc",
-                "E_div: at (MPF > MPF_div)"]:
+                "E_div: at (MPF > MPF_div)", "size_gate :=", "*size_gate*Rc", "mass = mass/2"]:
         assert tok in m, f"missing {tok}"
     print("mitotic switch + HU fork coupling present.")
     import tellurium as te
