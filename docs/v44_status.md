@@ -157,3 +157,20 @@ fittable. The HU/EZH2 mechanism (the project's core claim) is already captured.
 - `simulations/v44_fork_doseresponse.py` — fork-speed → S-phase
 - `simulations/v44_ezh2_hypothesis.py` — HU → EZH2 → CyclinD → G1 test
 - `simulations/diag_v44_*.py` — the diagnostics proving GG could not do this (motivation)
+
+### HH/MYCN optimizer result + the convergent structural finding
+
+Automated fit (`simulations/v44_optimize_hh.py`, 400-sample random search + Nelder-Mead) over 7
+HH/MYCN->CyclinD1 parameters cut the objective 2.71 -> 0.64 and lifted **CyclinD1 MB/GNP 1.98 ->
+4.16** (target 5.07), holding MYCN/Gli1 matched (MB+HHi/MB fell to 0.27, the inherent tension).
+Best params (transcript-ratio fit): k_Cd_tx_basal 0.54, k_Cd_tx_Gli_max 20.7, K_Gli_act_CycD 0.58,
+k_Cd_tx_MYCN 38.4, K_MYCN_Cd 1.1, n_MYCN_Cd 5.6, K_Ptch_Smo 0.096.
+
+**These params are NOT yet baked into the builder** because applying them (with k_Cd_translation
+re-scaled) drives MB CyclinD1 to ~2.5 (the 5x ratio) which makes MB cycle very fast (short G1) and
+causes CVODE crashes in MB+GDC. This exposes a convergent finding: **the model couples CyclinD1
+LEVEL to G1 LENGTH (more Cd -> shorter G1), but the data require MB to have BOTH high CyclinD1 (5x)
+AND substantial G1 (Section F).** The between-condition HH calibration and the phase-proportion
+calibration therefore hit the SAME wall -- both need the **growth/size-gated restriction point**
+(structural redesign #2) to decouple CyclinD1 level from G1 length, as in real cells. The optimized
+HH params should be applied AFTER that structural change.
