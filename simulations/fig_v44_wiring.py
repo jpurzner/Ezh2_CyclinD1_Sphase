@@ -133,9 +133,13 @@ arrow((8.0, 8.9), (p27[0], p27[1]+0.35), C["cc_b"], rad=0.15, lw=2.2)  # back to
 
 # ===================== EZH2 layer =====================
 ezh2 = node(15.0, 7.0, "EZH2 protein\n(integrates S)", w=2.4, h=0.8, fc="#f4ecf7", ec=C["ezh2_b"], fs=8.5, bold=True)
-ezh2m = node(15.0, 8.2, "EZH2 mRNA\n← E2F·(CycE+CycA)", w=2.6, h=0.7, fc="#ffffff", ec=C["ezh2_b"], fs=7.5)
+ezh2m = node(15.0, 8.2, "EZH2 mRNA\n(E2F target)", w=2.4, h=0.7, fc="#ffffff", ec=C["ezh2_b"], fs=8)
 arrow((ezh2m[0], ezh2m[1]-0.35), (ezh2[0], ezh2[1]+0.4), C["act"])
-arrow((ce[0]+0.75, ce[1]+0.2), (ezh2m[0]-1.3, ezh2m[1]-0.1), C["ezh2_b"], rad=-0.2, lw=1.4, ls="-")
+# EZH2 is an E2F target: E2F (released by pRb phosphorylation) drives EZH2 transcription;
+# CyclinE/A (CDK2) only gate the S-window in the rate law E2f*(CycE+CycA).
+arrow((e2f[0]+0.4, e2f[1]+0.2), (ezh2m[0]-1.25, ezh2m[1]-0.05), C["ezh2_b"], rad=-0.32, lw=1.6, ls="-")
+ax.text(11.6, 8.7, "E2F target", fontsize=7.5, color=C["ezh2_b"], ha="center", style="italic")
+ax.text(13.05, 7.95, "(S-window\ngated by CDK2)", fontsize=6.5, color="#888", ha="center", style="italic")
 ezi = node(15.0, 9.0, "EZH2i", w=1.1, fc="#fdedeb", ec=C["drug"], fs=8, bold=True)
 # central feedback: EZH2 ⊣ CyclinD1
 inhibit((ezh2[0]-1.2, ezh2[1]-0.1), (cd[0]+0.1, cd[1]+0.4), C["fb"], rad=0.32, lw=2.4, shrink=4)
