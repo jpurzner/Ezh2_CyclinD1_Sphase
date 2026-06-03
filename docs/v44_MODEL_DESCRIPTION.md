@@ -151,8 +151,9 @@ Key readouts: `pRb`, `P21`(=p27), `Skp2`, `Ce`,`Ca`, `E2f`, `aRc`, `Dna`, `MPF`/
   phospho-Rb also negative in G0 would need lower inherited CyclinA — minor refinement.)
 - **HU→EZH2-in-S boost** — DONE: kDeEZ=5e-5, KmHU_fork=0.35 -> boost **1.37×** (target 1.31×).
   MB G0~26% (target ~22%), proliferation/gradient intact. **Remaining: S high / G2 low (S/G2 proportions).**
-- **S/G2 phase proportions** — re-tune fork speed (`kSyDna`) + G2 (`kSyCb`,`a25`) toward MB cycling
-  G1 58 / S 21 / G2 21.
+- **S/G2 phase proportions** — PARTIAL: kSyCb=0.020 -> G2 ~14% (was 9%, target 16%). S stays ~39%
+  (model S is biochemically ~8h in a 24h cycle -> high fraction; an absolute-duration limit, not tunable
+  without breaking G0/period). G1 ~28%.
 - **Absolute CyclinD1 ratios** — apply the recorded HH-optimizer params now that G1 is Cd-decoupled.
 
 Experimental targets compendium: `docs/Ezh2_CcnD1_model_targets.md`. Full history/decisions:
