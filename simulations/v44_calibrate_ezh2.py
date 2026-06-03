@@ -17,7 +17,7 @@ from src.build_model_v44_heldt import build_model_v44
 PARAMS = {
     "kEZbas": 0.0003, "kEZE2f": 0.010, "K_E2f_EZ": 0.3,
     "K_Ce_EZ": 0.5, "K_Ca_EZ": 0.8, "wCe": 0.5,
-    "kDeEZm": 0.02, "kTlEZ": 0.004, "kDeEZ": 0.0003,
+    "kDeEZm": 0.02, "kTlEZ": 0.004, "kDeEZ": 0.0002,
 }
 SEL = ["time", "pRb", "aRc", "Dna", "EZH2", "EZH2m"]
 

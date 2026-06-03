@@ -71,7 +71,27 @@ whole-model parameter-calibration pass (not piecemeal).
 - Division reset starts the daughter in a true G1 (low CyclinA/E) — biologically correct, and
   lengthened G1 (preS 21% → 33%).
 
-**DEFERRED — absolute MB phase proportions** (Section F: G1 58 / S 21 / G2 21 among cycling).
+**STRUCTURAL REDESIGN #1 — real G2 phase (DONE).** The mitotic switch was reworked so CyclinB-CDK1
+is synthesized (inactive, Tyr15-P) only as replication completes (`g2gate` on `Dna`), building
+during G2 instead of being pre-stocked during S and flipping instantly. Result:
+- **G2 phase: 2% → ~20%** (a genuine multi-hour G2); period 9 → ~11–13 h (toward 22 h).
+- HU redistribution now strong & correct: S 50→58→74%, **G2 20→14→4%** across HU 0→2 (Section F:
+  S up, G2 down), divisions 23→18→11 (no arrest).
+- Absolute durations now realistic: S ≈ 6 h, G2 ≈ 2.5 h (only G1 remains short).
+- Protein EZH2 gradient improved (G2/G0 1.99 → 1.89); transcript gradient still 2.0; HU boost 1.23.
+- Cycles robustly in BOTH GNP (`MYCN_amp=1`) and MB (`MYCN_amp=2.8`); division reset moderated
+  (`Ca_div=0.30`) so GNP (lower drive) does not false-quiesce. HH/GDC biology intact (GNP+GDC −87%,
+  MB+GDC −49%).
+
+**STILL OPEN — G1 too short.** G1 remains ~8% (target cycling ~58%): the Heldt bistable restriction
+point caps G1 at ~30–35% of the cycle in a robustly-cycling regime — below `kPhRbCd ≈ 0.15` the cell
+either quiesces or the HU response goes pathological. A longer G1 needs a different G1 model (e.g. a
+cell-growth/size-gated restriction point or an explicit G1 timer), not parameter tuning. This is the
+binding constraint on the absolute proportions (S/G1 ratio inverted vs data).
+
+**DEFERRED — G0 as a separate quiescent pool** (structural redesign #2) + absolute period (~22h).
+
+**Original deferred note — absolute MB phase proportions** (Section F: G1 58 / S 21 / G2 21 among cycling).
 The current model is S-dominated (S ≈ 63%, G1 ≈ 11%, G2 ≈ 2%) and cannot reach these by parameter
 tuning — three structural walls (mapped in `v44_calibrate_phases.py`):
 - **G1** capped ~33–40%: below `kPhRbCd ≈ 0.14` the bistable restriction point either quiesces or

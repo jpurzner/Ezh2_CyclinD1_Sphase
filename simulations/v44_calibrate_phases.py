@@ -21,8 +21,8 @@ PARAMS = {
     "kSyCe": 0.01, "kSyCa": 0.02,
     # S length: replication fork speed
     "kSyDna": 0.0093,
-    # G2 length: CycB synthesis / mitotic entry
-    "kSyCb": 0.01,
+    # G2 length: CycB synthesis (g2gate) + Cdc25 ignition a25 (higher a25/kSyCb -> shorter G2)
+    "kSyCb": 0.025, "a25": 0.02, "KG2": 0.85,
 }
 
 SEL = ["time", "pRb", "aRc", "Dna", "MPF", "EZH2"]

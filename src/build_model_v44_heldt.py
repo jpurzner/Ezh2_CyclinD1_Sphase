@@ -45,10 +45,14 @@ MITOSIS_BLOCK = """
 
   Cb := MPF + preMPF;                                   // total CyclinB-CDK1 (readout)
   Chk1 := aRc/(jChk + aRc);                             // checkpoint: active forks = unfinished S
+  g2gate := Dna^nG2/(KG2^nG2 + Dna^nG2);               // ~1 only when replication ~complete -> G2
   Cdc25a := (a25 + (1 - a25)*MPF^nMpf/(KmMpf^nMpf + MPF^nMpf))/(1 + wChk*Chk1);
   Wee1a  := (aWee + (1 - aWee)*KmMpf^nMpf/(KmMpf^nMpf + MPF^nMpf))*(1 + wChkW*Chk1);
 
-  SynCycB: => MPF; Cell*kSyCb*E2f;                      // CycB-CDK1 synthesized (active) via E2f
+  // CyclinB-CDK1 is synthesized (inactive, Tyr15-P = preMPF) only as replication completes
+  // (g2gate on Dna), so it BUILDS in G2 rather than being pre-stocked during S -> a real
+  // multi-hour G2. Cdc25/Wee1 hysteresis then gives sharp mitotic entry once it accumulates.
+  SynCycB: => preMPF; Cell*kSyCb*g2gate;               // CycB-CDK1 made (inactive) in G2
   Wee1phos: MPF => preMPF; Cell*kWee*Wee1a*MPF;         // Tyr15 phosphorylation (inactivate)
   Cdc25dephos: preMPF => MPF; Cell*k25*Cdc25a*preMPF;   // Tyr15 dephosphorylation (activate)
   DegMPF: MPF => ; Cell*(kDeCbBas + kDeCb*Cdc20)*MPF;
@@ -57,18 +61,19 @@ MITOSIS_BLOCK = """
   Cdc20inact: Cdc20 => ; Cell*kiCdc20*Cdc20;
   DegCycACdc20: Ca => ; Cell*kDeCaCdc20*Cdc20*Ca;       // mitotic CycA destruction
 
-  kSyCb = 0.01; kDeCb = 0.08; kDeCbBas = 0.004;
+  kSyCb = 0.025; kDeCb = 0.08; kDeCbBas = 0.004;       // kSyCb=0.025, a25=0.02 -> G2 ~20% (real G2)
   kWee = 0.4; k25 = 0.7; KmMpf = 0.35; nMpf = 4;
-  a25 = 0.15; aWee = 0.1;
+  a25 = 0.02; aWee = 0.1;
   wChk = 12; wChkW = 4; jChk = 0.03;
+  KG2 = 0.85; nG2 = 6;                                  // G2 gate: CycB synthesis ramps as Dna->1
   kaCdc20 = 0.3; kiCdc20 = 0.12; KmCdc20 = 0.5; nCdc20 = 8; kDeCaCdc20 = 1.0;
 
   // Division at mitotic entry (MPF crosses high): reset to a TRUE G1 daughter.
   // CyclinA (Ca) and CyclinE (Ce) are set low (mitotic APC/SCF degradation), so the daughter
   // starts Rb-hypophosphorylated with low CDK2 -> G1 length is the slow CyclinD-driven Rb
   // phosphorylation + cyclin rebuild time (otherwise inherited Ca/2 fires the R-point instantly).
-  Ca_div = 0.02; Ce_div = 0.10;
-  E_div: at (MPF > 1): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, Ce = Ce_div, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
+  Ca_div = 0.30; Ce_div = 0.10; MPF_div = 0.5;          // Ca_div=0.30 keeps BOTH GNP (low drive) & MB cycling
+  E_div: at (MPF > MPF_div): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, Ce = Ce_div, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
 """
 
 # ---- HU -> replication fork speed (dNTP depletion slows forks) ----
@@ -96,9 +101,9 @@ EZH2_CORE_BLOCK = """
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
   kEZbas = 0.0003; kEZE2f = 0.010; K_E2f_EZ = 0.3;
   K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.5;        // CycE(S-onset)/CycA(S-G2) gate weights
-  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.0003;   // stable EZH2 -> integrates S-duration
-  // kDeEZ=0.0003 calibrated (v44_calibrate_ezh2.py): HU->EZH2-in-S boost 1.28x (target 1.31,
-  // alt 1.22); transcript gradient S/G0=2.0, G2/G0=2.1 (Section D 1.8-2.5). Decoupled from gradient.
+  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.0002;   // stable EZH2 -> integrates S-duration
+  // kDeEZ=0.0002 calibrated (v44_calibrate_ezh2.py, post-G2-redesign): HU->EZH2-in-S boost 1.24x
+  // (experimental 1.22-1.31); transcript gradient S/G0=2.0, G2/G0=2.1 (Section D 1.8-2.5).
   EZH2_tx: => EZH2m; Cell*(kEZbas + kEZE2f*E2f/(K_E2f_EZ + E2f)*(wCe*Ce/(K_Ce_EZ + Ce) + (1 - wCe)*Ca/(K_Ca_EZ + Ca)));
   EZH2m_deg: EZH2m => ; Cell*kDeEZm*EZH2m;
   EZH2_tl: EZH2m => EZH2m + EZH2; Cell*kTlEZ*EZH2m;
@@ -233,13 +238,14 @@ if __name__ == "__main__":
     m = build_model_v44()
     print("v44 model built:", len(m), "chars")
     for tok in ["MPF", "Chk1 := aRc", "Cdc25a", "Wee1a", "vfork :=", "kSyDna*vfork*aRc",
-                "E_div: at (MPF > 1)"]:
+                "E_div: at (MPF > MPF_div)"]:
         assert tok in m, f"missing {tok}"
     print("mitotic switch + HU fork coupling present.")
     import tellurium as te
-    rr = te.loada(m)
-    res = rr.simulate(0, 4000, 8000, selections=["time", "Dna", "MPF"])
-    from scipy.signal import find_peaks
     import numpy as np
-    pk, _ = find_peaks(res["MPF"], prominence=0.2, distance=50)
-    print(f"sanity: {len(pk)} mitoses, Dna in [{res['Dna'].min():.2f},{res['Dna'].max():.2f}]")
+    rr = te.loada(m)
+    res = rr.simulate(0, 12000, 24000, selections=["time", "Dna", "MPF"])
+    dna = res["Dna"]
+    divisions = int(np.sum((dna[:-1] > 0.9) & (dna[1:] < 0.1)))   # count replication resets
+    print(f"sanity: {divisions} divisions over 12000 min, "
+          f"Dna in [{dna.min():.2f},{dna.max():.2f}], MPF max {res['MPF'].max():.2f}")
