@@ -91,6 +91,32 @@ binding constraint on the absolute proportions (S/G1 ratio inverted vs data).
 
 **DEFERRED — G0 as a separate quiescent pool** (structural redesign #2) + absolute period (~22h).
 
+## HH/MYCN/CyclinD1 between-condition calibration (`simulations/v44_calibrate_hh.py`)
+
+Conditions: GNP (Ptch1=1, MYCN_amp=1), GNP+HHi (GDC), MB (Ptch1 loss ~0.1 + MYCN_amp=2.8), MB+HHi.
+
+**Proliferation-quiescence is CORRECT (key validation):** GNP cycles only under Hedgehog — GNP−SHH
+and GNP+HHi both quiesce (0 divisions), GNP+SHH cycles; MB cycles SHH-independently (MYCN). The
+bistable restriction point acts as the SHH-dependent proliferation switch.
+
+**MATCHED ratios:** MYCN MB/GNP 2.4× (tgt 2.8), MYCN+HHi reductions (GNP 0.79 ✓, MB 0.91 ✓),
+Gli1+HHi >99% reduction ✓, CyclinD1 GNP+HHi/GNP 0.16 (tgt 0.14).
+
+**GAP — CyclinD1 MB/GNP = 1.9× (target 5.07×)** and MB+GDC borderline-quiescent (should be
+GDC-resistant). Root cause: the inherited v42 HH pathway is **saturated** — CyclinD1 is essentially
+"Gli present vs absent" (flat ~0.5–0.6 whenever Gli is present; only GDC removing Gli drops it to
+0.08), and Gli1 itself saturates so MB's Ptch1 loss yields only ~1.2× more Gli than GNP (need 3.5×).
+Decomposing the targets: MB+HHi/MB=0.40 ⇒ MB Gli-part = 3.5× GNP's, and MB MYCN-part = 14.5× GNP's,
+*simultaneously*. Hand-tuning (de-saturate `K_Gli_act_CycD`/`K_Ptch_Smo` + stronger discriminating
+MYCN Hill) moved MB/GNP 1.9 → 3.9 but always traded off another target (GNP+HHi → 0.24) or hit
+numerical failure (high CyclinD1 → fast cycling → CVODE crash; also Ptch1=0 makes a species hit zero,
+use 0.1). **This is a coupled 5–6-parameter constrained fit → needs an optimizer, not hand-tuning.**
+
+**GAP — EZH2 MB/GNP = 0.96 (target 2.05×):** cell-cycle-coupled; tied to the cell-cycle calibration.
+
+Next: an automated fit (Nelder-Mead / structured grid) over the de-saturated HH + discriminating
+MYCN parameters with the ratio errors + a proliferation/stability penalty as objective.
+
 **Original deferred note — absolute MB phase proportions** (Section F: G1 58 / S 21 / G2 21 among cycling).
 The current model is S-dominated (S ≈ 63%, G1 ≈ 11%, G2 ≈ 2%) and cannot reach these by parameter
 tuning — three structural walls (mapped in `v44_calibrate_phases.py`):
