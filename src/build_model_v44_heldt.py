@@ -83,7 +83,7 @@ HU_BLOCK = """
   // ===== v44: HU -> fork speed (hydroxyurea depletes dNTPs -> slower replication) =====
   HU = 0;                 // hydroxyurea dose (0 = none; 1 ~ 10 uM experiment)
   vmin_fork = 0.1;        // residual fork speed at saturating HU (>0 -> S finite, no arrest)
-  KmHU_fork = 0.4;        // HU IC50 (HU=1~10uM gives ~2.5x S -> EZH2-in-S boost ~1.3)
+  KmHU_fork = 0.35;       // HU IC50 (HU=1~10uM gives ~2.8x S -> EZH2-in-S boost ~1.3)
   hHU_fork = 3;           // Hill coefficient
   vfork := vmin_fork + (1 - vmin_fork)*KmHU_fork^hHU_fork/(KmHU_fork^hHU_fork + HU^hHU_fork);
 """
@@ -261,8 +261,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
     if "\nend" not in m:
         raise RuntimeError("Heldt model 'end' marker not found.")
 
-    # 1. HU-scale the replication fork flux (+ faster default fork speed for S proportions)
-    m = m.replace("kSyDna = 0.0093;", "kSyDna = 0.018;")
+    # 1. HU-scale the replication fork flux
     m = m.replace(_DNA_RXN_OLD, _DNA_RXN_NEW)
     # 2. inject mitotic switch + HU blocks
     blocks = MITOSIS_BLOCK + HU_BLOCK
