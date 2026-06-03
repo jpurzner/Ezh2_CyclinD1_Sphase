@@ -105,9 +105,12 @@ GROWTH_BLOCK = """
   species mass in Cell;
   mass = 1.0;
   mu = 0.0005;            // specific growth rate (1/min); ~ ln2/period for size homeostasis (~22h)
-  M_size = 2.5;           // critical cell size for S-entry (origin firing) -> G1 ~48%, period ~22h
-  n_size = 6;             // steepness of the size gate
+  M_size = 2.5;           // critical cell size for S-entry (origin firing)
+  M_commit = 1.3;         // critical cell size for COMMITMENT (G0->G1; Skp2-p27 feedforward fires) ->
+                          // transient G0 ~20% (MB); cell grows in G0 (p27 high) until mass>=M_commit
+  n_size = 6;             // steepness of the size gates
   size_gate := mass^n_size/(M_size^n_size + mass^n_size);
+  commit_gate := mass^n_size/(M_commit^n_size + mass^n_size);
   Growth: => mass; Cell*mu*mass;
 """
 _FIRE_OLD = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
@@ -280,6 +283,10 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         if _FIRE_OLD not in m:
             raise RuntimeError("Heldt origin-firing reaction not found in expected form.")
         m = m.replace(_FIRE_OLD, _FIRE_NEW)
+        # size gate on COMMITMENT: CyclinD->Rb trigger waits for size -> transient growth-timed G0
+        if "kPhRbCd*Cd +" not in m:
+            raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
+        m = m.replace("kPhRbCd*Cd +", "kPhRbCd*Cd*commit_gate +")
         blocks += GROWTH_BLOCK
         blocks = blocks.replace("preMPF = 0, Cdc20 = 0",
                                 "preMPF = 0, Cdc20 = 0, mass = mass/2")

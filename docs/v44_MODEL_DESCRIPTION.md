@@ -145,9 +145,10 @@ Key readouts: `pRb`, `P21`(=p27), `Skp2`, `Ce`,`Ca`, `E2f`, `aRc`, `Dna`, `MPF`/
   to ~4× via the optimizer (`simulations/v44_optimize_hh.py`; params recorded, not yet baked in).
 
 **Pending re-calibration (on the new ~23 h Skp2-p27 structure):**
-- **Transient G0 magnitude** — currently brief (~1–5%); needs **commitment coupled to cell size**
-  (cell grows in G0 with high p27, the feedforward fires at a size threshold) for the ~22% G0 seen
-  in the data. *(This is the active next task.)*
+- **Transient G0** — DONE: commitment is coupled to cell size (`commit_gate` at `M_commit`), so the
+  cell grows in a p27-high G0 until the Skp2-p27 feedforward fires. MB G0 ~21% (target ~22%), GNP
+  ~37%, both cycling, proliferation-quiescence intact. (G0 currently carried by p27; making
+  phospho-Rb also negative in G0 would need lower inherited CyclinA — minor refinement.)
 - **HU→EZH2-in-S boost** — re-tune `kDeEZ` (dropped to ~0.96 on the longer cycle; target 1.31×).
 - **S/G2 phase proportions** — re-tune fork speed (`kSyDna`) + G2 (`kSyCb`,`a25`) toward MB cycling
   G1 58 / S 21 / G2 21.
