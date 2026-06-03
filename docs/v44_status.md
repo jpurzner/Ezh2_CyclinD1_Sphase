@@ -197,3 +197,32 @@ now be applied without collapsing G1.
 **Re-calibration needed on the new ~22h structure** (cycle changed substantially): S still long
 (~46% vs 21%) / G2 short (~11% vs 21%) — re-tune fork speed + mitotic timing; EZH2/HU boost dropped
 (re-tune kDeEZ); then apply the HH-optimizer params for MB GDC-resistance + the CyclinD1 ratios.
+
+## Transient G0 + experimental markers (phospho-Rb Ser807/811 + p27) — finding
+
+Experimental G0 readout: phospho-Rb (Ser807/811, D20B12) NEGATIVE (hypophosphorylated, E2F not
+released) AND p27 HIGH (p27 is degraded by Skp2 only when cycling). A transient G0 is seen in ALL
+GNP and MB cells (not just a quiescent subpopulation). Model mapping: phospho-Rb = `pRb`
+(hyperphospho/E2F-releasing); p27 = Heldt's `P21` (degraded via `kDeP21Cy*Skp2*(Ce+Ca)` -> high in
+G0, low when cycling) -- the markers already exist.
+
+PROBLEM: in the current (size-gate-on-S-entry) model, cells commit ~instantly after division
+(pRb 0 -> 4.3 within ~20 min, p21 -> ~0), so the growth-WAIT sits AFTER commitment (G1, phospho-Rb
+POSITIVE) and there is NO transient phospho-Rb-negative / p27-high G0. The wait is in the wrong
+phase relative to the markers.
+
+PROTOTYPED FIX (reverted): move the size gate to COMMITMENT (gate the CyclinD arm kPhRbCd*Cd of Rb
+phosphorylation by size). This DID create a transient G0 (p21 rose to ~1.25 with low CyclinE/A
+while mass grew, then p21 degraded and the cell committed) -- confirming the mechanism -- but it
+was dynamically messy: slow/sloppy commitment (pRb oscillated, period >35 h, mass blew up to 4.3),
+and GNP stopped cycling. Heldt's single-step Rb phosphorylation (no mono-/hyper-P distinction) makes
+a CLEAN R-point switch hard to tune via the gated-Cd arm. Reverted to the working S-entry-gate model.
+
+OPTIONS for a clean transient G0 (decision pending):
+ (a) commitment-gate + tuning (sharper R-point, mass homeostasis i.e. growth halted in G0, restore
+     GNP cycling);
+ (b) CyclinD accumulation: dilute Cd at division + tie its synthesis to growth, so CyclinD rises
+     through G1 and commits at a threshold (most faithful to CyclinD as a growth/mitogen sensor);
+ (c) add a mono-/hyper-Rb distinction (two phospho steps) so phospho-Rb-negative (mono, G0) vs
+     phospho-Rb-positive (hyper, committed) is represented explicitly, matching the D20B12 readout.
+Also: the unconditional-growth artifact (G0 mass grows unbounded) should be fixed under any option.
