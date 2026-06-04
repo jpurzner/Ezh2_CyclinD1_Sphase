@@ -229,6 +229,68 @@ def _load_heldt():
 import re as _re
 
 
+# ---- Two-step Rb: mono- (CyclinD) and hyper- (CyclinE/A) phosphorylation ----
+# Heldt has a single phospho-Rb (`pRb`); any kinase converts Rb->pRb AND releases E2f in one step,
+# so CyclinD drives pRb to max within ~20 min of division (it conflates mono- and hyper-phospho-Rb).
+# Biology (Narasimha 2014; Sanidas 2019): CyclinD-CDK4/6 MONO-phosphorylates Rb in early G1 (still
+# binds/represses E2f); CyclinE-CDK2 HYPER-phosphorylates at the R-point, RELEASING E2f (commitment).
+# Here: Rb -> Rbm (mono, CyclinD, size-gated) -> Rbh (hyper, CyclinE/A); E2f stays bound on Rb & Rbm,
+# released only at the hyper step. The experimental phospho-Rb(Ser807/811) cycling marker maps to the
+# hyper form, so `pRb := Rbh` (alias) -> G0 = pRb-negative now coincides with p27-positive. The mono
+# state Rbm is the literal transient-G0 buffer (E2f-bound, growing) before the Skp2-p27 feedforward
+# fires the hyper switch. Toggle: build_model_v44(with_two_step_rb=True). Re-uses existing rate
+# constants (kPhRbCd mono; kPhRbCe/kPhRbCa hyper; kDpRb dephos; kAsRbE2f/kDsRbE2f binding).
+def _apply_two_step_rb(m, with_growth):
+    # Keep `pRb` as the HYPER form (its Heldt annotation is literally "hyperphosphorylated"), add only
+    # `Rbm` (mono) + `RbmE2f` (mono.E2f). Reaction IDs with Heldt annotations are kept; the mono->hyper
+    # and mono-E2f reactions are appended with new IDs. `pRb` = experimental phospho-Rb(Ser807/811)
+    # cycling marker -> existing scripts that read pRb now get the committed/hyper form.
+    # The cell-size gate sits on the CyclinD->p27 clearance (below); the mono-phosphorylation step is
+    # left ungated (gating it stalls commitment and the cell over-grows). The transient G0 is the
+    # short p27-high window after division before the Skp2-p27 feedforward fires.
+    cdk_d = "kPhRbCd*Cd"
+    p27_clear = "kDeP21Cd*Cd*commit_gate" if with_growth else "kDeP21Cd*Cd"
+    m = m.replace(
+        "species Rb in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, E1 in Cell;",
+        "species Rb in Cell, Rbm in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, RbmE2f in Cell, E1 in Cell;")
+    m = m.replace("tRb := Rb + pRb + RbE2f;",
+                  "tRb := Rb + Rbm + pRb + RbE2f + RbmE2f;")
+    m = m.replace("tE2f := E2f + RbE2f;", "tE2f := E2f + RbE2f + RbmE2f;")
+    # mono-phosphorylation by CyclinD (keep IDs); add hyper-phosphorylation by CyclinE/A (releases E2f)
+    m = m.replace(
+        "Phosphorylation_of_Rb: Rb => pRb; Cell*((kPhRbCd*Cd + kPhRbCe*Ce + kPhRbCa*Ca)*Rb);",
+        f"Phosphorylation_of_Rb: Rb => Rbm; Cell*({cdk_d}*Rb);\n"
+        f"  Hyper_Phosphorylation_of_Rb: Rbm => pRb; Cell*((kPhRbCe*Ce + kPhRbCa*Ca)*Rbm);")
+    m = m.replace(
+        "Phosphorylation_Rb_in_Rb_E2F_complexes: RbE2f => pRb + E2f; Cell*((kPhRbCd*Cd + kPhRbCe*Ce + kPhRbCa*Ca)*RbE2f);",
+        f"Phosphorylation_Rb_in_Rb_E2F_complexes: RbE2f => RbmE2f; Cell*({cdk_d}*RbE2f);\n"
+        f"  Hyper_Phosphorylation_Rb_in_RbmE2f: RbmE2f => pRb + E2f; Cell*((kPhRbCe*Ce + kPhRbCa*Ca)*RbmE2f);")
+    # dephosphorylation: hyper->mono->hypo (keep the Dephosphorylation_of_Rb ID for the mono step)
+    m = m.replace(
+        "Dephosphorylation_of_Rb: pRb => Rb; Cell*kDpRb*pRb;",
+        "Dephosphorylation_of_Rb: Rbm => Rb; Cell*kDpRb*Rbm;\n"
+        "  Dephosphorylation_of_pRb_hyper: pRb => Rbm; Cell*kDpRb*pRb;")
+    # E2f binds mono-Rb too (still represses); E2f degradation in the mono complex
+    m = m.replace(
+        "Association_dissociation_of_Rb_and_E2F: Rb + E2f -> RbE2f; Cell*(kAsRbE2f*Rb*E2f - kDsRbE2f*RbE2f);",
+        "Association_dissociation_of_Rb_and_E2F: Rb + E2f -> RbE2f; Cell*(kAsRbE2f*Rb*E2f - kDsRbE2f*RbE2f);\n"
+        "  Association_dissociation_of_Rbm_and_E2F: Rbm + E2f -> RbmE2f; Cell*(kAsRbE2f*Rbm*E2f - kDsRbmE2f*RbmE2f);")
+    m = m.replace(
+        "Degradation_of_E2F_in_Rb_E2F_complexes: RbE2f => Rb; Cell*kDeE2f*RbE2f;",
+        "Degradation_of_E2F_in_Rb_E2F_complexes: RbE2f => Rb; Cell*kDeE2f*RbE2f;\n"
+        "  Degradation_of_E2F_in_RbmE2f: RbmE2f => Rbm; Cell*kDeE2f*RbmE2f;")
+    m = m.replace("\n  pRb = 5;", "\n  pRb = 5;\n  Rbm = 0;\n  RbmE2f = 0;")
+    # CyclinD-CDK4/6 clears/titrates p27 (canonical D-CDK4/6 -> p27 sequestration). With the two-step
+    # Rb, CyclinD no longer releases E2f directly, so without this it can't escape the p27-CDK2 block
+    # and the cell dead-locks in G0. This makes commitment fire when the cyclin D1/p27 ratio crosses
+    # threshold (Fan-Meyer 2021) -- pRb(hyper) stays low until CyclinE/CDK2 is freed and fires it.
+    m = m.replace("kDeP21 + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc",
+                  f"kDeP21 + {p27_clear} + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc")
+    m = m.replace("\n  kDpRb = 0.05;",
+                  "\n  kDpRb = 0.05;\n  kDeP21Cd = 0.15;\n  kDsRbmE2f = 1.5;")
+    return m
+
+
 def _apply_overrides(model, overrides):
     """Substitute scalar parameter initial values (`name = value;`) in the Antimony string.
     Used for calibration sweeps over `const` kinetic parameters that cannot be set at runtime.
@@ -243,7 +305,7 @@ def _apply_overrides(model, overrides):
 
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
-                    with_skp2=True, params=None):
+                    with_skp2=True, with_two_step_rb=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -278,15 +340,21 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         blocks = blocks.replace("MPF = 0, preMPF = 0, Cdc20 = 0 ;",
                                 "MPF = 0, preMPF = 0, Cdc20 = 0, EZH2 = EZH2/2, EZH2m = EZH2m/2 ;")
 
+    if with_two_step_rb:
+        # split Rb->pRb into Rb->Rbm (mono, CyclinD, size-gated)->Rbh (hyper, CyclinE/A, releases E2f)
+        m = _apply_two_step_rb(m, with_growth)
+
     if with_growth:
         # size gate on S-entry (origin firing) + mass growth + halving at division
         if _FIRE_OLD not in m:
             raise RuntimeError("Heldt origin-firing reaction not found in expected form.")
         m = m.replace(_FIRE_OLD, _FIRE_NEW)
-        # size gate on COMMITMENT: CyclinD->Rb trigger waits for size -> transient growth-timed G0
-        if "kPhRbCd*Cd +" not in m:
-            raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
-        m = m.replace("kPhRbCd*Cd +", "kPhRbCd*Cd*commit_gate +")
+        # size gate on COMMITMENT: CyclinD->Rb trigger waits for size -> transient growth-timed G0.
+        # With two-step Rb, commit_gate is already baked into the mono step (_apply_two_step_rb).
+        if not with_two_step_rb:
+            if "kPhRbCd*Cd +" not in m:
+                raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
+            m = m.replace("kPhRbCd*Cd +", "kPhRbCd*Cd*commit_gate +")
         blocks += GROWTH_BLOCK
         blocks = blocks.replace("preMPF = 0, Cdc20 = 0",
                                 "preMPF = 0, Cdc20 = 0, mass = mass/2")
@@ -300,6 +368,19 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # raise CyclinD->Rb so the feedforward fires for GNP+SHH (Cd~0.5) but not GNP-SHH (Cd~0.28)
         m = m.replace("kPhRbCd = 0.2;", "kPhRbCd = 0.5;")
         blocks += SKP2_BLOCK
+
+    if with_two_step_rb:
+        # division reset: dephosphorylate all Rb states back to hypo (the daughter is born
+        # phospho-Rb-negative / E2f re-sequestered), replacing the single-pRb reset.
+        blocks = blocks.replace(
+            "Rb = Rb + pRb, pRb = 0",
+            "Rb = Rb + Rbm + pRb, Rbm = 0, pRb = 0, RbE2f = RbE2f + RbmE2f, RbmE2f = 0")
+        # two-step-Rb defaults: M_commit slightly > birth mass gives a short growth-timed p27-high G0
+        # while keeping REGULAR (size-homeostatic) GNP cycling -- M_commit>=2.6 makes low-CyclinD1 GNP
+        # cycle irregularly (period-2 size oscillation), so 2.2 trades G0 length for cycle regularity.
+        blocks = blocks.replace("M_commit = 1.3;", "M_commit = 2.2;")
+        blocks = blocks.replace("a25 = 0.02;", "a25 = 0.05;")
+        blocks = blocks.replace("KG2 = 0.85;", "KG2 = 0.9;")
 
     m = m.replace("\nend", blocks + "\nend")
     if hu is not None:
