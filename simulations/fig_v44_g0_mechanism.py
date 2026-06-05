@@ -123,6 +123,7 @@ ax[1, 1].grid(alpha=0.2, axis='y')
 
 plt.tight_layout()
 plt.savefig('simulations/fig_v44_g0_mechanism.png', dpi=170, bbox_inches='tight')
+plt.savefig('simulations/fig_v44_g0_mechanism.pdf', bbox_inches='tight')
 plt.close()
 print("Saved: fig_v44_g0_mechanism.png")
 print(f"GNP G0={gnp['G0']:.1f}h ({gnp['G0']/gnp['period']*100:.0f}%)  +EZH2i={gnp_e['G0']:.1f}h  | "

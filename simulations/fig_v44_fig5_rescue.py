@@ -70,6 +70,7 @@ fig2.suptitle('Supp Fig 8 I,J: CDK4/6 inhibition cannot be rescued by EZH2i (v44
               fontsize=11, fontweight='bold')
 plt.tight_layout()
 plt.savefig('simulations/fig_v44_cdk46i_norescue.png', dpi=200, bbox_inches='tight')
+plt.savefig('simulations/fig_v44_cdk46i_norescue.pdf', bbox_inches='tight')
 plt.close()
 print("Saved: fig_v44_cdk46i_norescue.png")
 

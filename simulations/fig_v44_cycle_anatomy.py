@@ -119,5 +119,6 @@ axes[0].text(g0_end/2, axes[0].get_ylim()[1]*0.9, 'transient\nG0', ha='center', 
 
 plt.tight_layout()
 plt.savefig('simulations/fig_v44_cycle_anatomy.png', dpi=170, bbox_inches='tight')
+plt.savefig('simulations/fig_v44_cycle_anatomy.pdf', bbox_inches='tight')
 plt.close()
 print("\nSaved: fig_v44_cycle_anatomy.png")

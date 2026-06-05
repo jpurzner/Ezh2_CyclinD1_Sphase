@@ -120,5 +120,6 @@ ax[2].legend(fontsize=8); ax[2].grid(alpha=0.2)
 
 plt.tight_layout()
 plt.savefig('simulations/fig_v44_g0_bifurcation.png', dpi=170, bbox_inches='tight')
+plt.savefig('simulations/fig_v44_g0_bifurcation.pdf', bbox_inches='tight')
 plt.close()
 print("\nSaved: fig_v44_g0_bifurcation.png")

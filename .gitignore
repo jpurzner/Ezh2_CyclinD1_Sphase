@@ -29,6 +29,8 @@ Thumbs.db
 !simulations/fig_ezh2_feedback_impact.pdf
 !simulations/fig_ezh2_compensation.pdf
 !simulations/fig_ezh2_data_constrained.pdf
+# v44 model figures (paper + exploratory) — vector PDFs tracked for the manuscript
+!simulations/fig_v44_*.pdf
 
 # Exploratory / pre-v42 build scripts
 src/build_model_v1*.py
