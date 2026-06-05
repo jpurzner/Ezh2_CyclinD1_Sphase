@@ -5,18 +5,60 @@ encoded as the target checks in `simulations/validate_v44.py` (run it to score t
 The model is calibrated against **ratios and behaviors**, not absolute concentrations (species are in
 arbitrary units). Full target compendium with caveats: `docs/Ezh2_CcnD1_model_targets.md`.
 
-## A. Bulk RNA‑seq — steady‑state expression ratios (cell‑type / drug context)
+## A. Bulk RNA‑seq — the primary dataset (normalized counts, mean per group)
+
+Cerebellar granule‑lineage / MB bulk RNA‑seq (Purzner lab). These are the canonical numbers the
+HH/MYCN→CyclinD1 module is fit to.
+
+| Group | n | Gli1 | Ezh2 | Ccnd1 | Mycn | Mki67 | Atoh1 |
+|---|---|---|---|---|---|---|---|
+| E15_GNP | 2 | 2,283 | 6,843 | 5,372 | 4,008 | 28,674 | 2,361 |
+| P1_GNP | 3 | 3,169 | 4,876 | 7,999 | 3,959 | 25,304 | 1,302 |
+| **P7_GNP_wt** (model "GNP") | 5 | **2,591** | **4,996** | **3,639** | **3,077** | 32,614 | 661 |
+| P14_GNP | 3 | 1,665 | 3,037 | 2,513 | 1,889 | 14,598 | 347 |
+| P7_GNP_Ptch (Ptch+/−) | 2 | 3,775 | 8,250 | 6,942 | 4,251 | 65,326 | 2,391 |
+| P28_GNP_Ptch (Ptch+/−) | 4 | 10,666 | 6,641 | 16,056 | 4,904 | 25,561 | 2,339 |
+| **MB_Ptch_het** (model "MB") | 2 | **17,881** | **10,172** | **27,590** | **8,808** | 47,839 | 7,018 |
+
+**Derived MB/GNP folds (MB_Ptch_het ÷ P7_GNP_wt) — the cross‑context calibration targets:**
+
+| gene | MB/GNP fold | role |
+|---|---|---|
+| **Gli1** | **6.90×** | Hedgehog activity — must NOT saturate (model previously gave only ~1.1×) |
+| **Ccnd1** | **7.58×** | CyclinD1 — predominantly **Gli‑driven** (see below) |
+| Ezh2 | 2.04× | cell‑cycle‑coupled |
+| Mycn | 2.86× | `MYCN_amplification` |
+| Mki67 | 1.47× | proliferation index |
+| Atoh1 | 10.6× | SHH‑MB identity |
+
+**CyclinD1 tracks Gli1 ~1:1 along the Ptch escalation series → CyclinD1 is Gli‑driven, not MYCN‑driven:**
+
+| | Gli1 (fold) | Ccnd1 (fold) | Mycn (fold) |
+|---|---|---|---|
+| P7_GNP_wt | 1.0× | 1.0× | 1.0× |
+| P7_GNP_Ptch | 1.5× | 1.9× | 1.4× |
+| P28_GNP_Ptch | 4.1× | 4.4× | 1.6× |
+| MB_Ptch_het | 6.9× | 7.6× | 2.9× |
+
+(Gli1 and Ccnd1 rise in lockstep; Mycn rises only ~3×. So the MB CyclinD1 elevation is driven by the
+Gli arm. Note: the P28_Ptch point is age‑confounded — same genotype as P7_Ptch but older — so for a
+clean Ptch1‑dosage anchor use GNP / P7_Ptch / MB.) **Developmental DECLINE P7→P14** (differentiation):
+Ezh2 0.61×, Ccnd1 0.69×, Mki67 0.45×, Gli1 0.64× — all fall together as GNPs exit/differentiate
+(confirms the EZH2 drop at exit).
+
+## A2. Bulk RNA‑seq — within‑context ratios (drug / cell‑type)
 
 | Measurement | Experimental value | Constrains | Source |
 |---|---|---|---|
 | Cyclin D1: GNP+HHi / GNP | 0.14 (86% ↓) | Gli‑driven fraction of CyclinD1; HH pathway gain | RNA‑seq |
-| Cyclin D1: MB+HHi / MB | 0.40 (60% ↓) | MYCN‑driven (HHi‑resistant) fraction of CyclinD1 | RNA‑seq |
-| Cyclin D1: MB / GNP | 5.07× (p<0.05) | overall MB CyclinD1 drive (soft target — see note 1) | RNA‑seq, Fig. 4I |
+| Cyclin D1: MB+HHi / MB | 0.40 (60% ↓) | MYCN‑driven (HHi‑resistant) residual of CyclinD1 | RNA‑seq |
+| **Cyclin D1: MB / GNP** | **7.58×** (raw table; 5.07× by the Fig 4I normalization) | overall MB CyclinD1 drive — Gli‑driven | RNA‑seq |
+| **Gli1: MB / GNP** | **6.90×** | HH activity must scale with Ptch1 dosage (de‑saturated) | RNA‑seq |
 | Mycn: GNP+HHi / GNP | 0.78 (22% ↓) | Gli‑dependent vs autonomous Mycn synthesis | RNA‑seq |
 | Mycn: MB+HHi / MB | 0.86 (14% ↓) | autonomous (amplified) Mycn fraction | RNA‑seq |
-| Mycn: MB / GNP | ~2.8× | `MYCN_amplification` (MB context) | RNA‑seq |
+| Mycn: MB / GNP | 2.86× | `MYCN_amplification` (MB context) | RNA‑seq |
 | Gli1: GNP+HHi | >99% ↓ | HHi (vismodegib) block on Smo→Gli | RNA‑seq |
-| Ezh2: MB / GNP | 2.05× (p<0.001) | cell‑cycle‑coupled EZH2 (soft — see note 1) | RNA‑seq, Fig. 4J |
+| Ezh2: MB / GNP | 2.04× (p<0.001) | cell‑cycle‑coupled EZH2 (soft — see note 1) | RNA‑seq, Fig. 4J |
 | Ezh2: GNP+HHi | 25–47% ↓ | EZH2 falls when cycling stops | RNA‑seq |
 
 ## B. EZH2 perturbation → Cyclin D1 (the feedback strength, `K_EZH2_repression`)

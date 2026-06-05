@@ -186,14 +186,16 @@ HH_MYCN_BLOCK = """
 
   k_Ptch1_tx = 0.5; k_Ptch1_mRNA_deg = 0.8; k_Ptch1_translation = 1.0; k_Ptch1_deg = 0.5;
   k_SHH_Ptch_bind = 5.0; k_SHH_Ptch_release = 0.1; k_SHH_Ptch_deg = 0.8;
-  k_Smo_act = 1.5; k_Smo_inact = 1.2; K_Ptch_Smo = 0.4;
-  k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 0.6;
-  Vmax_Gli1_tx = 1.2; K_Gli_act_Gli1 = 0.3; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
+  // HH/MYCN->CyclinD1 DE-SATURATED to the bulk RNA-seq (v44_recalibrate_gli.py): Gli1 MB/GNP ~6.3x,
+  // CyclinD1 ~6.9x (was saturated ~1.1x/1.5x). Used WITH the saturating CyclinD1->Rb drive (with_cd_sat).
+  k_Smo_act = 1.5; k_Smo_inact = 1.2; K_Ptch_Smo = 0.1714;
+  k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 1.312;
+  Vmax_Gli1_tx = 1.005; K_Gli_act_Gli1 = 0.4584; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
   k_Gli1_mRNA_deg = 0.8; k_Gli1_translation = 1.2; k_Gli1_deg = 0.8;
-  k_Cd_tx_basal = 0.3; k_Cd_tx_Gli_max = 4.0; K_Gli_act_CycD = 0.4; K_Gli_rep_CycD = 0.3;
+  k_Cd_tx_basal = 0.1728; k_Cd_tx_Gli_max = 31.59; K_Gli_act_CycD = 0.3258; K_Gli_rep_CycD = 0.3;
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
-  k_Cd_tx_MYCN = 15.0; K_MYCN_Cd = 1.5; n_MYCN_Cd = 3;
+  k_Cd_tx_MYCN = 39.9; K_MYCN_Cd = 0.9939; n_MYCN_Cd = 4.261;
   K_EZH2_repression = 0.5;
   k_Cd_translation = 0.26; k_Cd_deg = 1.0;        // Cd scale (~0.65 baseline; tune later)
 
@@ -305,7 +307,7 @@ def _apply_overrides(model, overrides):
 
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
-                    with_skp2=True, with_two_step_rb=False, params=None):
+                    with_skp2=True, with_two_step_rb=False, with_cd_sat=True, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -344,6 +346,16 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # split Rb->pRb into Rb->Rbm (mono, CyclinD, size-gated)->Rbh (hyper, CyclinE/A, releases E2f)
         m = _apply_two_step_rb(m, with_growth)
 
+    if with_cd_sat and not with_two_step_rb:
+        # CyclinD1 -> Rb drive SATURATES (CDK4/6 kinase activity is bounded): kPhRbCd*Cd is replaced by
+        # kPhRbCd*Cd/(K_CdRb + Cd). This DECOUPLES CyclinD1 LEVEL (which tracks the RNA-seq, up to ~7x in
+        # MB once the HH pathway is de-saturated) from the bounded cell-cycle DRIVE -- so high CyclinD1
+        # no longer makes the engine stiff. (Linear kPhRbCd*Cd crashed the rescue conditions at MB levels.)
+        if "kPhRbCd*Cd " not in m:
+            raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
+        m = m.replace("kPhRbCd*Cd ", "kPhRbCd*Cd/(K_CdRb + Cd) ")          # both Rb reactions
+        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.5;")
+
     if with_growth:
         # size gate on S-entry (origin firing) + mass growth + halving at division
         if _FIRE_OLD not in m:
@@ -352,9 +364,10 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # size gate on COMMITMENT: CyclinD->Rb trigger waits for size -> transient growth-timed G0.
         # With two-step Rb, commit_gate is already baked into the mono step (_apply_two_step_rb).
         if not with_two_step_rb:
-            if "kPhRbCd*Cd +" not in m:
-                raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
-            m = m.replace("kPhRbCd*Cd +", "kPhRbCd*Cd*commit_gate +")
+            cd_rb = "kPhRbCd*Cd/(K_CdRb + Cd) +" if with_cd_sat else "kPhRbCd*Cd +"
+            if cd_rb not in m:
+                raise RuntimeError("Rb-phosphorylation (CyclinD term) not found in expected form.")
+            m = m.replace(cd_rb, cd_rb[:-2] + "*commit_gate +")
         blocks += GROWTH_BLOCK
         blocks = blocks.replace("preMPF = 0, Cdc20 = 0",
                                 "preMPF = 0, Cdc20 = 0, mass = mass/2")

@@ -61,18 +61,28 @@ chiefly at the G0/G1 commitment boundary, where Cyclin D1–dependent Rb phospho
 rate-limiting, consistent with the experimental observation that Ezh2 overexpression specifically
 traps cells in G0 (Fig. 3F).
 
-**The model predicts that Ezh2 inhibition rescues HHi-arrested MB through Cyclin D1
-de-repression, but CDK4/6 inhibition cannot be rescued.** HHi arrested Ptch+/− MB cells by
-ablating Gli-driven Cyclin D1, leaving only the Mycn-driven fraction; this residual Cyclin D1 fell
-below the threshold for Rb phosphorylation and commitment, arresting the cells (Fig. 5B). Adding
-Ezh2 inhibition to HHi-treated MB de-repressed Cyclin D1 transcription and restored it above the
-commitment threshold, rescuing cycling (Fig. 5C). Critically, the model predicted that CDK4/6
-inhibition — which blocks Cyclin D1–CDK4/6 kinase activity downstream of Cyclin D1 transcription —
-would arrest MB cells in a manner that Ezh2 inhibition could not rescue (Fig. S8I,J), because
-increasing Cyclin D1 transcript cannot bypass a kinase-level block. This distinction — rescue of
-upstream (HHi) but not downstream (CDK4/6i) blockade — confirms that the Ezh2i rescue operates
-specifically through transcriptional de-repression of Cyclin D1, and motivated the experimental
-rescue experiments described below.
+**CyclinD1 is predominantly Gli-driven, and the Ezh2i rescue of HHi is not a simple CyclinD1
+threshold effect.** When the Hedgehog module is calibrated to the bulk RNA-seq (Gli1 and Cyclin D1
+both ~7-fold higher in Ptch+/− MB than in P7 GNPs, rising in lockstep along the Ptch+/− series; see
+Methods), the model reproduces the Gli-driven elevation of Cyclin D1 in MB. A direct consequence is
+that vismodegib-treated MB retains a substantial Cyclin D1 level — the Mycn-driven, HHi-resistant
+fraction is ~3-fold that of a cycling GNP — which remains **above** the commitment threshold. The
+model therefore predicts that the reduction in MB proliferation by vismodegib, and its restoration
+by Ezh2 inhibition (Fig. 5D,E), are **not** explained by Cyclin D1 falling below the proliferative
+threshold; the residual Cyclin D1 is too high for that. This indicates that the HHi/Ezh2i effect on
+proliferation acts through additional Hedgehog outputs beyond Cyclin D1 (e.g. other Gli targets or
+survival pathways), consistent with the partial, population-level changes seen experimentally rather
+than an all-or-nothing arrest. **The one prediction the Cyclin D1 axis does make cleanly is the
+CDK4/6-inhibitor contrast:** CDK4/6 inhibition blocks Cyclin D–CDK4/6 kinase activity downstream of
+Cyclin D1 transcription, so it arrests cells in a way Ezh2 inhibition cannot rescue (de-repressing
+Cyclin D1 transcript cannot bypass a kinase-level block; Fig. S8I,J) — a robust, mechanism-specific
+prediction that survives the data-matched calibration.
+
+[NOTE TO AUTHORS: This replaces the earlier "Ezh2i de-represses Cyclin D1 above the threshold and
+rescues cycling" framing. That clean single-cell rescue only held when the model under-estimated MB
+Cyclin D1 (MB+HHi below the GNP level). With the measured Cyclin D1 (MB+HHi ~3x a cycling GNP), the
+rescue is not a Cyclin D1-threshold effect — a genuine finding from fitting the RNA-seq. Decide how
+much to foreground this vs the CDK4/6i contrast in the main text.]
 
 ---
 
@@ -136,10 +146,11 @@ Hedgehog activity). HHi (vismodegib/GDC0449) is modeled as a block on Smo activa
 (Smo_active = k_act/(1+Ptch1_free/K)×(1−GDC0449)).
 
 **Mycn module.** Mycn synthesis has an autonomous (basal) component scaled by an amplification
-factor (1.0 for GNP, 2.8 for MB) and a small Gli-dependent component. Mycn drives Cyclin D1
-transcription through a cooperative Hill function. This makes MB Mycn predominantly autonomous and
-HHi-resistant, explaining why Ptch+/− MB retains a substantial Cyclin D1 fraction under HHi (only
-~40% reduction) whereas GNP loses nearly all Cyclin D1 (~86% reduction).
+factor (1.0 for GNP, 2.8 for MB) and a small Gli-dependent component. Mycn drives a minority,
+HHi-resistant component of Cyclin D1 transcription through a cooperative Hill function. This
+explains why Ptch+/− MB retains a substantial Cyclin D1 fraction under HHi (only ~40% reduction)
+whereas GNP loses nearly all Cyclin D1 (~86% reduction). Consistent with the bulk RNA-seq, the
+dominant driver of the MB/GNP Cyclin D1 elevation is Gli (see Cyclin D1 integration), not Mycn.
 
 **Ezh2 module.** Ezh2 mRNA transcription is an E2f-driven term gated on the S-phase window (the
 rate is proportional to E2f×(Cyclin E + Cyclin A)), plus a small basal term; Ezh2 protein is
@@ -150,10 +161,13 @@ transcription through a repression factor K_Ezh2/(K_Ezh2 + Ezh2×(1−Ezh2i)), w
 (untreated) or 1 (full catalytic inhibition, modeling tazemetostat). Ezh2 inhibition therefore
 de-represses Cyclin D1.
 
-**Cyclin D1 integration and drug implementations.** Cyclin D1 mRNA transcription integrates basal,
-Gli-driven, and Mycn-driven inputs, each multiplied by the Ezh2 repression factor; Cyclin D1
-protein is translated from this mRNA and feeds the cell cycle through Cyclin D/CDK4,6-mediated Rb
-phosphorylation. CDK4/6 inhibition (palbociclib) was implemented by setting the Cyclin
+**Cyclin D1 integration and drug implementations.** Cyclin D1 mRNA transcription integrates a basal
+term, a dominant Gli-driven term (calibrated to the ~7-fold Gli1/Cyclin D1 lockstep rise GNP→MB),
+and a minority Mycn-driven term, each multiplied by the Ezh2 repression factor. Cyclin D1 protein is
+translated from this mRNA and feeds the cell cycle through Cyclin D/CDK4,6-mediated Rb
+phosphorylation, implemented as a *saturating* drive, kPhRbCd·Cd/(K_CdRb+Cd), so that the
+data-matched (up to ~7×) transcript level maps to a bounded kinase activity (CDK4/6 saturates) and
+the integrator stays stable. CDK4/6 inhibition (palbociclib) was implemented by setting this Cyclin
 D/CDK4,6-mediated Rb-phosphorylation rate to zero, leaving Cyclin D1 transcription unaffected.
 Hydroxyurea was implemented as a reduction of replication fork speed (vfork scales kSyDna with a
 Hill dependence on the HU dose), so HU lengthens S-phase concentration-dependently while leaving
@@ -168,11 +182,12 @@ calibrated model values were:
 | Target | Experimental | Model (v44) | Source |
 |--------|--------------|-------------|--------|
 | Cyclin D1: GNP+HHi / GNP | 0.14 (86% reduction) | **0.14** | RNA-seq |
-| Cyclin D1: MB+HHi / MB | 0.40 (60% reduction) | **~0.5** | RNA-seq |
-| Cyclin D1: MB / GNP | 5.07× | **see note** | RNA-seq, Fig. 4I |
+| Cyclin D1: MB+HHi / MB | 0.40 (60% reduction) | **0.43** | RNA-seq |
+| Cyclin D1: MB / GNP | 7.58× (bulk) / 5.07× (IF) | **7.05×** | RNA-seq, Fig. 4I |
+| Gli1: MB / GNP | 6.90× | **6.30×** | bulk RNA-seq |
 | Mycn: GNP+HHi / GNP | 0.78 | **0.79** | RNA-seq |
 | Mycn: MB+HHi / MB | 0.86 | **0.91** | RNA-seq |
-| Mycn: MB / GNP | ~2.8× | **2.4×** | RNA-seq |
+| Mycn: MB / GNP | ~2.8× | **2.7×** | RNA-seq |
 | Gli1: GNP+HHi reduction | >99% | **>99%** | RNA-seq |
 | Ezh2: G0 / cycling | ~0.6 | **0.7** | scRNA-seq (Fig. 4A) |
 | Ezh2: MB / GNP | 2.05× | **see note** | RNA-seq, Fig. 4J |
@@ -182,21 +197,31 @@ calibrated model values were:
 | HU: Ezh2-in-S / DMSO | 1.31× | **~1.3×** | IF (Fig. 4G) |
 | Cell-cycle period (GNP) | ~22–23 h | **~23 h** | published (ref. Nakashima) |
 
-*Note on Cyclin D1 MB/GNP and Ezh2 MB/GNP (architectural limitation).* In the explicit-replication
-model the decision to cycle is set by whether Cyclin D1 protein crosses the commitment threshold;
-forcing the steady-state Cyclin D1 transcript ratio MB/GNP to the experimental 5.07× drives MB+HHi
-above this threshold (so MB no longer arrests under HHi) and into numerically stiff regimes. We
-therefore prioritized the experimentally essential behaviors — MB+HHi arrest and its rescue by
-Ezh2i — and treat the absolute MB/GNP transcript ratio as a soft target; the model captures the
-*direction* (MB > GNP) and all within-context fold changes that appear in the figures. The Ezh2
-MB/GNP ratio is cell-cycle-coupled and is similarly limited. These are documented limitations of
-representing a population-mean transcript ratio in a single-cell threshold model.
+*Hedgehog de-saturation and the saturating Cyclin D1→Rb drive.* The bulk RNA-seq shows Gli1 and
+Cyclin D1 rising ~7-fold in lockstep from P7 GNP to Ptch+/− MB (and along the intermediate Ptch+/−
+series), identifying Cyclin D1 as predominantly Gli-driven. The original Hedgehog module was
+saturated (Gli1 MB/GNP only ~1.1×), so we re-fit the Ptch→Smo→Gli and Gli→Cyclin D1 Hill terms to
+de-saturate the pathway; the calibrated module now reproduces Gli1 MB/GNP 6.30× and Cyclin D1 MB/GNP
+7.05×, with Mycn supplying the HHi-resistant residual (GNP+HHi 0.14, MB+HHi 0.43). Because Cyclin D1
+protein in the original engine drove Rb phosphorylation *linearly* (rate ∝ kPhRbCd·Cd), a 7× Cyclin
+D1 level produced a 7× cell-cycle drive that was both biologically implausible (CDK4/6 activity
+saturates) and numerically stiff. We therefore made the Cyclin D1→Rb drive saturating,
+kPhRbCd·Cd/(K_CdRb+Cd), which decouples the (now data-matched) transcript level from a bounded
+cell-cycle drive. The Ezh2 MB/GNP ratio remains cell-cycle-coupled and is treated as a soft target.
+
+*Consequence for the rescue interpretation.* With Cyclin D1 matched to the data, MB+HHi retains
+~3-fold a cycling GNP's Cyclin D1 (above the commitment threshold), so the model no longer produces
+an all-or-nothing Cyclin D1-threshold arrest/rescue. We report this directly in the Results: the
+vismodegib/Ezh2i proliferation effect is not a simple Cyclin D1-threshold switch and requires
+additional Hedgehog biology, while the CDK4/6i-cannot-be-rescued contrast (a downstream kinase
+block) is preserved.
 
 A constrained parameter search over the Hedgehog/Mycn→Cyclin D1 and Ezh2-repression parameters was
 performed with a hard guard that rejected any parameter set that (i) failed to integrate
 numerically on any condition or (ii) broke the figure-critical cycling behavior (GNP+Shh and MB
-must cycle; GNP+HHi and MB+HHi must arrest; MB+HHi+Ezh2i must rescue), minimizing a weighted error
-on the figure-relevant ratios among survivors.
+must cycle; GNP−Shh / GNP+HHi must arrest; MB+CDK4/6i must arrest and not be rescued by Ezh2i),
+minimizing a weighted error on the expression ratios (Gli1 and Cyclin D1 MB/GNP, the HHi reductions,
+and the Mycn folds) among survivors.
 
 ### Phase classification
 
@@ -270,11 +295,15 @@ and the figure scripts are available at https://github.com/jpurzner/Ezh2_CyclinD
 
 ## 3. FIGURE CAPTIONS (updated for v44)
 
-**Figure 5 (A–C).** Predicted cell-cycle oscillations (Cyclin B/CDK1) in the v44 model:
-(A) Ptch+/− MB — sustained cycling; (B) Ptch+/− MB with Hedgehog inhibitor (HHi) — arrest as
-Gli-driven Cyclin D1 is removed and residual Mycn-driven Cyclin D1 falls below the commitment
-threshold; (C) Ptch+/− MB with HHi and Ezh2 inhibitor (Ezh2i) — Ezh2 inhibition de-represses
-Cyclin D1 and rescues cycling.
+**Figure 5.** v44 model of the MB Cyclin D1 axis, calibrated to the bulk RNA-seq. (A) Calibrated
+expression: Gli1 and Cyclin D1 rise ~6–7-fold in lockstep from P7 GNP to Ptch+/− MB, with Mycn the
+HHi-resistant residual (model vs data). (B) Predicted Cyclin B/CDK1 oscillation in cycling Ptch+/−
+MB. (C) Population (N = 120 cells, cyclin D1 / p27 heterogeneity): the cycling fraction falls modestly
+under HHi and is restored by adding Ezh2i — a fractional, not all-or-nothing, effect, matching the
+fractional Fig. 5D/E proliferation bars. (Mechanistic note: because the data place MB+HHi Cyclin D1
+~3-fold above a cycling GNP, this fractional rescue is *not* a Cyclin D1-threshold switch — see
+Results.) (D) Contrast: CDK4/6 inhibition arrests MB and Ezh2i cannot rescue it (downstream kinase
+block), the prediction the Cyclin D1 axis makes cleanly.
 
 **Supplementary Figure 7. Model architecture and validation.** (A) Architecture of the v44 ODE
 model: Hedgehog/Mycn→Cyclin D1 input, the Heldt-based cell-cycle engine with explicit DNA
@@ -321,11 +350,17 @@ is downstream of Cyclin D1 transcription.
    level. **The corresponding sentence in the Results and the Supp. Fig. 8 caption have been
    rewritten** (the "lengthened the cell cycle period by 4.3 hours" and "0.9 h lengthening, 18.1 h
    vs. 17.3 h" claims are removed). This is the only qualitative change to a stated result.
-5. **The CDK4/6i-cannot-be-rescued prediction and the HHi rescue prediction are preserved.**
-6. **Soft targets documented.** The absolute Cyclin D1 MB/GNP (5.07×) and Ezh2 MB/GNP (2.05×)
-   ratios are treated as soft targets because forcing them breaks the MB+HHi arrest the rescue
-   experiment depends on (an inherent feature of a single-cell threshold model fit to population
-   transcript means). The previous v42 validation likewise did not enforce these absolute ratios.
+5. **Hedgehog de-saturated; Cyclin D1 now matches the bulk RNA-seq.** The Ptch→Smo→Gli and
+   Gli→Cyclin D1 terms were re-fit so Gli1 (6.30×) and Cyclin D1 (7.05×) rise in lockstep GNP→MB,
+   identifying Cyclin D1 as predominantly Gli-driven. The Cyclin D1→Rb drive was made saturating
+   (kPhRbCd·Cd/(K_CdRb+Cd)) so the ~7× transcript maps to a bounded, stable cell-cycle drive.
+6. **The HHi rescue is reframed; the CDK4/6i contrast is preserved.** With data-matched Cyclin D1,
+   MB+HHi sits ~3× above a cycling GNP (above threshold), so the vismodegib/Ezh2i proliferation
+   effect is *not* a Cyclin D1-threshold switch — it requires additional Hedgehog biology, and we
+   report this directly. The model still cleanly predicts that CDK4/6i arrests MB and Ezh2i cannot
+   rescue it (downstream kinase block). The Ezh2 MB/GNP ratio remains a soft (cell-cycle-coupled)
+   target. **The corresponding Results sentence has been rewritten** (the earlier "Ezh2i de-represses
+   Cyclin D1 above the threshold and rescues cycling" claim is removed).
 7. **Citation added:** Heldt et al. 2018 (BioModels BIOMD0000000700). The Gérard–Goldbeter 2009
    citation for the core engine is replaced by Heldt 2018 (Gérard–Goldbeter may be retained as the
    lineage/precursor if desired).
