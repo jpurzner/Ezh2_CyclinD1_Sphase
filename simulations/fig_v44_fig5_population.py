@@ -23,7 +23,7 @@ p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.33, N)), 0.5, 2.0)  # inheri
 
 _RR = te.loada(build_model_v44())                                     # de-saturated defaults
 _RR.integrator.setValue("absolute_tolerance", 1e-9); _RR.integrator.setValue("relative_tolerance", 1e-6)
-KTL0 = 0.26
+KTL0 = 0.8   # matches builder default k_Cd_translation (recalibrated to MB_GDC0449 vismo drop)
 
 CONDS = {  # MB context (Ptch1=0.1, MYCN_amp=2.8) + treatment
     'MB':                 dict(gdc=0.0, ezh2i=0, cdk46i=False),

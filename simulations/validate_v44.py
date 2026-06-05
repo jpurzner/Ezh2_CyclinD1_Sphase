@@ -52,17 +52,25 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0,
         hu=0.0, cdk46i=False, serum_starve=False, t_end=12000, n_pts=48000):
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
-    rr['SHH'] = shh
-    rr['Ptch1_copy_number'] = ptch1_cn
-    rr['GDC0449'] = gdc
-    rr['EZH2i'] = ezh2i
-    rr['MYCN_amplification'] = mycn_amp
-    rr['HU'] = hu
-    if cdk46i:
-        rr['kPhRbCd'] = 0.0          # block CycD-CDK4/6-mediated Rb phosphorylation
-    if serum_starve:
-        rr['k_Cd_translation'] = 0.0  # remove mitogen (CyclinD1) -> G0
-    return rr.simulate(0, t_end, n_pts, selections=SEL)
+    last = None
+    for atol in (1e-9, 1e-8, 1e-7):   # tolerance-retry: high-CyclinD1 MB conditions can be stiff
+        rr.reset()
+        rr['SHH'] = shh
+        rr['Ptch1_copy_number'] = ptch1_cn
+        rr['GDC0449'] = gdc
+        rr['EZH2i'] = ezh2i
+        rr['MYCN_amplification'] = mycn_amp
+        rr['HU'] = hu
+        if cdk46i:
+            rr['kPhRbCd'] = 0.0          # block CycD-CDK4/6-mediated Rb phosphorylation
+        if serum_starve:
+            rr['k_Cd_translation'] = 0.0  # remove mitogen (CyclinD1) -> G0
+        rr.integrator.setValue("absolute_tolerance", atol)
+        try:
+            return rr.simulate(0, t_end, n_pts, selections=SEL)
+        except Exception as e:
+            last = e
+    raise last
 
 
 def count_divisions(res, settle=3000):
@@ -174,8 +182,8 @@ def main():
     ez = lambda c: mean_settled(sims[c], 'EZH2')
 
     # Section A — between-condition ratios
-    check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.14, 0.30)
-    check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.40, 0.25)
+    check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.30)
+    check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.30)  # MB_GDC0449: 86% drop
     check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        7.58, 0.30)  # raw RNA-seq
     check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.15)
     check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.15)

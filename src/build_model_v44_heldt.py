@@ -186,18 +186,24 @@ HH_MYCN_BLOCK = """
 
   k_Ptch1_tx = 0.5; k_Ptch1_mRNA_deg = 0.8; k_Ptch1_translation = 1.0; k_Ptch1_deg = 0.5;
   k_SHH_Ptch_bind = 5.0; k_SHH_Ptch_release = 0.1; k_SHH_Ptch_deg = 0.8;
-  // HH/MYCN->CyclinD1 DE-SATURATED to the bulk RNA-seq (v44_recalibrate_gli.py): Gli1 MB/GNP ~6.3x,
-  // CyclinD1 ~6.9x (was saturated ~1.1x/1.5x). Used WITH the saturating CyclinD1->Rb drive (with_cd_sat).
-  k_Smo_act = 1.5; k_Smo_inact = 1.2; K_Ptch_Smo = 0.1714;
-  k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 1.312;
-  Vmax_Gli1_tx = 1.005; K_Gli_act_Gli1 = 0.4584; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
+  // HH/MYCN->CyclinD1 DE-SATURATED to the bulk RNA-seq (v44_recalibrate_gli.py): Gli1 MB/GNP ~6.4x,
+  // CyclinD1 ~7.0x. RECALIBRATED to MB_GDC0449: vismo crashes MB CyclinD1 to 0.144 of MB (~1.0x a
+  // cycling GNP, i.e. right at the commitment threshold) -- Gli now supplies ~86% of MB CyclinD1,
+  // Mycn/basal the small HHi-resistant residual. Used WITH the saturating CyclinD1->Rb drive (with_cd_sat).
+  k_Smo_act = 1.5; k_Smo_inact = 1.2; K_Ptch_Smo = 0.1935;
+  k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 1.448;
+  Vmax_Gli1_tx = 0.5837; K_Gli_act_Gli1 = 0.5395; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
   k_Gli1_mRNA_deg = 0.8; k_Gli1_translation = 1.2; k_Gli1_deg = 0.8;
-  k_Cd_tx_basal = 0.1728; k_Cd_tx_Gli_max = 31.59; K_Gli_act_CycD = 0.3258; K_Gli_rep_CycD = 0.3;
+  k_Cd_tx_basal = 0.137; k_Cd_tx_Gli_max = 70.0; K_Gli_act_CycD = 0.6246; K_Gli_rep_CycD = 0.3;
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
-  k_Cd_tx_MYCN = 39.9; K_MYCN_Cd = 0.9939; n_MYCN_Cd = 4.261;
+  k_Cd_tx_MYCN = 14.48; K_MYCN_Cd = 1.968; n_MYCN_Cd = 2.431;
   K_EZH2_repression = 0.5;
-  k_Cd_translation = 0.26; k_Cd_deg = 1.0;        // Cd scale (~0.65 baseline; tune later)
+  k_Cd_translation = 0.8; k_Cd_deg = 1.0;   // Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
+  // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
+  // MB_GDC0449 dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
+  // numerically on the threshold and crashing); 0.8 puts GNP/MB+HHi clearly above it. Consistent with
+  // the data: MB+HHi Mki67 is high, so vismo-treated MB keeps proliferating (no single-cell arrest).
 
   Ptch1_transcription: => Ptch1_mRNA; k_Ptch1_tx*Ptch1_copy_number;
   Ptch1_mRNA_degradation: Ptch1_mRNA => ; k_Ptch1_mRNA_deg*Ptch1_mRNA;

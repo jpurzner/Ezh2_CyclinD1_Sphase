@@ -24,30 +24,33 @@ COND = {
 }
 SPEC = ["Cd_mRNA", "MYCN", "Gli1"]
 
-PSPEC = [  # name, lo, hi, default     (Gli-pathway de-saturation + CyclinD1 transcription)
-    ("K_Ptch_Smo",       0.02, 0.6,  0.4),
-    ("K_Smo_Gli_switch", 0.2,  1.5,  0.6),
-    ("K_Gli_act_Gli1",   0.1,  2.0,  0.3),
-    ("Vmax_Gli1_tx",     0.5,  4.0,  1.2),
-    ("k_Cd_tx_basal",    0.05, 0.5,  0.3),
-    ("k_Cd_tx_Gli_max",  2.0,  35.0, 4.0),
-    ("K_Gli_act_CycD",   0.2,  4.0,  0.4),
-    ("k_Cd_tx_MYCN",     2.0,  40.0, 15.0),
-    ("K_MYCN_Cd",        0.5,  2.5,  1.5),
-    ("n_MYCN_Cd",        2.0,  6.0,  3.0),
+PSPEC = [  # name, lo, hi, default(=currently-baked HH params; seed NM here, not from scratch)
+    ("K_Ptch_Smo",       0.02, 0.6,  0.1714),
+    ("K_Smo_Gli_switch", 0.2,  1.5,  1.312),
+    ("K_Gli_act_Gli1",   0.1,  2.0,  0.4584),
+    ("Vmax_Gli1_tx",     0.5,  4.0,  1.005),
+    ("k_Cd_tx_basal",    0.02, 0.5,  0.1728),
+    ("k_Cd_tx_Gli_max",  2.0,  70.0, 31.59),
+    ("K_Gli_act_CycD",   0.1,  4.0,  0.3258),
+    ("k_Cd_tx_MYCN",     1.0,  40.0, 39.9),
+    ("K_MYCN_Cd",        0.5,  2.5,  0.9939),
+    ("n_MYCN_Cd",        2.0,  6.0,  4.261),
 ]
 NAMES = [p[0] for p in PSPEC]
 LO = np.array([p[1] for p in PSPEC]); HI = np.array([p[2] for p in PSPEC]); X0 = np.array([p[3] for p in PSPEC])
 
-# (species, num, den, target, weight)
+# (species, num, den, target, weight)   -- folds from docs/PARAMETERIZATION.md bulk RNA-seq
+# KEY UPDATE: MB_GDC0449 row shows vismo crashes MB CyclinD1 by 85.6% (0.144), not 0.40.
+# So Gli must DOMINATE MB CyclinD1 (~86%); Mycn/basal is only the ~14% HHi-resistant residual.
 TARGETS = [
     ("Gli1",    "MB",     "GNP", 6.90, 3.0),
     ("Gli1",    "P7Ptch", "GNP", 1.50, 1.0),
     ("Gli1",    "GNP+HHi","GNP", 0.01, 1.5),
+    ("Gli1",    "MB+HHi", "MB",  0.023, 2.0),   # vismo crashes Gli1 to ~2% of MB
     ("Cd_mRNA", "MB",     "GNP", 7.58, 2.0),
     ("Cd_mRNA", "P7Ptch", "GNP", 1.90, 1.0),
-    ("Cd_mRNA", "GNP+HHi","GNP", 0.14, 2.0),
-    ("Cd_mRNA", "MB+HHi", "MB",  0.40, 1.5),
+    ("Cd_mRNA", "GNP+HHi","GNP", 0.157, 2.0),
+    ("Cd_mRNA", "MB+HHi", "MB",  0.144, 3.5),   # <-- the new vismo-on-MB CyclinD1 drop
 ]
 
 
@@ -84,8 +87,8 @@ def objective(x):
     err = 0.0
     for sp, a, b, tgt, w in TARGETS:
         ratio = o[a][sp] / o[b][sp]
-        if tgt < 0.02 and "Gli1" in sp:                 # >99% reduction
-            err += w * (max(ratio - 0.02, 0.0) * 20) ** 2
+        if tgt < 0.05 and "Gli1" in sp:                 # near-total Gli block: one-sided
+            err += w * (max(ratio - tgt, 0.0) * 20) ** 2  # only penalize if ABOVE target
         else:
             err += w * (np.log(ratio / tgt)) ** 2
     return err
@@ -104,22 +107,38 @@ def report(x, label=""):
 if __name__ == "__main__":
     print("=" * 66)
     print("v44 HH DE-SATURATION recalibration (Gli1 6.9x, CyclinD1 7.6x MB/GNP)")
-    report(X0, "baseline (current)")
+    BEST_PATH = os.path.join(os.path.dirname(__file__), "v44_recalibrate_gli_best.txt")
+
+    def save_best(x):  # write incrementally so a kill still leaves the current best
+        lines = [f'    "{n}": {v:.4g},' for n, v in zip(NAMES, x)]
+        with open(BEST_PATH, "w") as fh:
+            fh.write(f"obj={objective(x):.4f}\n" + "\n".join(lines) + "\n")
+
+    report(X0, "baseline (currently-baked params)")
     rng = np.random.default_rng(0)
     best_x, best_f = X0.copy(), objective(X0)
-    N = 700
-    print(f"\nrandom search ({N})...")
-    for i in range(N):
-        x = LO + (HI - LO) * rng.random(len(LO))
-        f = objective(x)
+    save_best(best_x)
+
+    # (1) refine straight from the baked X0 -- the known-good basin
+    print("\nNelder-Mead from baked X0...")
+    res0 = minimize(objective, X0, method="Nelder-Mead", options=dict(maxiter=1500, xatol=1e-4, fatol=1e-4))
+    if objective(res0.x) < best_f:
+        best_f, best_x = objective(res0.x), res0.x.copy()
+        save_best(best_x); print(f"  -> obj={best_f:.3f}")
+
+    # (2) local random restarts AROUND X0 (log-normal jitter), refine each
+    print("\nlocal random restarts around X0...")
+    for i in range(12):
+        jitter = np.exp(rng.normal(0.0, 0.35, len(X0)))
+        x = np.clip(X0 * jitter, LO, HI)
+        r = minimize(objective, x, method="Nelder-Mead", options=dict(maxiter=500, xatol=1e-3, fatol=1e-3))
+        f = objective(r.x)
         if f < best_f:
-            best_f, best_x = f, x.copy()
-            print(f"  [{i}] obj={f:.3f}")
-    print("\nNelder-Mead refine...")
-    res = minimize(objective, best_x, method="Nelder-Mead", options=dict(maxiter=900, xatol=1e-3, fatol=1e-3))
-    if objective(res.x) < best_f:
-        best_x = res.x
+            best_f, best_x = f, r.x.copy()
+            save_best(best_x); print(f"  [{i}] obj={f:.3f}")
     report(best_x, "REFINED BEST")
     print("\nFINAL PARAMS:")
-    for n, v in zip(NAMES, best_x):
-        print(f'    "{n}": {v:.4g},')
+    lines = [f'    "{n}": {v:.4g},' for n, v in zip(NAMES, best_x)]
+    print("\n".join(lines))
+    with open(os.path.join(os.path.dirname(__file__), "v44_recalibrate_gli_best.txt"), "w") as fh:
+        fh.write(f"obj={objective(best_x):.4f}\n" + "\n".join(lines) + "\n")
