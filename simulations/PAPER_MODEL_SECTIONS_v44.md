@@ -69,9 +69,9 @@ Gli-driven), and vismodegib collapses MB Cyclin D1 by ~86% — down to roughly t
 GNP, i.e. to the commitment threshold itself. Because untreated MB sits ~8-fold above that threshold,
 essentially all cells cycle; vismodegib lowers the population mean onto the threshold, so the
 heterogeneous tumour now straddles it. In an ensemble with cell-to-cell variation in the Cyclin
-D1/p27 setpoint, this drops the cycling fraction from 100% (MB) to ~58% (MB+HHi), and Ezh2 inhibition
+D1/p27 setpoint, this drops the cycling fraction from 100% (MB) to ~86% (MB+HHi), and Ezh2 inhibition
 — which de-represses Cyclin D1 ~2-fold — lifts most cells back above threshold, restoring the cycling
-fraction to ~90% (Fig. 5C). The rescue is thus a fractional, population-level effect rather than an
+fraction to ~93% (Fig. 5C). The rescue is thus a fractional, population-level effect rather than an
 all-or-nothing single-cell switch, consistent with the partial proliferation changes measured
 experimentally (and with the high Ki67 retained by vismodegib-treated MB). **The Cyclin D1 axis also
 makes a clean contrasting prediction:** CDK4/6 inhibition blocks Cyclin D–CDK4/6 kinase activity
@@ -136,11 +136,20 @@ it does not sustain the observed transient G0 stably; G0 is classified by the p2
 the default model is accurate.)
 
 **Hedgehog signaling module.** The Hedgehog pathway drives Cyclin D1 transcription. Shh binds
-Ptch1, relieving inhibition of Smo; active Smo converts Gli repressor to Gli activator (Hill
-n = 2), and Gli activator drives Gli1 transcription in a positive-feedback loop. Ptch1 gene dosage
-is a copy-number input (1.0 = wild-type GNP; reduced in MB, reflecting Ptch1 loss and constitutive
-Hedgehog activity). HHi (vismodegib/GDC0449) is modeled as a block on Smo activation
-(Smo_active = k_act/(1+Ptch1_free/K)×(1−GDC0449)).
+Ptch1, relieving inhibition of Smo; active Smo converts Gli repressor to Gli activator (Hill n = 2),
+and Gli activator drives Gli1 transcription. Critically, the module includes the **canonical
+Hedgehog negative-feedback loop**: Ptch1 is itself a Gli target gene, so Gli activator induces Ptch1
+transcription (on top of a basal term), and functional Ptch1 protein re-inhibits Smo
+(Smo_active = k_act/(1 + Ptch1_free·f /K_Ptch_Smo)×(1−GDC0449)), closing the loop
+Gli → Ptch1 ⊣ Smo ⊣ Gli. The functional-Ptch1 factor *f* (input `Ptch1_copy_number`: 1.0 in
+wild-type GNP, ~0.5 in Ptch1⁺/⁻, ~0.1 in MB with loss of heterozygosity) gates Ptch1's *repression
+of Smo*, not its transcription — so it represents progressive loss of functional Ptch1, the
+medulloblastoma tumour-suppressor lesion. In GNPs the intact loop holds Gli down at a damped steady
+state and produces an adaptive Gli1 overshoot in response to a step of Shh (Fig. S7x). In MB the
+Gli-induced Ptch1 is non-functional (*f* ≈ 0.1), so the loop is **broken**: Smo and Gli remain
+constitutively high (Gli1 ~7-fold elevated), and Ptch1 mRNA is itself elevated as a Gli target (a
+Shh-MB marker) yet cannot brake the pathway. HHi (vismodegib/GDC0449) is modeled as a direct block
+on Smo activation, which also collapses the Gli-induced Ptch1 transcription.
 
 **Mycn module.** Mycn synthesis has an autonomous (basal) component scaled by an amplification
 factor (1.0 for GNP, 2.8 for MB) and a small Gli-dependent component. Mycn drives a minority,
@@ -178,16 +187,17 @@ calibrated model values were:
 
 | Target | Experimental | Model (v44) | Source |
 |--------|--------------|-------------|--------|
-| Cyclin D1: GNP+HHi / GNP | 0.157 (84% reduction) | **0.20** | RNA-seq (P7_GNP_wt_GDC0449) |
-| **Cyclin D1: MB+HHi / MB** | **0.144 (86% reduction)** | **0.12** | RNA-seq (MB_GDC0449) |
-| Cyclin D1: MB / GNP | 7.58× (bulk) / 5.07× (IF) | **8.3×** | RNA-seq, Fig. 4I |
-| Gli1: MB / GNP | 6.90× | **6.44×** | bulk RNA-seq |
-| Mycn: GNP+HHi / GNP | 0.78 | **0.92** | RNA-seq |
+| Cyclin D1: GNP+HHi / GNP | 0.157 (84% reduction) | **0.16** | RNA-seq (P7_GNP_wt_GDC0449) |
+| **Cyclin D1: MB+HHi / MB** | **0.144 (86% reduction)** | **0.14** | RNA-seq (MB_GDC0449) |
+| Cyclin D1: MB / GNP | 7.58× (bulk) / 5.07× (IF) | **6.8×** | RNA-seq, Fig. 4I |
+| Gli1: MB / GNP | 6.90× | **7.2×** | bulk RNA-seq |
+| Ptch1 (mRNA): MB / GNP | elevated (Gli target; no exact value) | **2.3× (soft)** | — |
+| Mycn: GNP+HHi / GNP | 0.78 | **0.91** | RNA-seq |
 | Mycn: MB+HHi / MB | 0.86 | **0.94** | RNA-seq |
 | Mycn: MB / GNP | ~2.8× | **2.7×** | RNA-seq |
 | Gli1: GNP+HHi reduction | >99% | **>99%** | RNA-seq |
-| Ezh2: G0 / cycling | ~0.6 | **0.64** | scRNA-seq (Fig. 4A) |
-| Ezh2: MB / GNP | 2.05× | **1.2× (soft — see note)** | RNA-seq, Fig. 4J |
+| Ezh2: G0 / cycling | ~0.6 | **0.58** | scRNA-seq (Fig. 4A) |
+| Ezh2: MB / GNP | 2.05× | **1.1× (soft — see note)** | RNA-seq, Fig. 4J |
 | Ezh2i: Cyclin D1 fold change | ~2× | **2–3×** | qPCR (Fig. 3C) |
 | Ezh2 transcript: S/G0 | 1.8–2.5× | **~2.0–2.9×** | scRNA-seq (Fig. 4A) |
 | Ezh2 protein: G2/G0 | 1.48× | **~1.5–1.8×** | IF (Supp. 6D) |
@@ -198,11 +208,11 @@ calibrated model values were:
 Cyclin D1 rising ~7-fold in lockstep from P7 GNP to Ptch+/− MB (and along the intermediate Ptch+/−
 series), identifying Cyclin D1 as predominantly Gli-driven; and vismodegib collapses MB Cyclin D1 by
 ~86% (MB+HHi/MB = 0.144, measured), confirming that Gli supplies the large majority of MB Cyclin D1.
-The original Hedgehog module was saturated (Gli1 MB/GNP only ~1.1×), so we re-fit the Ptch→Smo→Gli
-and Gli→Cyclin D1 Hill terms to de-saturate the pathway; the calibrated module reproduces Gli1
-MB/GNP 6.44×, Cyclin D1 MB/GNP 8.3×, GNP+HHi/GNP 0.20 and MB+HHi/MB 0.12, with Mycn supplying the
-small HHi-resistant residual. Because Cyclin D1 protein in the original engine drove Rb
-phosphorylation *linearly* (rate ∝ kPhRbCd·Cd), the now ~8× Cyclin D1 level produced an ~8×
+The original Hedgehog module was saturated (Gli1 MB/GNP only ~1.1×), so we re-fit the Ptch→Smo→Gli,
+Gli→Ptch1 (feedback) and Gli→Cyclin D1 Hill terms to de-saturate the pathway; the calibrated module
+reproduces Gli1 MB/GNP 7.2×, Cyclin D1 MB/GNP 6.8×, GNP+HHi/GNP 0.16 and MB+HHi/MB 0.14, with Mycn
+supplying the small HHi-resistant residual. Because Cyclin D1 protein in the original engine drove Rb
+phosphorylation *linearly* (rate ∝ kPhRbCd·Cd), the now ~7× Cyclin D1 level produced an ~7×
 cell-cycle drive that was both biologically implausible (CDK4/6 activity saturates) and numerically
 stiff. We therefore made the Cyclin D1→Rb drive saturating, kPhRbCd·Cd/(K_CdRb+Cd), which decouples
 the (now data-matched) transcript level from a bounded cell-cycle drive. The Ezh2 MB/GNP ratio
@@ -211,10 +221,12 @@ remains cell-cycle-coupled and is treated as a soft target.
 *Consequence for the rescue interpretation.* Because vismodegib lowers MB Cyclin D1 to roughly the
 level of a cycling GNP — i.e. onto the commitment threshold — the model produces a clean,
 population-level Cyclin D1-threshold rescue (Fig. 5C): the cycling fraction of a heterogeneous MB
-ensemble falls from 100% (MB) to ~58% (MB+HHi) and is restored to ~90% by Ezh2 inhibition, while
+ensemble falls from 100% (MB) to ~86% (MB+HHi) and is restored to ~93% by Ezh2 inhibition, while
 CDK4/6 inhibition (a downstream kinase block) holds the fraction at 0% with or without Ezh2i. Single
 vismodegib-treated cells still cycle (consistent with the high Ki67 of MB+HHi in the data), so the
-rescue is a fractional, population effect rather than an all-or-nothing single-cell switch.
+rescue is a fractional, population effect rather than an all-or-nothing single-cell switch; its exact
+magnitude scales with the assumed cell-to-cell Cyclin D1/p27 heterogeneity, but the direction
+(vismodegib reduces, Ezh2i restores, CDK4/6i cannot be rescued) is robust.
 
 A constrained parameter search over the Hedgehog/Mycn→Cyclin D1 and Ezh2-repression parameters was
 performed with a hard guard that rejected any parameter set that (i) failed to integrate
@@ -300,7 +312,7 @@ vismodegib-treated MB measurement). (A) Calibrated expression: Gli1 and Cyclin D
 lockstep from P7 GNP to Ptch+/− MB, and vismodegib collapses MB Cyclin D1 by ~86% to roughly a
 cycling GNP's level (model vs data), with Mycn the HHi-resistant residual. (B) Predicted Cyclin
 B/CDK1 oscillation in cycling Ptch+/− MB. (C) Population cycling fraction (N = 120 cells with cyclin
-D1 / p27 heterogeneity): 100% (MB) → 58% (MB+HHi) → 90% (MB+HHi+Ezh2i) — vismodegib lowers the
+D1 / p27 heterogeneity): 100% (MB) → 86% (MB+HHi) → 93% (MB+HHi+Ezh2i) — vismodegib lowers the
 population onto the commitment threshold so a fraction drops below it, and Ezh2 inhibition
 de-represses Cyclin D1 and lifts most cells back above, restoring cycling; whereas CDK4/6 inhibition
 holds the fraction at 0% with or without Ezh2i (downstream kinase block, no rescue). The rescue is a
@@ -330,6 +342,15 @@ Cyclin D1 mRNA, Ezh2 protein and Cyclin B over the last 70 h in (G) GNP+SHH and 
 CDK4/6 inhibitor — arrest — and (J) MB with CDK4/6i + Ezh2i — no rescue, because the CDK4/6 block
 is downstream of Cyclin D1 transcription.
 
+**Supplementary Figure 7x. Gli→Ptch1 negative feedback and its disruption in MB**
+(`fig_v44_ptch1_feedback.py`). Ptch1 is modeled as a Gli target gene whose functional protein
+re-inhibits Smo (Gli→Ptch1⊣Smo⊣Gli). (A) Gli1 response to a step of Shh, normalized to its steady
+state: a wild-type GNP (intact loop) overshoots (~1.3×) then adapts as Gli-induced Ptch1 catches up,
+whereas Ptch+/− MB (functional Ptch1 ≈ 0.1, broken loop) rises monotonically with no adaptation.
+(B) Ptch1 mRNA is induced by Gli in both contexts (Ptch1 is itself a Shh-MB marker), but is
+functional only in GNP. (C) Steady-state Smo and Gli activator remain high in MB because the induced
+Ptch1 cannot brake Smo — the molecular signature of the broken feedback.
+
 ---
 
 ## 4. SUMMARY OF CHANGES FROM THE PUBLISHED v42 TEXT (for the authors)
@@ -353,15 +374,21 @@ is downstream of Cyclin D1 transcription.
    rewritten** (the "lengthened the cell cycle period by 4.3 hours" and "0.9 h lengthening, 18.1 h
    vs. 17.3 h" claims are removed). This is the only qualitative change to a stated result.
 5. **Hedgehog de-saturated; Cyclin D1 now matches the bulk RNA-seq, including the vismodegib data.**
-   The Ptch→Smo→Gli and Gli→Cyclin D1 terms were re-fit so Gli1 (6.44×) and Cyclin D1 (8.3×) rise in
-   lockstep GNP→MB, and vismodegib collapses MB Cyclin D1 by ~86% (MB+HHi/MB 0.12 model vs 0.144
+   The Ptch→Smo→Gli, Gli→Ptch1 and Gli→Cyclin D1 terms were re-fit so Gli1 (7.2×) and Cyclin D1 (6.8×)
+   rise in lockstep GNP→MB, and vismodegib collapses MB Cyclin D1 by ~86% (MB+HHi/MB 0.14 model vs 0.144
    data), identifying Cyclin D1 as predominantly Gli-driven. The Cyclin D1→Rb drive was made
-   saturating (kPhRbCd·Cd/(K_CdRb+Cd)) so the ~8× transcript maps to a bounded, stable cell-cycle
+   saturating (kPhRbCd·Cd/(K_CdRb+Cd)) so the ~7× transcript maps to a bounded, stable cell-cycle
    drive, and the Cyclin D1 protein scale was set so GNP robustly clears the cycling threshold.
+5b. **The canonical Gli→Ptch1 negative feedback was added (NEW).** Previously Ptch1 was a static
+   gene-dosage input. Ptch1 is now a Gli target (transcription = basal + Gli-induced), and functional
+   Ptch1 re-inhibits Smo, closing the loop Gli→Ptch1⊣Smo⊣Gli. A functional-Ptch1 factor (1.0 GNP,
+   ~0.5 Ptch1⁺/⁻, ~0.1 MB) gates Ptch1's repression of Smo, so MB is modeled as a *broken loop*
+   (Gli-induced Ptch1 is non-functional → constitutive Gli; Ptch1 mRNA stays elevated as a Gli/SHH-MB
+   marker). GNPs now show an adaptive Gli1 overshoot to a Shh step (Fig. S7x); MB does not.
 6. **The HHi rescue is a population Cyclin D1-threshold effect; the CDK4/6i contrast is preserved.**
    Because the measured vismodegib drop lands MB Cyclin D1 at ~1× a cycling GNP (i.e. onto the
    commitment threshold), a heterogeneous MB ensemble straddles the threshold: the cycling fraction
-   goes 100% (MB) → 58% (MB+HHi) → 90% (MB+HHi+Ezh2i), a clean fractional rescue. CDK4/6i holds the
+   goes 100% (MB) → 86% (MB+HHi) → 93% (MB+HHi+Ezh2i), a fractional rescue. CDK4/6i holds the
    fraction at 0% with or without Ezh2i (downstream kinase block). Single cells still cycle under
    vismodegib (matching the high MB+HHi Ki67), so the rescue is population/fractional, not
    all-or-nothing. The Ezh2 MB/GNP ratio remains a soft (cell-cycle-coupled) target. *(This supersedes

@@ -182,22 +182,30 @@ HH_MYCN_BLOCK = """
   species Gli_rep = 0.1, Gli_act = 0.5, Gli1_mRNA = 1.0, Gli1 = 1.4;
   species MYCN = 0.4, Cd_mRNA = 2.6, Cd in Cell;
   Cd = 0.70;
+  // Ptch1_copy_number is the FUNCTIONAL Ptch1 fraction (gene dosage x functional competence):
+  //   GNP = 1.0 (two wt alleles), Ptch1+/- = 0.5, MB-with-LOH = 0.1 (residual / non-functional).
+  //   It gates Ptch1's REPRESSION of Smo (function), NOT Ptch1 transcription (production).
   Ptch1_copy_number = 1.0; MYCN_amplification = 1.0;
 
-  k_Ptch1_tx = 0.5; k_Ptch1_mRNA_deg = 0.8; k_Ptch1_translation = 1.0; k_Ptch1_deg = 0.5;
+  // Ptch1 is a Gli TARGET: transcription = basal floor + Gli-induced (closes the canonical HH
+  // negative feedback Gli->Ptch1-|Smo-|Gli). In MB the induced Ptch1 is non-functional (low
+  // Ptch1_copy_number) so the loop is BROKEN -> constitutive Gli AND high Ptch1 mRNA (SHH-MB marker).
+  k_Ptch1_basal = 0.1493; k_Ptch1_Gli = 1.873; K_Gli_Ptch = 0.3978;
+  k_Ptch1_mRNA_deg = 0.8; k_Ptch1_translation = 1.0; k_Ptch1_deg = 0.5;
   k_SHH_Ptch_bind = 5.0; k_SHH_Ptch_release = 0.1; k_SHH_Ptch_deg = 0.8;
-  // HH/MYCN->CyclinD1 DE-SATURATED to the bulk RNA-seq (v44_recalibrate_gli.py): Gli1 MB/GNP ~6.4x,
-  // CyclinD1 ~7.0x. RECALIBRATED to MB_GDC0449: vismo crashes MB CyclinD1 to 0.144 of MB (~1.0x a
-  // cycling GNP, i.e. right at the commitment threshold) -- Gli now supplies ~86% of MB CyclinD1,
-  // Mycn/basal the small HHi-resistant residual. Used WITH the saturating CyclinD1->Rb drive (with_cd_sat).
-  k_Smo_act = 1.5; k_Smo_inact = 1.2; K_Ptch_Smo = 0.1935;
-  k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 1.448;
-  Vmax_Gli1_tx = 0.5837; K_Gli_act_Gli1 = 0.5395; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
+  // HH/MYCN->CyclinD1 DE-SATURATED + refit WITH the Gli->Ptch1 negative feedback (v44_recalibrate_gli.py):
+  // Gli1 MB/GNP 7.2x, CyclinD1 6.8x, vismo crashes MB CyclinD1 to 0.142 of MB (~1.0x a cycling GNP).
+  // Gli supplies ~86% of MB CyclinD1; Mycn/basal the HHi-resistant residual. Used WITH the saturating
+  // CyclinD1->Rb drive (with_cd_sat). The Gli->Ptch1 loop (k_Ptch1_basal/Gli, K_Gli_Ptch above) damps
+  // GNP Gli (transient overshoot, adaptive) and is BROKEN in MB (low functional Ptch1 -> constitutive Gli).
+  k_Smo_act = 1.573; k_Smo_inact = 1.2; K_Ptch_Smo = 0.1025;
+  k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 0.8879;
+  Vmax_Gli1_tx = 1.27; K_Gli_act_Gli1 = 1.182; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
   k_Gli1_mRNA_deg = 0.8; k_Gli1_translation = 1.2; k_Gli1_deg = 0.8;
-  k_Cd_tx_basal = 0.137; k_Cd_tx_Gli_max = 70.0; K_Gli_act_CycD = 0.6246; K_Gli_rep_CycD = 0.3;
+  k_Cd_tx_basal = 0.3086; k_Cd_tx_Gli_max = 46.31; K_Gli_act_CycD = 0.4568; K_Gli_rep_CycD = 0.3;
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
-  k_Cd_tx_MYCN = 14.48; K_MYCN_Cd = 1.968; n_MYCN_Cd = 2.431;
+  k_Cd_tx_MYCN = 35.22; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;
   K_EZH2_repression = 0.5;
   k_Cd_translation = 0.8; k_Cd_deg = 1.0;   // Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
@@ -205,14 +213,14 @@ HH_MYCN_BLOCK = """
   // numerically on the threshold and crashing); 0.8 puts GNP/MB+HHi clearly above it. Consistent with
   // the data: MB+HHi Mki67 is high, so vismo-treated MB keeps proliferating (no single-cell arrest).
 
-  Ptch1_transcription: => Ptch1_mRNA; k_Ptch1_tx*Ptch1_copy_number;
+  Ptch1_transcription: => Ptch1_mRNA; k_Ptch1_basal + k_Ptch1_Gli*Gli_act^n_Gli_act/(K_Gli_Ptch^n_Gli_act + Gli_act^n_Gli_act);
   Ptch1_mRNA_degradation: Ptch1_mRNA => ; k_Ptch1_mRNA_deg*Ptch1_mRNA;
   Ptch1_translation: Ptch1_mRNA => Ptch1_mRNA + Ptch1_free; k_Ptch1_translation*Ptch1_mRNA;
   Ptch1_degradation: Ptch1_free => ; k_Ptch1_deg*Ptch1_free;
   SHH_Ptch_binding: Ptch1_free => SHH_Ptch; k_SHH_Ptch_bind*SHH*Ptch1_free;
   SHH_Ptch_release: SHH_Ptch => Ptch1_free; k_SHH_Ptch_release*SHH_Ptch;
   SHH_Ptch_degradation: SHH_Ptch => ; k_SHH_Ptch_deg*SHH_Ptch;
-  Smo_activation: => Smo_active; k_Smo_act/(1 + Ptch1_free/K_Ptch_Smo)*(1 - GDC0449);
+  Smo_activation: => Smo_active; k_Smo_act/(1 + Ptch1_free*Ptch1_copy_number/K_Ptch_Smo)*(1 - GDC0449);
   Smo_inactivation: Smo_active => ; k_Smo_inact*Smo_active;
   Gli_rep_to_act: Gli_rep => Gli_act; k_Gli_rep_to_act*Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2)*Gli_rep;
   Gli_act_to_rep: Gli_act => Gli_rep; k_Gli_act_to_rep*(1 - Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2))*Gli_act;

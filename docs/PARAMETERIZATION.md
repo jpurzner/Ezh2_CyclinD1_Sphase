@@ -135,10 +135,18 @@ MB_GDC0449 (vismodegib‑on‑MB) point**, with a hard guard requiring the figur
 (GNP cycles only with SHH; GNP−SHH / GNP+HHi arrest; MB cycles; MB+CDK4/6i arrests and is not rescued
 by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
 
-- Gli arm de‑saturated (`k_Cd_tx_Gli_max`, `K_Gli_act_CycD`, `Vmax_Gli1_tx`, `K_Gli_act_Gli1`,
-  `K_Ptch_Smo`, `K_Smo_Gli_switch`) so Gli1 (6.44×) and CyclinD1 (8.3×) rise GNP→MB and vismodegib
-  collapses MB CyclinD1 by ~86% (MB+HHi/MB 0.12 model vs 0.144 data) — Gli supplies ~86% of MB CyclinD1.
-- MYCN→CyclinD1 cooperative Hill (`n_MYCN_Cd ≈ 2.4`, `k_Cd_tx_MYCN ≈ 14.5`, `K_MYCN_Cd ≈ 2.0`) — the
+- **Gli→Ptch1 negative feedback (NEW).** Ptch1 is a Gli target: `Ptch1_transcription = k_Ptch1_basal
+  + k_Ptch1_Gli·Gli_act²/(K_Gli_Ptch² + Gli_act²)`, and functional Ptch1 re‑inhibits Smo
+  (`Smo = k_Smo_act/(1 + Ptch1_free·Ptch1_copy_number/K_Ptch_Smo)·(1−GDC0449)`), closing the loop
+  Gli→Ptch1⊣Smo⊣Gli. `Ptch1_copy_number` is reinterpreted as the **functional Ptch1 fraction**
+  (1.0 GNP, 0.5 Ptch1⁺/⁻, 0.1 MB‑with‑LOH) and now gates Smo‑repression (function), not transcription.
+  GNP shows an adaptive Gli1 overshoot to a Shh step; MB is a **broken loop** (induced Ptch1
+  non‑functional → constitutive Gli, high Ptch1 mRNA). Fit: `k_Ptch1_basal 0.15, k_Ptch1_Gli 1.87,
+  K_Gli_Ptch 0.40`. See `fig_v44_ptch1_feedback.py`.
+- Gli arm de‑saturated (`k_Cd_tx_Gli_max 46`, `K_Gli_act_CycD`, `Vmax_Gli1_tx`, `K_Gli_act_Gli1`,
+  `K_Ptch_Smo`, `K_Smo_Gli_switch`, `k_Smo_act`) so Gli1 (7.2×) and CyclinD1 (6.8×) rise GNP→MB and
+  vismodegib collapses MB CyclinD1 by ~86% (MB+HHi/MB 0.14 model vs 0.144 data) — Gli supplies ~86%.
+- MYCN→CyclinD1 cooperative Hill (`n_MYCN_Cd ≈ 3.7`, `k_Cd_tx_MYCN ≈ 35`, `K_MYCN_Cd ≈ 1.7`) — the
   small HHi‑resistant residual; `MYCN_amplification = 2.86` (MB) from the Mycn MB/GNP ratio.
 - `k_Cd_translation = 0.8` — CyclinD1 protein scale set so GNP robustly clears the cycling threshold
   (the de‑saturation dropped GNP CyclinD1 toward a bistable knife‑edge; 0.8 lifts GNP/MB+HHi clearly
@@ -148,9 +156,11 @@ by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
 
 **The data‑matched rescue (population).** With vismodegib landing MB CyclinD1 at ~1× a cycling GNP
 (onto the commitment threshold), a heterogeneous MB ensemble (N=120, CyclinD1/p27 spread;
-`fig_v44_fig5_population.py`) cycles 100% (MB) → 58% (MB+HHi) → 90% (MB+HHi+Ezh2i); CDK4/6i holds it
+`fig_v44_fig5_population.py`) cycles 100% (MB) → 86% (MB+HHi) → 93% (MB+HHi+Ezh2i); CDK4/6i holds it
 at 0% ± Ezh2i. Single cells still cycle under vismodegib (MB+HHi Ki67 is high), so the rescue is a
-population/fractional Cyclin D1‑threshold effect, not an all‑or‑nothing single‑cell arrest.
+population/fractional Cyclin D1‑threshold effect, not an all‑or‑nothing single‑cell arrest; its
+magnitude scales with the assumed cell‑to‑cell heterogeneity (the direction is robust).
 
-**Soft / not‑enforced targets**: Ezh2 MB/GNP 2.05× (model ~1.2×; cell‑cycle‑coupled), and the
-absolute S/G2 phase proportions (S is biochemically long in the real‑time core).
+**Soft / not‑enforced targets**: Ezh2 MB/GNP 2.05× (model ~1.1×; cell‑cycle‑coupled); Ptch1 mRNA
+MB/GNP (model 2.3×, elevated but no exact bulk value); and the absolute S/G2 phase proportions
+(S is biochemically long in the real‑time core).

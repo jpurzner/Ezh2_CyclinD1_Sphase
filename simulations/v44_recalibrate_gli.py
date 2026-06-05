@@ -22,19 +22,23 @@ COND = {
     "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.86, GDC0449=0.0),
     "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.86, GDC0449=1.0),
 }
-SPEC = ["Cd_mRNA", "MYCN", "Gli1"]
+SPEC = ["Cd_mRNA", "MYCN", "Gli1", "Ptch1_mRNA"]
 
 PSPEC = [  # name, lo, hi, default(=currently-baked HH params; seed NM here, not from scratch)
-    ("K_Ptch_Smo",       0.02, 0.6,  0.1714),
-    ("K_Smo_Gli_switch", 0.2,  1.5,  1.312),
-    ("K_Gli_act_Gli1",   0.1,  2.0,  0.4584),
-    ("Vmax_Gli1_tx",     0.5,  4.0,  1.005),
-    ("k_Cd_tx_basal",    0.02, 0.5,  0.1728),
-    ("k_Cd_tx_Gli_max",  2.0,  70.0, 31.59),
-    ("K_Gli_act_CycD",   0.1,  4.0,  0.3258),
-    ("k_Cd_tx_MYCN",     1.0,  40.0, 39.9),
-    ("K_MYCN_Cd",        0.5,  2.5,  0.9939),
-    ("n_MYCN_Cd",        2.0,  6.0,  4.261),
+    ("K_Ptch_Smo",       0.02, 0.6,  0.1935),
+    ("K_Smo_Gli_switch", 0.2,  1.5,  1.448),
+    ("K_Gli_act_Gli1",   0.1,  2.0,  0.5395),
+    ("Vmax_Gli1_tx",     0.5,  4.0,  0.5837),
+    ("k_Cd_tx_basal",    0.02, 0.5,  0.137),
+    ("k_Cd_tx_Gli_max",  2.0,  70.0, 70.0),
+    ("K_Gli_act_CycD",   0.1,  4.0,  0.6246),
+    ("k_Cd_tx_MYCN",     1.0,  40.0, 14.48),
+    ("K_MYCN_Cd",        0.5,  2.5,  1.968),
+    ("n_MYCN_Cd",        2.0,  6.0,  2.431),
+    ("k_Smo_act",        0.5,  4.0,  1.5),     # Smo activation gain
+    ("k_Ptch1_basal",    0.05, 1.0,  0.3),     # Gli->Ptch1 negative feedback: basal floor
+    ("k_Ptch1_Gli",      0.1,  3.0,  0.6),     #   Gli-induced Ptch1 (closes the loop)
+    ("K_Gli_Ptch",       0.1,  2.0,  0.5),     #   half-max Gli_act for Ptch1 induction
 ]
 NAMES = [p[0] for p in PSPEC]
 LO = np.array([p[1] for p in PSPEC]); HI = np.array([p[2] for p in PSPEC]); X0 = np.array([p[3] for p in PSPEC])
@@ -42,15 +46,18 @@ LO = np.array([p[1] for p in PSPEC]); HI = np.array([p[2] for p in PSPEC]); X0 =
 # (species, num, den, target, weight)   -- folds from docs/PARAMETERIZATION.md bulk RNA-seq
 # KEY UPDATE: MB_GDC0449 row shows vismo crashes MB CyclinD1 by 85.6% (0.144), not 0.40.
 # So Gli must DOMINATE MB CyclinD1 (~86%); Mycn/basal is only the ~14% HHi-resistant residual.
+# Ptch1 is a Gli TARGET (negative feedback): elevated in MB (co-regulated with Gli1), dropping under HHi.
 TARGETS = [
-    ("Gli1",    "MB",     "GNP", 6.90, 3.0),
-    ("Gli1",    "P7Ptch", "GNP", 1.50, 1.0),
-    ("Gli1",    "GNP+HHi","GNP", 0.01, 1.5),
-    ("Gli1",    "MB+HHi", "MB",  0.023, 2.0),   # vismo crashes Gli1 to ~2% of MB
-    ("Cd_mRNA", "MB",     "GNP", 7.58, 2.0),
-    ("Cd_mRNA", "P7Ptch", "GNP", 1.90, 1.0),
-    ("Cd_mRNA", "GNP+HHi","GNP", 0.157, 2.0),
-    ("Cd_mRNA", "MB+HHi", "MB",  0.144, 3.5),   # <-- the new vismo-on-MB CyclinD1 drop
+    ("Gli1",      "MB",     "GNP", 6.90, 3.0),
+    ("Gli1",      "P7Ptch", "GNP", 1.50, 1.0),
+    ("Gli1",      "GNP+HHi","GNP", 0.01, 1.5),
+    ("Gli1",      "MB+HHi", "MB",  0.023, 2.0),   # vismo crashes Gli1 to ~2% of MB
+    ("Cd_mRNA",   "MB",     "GNP", 7.58, 2.0),
+    ("Cd_mRNA",   "P7Ptch", "GNP", 1.90, 1.0),
+    ("Cd_mRNA",   "GNP+HHi","GNP", 0.157, 2.0),
+    ("Cd_mRNA",   "MB+HHi", "MB",  0.144, 3.5),   # <-- the new vismo-on-MB CyclinD1 drop
+    ("Ptch1_mRNA","MB",     "GNP", 5.0,  0.5),    # soft: Ptch1 co-regulated w/ Gli1 (no exact bulk value)
+    ("Ptch1_mRNA","MB+HHi", "MB",  0.10, 0.5),    # soft: vismo collapses Gli -> Ptch1 transcription too
 ]
 
 
@@ -126,12 +133,26 @@ if __name__ == "__main__":
         best_f, best_x = objective(res0.x), res0.x.copy()
         save_best(best_x); print(f"  -> obj={best_f:.3f}")
 
-    # (2) local random restarts AROUND X0 (log-normal jitter), refine each
-    print("\nlocal random restarts around X0...")
-    for i in range(12):
-        jitter = np.exp(rng.normal(0.0, 0.35, len(X0)))
-        x = np.clip(X0 * jitter, LO, HI)
-        r = minimize(objective, x, method="Nelder-Mead", options=dict(maxiter=500, xatol=1e-3, fatol=1e-3))
+    # (2a) GLOBAL random search (full bounds) -- the Gli->Ptch1 feedback needs a different basin
+    #      (stronger feedback: lower GNP Gli, bigger MB/GNP contrast, higher MB Ptch1 mRNA)
+    print("\nglobal random search (full bounds)...")
+    for i in range(400):
+        x = LO + (HI - LO) * rng.random(len(LO))
+        f = objective(x)
+        if f < best_f:
+            best_f, best_x = f, x.copy()
+            save_best(best_x); print(f"  [g{i}] obj={f:.3f}")
+    print("  refining best global hit..."); r = minimize(objective, best_x, method="Nelder-Mead",
+                  options=dict(maxiter=1200, xatol=1e-4, fatol=1e-4))
+    if objective(r.x) < best_f:
+        best_f, best_x = objective(r.x), r.x.copy(); save_best(best_x); print(f"  -> obj={best_f:.3f}")
+
+    # (2b) local random restarts AROUND the current best (wider jitter), refine each
+    print("\nlocal random restarts around best...")
+    for i in range(16):
+        jitter = np.exp(rng.normal(0.0, 0.5, len(X0)))
+        x = np.clip(best_x * jitter, LO, HI)
+        r = minimize(objective, x, method="Nelder-Mead", options=dict(maxiter=600, xatol=1e-3, fatol=1e-3))
         f = objective(r.x)
         if f < best_f:
             best_f, best_x = f, r.x.copy()
