@@ -78,6 +78,35 @@ the calibration target for the HH module is therefore `CyclinD1 MB+HHi/MB = 0.14
 (0.55×) — that tumour is a differentiated, lower‑Hedgehog state, confounded, and is not used as a
 CyclinD1‑repression target (the clean EZH2→CyclinD1 strength comes from the GNP cKO/Taz data, §B).
 
+## A3. CDK inhibitors — the commitment threshold (p16/p21/p27, normalized counts)
+
+| Group | p21 (Cdkn1a) | p27 (Cdkn1b) | p16 (Cdkn2a) |
+|---|---|---|---|
+| P7_GNP_wt | 890 | 9,168 | **3.0** |
+| MB_Ptch_het | 2,511 | 10,893 | **417** |
+| MB_GDC0449 (vismo) | 2,339 | **14,261** | **842** |
+| P7_GNP_wt_GDC0449 | 893 | **11,632** | 2.8 |
+| P7_GNP_EZH2ko | 1,463 | 6,823 | **135** |
+
+**The vismo arrest in MB is multi‑pronged, and only part is EZH2i‑rescuable:**
+- **p16 (Cdkn2a)** is silent in GNPs (~3) and ~100–200× induced in MB (~400–840) — a classic
+  H3K27me3‑silenced locus (GNP EZH2ko derepresses it 3→135). p16 is THE CDK4/6 inhibitor. Modeled as a
+  **competitive** CDK4/6 brake: it raises the CyclinD1 half‑max for Rb phosphorylation,
+  `kPhRbCd·Cd/(K_CdRb·(1+p16) + Cd)` (new param `p16`: 0 in GNP, =3 in MB → eff K_CdRb 0.5→2.0). This
+  raises the CyclinD1 threshold to commit, so vismo's CyclinD1 drop now crosses it (arrest) — but MORE
+  CyclinD1 still overcomes it, so **EZH2i (CyclinD1 up) rescues** a p16‑braked arrest. Mechanistically
+  DISTINCT from CDK4/6i (palbociclib = `kPhRbCd=0`, a Vmax block) which raising CyclinD1 cannot bypass
+  → **not rescuable** (the model's clean contrast).
+- **p27 (Cdkn1b)** rises modestly in MB and is **highest in all vismo (GDC0449) samples** (Shh blockade
+  → cell‑cycle‑exit signal) — supports the arrest direction; not separately encoded (the p16 brake +
+  CyclinD1 drop already produce it; adding vismo→p27 would over‑arrest).
+- **p21 (Cdkn1a)** ~2.5–4× higher in MB; minor.
+
+This is why vismo drops proliferation to ~1/4 (a CyclinD1‑only model only reached ~86%), and why the
+EZH2i rescue tops out at ~2/3–3/4 (the non‑rescuable p16/Vmax‑like fraction sets the ceiling).
+*Note:* p16's H3K27me3 control is GNP‑specific — in MB p16 has already escaped silencing (high
+regardless), so EZH2i in MB does not re‑induce it; the CyclinD1 arm dominates → rescue.
+
 ## B. EZH2 perturbation → Cyclin D1 (the feedback strength, `K_EZH2_repression`)
 
 | Measurement | Experimental value | Constrains | Source |

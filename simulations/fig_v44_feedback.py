@@ -27,8 +27,8 @@ from simulations.validate_v44 import PARAMS
 T_END, N_PTS = 10080, 20160      # 168 h
 
 CTX = {
-    'GNP + SHH':    dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0),
-    'Ptch+/- MB':   dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8),
+    'GNP + SHH':    dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0),
+    'Ptch+/- MB':   dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=3.0),
 }
 
 

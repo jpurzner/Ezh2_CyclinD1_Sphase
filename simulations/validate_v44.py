@@ -33,6 +33,10 @@ PARAMS = {}        # stable baseline; the de-saturated HH fit (above target) cra
 P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
 MYCN_AMP_MB = 2.8
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
+P16_MB = 3.0             # MB = high p16 (Cdkn2a, ~100-200x induced, RNA-seq) -> competitive CDK4/6 brake
+                         # (eff K_CdRb = 0.5*(1+3) = 2.0). GNP p16=0 (H3K27me3-silenced). Vismo's CyclinD1
+                         # drop now crosses the p16-raised commitment threshold -> arrest; EZH2i (CyclinD1
+                         # up) overcomes it -> rescue. CDK4/6i (kPhRbCd=0, Vmax block) is NOT rescuable.
 
 SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
        "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass"]
@@ -48,7 +52,7 @@ def _new_rr():
     return rr
 
 
-def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0,
+def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0,
         hu=0.0, cdk46i=False, serum_starve=False, t_end=12000, n_pts=48000):
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
@@ -60,6 +64,7 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0,
         rr['GDC0449'] = gdc
         rr['EZH2i'] = ezh2i
         rr['MYCN_amplification'] = mycn_amp
+        rr['p16'] = p16              # competitive CDK4/6 brake (0 in GNP, elevated in MB)
         rr['HU'] = hu
         if cdk46i:
             rr['kPhRbCd'] = 0.0          # block CycD-CDK4/6-mediated Rb phosphorylation
@@ -123,13 +128,13 @@ CONDITIONS = {
     'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP + HHi + EZH2i': dict(shh=0.5, ptch1_cn=1.0, gdc=1.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP Serum-starved': dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, serum_starve=True),
-    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB),
-    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB),
-    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB),
-    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB),
-    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, cdk46i=True),
-    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, cdk46i=True),
-    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, hu=1.0),
+    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB),
+    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB),
+    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB),
+    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB),
+    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, cdk46i=True),
+    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, cdk46i=True),
+    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, hu=1.0),
 }
 
 
