@@ -55,29 +55,36 @@ def inhibit(p1, p2, color=C["inh"], lw=1.8, rad=0.0, z=2, shrink=8):
 
 
 ax.text(8.5, 10.2, "v44 cell-cycle model — module wiring", fontsize=15, fontweight="bold", ha="center")
-ax.text(8.5, 9.82, "Heldt 2018 core + explicit replication + mitotic switch + growth-gated R-point + Skp2–p27 feedforward + EZH2",
+ax.text(8.5, 9.82, "Heldt 2018 core + explicit replication + mitotic switch + growth-gated R-point + Skp2–p27 feedforward + EZH2"
+        "  ·  Gli→Ptch1 feedback  ·  p16 CDK4/6 brake",
         fontsize=9, ha="center", color="#555")
 
 # ===================== module regions =====================
-region(0.2, 6.2, 4.5, 3.0, C["hh"], C["hh_b"], "Hedgehog / MYCN  →  CyclinD1")
+region(0.2, 5.85, 4.5, 3.35, C["hh"], C["hh_b"], "Hedgehog / MYCN  →  CyclinD1")
 region(0.2, 0.4, 4.5, 5.3, C["growth"], C["growth_b"], "")
 ax.text(0.35, 5.4, "Cell growth & size control", fontsize=10.5, fontweight="bold", color=C["growth_b"])
-region(4.9, 3.0, 8.2, 6.2, C["cc"], C["cc_b"], "Cell-cycle engine  (G0 → G1 → S → G2 → M)")
+region(4.9, 3.0, 8.2, 6.2, C["cc"], C["cc_b"], "Cell-cycle engine", lx=8.25)
 region(4.9, 0.4, 8.2, 2.3, C["rep"], C["rep_b"], "Explicit DNA replication  (fork speed kSyDna)")
 region(13.3, 4.4, 3.5, 4.8, C["ezh2"], C["ezh2_b"], "EZH2 layer")
 region(13.3, 0.4, 3.5, 3.6, C["chk"], C["chk_b"], "Mitotic switch + intra-S checkpoint")
 
-# ===================== Hedgehog / MYCN =====================
-shh = node(0.95, 8.5, "SHH", w=1.0, fc="#fef9e7", fs=8.5)
-ptch = node(0.95, 7.6, "Ptch1\n(copy #)", w=1.2, h=0.62, fs=7.5)
-smo = node(2.35, 8.5, "Smo→Gli", w=1.4, fs=8)
-mycn = node(2.35, 6.85, "MYCN", w=1.2, fc=C["mycn"], ec=C["mycn_b"], fs=8.5, bold=True)
-cd = node(4.0, 7.7, "CyclinD1\n(Cd)", w=1.4, h=0.7, fc="#fdfefe", ec="#117a65", fs=9, bold=True)
-arrow(shh[:2], smo[:2], C["act"]); arrow((1.55,7.6),(2.0,8.2), C["inh"], style="-[", shrink=6)
-arrow(smo[:2], (cd[0]-0.2, cd[1]+0.25), C["act"], rad=-0.1)
-arrow(mycn[:2], (cd[0]-0.2, cd[1]-0.25), C["act"], rad=0.1)
-# drug GDC ⊣ Smo
-gdc = node(2.35, 9.7, "GDC0449", w=1.3, fc="#fdedeb", ec=C["drug"], fs=8, bold=True)
+# ===================== Hedgehog / MYCN  (with Gli→Ptch1 negative feedback) =====================
+shh = node(0.85, 8.55, "SHH", w=0.95, fc="#fef9e7", fs=8.5)
+smo = node(2.45, 8.55, "Smo → GliA", w=1.6, fs=8)
+ptch = node(0.95, 7.05, "Ptch1\n(Gli target)", w=1.35, h=0.62, fs=7.2)
+mycn = node(2.5, 6.6, "MYCN", w=1.2, fc=C["mycn"], ec=C["mycn_b"], fs=8.5, bold=True)
+cd = node(4.0, 7.65, "CyclinD1\n(Cd)", w=1.4, h=0.7, fc="#fdfefe", ec="#117a65", fs=9, bold=True)
+# SHH relieves Ptch1's inhibition of Smo; Smo→GliA drives CyclinD1 (& Gli1); MYCN also drives Cd
+arrow(shh[:2], (smo[0]-0.7, smo[1]), C["act"])
+arrow((smo[0]+0.3, smo[1]-0.3), (cd[0]-0.25, cd[1]+0.28), C["act"], rad=-0.12)
+arrow(mycn[:2], (cd[0]-0.25, cd[1]-0.28), C["act"], rad=0.12)
+# --- canonical negative feedback: GliA → Ptch1 ⊣ Smo  (intact in GNP; BROKEN in MB) ---
+arrow((smo[0]-0.55, smo[1]-0.3), (ptch[0]+0.4, ptch[1]+0.28), C["hh_b"], rad=-0.30, lw=1.5)      # GliA induces Ptch1
+inhibit((ptch[0]+0.0, ptch[1]+0.33), (smo[0]-0.62, smo[1]-0.25), C["inh"], rad=0.30, shrink=3)   # functional Ptch1 ⊣ Smo
+ax.text(0.30, 6.32, "neg. feedback  GliA→Ptch1⊣Smo", fontsize=7.0, color=C["hh_b"], ha="left", fontweight="bold")
+ax.text(0.30, 6.06, "functional Ptch1 f: GNP 1.0 → MB ~0.1 (broken → Gli↑)", fontsize=6.3, color="#555", ha="left", style="italic")
+# drug GDC0449 ⊣ Smo
+gdc = node(2.45, 9.6, "GDC0449", w=1.3, fc="#fdedeb", ec=C["drug"], fs=8, bold=True)
 inhibit((gdc[0], gdc[1]-0.3), (smo[0], smo[1]+0.3), C["drug"], shrink=4)
 
 # ===================== growth =====================
@@ -102,7 +109,16 @@ inhibit((skp2[0]+0.4, skp2[1]+0.1), (p27[0]+0.2, p27[1]-0.3), C["inh"], rad=0.3,
 arrow((rb[0], rb[1]-0.3), (e2f[0]-0.2, e2f[1]+0.25), C["act"], rad=-0.1)
 arrow((e2f[0]+0.2, e2f[1]+0.3), (skp2[0]+0.4, skp2[1]+0.3), C["act"], rad=-0.4, lw=1.4)  # E2F→Skp2
 inhibit((p27[0]+0.5, p27[1]), (rb[0]-0.55, rb[1]), C["inh"], shrink=3)  # p27 ⊣ CDK2/Rb
-arrow((cd[0]+0.5, cd[1]), (rb[0]-0.6, rb[1]+0.15), C["act"], rad=-0.15)  # CyclinD → Rb
+arrow((cd[0]+0.5, cd[1]), (rb[0]-0.6, rb[1]+0.15), C["act"], rad=-0.15)  # CyclinD → Rb (via CDK4/6)
+ax.text(5.2, 7.42, "CDK4/6", fontsize=6.8, color="#117a65", ha="center", style="italic", zorder=5)
+# --- p16 (Cdkn2a) COMPETITIVE brake + palbociclib (Vmax block) on the CyclinD1→Rb arm ---
+p16 = node(5.05, 8.72, "p16 (Cdkn2a)", w=1.5, h=0.5, fc="#f4ecf7", ec=C["ezh2_b"], fs=7.3, bold=True)
+inhibit((p16[0]-0.1, p16[1]-0.27), (5.0, 7.84), C["inh"], shrink=3)                 # competitive: ↑Cd→Rb half-max
+ax.text(4.25, 9.12, "EZH2-silenced (GNP 0) · high in MB", fontsize=6.3, color=C["ezh2_b"],
+        ha="left", style="italic")
+palbo = node(5.15, 6.78, "CDK4/6i\n(palbo)", w=1.35, h=0.6, fc="#fdedeb", ec=C["drug"], fs=7.2, bold=True)
+inhibit((palbo[0]+0.05, palbo[1]+0.32), (5.1, 7.66), C["drug"], shrink=3)            # Vmax block (kPhRbCd=0)
+ax.text(5.15, 6.36, "Vmax block (not surmountable by Cd)", fontsize=6.0, color=C["drug"], ha="center", style="italic")
 # size gate on commitment
 arrow((mass[0]+0.9, mass[1]+0.45), (5.7, 7.2), C["growth_b"], rad=-0.25, ls=":", lw=1.4)
 
@@ -143,7 +159,7 @@ ax.text(13.05, 7.95, "(S-window\ngated by CDK2)", fontsize=6.5, color="#888", ha
 ezi = node(15.0, 9.0, "EZH2i", w=1.1, fc="#fdedeb", ec=C["drug"], fs=8, bold=True)
 # central feedback: EZH2 ⊣ CyclinD1
 inhibit((ezh2[0]-1.2, ezh2[1]-0.1), (cd[0]+0.1, cd[1]+0.4), C["fb"], rad=0.32, lw=2.4, shrink=4)
-ax.text(9.2, 8.95, "EZH2 ⊣ CyclinD1  (central feedback: longer S → more EZH2 → ↓CyclinD1 → longer G0/G1)",
+ax.text(9.5, 9.48, "EZH2 ⊣ CyclinD1  (central feedback: longer S → more EZH2 → ↓CyclinD1)",
         fontsize=8.5, color=C["fb"], ha="center", fontweight="bold")
 
 # ===================== phase bar (top-right) =====================
