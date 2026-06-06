@@ -67,11 +67,12 @@ including the vismodegib-treated MB measurement: Gli1 and Cyclin D1 are both ~7-
 MB than in P7 GNPs (Cyclin D1 predominantly Gli-driven), and vismodegib collapses MB Cyclin D1 by
 ~86% — to roughly the level of a cycling GNP. On Cyclin D1 alone that drop is too small to arrest
 (a GNP cycles at that level), but the RNA-seq shows MB carries a much higher **CDK-inhibitor tone**
-than GNPs: **p16 (Cdkn2a, INK4) is silent in GNPs and ~100–200× induced in MB, and p21 (Cdkn1a,
-CIP/KIP) is also markedly elevated** (with p27 induced further under vismodegib). The model includes
-both as the MB CDK-inhibitor tone: p16 acts as a *competitive* CDK4/6 inhibitor that raises the
-Cyclin D1 threshold for CDK4/6-mediated Rb phosphorylation, and p21 inhibits CDK2 (Cyclin E/A),
-together raising the Cyclin D1 level required to commit. With this combined brake, MB's very high
+than GNPs, across both CDK-inhibitor families: the **INK4 family (CDK4/6 inhibitors) — p16 (Cdkn2a)
+139×, p15 6.4×, p18 3.0× — and the CIP/KIP family (CDK2 inhibitors) — p21 (Cdkn1a) 3.1×, p27 1.4×**
+are all elevated in MB. The model captures these as two effective brakes, each standing for its
+family: a **competitive CDK4/6 brake (p16, INK4 tone)** that raises the Cyclin D1 threshold for
+CDK4/6-mediated Rb phosphorylation, and a **CDK2 brake (p21/p27, CIP/KIP tone)** that inhibits Cyclin
+E/A–CDK2, together raising the Cyclin D1 level required to commit. With this combined brake, MB's very high
 Cyclin D1 still commits, but the vismodegib-reduced Cyclin D1 falls below threshold — so vismodegib
 arrests MB while a GNP at the same Cyclin D1 (no p16/p21 tone) keeps cycling. In a
 heterogeneous tumour ensemble the cycling fraction falls from 100% (MB) to ~23% (MB+HHi); Ezh2
@@ -183,12 +184,13 @@ and a minority Mycn-driven term, each multiplied by the Ezh2 repression factor. 
 translated from this mRNA and feeds the cell cycle through Cyclin D/CDK4,6-mediated Rb
 phosphorylation, implemented as a *saturating* drive, kPhRbCd·Cd/(K_CdRb·(1+p16)+Cd), so that the
 data-matched (up to ~7×) transcript level maps to a bounded kinase activity (CDK4/6 saturates) and
-the integrator stays stable. The MB CDK-inhibitor tone is modeled by two co-elevated context inputs:
-**p16 (Cdkn2a)** enters as a *competitive* CDK4/6 inhibitor that raises the Cyclin D1 half-max
-(K_CdRb·(1+p16)) — 0 in GNPs (H3K27me3-silenced), 1.2 in MB; and **p21 (Cdkn1a)** is raised through
-its synthesis rate (kSyP21 set to ~2× the GNP baseline in MB), inhibiting Cyclin E/A–CDK2. Together
-they raise the Cyclin D1 commitment threshold in MB while remaining surmountable by more Cyclin D1
-(so Ezh2i can rescue). CDK4/6 inhibition
+the integrator stays stable. The MB CDK-inhibitor tone is modeled by two co-elevated context inputs,
+each standing for an inhibitor *family* (all members up in the MB RNA-seq; see PARAMETERIZATION §A3):
+**p16 (the INK4 / CDK4/6 tone — p16 139×, p15 6.4×, p18 3.0×)** enters as a *competitive* CDK4/6
+inhibitor that raises the Cyclin D1 half-max (K_CdRb·(1+p16)) — 0 in GNPs (H3K27me3-silenced), 1.2 in
+MB; and **p21 (the CIP/KIP / CDK2 tone — p21 3.1×, p27 1.4×)** is raised through its synthesis rate
+(kSyP21 set to ~2× the GNP baseline in MB), inhibiting Cyclin E/A–CDK2. Together they raise the Cyclin
+D1 commitment threshold in MB while remaining surmountable by more Cyclin D1 (so Ezh2i can rescue). CDK4/6 inhibition
 (palbociclib) was implemented instead by setting the Cyclin D/CDK4,6-mediated Rb-phosphorylation rate
 (kPhRbCd) to zero — a *non-competitive* (Vmax) block that raising Cyclin D1 cannot bypass, so it is not
 Ezh2i-rescuable — leaving Cyclin D1 transcription unaffected.

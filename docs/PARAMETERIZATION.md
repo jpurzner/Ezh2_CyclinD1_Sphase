@@ -78,38 +78,50 @@ the calibration target for the HH module is therefore `CyclinD1 MB+HHi/MB = 0.14
 (0.55×) — that tumour is a differentiated, lower‑Hedgehog state, confounded, and is not used as a
 CyclinD1‑repression target (the clean EZH2→CyclinD1 strength comes from the GNP cKO/Taz data, §B).
 
-## A3. CDK inhibitors — the commitment threshold (p16/p21/p27, normalized counts)
+## A3. CDK inhibitors — the commitment threshold (full CKI panel; normalized counts)
 
-| Group | p21 (Cdkn1a) | p27 (Cdkn1b) | p16 (Cdkn2a) |
-|---|---|---|---|
-| P7_GNP_wt | 890 | 9,168 | **3.0** |
-| MB_Ptch_het | 2,511 | 10,893 | **417** |
-| MB_GDC0449 (vismo) | 2,339 | **14,261** | **842** |
-| P7_GNP_wt_GDC0449 | 893 | **11,632** | 2.8 |
-| P7_GNP_EZH2ko | 1,463 | 6,823 | **135** |
+Source: `Medulloblastoma_projects/H3K27me3_fast_change/Scott_Bulk_Quant/CDK_inhibitors_summary.{csv,md}`
+(DESeq2 size‑factor normalized, cleaned set). The CKIs sort by their CDK target — exactly the two
+brakes the model separates. **p57 (Cdkn1c) is EXCLUDED** (separate project; it goes the opposite way,
+*down* 0.49× in MB).
 
-**The vismo arrest in MB is multi‑pronged, and only part is EZH2i‑rescuable:**
-- **p16 (Cdkn2a)** is silent in GNPs (~3) and ~100–200× induced in MB (~400–840) — a classic
-  H3K27me3‑silenced locus (GNP EZH2ko derepresses it 3→135). p16 is THE CDK4/6 inhibitor. Modeled as a
-  **competitive** CDK4/6 brake: it raises the CyclinD1 half‑max for Rb phosphorylation,
-  `kPhRbCd·Cd/(K_CdRb·(1+p16) + Cd)` (param `p16`: 0 in GNP, =1.2 in MB → eff K_CdRb 0.5→1.1). This
-  raises the CyclinD1 threshold to commit, so vismo's CyclinD1 drop now crosses it (arrest) — but MORE
-  CyclinD1 still overcomes it, so **EZH2i (CyclinD1 up) rescues** a p16‑braked arrest. Mechanistically
-  DISTINCT from CDK4/6i (palbociclib = `kPhRbCd=0`, a Vmax block) which raising CyclinD1 cannot bypass
-  → **not rescuable** (the model's clean contrast).
-- **p21 (Cdkn1a)** ~2.5–4× higher in MB — now **also encoded**: MB sets the p21 synthesis rate
-  `kSyP21` to ~2× the GNP baseline (0.002→0.004), inhibiting CyclinE/A–CDK2. This shares the
-  threshold‑raising with p16 (so p16 came down 3.3→1.2 when p21 was added) and additionally lengthens
-  the p21/p27‑high transient G0 (improving the MB G0 phase fraction). Both p16 and p21 are co‑elevated
-  GNP→MB; the split between them is a modeling choice (the data give both elevated, not the exact ratio).
-- **p27 (Cdkn1b)** rises modestly in MB and is **highest in all vismo (GDC0449) samples** (Shh blockade
-  → cell‑cycle‑exit signal) — supports the arrest direction; folded into the kSyP21 (p21/p27) term,
-  not separately encoded (adding an explicit vismo→p27 induction would over‑arrest).
+**INK4 family → inhibit CDK4/6 → the model's competitive CyclinD1→Rb brake (`p16`):**
 
-This is why vismo drops proliferation to ~1/4 (a CyclinD1‑only model only reached ~86%), and why the
-EZH2i rescue tops out at ~2/3–3/4 (the non‑rescuable p16/Vmax‑like fraction sets the ceiling).
-*Note:* p16's H3K27me3 control is GNP‑specific — in MB p16 has already escaped silencing (high
-regardless), so EZH2i in MB does not re‑induce it; the CyclinD1 arm dominates → rescue.
+| gene | alias | P7_wt | MB | MB/P7 | MB+GDC | sig |
+|---|---|---:|---:|---:|---:|:--:|
+| Cdkn2a | **p16** | 3 | 417 | **139×** | 842 | *** |
+| Cdkn2b | p15 | 25 | 154 | 6.4× | 281 | *** |
+| Cdkn2c | p18 | 1,149 | 4,288 | 3.0× | 2,121 | *** |
+| Cdkn2d | p19 | 890 | 1,449 | 1.2× | 1,028 | ns |
+
+**CIP/KIP family → inhibit CDK2 → the model's p21/p27 arm (`kSyP21`):**
+
+| gene | alias | P7_wt | MB | MB/P7 | MB+GDC | sig |
+|---|---|---:|---:|---:|---:|:--:|
+| Cdkn1a | **p21** | 890 | 2,511 | 3.1× | 2,339 | *** |
+| Cdkn1b | p27 | 9,168 | 10,893 | 1.4× | 14,261 | ** |
+
+**How the model encodes this — two effective brakes, each an aggregate family tone:**
+- **model `p16` = the INK4 / CDK4/6 tone** (p16 dominant at 139×, plus p15 6.4× and p18 3.0×; p19 ns)
+  — a *competitive* CDK4/6 brake raising the CyclinD1→Rb half‑max `kPhRbCd·Cd/(K_CdRb·(1+p16)+Cd)`
+  (0 in GNP, 1.2 in MB). This is the **rescuable** axis: more CyclinD1 overcomes it, so **EZH2i rescues**.
+  Contrast CDK4/6i (palbociclib = `kPhRbCd=0`, a non‑competitive Vmax block) which raising CyclinD1
+  cannot bypass → **not rescuable** (the model's clean contrast).
+- **model `kSyP21` = the CIP/KIP / CDK2 tone** (p21 3.1× + p27 1.4×) — raises p21/p27 synthesis ~2× in
+  MB (0.002→0.004), inhibiting CyclinE/A–CDK2; also lengthens the p21/p27‑high transient G0.
+
+So the two brake parameters are *family aggregates* (INK4, CIP/KIP), not single genes — which is why
+the wider panel **reinforces** the structure: the CDK4/6 (INK4) arm is strongly and broadly induced
+(p16 ≫, + p15, + p18) and is the dominant, rescuable brake; the CDK2 (CIP/KIP) arm is a more modest
+co‑brake. This is why vismo drops proliferation to ~1/4 (a CyclinD1‑only model only reached ~86%), and
+why the EZH2i rescue tops out at ~2/3–3/4 (the non‑rescuable Vmax‑like ceiling).
+
+**GDC0449 (vismo) barely moves the CKIs** (MB: only p16 marginal +1.23, padj 0.083; all others ns; P7
+GNPs: only p18 *down*, padj 0.006 — Shh maintains p18 in GNPs). This supports treating the CKI tone as
+a ~static tonic threshold under vismo: **the vismo arrest is the CyclinD1 drop crossing a fixed brake,
+not CKI induction.** p16 is an H3K27me3‑silenced locus in GNPs (GNP EZH2ko derepresses it 3→135), but in
+MB it has already escaped silencing (high regardless), so EZH2i in MB does not re‑induce it and the
+CyclinD1 arm dominates → rescue.
 
 ## B. EZH2 perturbation → Cyclin D1 (the feedback strength, `K_EZH2_repression`)
 
