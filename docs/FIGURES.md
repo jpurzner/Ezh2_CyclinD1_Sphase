@@ -24,6 +24,7 @@ counter, the phase (p27) classifier, and the experimental-target checks that the
 | **Supp. Fig. 8I,J** — MB+CDK4/6i and MB+CDK4/6i+Ezh2i (no rescue) | `fig_v44_cdk46i_norescue.pdf` | `fig_v44_fig5_rescue.py` | emitted alongside Fig. 5 |
 | **Supp. Fig. 7x** — Gli→Ptch1 negative feedback & its disruption in MB (Gli1 step overshoot GNP vs MB; Ptch1 mRNA induction; Smo/Gli broken‑loop) | `fig_v44_ptch1_feedback.pdf` | `fig_v44_ptch1_feedback.py` | Ptch1 = Gli target; `Ptch1_copy_number` = functional fraction (1.0 GNP / 0.1 MB) |
 | **Fig. 5C** — population cycling fraction (vismo↓, Ezh2i restores; CDK4/6i no rescue) | `fig_v44_fig5_population.pdf` | `fig_v44_fig5_population.py` | N=120 ensemble, CyclinD1/p27 heterogeneity |
+| **Conditions → input parameters + parameter space** (A: input-knob matrix per condition; B: CyclinD1×p16 plane with cycle/arrest boundary + each condition placed) | `fig_v44_condition_paramspace.pdf` | `fig_v44_condition_paramspace.py` | shows MB+HHi arresting at the *same* CyclinD1 a GNP cycles at, because p16 raises the threshold; EZH2i crosses it back |
 
 Drop‑in replacement Results/Methods/captions for the manuscript: `simulations/PAPER_MODEL_SECTIONS_v44.md`.
 Data sources used to parameterize the model: `docs/PARAMETERIZATION.md`.
