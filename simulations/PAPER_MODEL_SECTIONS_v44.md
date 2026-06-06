@@ -75,9 +75,9 @@ CDK4/6-mediated Rb phosphorylation, and a **CDK2 brake (p21/p27, CIP/KIP tone)**
 E/A–CDK2, together raising the Cyclin D1 level required to commit. With this combined brake, MB's very high
 Cyclin D1 still commits, but the vismodegib-reduced Cyclin D1 falls below threshold — so vismodegib
 arrests MB while a GNP at the same Cyclin D1 (no p16/p21 tone) keeps cycling. In a
-heterogeneous tumour ensemble the cycling fraction falls from 100% (MB) to ~23% (MB+HHi); Ezh2
+heterogeneous tumour ensemble the cycling fraction falls from 100% (MB) to ~20% (MB+HHi); Ezh2
 inhibition de-represses Cyclin D1 and, because the p16 brake is *competitive* (more Cyclin D1
-overcomes it), pushes most cells back over threshold, restoring the cycling fraction to ~73% (Fig.
+overcomes it), pushes most cells back over threshold, restoring the cycling fraction to ~74% (Fig.
 5C). **The contrast with CDK4/6 inhibition is the key control:** palbociclib blocks CDK4/6 kinase
 activity outright (a Vmax block, not competitive), so raising Cyclin D1 cannot bypass it — the cycling
 fraction stays at 0% with or without Ezh2i (Fig. 5D, Fig. S8I,J). Thus Ezh2 inhibition rescues an
@@ -184,13 +184,16 @@ and a minority Mycn-driven term, each multiplied by the Ezh2 repression factor. 
 translated from this mRNA and feeds the cell cycle through Cyclin D/CDK4,6-mediated Rb
 phosphorylation, implemented as a *saturating* drive, kPhRbCd·Cd/(K_CdRb·(1+p16)+Cd), so that the
 data-matched (up to ~7×) transcript level maps to a bounded kinase activity (CDK4/6 saturates) and
-the integrator stays stable. The MB CDK-inhibitor tone is modeled by two co-elevated context inputs,
-each standing for an inhibitor *family* (all members up in the MB RNA-seq; see PARAMETERIZATION §A3):
-**p16 (the INK4 / CDK4/6 tone — p16 139×, p15 6.4×, p18 3.0×)** enters as a *competitive* CDK4/6
-inhibitor that raises the Cyclin D1 half-max (K_CdRb·(1+p16)) — 0 in GNPs (H3K27me3-silenced), 1.2 in
-MB; and **p21 (the CIP/KIP / CDK2 tone — p21 3.1×, p27 1.4×)** is raised through its synthesis rate
-(kSyP21 set to ~2× the GNP baseline in MB), inhibiting Cyclin E/A–CDK2. Together they raise the Cyclin
-D1 commitment threshold in MB while remaining surmountable by more Cyclin D1 (so Ezh2i can rescue). CDK4/6 inhibition
+the integrator stays stable. The MB CDK-inhibitor tone is modeled by elevated context inputs spanning
+both inhibitor families (all members up in the MB RNA-seq; see PARAMETERIZATION §A3). The **INK4 /
+CDK4/6 brake is *competitive*** — it raises the Cyclin D1 half-max, K_CdRb·(1 + p16 + p18) — and is
+carried by two explicit inputs: **p16 (Cdkn2a)**, the H3K27me3-silenced, MB-specific INK4 (0 in GNPs →
+0.88 in MB), and **p18 (Cdkn2c)**, the *constitutive* INK4 that is substantially expressed in GNPs and
+a literature-established GNP/MB CDK4/6 inhibitor (0.4 in GNPs → 1.2 in MB, ~3×; the base K_CdRb is
+lowered to 0.357 so the GNP p18 baseline leaves GNP behavior unchanged). Separately, the **CIP/KIP /
+CDK2 brake** — **p21 (Cdkn1a) 3.1×, p27 1.4×** — is raised through the p21/p27 synthesis rate (kSyP21
+~2× the GNP baseline in MB), inhibiting Cyclin E/A–CDK2. Together they raise the Cyclin D1 commitment
+threshold in MB while the INK4 brake remains surmountable by more Cyclin D1 (so Ezh2i can rescue). CDK4/6 inhibition
 (palbociclib) was implemented instead by setting the Cyclin D/CDK4,6-mediated Rb-phosphorylation rate
 (kPhRbCd) to zero — a *non-competitive* (Vmax) block that raising Cyclin D1 cannot bypass, so it is not
 Ezh2i-rescuable — leaving Cyclin D1 transcription unaffected.
@@ -240,7 +243,7 @@ remains cell-cycle-coupled and is treated as a soft target.
 *Consequence for the rescue interpretation.* Vismodegib lowers MB Cyclin D1 below the **p16/p21-raised**
 commitment threshold (high CDK-inhibitor tone in MB; absent in GNP), producing a strong,
 population-level arrest and rescue (Fig. 5C): the cycling fraction of a heterogeneous MB ensemble
-falls from 100% (MB) to ~23% (MB+HHi) and is restored to ~73% by Ezh2 inhibition, while CDK4/6
+falls from 100% (MB) to ~20% (MB+HHi) and is restored to ~74% by Ezh2 inhibition, while CDK4/6
 inhibition (a Vmax kinase block, not competitive) holds the fraction at 0% with or without Ezh2i.
 Because the p16 brake is competitive, Ezh2i's Cyclin D1 de-repression overcomes it (rescue); because
 palbociclib is non-competitive, it cannot. The exact fractions scale with the assumed cell-to-cell
@@ -333,7 +336,7 @@ vismodegib-treated MB measurement). (A) Calibrated expression: Gli1 and Cyclin D
 lockstep from P7 GNP to Ptch+/− MB, and vismodegib collapses MB Cyclin D1 by ~86% to roughly a
 cycling GNP's level (model vs data), with Mycn the HHi-resistant residual. (B) Predicted Cyclin
 B/CDK1 oscillation in cycling Ptch+/− MB. (C) Population cycling fraction (N = 120 cells with cyclin
-D1 / p27 heterogeneity): 100% (MB) → 23% (MB+HHi) → 73% (MB+HHi+Ezh2i) — vismodegib lowers Cyclin D1
+D1 / p27 heterogeneity): 100% (MB) → 20% (MB+HHi) → 74% (MB+HHi+Ezh2i) — vismodegib lowers Cyclin D1
 below the p16/p21-raised commitment threshold (high CDK-inhibitor tone in MB) so most cells drop
 below it, and Ezh2 inhibition de-represses Cyclin D1 and lifts most cells back above (the competitive
 p16 brake is surmountable by Cyclin D1), restoring cycling; whereas CDK4/6 inhibition (a Vmax kinase
@@ -407,16 +410,19 @@ Ptch1 cannot brake Smo — the molecular signature of the broken feedback.
    ~0.5 Ptch1⁺/⁻, ~0.1 MB) gates Ptch1's repression of Smo, so MB is modeled as a *broken loop*
    (Gli-induced Ptch1 is non-functional → constitutive Gli; Ptch1 mRNA stays elevated as a Gli/SHH-MB
    marker). GNPs now show an adaptive Gli1 overshoot to a Shh step (Fig. S7x); MB does not.
-6. **A combined p16 + p21 CDK-inhibitor brake gives the strong vismodegib arrest and EZH2i rescue (NEW).**
-   The CDK-inhibitor RNA-seq (p16/Cdkn2a silent in GNP, ~100–200× in MB; p21/Cdkn1a markedly up; p27
-   induced by vismodegib) shows MB carries a high CDK-inhibitor tone. The model raises both in MB:
-   **p16** as a *competitive* CDK4/6 inhibitor (raises the Cyclin D1 half-max K_CdRb·(1+p16); 0 in GNP,
-   1.2 in MB) and **p21** via its synthesis rate (kSyP21 ~2× the GNP baseline in MB; inhibits Cyclin
-   E/A–CDK2). Together they raise the MB Cyclin D1 commitment threshold so vismodegib's Cyclin D1 drop
-   now arrests MB (a GNP at the same Cyclin D1, no p16/p21 tone, still cycles), while remaining
-   surmountable by Cyclin D1 so EZH2i rescues. Population cycling fraction: 100% (MB) → 23% (MB+HHi) →
-   73% (MB+HHi+Ezh2i), matching the experimental pRb+ counts (DMSO → ~1/4 vismodegib → ~3/4 +Ezh2i).
-   (Adding p21 also lengthens the p21/p27-high transient G0, improving the MB G0 phase fraction.)
+6. **A combined INK4 (p16+p18) + CIP/KIP (p21/p27) CDK-inhibitor brake gives the strong vismodegib
+   arrest and EZH2i rescue (NEW).** The full CDK-inhibitor RNA-seq (INK4: p16/Cdkn2a 139×, p15 6.4×,
+   p18/Cdkn2c 3.0×; CIP/KIP: p21/Cdkn1a 3.1×, p27 1.4×; p57 excluded — separate project) shows MB
+   carries a high tone in both families. The model raises both: the **competitive CDK4/6 (INK4) brake**
+   `K_CdRb·(1 + p16 + p18)` — carried by **p16** (GNP-silent, MB-specific: 0→0.88) and **p18** (the
+   constitutive, GNP-expressed INK4: 0.4→1.2; base K_CdRb lowered to 0.357 so GNP behavior is
+   unchanged) — and the **CDK2 (CIP/KIP) brake** via **p21/p27** synthesis (kSyP21 ~2× baseline).
+   Together they raise the MB Cyclin D1 commitment threshold so vismodegib's Cyclin D1 drop arrests MB
+   (a GNP at the same Cyclin D1, no INK4/CIP-KIP tone, still cycles), while the *competitive* INK4 brake
+   stays surmountable by more Cyclin D1 so EZH2i rescues. Population cycling fraction: 100% (MB) →
+   ~20% (MB+HHi) → ~74% (MB+HHi+Ezh2i), matching the experimental pRb+ counts (DMSO → ~1/4 vismodegib →
+   ~3/4 +Ezh2i). (The elevated p21/p27 also lengthens the p21/p27-high transient G0, improving the MB
+   G0 phase fraction.)
    **CDK4/6i (palbociclib) is a non-competitive Vmax block (kPhRbCd=0) that Cyclin D1 cannot bypass →
    0% with or without Ezh2i** — the key rescuable-vs-non-rescuable contrast. The Ezh2 MB/GNP ratio
    remains a soft (cell-cycle-coupled) target. *(This supersedes earlier notes: with the MB_GDC0449

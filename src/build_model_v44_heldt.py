@@ -365,16 +365,21 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # kPhRbCd*Cd/(K_CdRb + Cd). This DECOUPLES CyclinD1 LEVEL (which tracks the RNA-seq, up to ~7x in
         # MB once the HH pathway is de-saturated) from the bounded cell-cycle DRIVE -- so high CyclinD1
         # no longer makes the engine stiff. (Linear kPhRbCd*Cd crashed the rescue conditions at MB levels.)
-        # p16 (Cdkn2a) is a COMPETITIVE CDK4/6 inhibitor -> it raises the CyclinD1 half-max for Rb
-        # phosphorylation: kPhRbCd*Cd/(K_CdRb*(1 + p16) + Cd). Higher p16 raises the CyclinD1 threshold
-        # to commit, but MORE CyclinD1 still overcomes it -> EZH2i (which de-represses CyclinD1) CAN
-        # rescue a p16-braked arrest. This is mechanistically DISTINCT from CDK4/6i (palbociclib),
-        # modeled as kPhRbCd=0 (a Vmax block) which raising CyclinD1 CANNOT bypass -> NOT rescuable.
-        # p16 is silenced (H3K27me3) in GNPs (p16=0) and ~100-200x induced in MB (RNA-seq) -> p16>0.
+        # INK4 CDK4/6 inhibitors (p16 + p18) are COMPETITIVE -> they raise the CyclinD1 half-max for Rb
+        # phosphorylation: kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18) + Cd). Higher INK4 tone raises the CyclinD1
+        # threshold to commit, but MORE CyclinD1 still overcomes it -> EZH2i (de-represses CyclinD1) CAN
+        # rescue an INK4-braked arrest. DISTINCT from CDK4/6i (palbociclib), modeled as kPhRbCd=0 (a Vmax
+        # block) which raising CyclinD1 CANNOT bypass -> NOT rescuable.
+        #   p16 (Cdkn2a): H3K27me3-silenced in GNPs (p16=0), ~139x induced in MB (the dramatic, MB-specific
+        #                 INK4) -> p16>0 in MB.
+        #   p18 (Cdkn2c): the CONSTITUTIVE INK4 -- substantially expressed in GNPs (p18=0.4 baseline; known
+        #                 GNP/MB INK4 in the literature, Shh-maintained) and ~3x higher in MB (p18=1.2).
+        # K_CdRb=0.357 with the GNP p18=0.4 baseline gives the same GNP net half-max (0.357*1.4=0.5) as the
+        # earlier p18-free K_CdRb=0.5 -> GNP behavior preserved; MB tone is p16+p18.
         if "kPhRbCd*Cd " not in m:
             raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
-        m = m.replace("kPhRbCd*Cd ", "kPhRbCd*Cd/(K_CdRb*(1 + p16) + Cd) ")   # both Rb reactions
-        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.5;\n  p16 = 0.0;")
+        m = m.replace("kPhRbCd*Cd ", "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18) + Cd) ")   # both Rb reactions
+        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.357;\n  p16 = 0.0;\n  p18 = 0.4;")
 
     if with_growth:
         # size gate on S-entry (origin firing) + mass growth + halving at division
@@ -384,7 +389,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # size gate on COMMITMENT: CyclinD->Rb trigger waits for size -> transient growth-timed G0.
         # With two-step Rb, commit_gate is already baked into the mono step (_apply_two_step_rb).
         if not with_two_step_rb:
-            cd_rb = "kPhRbCd*Cd/(K_CdRb*(1 + p16) + Cd) +" if with_cd_sat else "kPhRbCd*Cd +"
+            cd_rb = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18) + Cd) +" if with_cd_sat else "kPhRbCd*Cd +"
             if cd_rb not in m:
                 raise RuntimeError("Rb-phosphorylation (CyclinD term) not found in expected form.")
             m = m.replace(cd_rb, cd_rb[:-2] + "*commit_gate +")

@@ -33,12 +33,13 @@ PARAMS = {}        # stable baseline; the de-saturated HH fit (above target) cra
 P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
 MYCN_AMP_MB = 2.8
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
-P16_MB = 1.2             # MB CDK-inhibitor tone is carried by BOTH p16 (Cdkn2a, INK4 -> competitive CDK4/6
-KSYP21_MB = 0.004        # brake, raises K_CdRb) AND p21 (Cdkn1a, CIP/KIP -> CDK2 inhibition, kSyP21 2x the
-                         # GNP baseline 0.002), both elevated in MB (RNA-seq). GNP: p16=0 (H3K27me3-silenced),
-                         # p21 baseline. Together they raise the CyclinD1 commitment threshold so vismo's
-                         # CyclinD1 drop arrests MB; EZH2i (CyclinD1 up) overcomes the competitive brake ->
-                         # rescue. CDK4/6i (kPhRbCd=0, Vmax block) is NOT rescuable.
+P16_MB = 0.88            # MB CDK-inhibitor tone = INK4 (CDK4/6, competitive) + CIP/KIP (CDK2):
+P18_MB = 1.2             #   INK4 = p16 (Cdkn2a, GNP-silent->MB 139x; P16_MB) + p18 (Cdkn2c, the constitutive
+KSYP21_MB = 0.004        #   INK4, GNP baseline 0.4 -> MB ~3x = P18_MB); raise K_CdRb*(1+p16+p18).
+                         #   CIP/KIP = p21/p27 (kSyP21 2x the GNP baseline 0.002).
+                         # GNP: p16=0, p18=0.4 (builder default), p21 baseline. Together they raise the
+                         # CyclinD1 commitment threshold so vismo's CyclinD1 drop arrests MB; EZH2i (CyclinD1
+                         # up) overcomes the COMPETITIVE INK4 brake -> rescue. CDK4/6i (kPhRbCd=0, Vmax) NOT rescuable.
 
 SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
        "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass"]
@@ -54,7 +55,7 @@ def _new_rr():
     return rr
 
 
-def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, ksyp21=None,
+def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, ksyp21=None,
         hu=0.0, cdk46i=False, serum_starve=False, t_end=12000, n_pts=48000):
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
@@ -72,7 +73,9 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, ksyp21
             rr['GDC0449'] = gdc
             rr['EZH2i'] = ezh2i
             rr['MYCN_amplification'] = mycn_amp
-            rr['p16'] = p16              # competitive CDK4/6 brake (0 in GNP, elevated in MB)
+            rr['p16'] = p16              # INK4 (Cdkn2a): competitive CDK4/6 brake (0 in GNP, elevated in MB)
+            if p18 is not None:
+                rr['p18'] = p18          # INK4 (Cdkn2c): constitutive (GNP default 0.4), ~3x in MB
             if ksyp21 is not None:
                 rr['kSyP21'] = ksyp21    # p21/p27 (CDK2 inhibitor) synthesis; elevated in MB
             rr['HU'] = hu
@@ -138,13 +141,13 @@ CONDITIONS = {
     'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP + HHi + EZH2i': dict(shh=0.5, ptch1_cn=1.0, gdc=1.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP Serum-starved': dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, serum_starve=True),
-    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB),
-    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB),
-    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB),
-    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB),
-    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB, cdk46i=True),
-    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB, cdk46i=True),
-    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, ksyp21=KSYP21_MB, hu=1.0),
+    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
+    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
+    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, hu=1.0),
 }
 
 

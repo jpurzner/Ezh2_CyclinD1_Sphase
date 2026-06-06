@@ -102,9 +102,14 @@ brakes the model separates. **p57 (Cdkn1c) is EXCLUDED** (separate project; it g
 | Cdkn1b | p27 | 9,168 | 10,893 | 1.4× | 14,261 | ** |
 
 **How the model encodes this — two effective brakes, each an aggregate family tone:**
-- **model `p16` = the INK4 / CDK4/6 tone** (p16 dominant at 139×, plus p15 6.4× and p18 3.0×; p19 ns)
-  — a *competitive* CDK4/6 brake raising the CyclinD1→Rb half‑max `kPhRbCd·Cd/(K_CdRb·(1+p16)+Cd)`
-  (0 in GNP, 1.2 in MB). This is the **rescuable** axis: more CyclinD1 overcomes it, so **EZH2i rescues**.
+- **INK4 / CDK4/6 tone — two explicit params, `p16` + `p18`** — a *competitive* CDK4/6 brake raising the
+  CyclinD1→Rb half‑max `kPhRbCd·Cd/(K_CdRb·(1 + p16 + p18) + Cd)` (`K_CdRb` 0.5→**0.357** when p18 was
+  added, so the GNP p18 baseline keeps the GNP net half‑max at 0.357·1.4 = 0.5 — behavior preserved):
+  - **`p16` (Cdkn2a)** = the GNP‑silent, MB‑specific INK4 (H3K27me3‑silenced, 139× in MB): 0 in GNP, **0.88** in MB.
+  - **`p18` (Cdkn2c)** = the *constitutive* INK4, substantially expressed in GNPs and a literature‑backed
+    GNP/MB CDK4/6 inhibitor (Shh‑maintained): **0.4 in GNP → 1.2 in MB** (~3×, matching the data fold).
+    (p15 6.4× is folded into this competitive arm conceptually; p19 ns, not encoded.)
+  This is the **rescuable** axis: more CyclinD1 overcomes the competitive brake, so **EZH2i rescues**.
   Contrast CDK4/6i (palbociclib = `kPhRbCd=0`, a non‑competitive Vmax block) which raising CyclinD1
   cannot bypass → **not rescuable** (the model's clean contrast).
 - **model `kSyP21` = the CIP/KIP / CDK2 tone** (p21 3.1× + p27 1.4×) — raises p21/p27 synthesis ~2× in
@@ -202,8 +207,8 @@ by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
   CyclinD1→Rb drive (`with_cd_sat`) this stays numerically stable. *(search‑tuned)*
 - `K_EZH2_repression = 0.75` — EZH2 ⊣ CyclinD1 feedback strength. *(search‑tuned: gives an EZH2i
   CyclinD1 fold of ~2.7× — closer to the Fig 3C qPCR ~2× than the prior 0.5 → 3.5×.)*
-- MB CDK‑inhibitor brake = **p16 1.2 + p21 (kSyP21 0.004, 2× baseline)**; CyclinD1 heterogeneity σ = 0.68
-  — *(search‑tuned to the pRb rescue 100→23→73; see below)*.
+- MB CDK‑inhibitor brake = **INK4 (p16 0.88 + p18 1.2; GNP p18 baseline 0.4, `K_CdRb` 0.357) + CIP/KIP
+  (kSyP21 0.004, 2× baseline)**; CyclinD1 heterogeneity σ = 0.68 — *(pRb rescue 100→~20→~74; see below)*.
 - EZH2 gate + turnover, and `KmHU_fork` / `vmin_fork` (HU→fork‑speed, S‑phase lengthening) — unchanged.
 
 *Calibration of the four rescue‑determining params (p16, σ, K_EZH2_repression, k_Cd_translation) was a

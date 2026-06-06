@@ -1,7 +1,7 @@
 """Figure: experimental conditions as INPUT PARAMETERS, and where they sit in PARAMETER SPACE.
 
 Panel A — input-parameter matrix: the context + drug knobs we set for each condition
-  (SHH, functional Ptch1 f, MYCN amplification, and the CDK-inhibitor tone p16 + p21, plus the
+  (SHH, functional Ptch1 f, MYCN amplification, and the CDK-inhibitor tone p16/p18/p21, plus the
   drug switches HHi/EZH2i/HU/CDK4/6i).
 Panel B — parameter space: the commitment decision is governed by CyclinD1 (the drive) vs the
   CDK-inhibitor tone (the brake: p16 raises the CyclinD1->Rb half-max via CDK4/6, p21 inhibits CDK2;
@@ -25,10 +25,12 @@ from src.build_model_v44_heldt import build_model_v44
 rr = te.loada(build_model_v44())
 rr.integrator.setValue("relative_tolerance", 1e-6)
 DEF_kPhRbCd = rr['kPhRbCd']; DEF_ktl = rr['k_Cd_translation']
-P16_MB, KSY_BASE, KSY_MB = 1.2, 0.002, 0.004     # MB brake = p16 1.2 + p21 (kSyP21) 2x baseline
+P16_MB, KSY_BASE = 0.88, 0.002                    # MB INK4 = p16 0.88 + p18 1.2; CIP/KIP = kSyP21 2x
+P18_GNP, P18_MB = 0.4, 1.2                        # p18 (Cdkn2c): GNP baseline tone -> ~3x in MB
 
-# brake "tone" tau: GNP=0 (p16=0, p21 baseline), MB=1 (p16=1.2, p21 2x).  p16(tau)=1.2*tau, kSyP21(tau)=0.002*(1+tau)
+# brake "tone" tau: GNP=0 (p16=0, p18=0.4, p21 1x), MB=1 (p16=0.88, p18=1.2, p21 2x); all co-vary with tau
 def p16_of(t):  return P16_MB * t
+def p18_of(t):  return P18_GNP + (P18_MB - P18_GNP) * t
 def ksy_of(t):  return KSY_BASE * (1.0 + t)
 
 # condition -> input knobs.  tone = combined CDK-inhibitor tone; f = functional Ptch1.
@@ -49,7 +51,7 @@ CONDS = [
 def _set(SHH, f, mycn, tone, hhi, ezh2i, hu, cdk46i, starve):
     rr['kPhRbCd'] = DEF_kPhRbCd; rr['k_Cd_translation'] = DEF_ktl
     rr['SHH'] = SHH; rr['Ptch1_copy_number'] = f; rr['MYCN_amplification'] = mycn
-    rr['p16'] = p16_of(tone); rr['kSyP21'] = ksy_of(tone)
+    rr['p16'] = p16_of(tone); rr['p18'] = p18_of(tone); rr['kSyP21'] = ksy_of(tone)
     rr['GDC0449'] = hhi; rr['EZH2i'] = ezh2i; rr['HU'] = hu
     if cdk46i: rr['kPhRbCd'] = 0.0
     if starve: rr['k_Cd_translation'] = 0.0
@@ -126,7 +128,7 @@ for name, k in CONDS:
         note = "  (Cd via short settle; cycle from boundary)"
     else:
         cyc = div >= 2; note = ""
-    rows.append(dict(name=name, **k, p16=p16_of(k['tone']), ksy=ksy_of(k['tone']), cd=cd, cyc=cyc))
+    rows.append(dict(name=name, **k, p16=p16_of(k['tone']), p18=p18_of(k['tone']), ksy=ksy_of(k['tone']), cd=cd, cyc=cyc))
     print(f"  {name:18s} Cd={cd:6.2f}  p16={p16_of(k['tone']):.2f} p21x={ksy_of(k['tone'])/KSY_BASE:.1f}  "
           f"{'CYCLE' if cyc else 'arrest'}{note}")
 
@@ -138,15 +140,16 @@ gs = fig.add_gridspec(1, 2, width_ratios=[1.2, 1.0], wspace=0.24)
 axA = fig.add_subplot(gs[0, 0]); axB = fig.add_subplot(gs[0, 1])
 
 # ---------------- Panel A: input-parameter matrix ----------------
-cols = [("SHH", "SHH"), ("Ptch1 f", "f"), ("MYCN", "mycn"), ("p16", "p16"), ("p21", "p21x"),
+cols = [("SHH", "SHH"), ("Ptch1 f", "f"), ("MYCN", "mycn"), ("p16", "p16"), ("p18", "p18"), ("p21", "p21x"),
         ("HHi", "hhi"), ("EZH2i", "ezh2i"), ("HU", "hu"), ("CDK4/6i", "cdk46i")]
-hue = {"SHH": "#f1c40f", "f": "#27ae60", "mycn": "#e67e22", "p16": "#8e44ad", "p21x": "#7d3c98",
-       "hhi": "#e74c3c", "ezh2i": "#e74c3c", "hu": "#e74c3c", "cdk46i": "#e74c3c"}
+hue = {"SHH": "#f1c40f", "f": "#27ae60", "mycn": "#e67e22", "p16": "#8e44ad", "p18": "#9b59b6",
+       "p21x": "#7d3c98", "hhi": "#e74c3c", "ezh2i": "#e74c3c", "hu": "#e74c3c", "cdk46i": "#e74c3c"}
 def intensity(key, v):
     if key == "SHH":   return 0.0 if v >= 0.5 else 0.85
     if key == "f":     return (1.0 - v) / 0.9
     if key == "mycn":  return (v - 1.0) / (2.86 - 1.0)
     if key == "p16":   return v / P16_MB
+    if key == "p18":   return v / P18_MB
     if key == "p21x":  return (v - 1.0) / 1.0
     return float(v)
 for r in rows:
@@ -174,9 +177,9 @@ for i, row in enumerate(rows):
 for j, (clabel, key) in enumerate(cols):
     axA.text(j + 0.5, nR + 0.12, clabel, ha="center", va="bottom", fontsize=8.8, fontweight="bold")
 axA.text(nC + 0.2, nR + 0.12, "cyc?", ha="center", va="bottom", fontsize=8.3, style="italic", color="#555")
-axA.plot([5, 5], [0, nR], color="#34495e", lw=1.8)
-axA.text(2.5, -0.55, "context inputs  (p16, p21 = CDK-inhibitor tone)", ha="center", fontsize=8.8, style="italic", color="#34495e")
-axA.text(7.0, -0.55, "drug switches", ha="center", fontsize=8.8, style="italic", color="#34495e")
+axA.plot([6, 6], [0, nR], color="#34495e", lw=1.8)
+axA.text(3.0, -0.55, "context inputs  (p16, p18, p21 = CDK-inhibitor tone)", ha="center", fontsize=8.5, style="italic", color="#34495e")
+axA.text(8.0, -0.55, "drug switches", ha="center", fontsize=8.8, style="italic", color="#34495e")
 axA.set_xlim(-3.0, nC + 0.6); axA.set_ylim(-0.95, nR + 0.7); axA.axis("off")
 axA.set_title("A   Input parameters per condition", fontsize=12.5, fontweight="bold", loc="left")
 axA.text(-3.0, -0.9, "p16: competitive CDK4/6 brake (raises K_CdRb) · p21: CDK2 inhibitor (kSyP21, ×baseline) · "
@@ -216,18 +219,19 @@ axB.text(6.4, 1.18, "MB +CDK4/6i:\nkPhRbCd→0 (Vmax block)\noff-plane → arres
          fontsize=7.6, color="#7b241c", ha="left", va="top",
          bbox=dict(boxstyle="round,pad=0.3", fc="#fdedec", ec="#c0392b", lw=1))
 # right axis: what the tone means
-for tn, lab in [(0.0, "GNP\np16 0 / p21 1×"), (0.4, "Ptch+/-\np16 0.5 / p21 1.4×"), (1.0, "MB\np16 1.2 / p21 2×")]:
+for tn, lab in [(0.0, "GNP\np16 0 / p18 0.4 / p21 1×"), (0.4, "Ptch+/-\np16 0.4 / p18 0.7 / p21 1.4×"),
+                (1.0, "MB\np16 0.9 / p18 1.2 / p21 2×")]:
     axB.text(12.0, tn, lab, fontsize=7.0, color="#555", va="center", ha="left")
 
 axB.set_xscale("log")
 axB.set_xlim(0.1, 11); axB.set_ylim(-0.12, 1.45)
 axB.set_xlabel("CyclinD1 level  (the drive)  — log scale", fontsize=10.5)
-axB.set_ylabel("CDK-inhibitor tone  (p16 + p21, co-elevated GNP→MB)", fontsize=10.5)
+axB.set_ylabel("CDK-inhibitor tone  (p16 + p18 + p21, co-elevated GNP→MB)", fontsize=10.5)
 axB.set_title("B   Parameter space: CyclinD1 vs the CDK-inhibitor brake", fontsize=12.5, fontweight="bold", loc="left")
 axB.legend(loc="lower left", fontsize=8.5, framealpha=0.9)
 axB.grid(True, which="both", alpha=0.18)
 axB.text(0.115, -0.20, "points = deterministic mean cell · tumour heterogeneity straddles the boundary "
-         "→ fractional response (MB+HHi 23% → +EZH2i 73% cycling)",
+         "→ fractional response (MB+HHi 20% → +EZH2i 74% cycling)",
          fontsize=7.2, color="#555", ha="left", va="top", style="italic")
 
 fig.suptitle("v44 model — experimental conditions: input parameters & where they sit in the proliferation parameter space",
