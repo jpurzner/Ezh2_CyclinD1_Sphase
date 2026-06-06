@@ -181,11 +181,20 @@ by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
   vismodegib collapses MB CyclinD1 by ~86% (MB+HHi/MB 0.14 model vs 0.144 data) — Gli supplies ~86%.
 - MYCN→CyclinD1 cooperative Hill (`n_MYCN_Cd ≈ 3.7`, `k_Cd_tx_MYCN ≈ 35`, `K_MYCN_Cd ≈ 1.7`) — the
   small HHi‑resistant residual; `MYCN_amplification = 2.86` (MB) from the Mycn MB/GNP ratio.
-- `k_Cd_translation = 0.8` — CyclinD1 protein scale set so GNP robustly clears the cycling threshold
-  (the de‑saturation dropped GNP CyclinD1 toward a bistable knife‑edge; 0.8 lifts GNP/MB+HHi clearly
-  above it). With the saturating CyclinD1→Rb drive (`with_cd_sat`) this stays numerically stable.
-- `K_EZH2_repression = 0.5` — EZH2 ⊣ CyclinD1 feedback strength (~3× de‑repression; see note 1).
+- `k_Cd_translation = 0.75` — CyclinD1 protein scale set so GNP robustly clears the cycling threshold
+  (the de‑saturation dropped GNP CyclinD1 toward a bistable knife‑edge). With the saturating
+  CyclinD1→Rb drive (`with_cd_sat`) this stays numerically stable. *(search‑tuned)*
+- `K_EZH2_repression = 0.75` — EZH2 ⊣ CyclinD1 feedback strength. *(search‑tuned: gives an EZH2i
+  CyclinD1 fold of ~2.7× — closer to the Fig 3C qPCR ~2× than the prior 0.5 → 3.5×.)*
+- p16 (MB) = 3.3, CyclinD1 heterogeneity σ = 0.68 — *(search‑tuned to the pRb rescue 100→22→69; see below)*.
 - EZH2 gate + turnover, and `KmHU_fork` / `vmin_fork` (HU→fork‑speed, S‑phase lengthening) — unchanged.
+
+*Calibration of the four rescue‑determining params (p16, σ, K_EZH2_repression, k_Cd_translation) was a
+broad random search (`v44_rescue_search.py`, ~hundreds of evals across 4 seeds) against the pRb+ targets
+MB 100 / MB+HHi 25 / +EZH2i 75 / CDK4/6i 0, with hard guards (GNP cycles, GNP+HHi arrests). Crucially,
+integration failures at the commitment bifurcation are EXCLUDED from the cycling‑fraction denominator
+(not counted as arrested), which is why the honest rescue is ~69% rather than the ~58% an earlier
+crash‑as‑arrest count gave.*
 
 **The data‑matched rescue (population).** With vismodegib landing MB CyclinD1 at ~1× a cycling GNP
 (onto the commitment threshold), a heterogeneous MB ensemble (N=120, CyclinD1/p27 spread;

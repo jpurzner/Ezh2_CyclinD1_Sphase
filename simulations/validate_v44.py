@@ -33,7 +33,7 @@ PARAMS = {}        # stable baseline; the de-saturated HH fit (above target) cra
 P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
 MYCN_AMP_MB = 2.8
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
-P16_MB = 3.0             # MB = high p16 (Cdkn2a, ~100-200x induced, RNA-seq) -> competitive CDK4/6 brake
+P16_MB = 3.3             # MB = high p16 (Cdkn2a, ~100-200x induced, RNA-seq) -> competitive CDK4/6 brake
                          # (eff K_CdRb = 0.5*(1+3) = 2.0). GNP p16=0 (H3K27me3-silenced). Vismo's CyclinD1
                          # drop now crosses the p16-raised commitment threshold -> arrest; EZH2i (CyclinD1
                          # up) overcomes it -> rescue. CDK4/6i (kPhRbCd=0, Vmax block) is NOT rescuable.

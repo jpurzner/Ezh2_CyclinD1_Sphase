@@ -17,17 +17,17 @@ from src.build_model_v44_heldt import build_model_v44
 
 N = 120
 T_END, N_PTS, SETTLE = 12000, 48000, 4000
-P16_MB = 3.0   # MB high p16 -> competitive CDK4/6 brake (eff K_CdRb = 0.5*(1+3) = 2.0)
+P16_MB = 3.3   # MB high p16 -> competitive CDK4/6 brake (eff K_CdRb = 0.5*(1+3) = 2.0)
 rng = np.random.default_rng(7)
-# Wide CyclinD1/p27-ratio heterogeneity (sigma 0.85): vismo lowers MB CyclinD1 onto the p16-raised
+# CyclinD1 heterogeneity (sigma 0.68, search-tuned): vismo lowers MB CyclinD1 onto the p16-raised
 # commitment threshold, so the tumour straddles it -> fractional arrest; EZH2i shifts most cells back.
-cd_scale = np.clip(np.exp(rng.normal(0.0, 0.85, N)), 0.25, 4.0)        # CyclinD1 setpoint heterogeneity
+cd_scale = np.clip(np.exp(rng.normal(0.0, 0.68, N)), 0.25, 4.0)        # CyclinD1 setpoint heterogeneity
 p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.15, N)), 0.5, 2.0)  # inherited p27 (tight; the
 # proliferation-quiescence split is carried by the CyclinD1/p16 axis above, not inherited p27)
 
 _RR = te.loada(build_model_v44())                                     # de-saturated defaults
 _RR.integrator.setValue("absolute_tolerance", 1e-9); _RR.integrator.setValue("relative_tolerance", 1e-6)
-KTL0 = 0.8   # matches builder default k_Cd_translation (recalibrated to MB_GDC0449 vismo drop)
+KTL0 = 0.75   # matches builder default k_Cd_translation (search-tuned)
 
 CONDS = {  # MB context (Ptch1=0.1, MYCN_amp=2.8, p16 high) + treatment
     'MB':                 dict(gdc=0.0, ezh2i=0, cdk46i=False),
@@ -39,7 +39,8 @@ CONDS = {  # MB context (Ptch1=0.1, MYCN_amp=2.8, p16 high) + treatment
 
 
 def cycles(ktl, p21d, gdc, ezh2i, cdk46i):
-    for atol in (1e-9, 1e-8, 1e-7):
+    """True/False cycling, or None if integration fails at every tolerance (excluded from denominator)."""
+    for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
         _RR.reset()
         _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 0.1; _RR['MYCN_amplification'] = 2.8
         _RR['GDC0449'] = gdc; _RR['EZH2i'] = ezh2i; _RR['p16'] = P16_MB
@@ -48,20 +49,25 @@ def cycles(ktl, p21d, gdc, ezh2i, cdk46i):
             _RR['kPhRbCd'] = 0.0
         _RR.integrator.setValue("absolute_tolerance", atol)
         try:
+            _RR.integrator.setValue("maximum_num_steps", 200000)   # high-CyclinD1 EZH2i cells are stiff
+        except Exception:
+            pass
+        try:
             r = _RR.simulate(0, T_END, N_PTS, selections=["time", "MPF"])
         except Exception:
             continue
         t = r['time']; m = t >= SETTLE; tt = t[m]; dt = tt[1] - tt[0]
         pk, _ = find_peaks(r['MPF'][m], prominence=0.15, distance=int(200 / dt))
         return len(pk) >= 2
-    return False
+    return None     # integration crash -> indeterminate (NOT counted as arrested)
 
 
 frac = {}
 for name, c in CONDS.items():
-    nc = sum(cycles(KTL0 * cd_scale[i], p21_div[i], **c) for i in range(N))
-    frac[name] = 100 * nc / N
-    print(f"{name:18s}: {frac[name]:.0f}% cycling")
+    res = [cycles(KTL0 * cd_scale[i], p21_div[i], **c) for i in range(N)]
+    ok = [x for x in res if x is not None]      # exclude integration crashes from the denominator
+    frac[name] = 100 * sum(ok) / len(ok) if ok else 0.0
+    print(f"{name:18s}: {frac[name]:.0f}% cycling  (n={len(ok)}/{N}, {N-len(ok)} crashed)")
 
 fig, ax = plt.subplots(figsize=(8.5, 5))
 order = list(CONDS); vals = [frac[n] for n in order]

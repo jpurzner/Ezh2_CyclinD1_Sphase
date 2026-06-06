@@ -206,8 +206,8 @@ HH_MYCN_BLOCK = """
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
   k_Cd_tx_MYCN = 35.22; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;
-  K_EZH2_repression = 0.5;
-  k_Cd_translation = 0.8; k_Cd_deg = 1.0;   // Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
+  K_EZH2_repression = 0.75;   // (search-tuned to the pRb rescue; also brings EZH2i CyclinD1 fold ~3.5x->~2.7x, closer to Fig3C ~2x)
+  k_Cd_translation = 0.75; k_Cd_deg = 1.0;   // Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
   // MB_GDC0449 dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
   // numerically on the threshold and crashing); 0.8 puts GNP/MB+HHi clearly above it. Consistent with
