@@ -142,7 +142,11 @@ by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
   (1.0 GNP, 0.5 Ptch1⁺/⁻, 0.1 MB‑with‑LOH) and now gates Smo‑repression (function), not transcription.
   GNP shows an adaptive Gli1 overshoot to a Shh step; MB is a **broken loop** (induced Ptch1
   non‑functional → constitutive Gli, high Ptch1 mRNA). Fit: `k_Ptch1_basal 0.15, k_Ptch1_Gli 1.87,
-  K_Gli_Ptch 0.40`. See `fig_v44_ptch1_feedback.py`.
+  K_Gli_Ptch 0.40`. See `fig_v44_ptch1_feedback.py`. **The broken feedback is the direct cause of high
+  MB Gli1:** restoring functional Ptch1 (f→1) in the MB context collapses Gli1 to the GNP level (1.0×),
+  even with MYCN still amplified (MYCN is downstream of Gli). The functional‑Ptch1 sweep gives Gli1
+  MB/GNP = 1.0 (f=1) → 4.7 (f=0.2) → **7.2 (f=0.1, matches data 6.9×)** → 12 (f=0); so the measured fold
+  pins f≈0.1 = ~10% residual feedback (Ptch1⁺/⁻ haploinsufficiency), not a complete null.
 - Gli arm de‑saturated (`k_Cd_tx_Gli_max 46`, `K_Gli_act_CycD`, `Vmax_Gli1_tx`, `K_Gli_act_Gli1`,
   `K_Ptch_Smo`, `K_Smo_Gli_switch`, `k_Smo_act`) so Gli1 (7.2×) and CyclinD1 (6.8×) rise GNP→MB and
   vismodegib collapses MB CyclinD1 by ~86% (MB+HHi/MB 0.14 model vs 0.144 data) — Gli supplies ~86%.

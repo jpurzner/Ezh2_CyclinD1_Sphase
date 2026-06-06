@@ -148,8 +148,14 @@ medulloblastoma tumour-suppressor lesion. In GNPs the intact loop holds Gli down
 state and produces an adaptive Gli1 overshoot in response to a step of Shh (Fig. S7x). In MB the
 Gli-induced Ptch1 is non-functional (*f* ≈ 0.1), so the loop is **broken**: Smo and Gli remain
 constitutively high (Gli1 ~7-fold elevated), and Ptch1 mRNA is itself elevated as a Gli target (a
-Shh-MB marker) yet cannot brake the pathway. HHi (vismodegib/GDC0449) is modeled as a direct block
-on Smo activation, which also collapses the Gli-induced Ptch1 transcription.
+Shh-MB marker) yet cannot brake the pathway. This loss of negative feedback is the *direct cause* of
+the high Gli1 in MB: computationally restoring functional Ptch1 in the MB context (*f* → 1) collapses
+Gli1 all the way back to the GNP level (1.0×), even with Mycn amplification still present (Mycn is
+downstream of Gli and does not contribute to the Gli1 elevation). The measured 6.9-fold Gli1 elevation
+corresponds to *f* ≈ 0.1, i.e. a residual ~10% effective feedback (consistent with Ptch1⁺/⁻
+haploinsufficiency / partial function) rather than a complete null (*f* = 0 would over-predict Gli1 at
+~12×). HHi (vismodegib/GDC0449) is modeled as a direct block on Smo activation, which also collapses
+the Gli-induced Ptch1 transcription.
 
 **Mycn module.** Mycn synthesis has an autonomous (basal) component scaled by an amplification
 factor (1.0 for GNP, 2.8 for MB) and a small Gli-dependent component. Mycn drives a minority,
