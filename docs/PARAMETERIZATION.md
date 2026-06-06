@@ -92,15 +92,19 @@ CyclinD1‑repression target (the clean EZH2→CyclinD1 strength comes from the 
 - **p16 (Cdkn2a)** is silent in GNPs (~3) and ~100–200× induced in MB (~400–840) — a classic
   H3K27me3‑silenced locus (GNP EZH2ko derepresses it 3→135). p16 is THE CDK4/6 inhibitor. Modeled as a
   **competitive** CDK4/6 brake: it raises the CyclinD1 half‑max for Rb phosphorylation,
-  `kPhRbCd·Cd/(K_CdRb·(1+p16) + Cd)` (new param `p16`: 0 in GNP, =3 in MB → eff K_CdRb 0.5→2.0). This
+  `kPhRbCd·Cd/(K_CdRb·(1+p16) + Cd)` (param `p16`: 0 in GNP, =1.2 in MB → eff K_CdRb 0.5→1.1). This
   raises the CyclinD1 threshold to commit, so vismo's CyclinD1 drop now crosses it (arrest) — but MORE
   CyclinD1 still overcomes it, so **EZH2i (CyclinD1 up) rescues** a p16‑braked arrest. Mechanistically
   DISTINCT from CDK4/6i (palbociclib = `kPhRbCd=0`, a Vmax block) which raising CyclinD1 cannot bypass
   → **not rescuable** (the model's clean contrast).
+- **p21 (Cdkn1a)** ~2.5–4× higher in MB — now **also encoded**: MB sets the p21 synthesis rate
+  `kSyP21` to ~2× the GNP baseline (0.002→0.004), inhibiting CyclinE/A–CDK2. This shares the
+  threshold‑raising with p16 (so p16 came down 3.3→1.2 when p21 was added) and additionally lengthens
+  the p21/p27‑high transient G0 (improving the MB G0 phase fraction). Both p16 and p21 are co‑elevated
+  GNP→MB; the split between them is a modeling choice (the data give both elevated, not the exact ratio).
 - **p27 (Cdkn1b)** rises modestly in MB and is **highest in all vismo (GDC0449) samples** (Shh blockade
-  → cell‑cycle‑exit signal) — supports the arrest direction; not separately encoded (the p16 brake +
-  CyclinD1 drop already produce it; adding vismo→p27 would over‑arrest).
-- **p21 (Cdkn1a)** ~2.5–4× higher in MB; minor.
+  → cell‑cycle‑exit signal) — supports the arrest direction; folded into the kSyP21 (p21/p27) term,
+  not separately encoded (adding an explicit vismo→p27 induction would over‑arrest).
 
 This is why vismo drops proliferation to ~1/4 (a CyclinD1‑only model only reached ~86%), and why the
 EZH2i rescue tops out at ~2/3–3/4 (the non‑rescuable p16/Vmax‑like fraction sets the ceiling).
@@ -186,14 +190,15 @@ by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
   CyclinD1→Rb drive (`with_cd_sat`) this stays numerically stable. *(search‑tuned)*
 - `K_EZH2_repression = 0.75` — EZH2 ⊣ CyclinD1 feedback strength. *(search‑tuned: gives an EZH2i
   CyclinD1 fold of ~2.7× — closer to the Fig 3C qPCR ~2× than the prior 0.5 → 3.5×.)*
-- p16 (MB) = 3.3, CyclinD1 heterogeneity σ = 0.68 — *(search‑tuned to the pRb rescue 100→22→69; see below)*.
+- MB CDK‑inhibitor brake = **p16 1.2 + p21 (kSyP21 0.004, 2× baseline)**; CyclinD1 heterogeneity σ = 0.68
+  — *(search‑tuned to the pRb rescue 100→23→73; see below)*.
 - EZH2 gate + turnover, and `KmHU_fork` / `vmin_fork` (HU→fork‑speed, S‑phase lengthening) — unchanged.
 
 *Calibration of the four rescue‑determining params (p16, σ, K_EZH2_repression, k_Cd_translation) was a
 broad random search (`v44_rescue_search.py`, ~hundreds of evals across 4 seeds) against the pRb+ targets
 MB 100 / MB+HHi 25 / +EZH2i 75 / CDK4/6i 0, with hard guards (GNP cycles, GNP+HHi arrests). Crucially,
 integration failures at the commitment bifurcation are EXCLUDED from the cycling‑fraction denominator
-(not counted as arrested), which is why the honest rescue is ~69% rather than the ~58% an earlier
+(not counted as arrested), which is why the honest rescue is ~73% rather than the ~58% an earlier
 crash‑as‑arrest count gave.*
 
 **The data‑matched rescue (population).** With vismodegib landing MB CyclinD1 at ~1× a cycling GNP

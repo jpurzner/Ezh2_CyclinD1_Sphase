@@ -17,7 +17,8 @@ from src.build_model_v44_heldt import build_model_v44
 
 N = 120
 T_END, N_PTS, SETTLE = 12000, 48000, 4000
-P16_MB = 3.3   # MB high p16 -> competitive CDK4/6 brake (eff K_CdRb = 0.5*(1+3) = 2.0)
+P16_MB = 1.2      # MB CDK-inhibitor tone = p16 (CDK4/6 competitive brake) ...
+KSYP21_MB = 0.004 # ... + p21 (CDK2 inhibitor, kSyP21 2x the GNP baseline 0.002), both elevated in MB
 rng = np.random.default_rng(7)
 # CyclinD1 heterogeneity (sigma 0.68, search-tuned): vismo lowers MB CyclinD1 onto the p16-raised
 # commitment threshold, so the tumour straddles it -> fractional arrest; EZH2i shifts most cells back.
@@ -43,7 +44,7 @@ def cycles(ktl, p21d, gdc, ezh2i, cdk46i):
     for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
         _RR.reset()
         _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 0.1; _RR['MYCN_amplification'] = 2.8
-        _RR['GDC0449'] = gdc; _RR['EZH2i'] = ezh2i; _RR['p16'] = P16_MB
+        _RR['GDC0449'] = gdc; _RR['EZH2i'] = ezh2i; _RR['p16'] = P16_MB; _RR['kSyP21'] = KSYP21_MB
         _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
         if cdk46i:
             _RR['kPhRbCd'] = 0.0

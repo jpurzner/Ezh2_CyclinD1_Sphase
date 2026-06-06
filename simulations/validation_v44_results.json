@@ -13,23 +13,23 @@
     "MB": 7,
     "MB + HHi": 0,
     "MB + EZH2i": 7,
-    "MB + HHi + EZH2i": 7,
+    "MB + HHi + EZH2i": 4,
     "MB + CDK4/6i": 0,
     "MB + CDK4/6i+EZH2i": 0,
-    "MB + HU": 5
+    "MB + HU": 6
   },
   "pRb_thr": 0.1,
   "phase_dmso": {
-    "G0": 14.86875,
-    "G1": 29.609375,
-    "S": 41.128125,
-    "G2": 14.393749999999999
+    "G0": 18.365624999999998,
+    "G1": 26.83125,
+    "S": 40.209375,
+    "G2": 14.59375
   },
   "phase_hu": {
-    "G0": 0.006250000000000001,
-    "G1": 15.696875,
-    "S": 79.72187500000001,
-    "G2": 4.575000000000001
+    "G0": 6.268749999999999,
+    "G1": 11.95,
+    "S": 77.2,
+    "G2": 4.58125
   },
   "checks": [
     {
@@ -40,13 +40,13 @@
     },
     {
       "name": "CyclinD1 MB+HHi/MB",
-      "actual": 0.15928397999725455,
+      "actual": 0.13460472092780393,
       "target": 0.144,
       "pass": true
     },
     {
       "name": "CyclinD1 MB/GNP",
-      "actual": 7.176091103979758,
+      "actual": 7.249012938300633,
       "target": 7.58,
       "pass": true
     },
@@ -58,7 +58,7 @@
     },
     {
       "name": "MYCN MB+HHi/MB",
-      "actual": 0.9382596052390237,
+      "actual": 0.9382596052390236,
       "target": 0.86,
       "pass": true
     },
@@ -76,13 +76,13 @@
     },
     {
       "name": "Gli1 MB/GNP",
-      "actual": 7.174965861518135,
+      "actual": 7.174965861518154,
       "target": 6.9,
       "pass": true
     },
     {
       "name": "EZH2 MB/GNP",
-      "actual": 1.0568262681563667,
+      "actual": 1.0401593707648704,
       "target": 2.05,
       "pass": false
     },
@@ -148,55 +148,55 @@
     },
     {
       "name": "MB DMSO G0 proportion",
-      "actual": 14.86875,
+      "actual": 18.365624999999998,
       "target": 24.8,
-      "pass": false
-    },
-    {
-      "name": "MB DMSO G1 proportion",
-      "actual": 29.609375,
-      "target": 43.4,
       "pass": true
     },
     {
+      "name": "MB DMSO G1 proportion",
+      "actual": 26.83125,
+      "target": 43.4,
+      "pass": false
+    },
+    {
       "name": "MB DMSO S proportion",
-      "actual": 41.128125,
+      "actual": 40.209375,
       "target": 15.7,
       "pass": false
     },
     {
       "name": "MB DMSO G2 proportion",
-      "actual": 14.393749999999999,
+      "actual": 14.59375,
       "target": 16.1,
       "pass": true
     },
     {
       "name": "MB HU S fold",
-      "actual": 1.9383785426639317,
+      "actual": 1.9199502603559493,
       "target": 1.36,
       "pass": false
     },
     {
       "name": "MB HU G2 fold",
-      "actual": 0.3178462874511508,
+      "actual": 0.3139186295503212,
       "target": 0.23,
       "pass": true
     },
     {
       "name": "EZH2 transcript S/G0 (1.8-2.5)",
-      "actual": 3.578363437615152,
+      "actual": 3.2553171937804786,
       "target": 2.0,
       "pass": false
     },
     {
       "name": "EZH2 protein G2/G0 (1.48)",
-      "actual": 1.8740298830733264,
+      "actual": 1.8590498651214582,
       "target": 1.48,
       "pass": true
     },
     {
       "name": "HU EZH2-in-S boost (1.31)",
-      "actual": 1.287012488331602,
+      "actual": 1.3300059589045183,
       "target": 1.31,
       "pass": true
     }
