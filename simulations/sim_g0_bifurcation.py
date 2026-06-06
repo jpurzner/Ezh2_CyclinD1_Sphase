@@ -33,8 +33,9 @@ DWELL_CUT = 2.0                       # h; transient-G0 vs immediate re-entry
 rng = np.random.default_rng(7)
 
 # mother-set heterogeneity, sampled ONCE (paired across conditions)
-cd_scale = np.clip(np.exp(rng.normal(0.0, 0.30, N)), 0.55, 1.9)      # CyclinD1 setpoint multiplier
-p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.32, N)), 0.5, 2.0)  # inherited p27
+cd_scale = np.clip(np.exp(rng.normal(0.0, 0.68, N)), 0.25, 4.0)      # CyclinD1 setpoint multiplier
+p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.15, N)), 0.5, 2.0)  # inherited p27
+KTL0 = 0.75                                                          # builder default k_Cd_translation
 
 _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
 _RR.integrator.setValue("absolute_tolerance", 1e-9)
@@ -42,10 +43,11 @@ _RR.integrator.setValue("relative_tolerance", 1e-6)
 SEL = ["time", "MPF", "P21", "aRc", "Dna", "Cd"]
 
 
-def cell(ktl, p21d, shh, ezh2i, mycn, ptch1):
+def cell(ktl, p21d, shh, ezh2i, mycn, ptch1, p16=0.0, p18=0.4, ksyp21=0.002):
     _RR.reset()
     _RR['SHH'] = shh; _RR['EZH2i'] = ezh2i; _RR['MYCN_amplification'] = mycn
     _RR['Ptch1_copy_number'] = ptch1; _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
+    _RR['p16'] = p16; _RR['p18'] = p18; _RR['kSyP21'] = ksyp21   # CDK-inhibitor brake (GNP defaults / MB elevated)
     try:
         r = _RR.simulate(0, T_END, N_PTS, selections=SEL)
     except Exception:
@@ -68,13 +70,13 @@ CONDITIONS = {
     'GNP':          dict(shh=0.50, ezh2i=0, mycn=1.0, ptch1=1.0),
     'GNP high-SHH': dict(shh=1.00, ezh2i=0, mycn=1.0, ptch1=1.0),
     'GNP + EZH2i':  dict(shh=0.50, ezh2i=1, mycn=1.0, ptch1=1.0),
-    'MB':           dict(shh=0.50, ezh2i=0, mycn=2.8, ptch1=0.1),
-    'MB + EZH2i':   dict(shh=0.50, ezh2i=1, mycn=2.8, ptch1=0.1),
+    'MB':           dict(shh=0.50, ezh2i=0, mycn=2.8, ptch1=0.1, p16=0.88, p18=1.2, ksyp21=0.004),
+    'MB + EZH2i':   dict(shh=0.50, ezh2i=1, mycn=2.8, ptch1=0.1, p16=0.88, p18=1.2, ksyp21=0.004),
 }
 
 results = {}
 for name, cond in CONDITIONS.items():
-    cells = [cell(0.26 * cd_scale[i], p21_div[i], **cond) for i in range(N)]
+    cells = [cell(KTL0 * cd_scale[i], p21_div[i], **cond) for i in range(N)]
     results[name] = cells
     n_arr = sum(c['cls'] == 'arrest' for c in cells)
     n_tg0 = sum(c['cls'] == 'transient_G0' for c in cells)

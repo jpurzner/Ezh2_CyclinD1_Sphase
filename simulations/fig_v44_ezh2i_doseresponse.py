@@ -29,27 +29,34 @@ DOSES = np.round(np.linspace(0, 1, 21), 3)
 
 
 def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=False,
-        t_end=T_END, n_pts=N_PTS):
+        p16=0.0, p18=None, ksyp21=None, t_end=T_END, n_pts=N_PTS):
     """Robust single-condition run (retry on the flaky CVODE init error with looser tol)."""
-    for atol in (1e-9, 1e-8, 1e-7):
-        rr = te.loada(_MODEL)
-        rr.integrator.setValue("absolute_tolerance", atol)
-        rr.integrator.setValue("relative_tolerance", 1e-6)
-        rr['SHH'] = shh; rr['Ptch1_copy_number'] = ptch1_cn; rr['GDC0449'] = gdc
-        rr['EZH2i'] = ezh2i; rr['MYCN_amplification'] = mycn_amp
-        if cdk46i:
-            rr['kPhRbCd'] = 0.0
-        try:
-            return rr.simulate(0, t_end, n_pts, selections=SEL)
-        except Exception:
-            continue
-    raise RuntimeError("simulation failed at all tolerances")
+    for te_end, te_pts in ((t_end, n_pts), (8000, 32000), (6000, 24000)):
+        for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
+            rr = te.loada(_MODEL)
+            rr.integrator.setValue("absolute_tolerance", atol)
+            rr.integrator.setValue("relative_tolerance", 1e-6)
+            try: rr.integrator.setValue("maximum_num_steps", 300000)
+            except Exception: pass
+            rr['SHH'] = shh; rr['Ptch1_copy_number'] = ptch1_cn; rr['GDC0449'] = gdc
+            rr['EZH2i'] = ezh2i; rr['MYCN_amplification'] = mycn_amp
+            rr['p16'] = p16                                  # INK4 (Cdkn2a) competitive CDK4/6 brake
+            if p18 is not None: rr['p18'] = p18              # INK4 (Cdkn2c), GNP default 0.4
+            if ksyp21 is not None: rr['kSyP21'] = ksyp21     # CIP/KIP (p21/p27) CDK2 brake
+            if cdk46i:
+                rr['kPhRbCd'] = 0.0
+            try:
+                return rr.simulate(0, te_end, te_pts, selections=SEL)
+            except Exception:
+                continue
+    return None     # very high-CyclinD1 (high EZH2i in MB) can be too stiff -> caller carries NaN
 
+_MB = dict(p16=0.88, p18=1.2, ksyp21=0.004)              # MB CDK-inhibitor brake (INK4 + CIP/KIP)
 CONTEXTS = {
     'GNP':          dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, mycn_amp=1.0),
-    'MB':           dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8),
-    'MB + HHi':     dict(shh=0.5, ptch1_cn=0.1, gdc=1.0, mycn_amp=2.8),
-    'MB + CDK4/6i': dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8, cdk46i=True),
+    'MB':           dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8, **_MB),
+    'MB + HHi':     dict(shh=0.5, ptch1_cn=0.1, gdc=1.0, mycn_amp=2.8, **_MB),
+    'MB + CDK4/6i': dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8, cdk46i=True, **_MB),
 }
 COL = {'GNP': '#1b9e77', 'MB': '#762A83', 'MB + HHi': '#E08214', 'MB + CDK4/6i': '#C2185B'}
 
@@ -57,6 +64,11 @@ data = {c: dict(cdm=[], cd=[], ndiv=[], period=[], g0=[]) for c in CONTEXTS}
 for cname, cond in CONTEXTS.items():
     for d in DOSES:
         r = run(**cond, ezh2i=float(d), t_end=T_END, n_pts=N_PTS)
+        if r is None:                                  # stiff (very high CyclinD1) -> record NaN
+            for k in ('cdm', 'cd', 'period', 'g0'):
+                data[cname][k].append(np.nan)
+            data[cname]['ndiv'].append(np.nan)
+            continue
         n, _, per = count_divisions(r)
         f, _ = classify(r, P27_THR)
         data[cname]['cdm'].append(mean_settled(r, 'Cd_mRNA'))

@@ -56,7 +56,7 @@ def inhibit(p1, p2, color=C["inh"], lw=1.8, rad=0.0, z=2, shrink=8):
 
 ax.text(8.5, 10.2, "v44 cell-cycle model — module wiring", fontsize=15, fontweight="bold", ha="center")
 ax.text(8.5, 9.82, "Heldt 2018 core + explicit replication + mitotic switch + growth-gated R-point + Skp2–p27 feedforward + EZH2"
-        "  ·  Gli→Ptch1 feedback  ·  p16 CDK4/6 brake",
+        "  ·  Gli→Ptch1 feedback  ·  INK4 (p16+p18) & CIP/KIP (p21/p27) CDK brakes",
         fontsize=9, ha="center", color="#555")
 
 # ===================== module regions =====================
@@ -111,11 +111,11 @@ arrow((e2f[0]+0.2, e2f[1]+0.3), (skp2[0]+0.4, skp2[1]+0.3), C["act"], rad=-0.4, 
 inhibit((p27[0]+0.5, p27[1]), (rb[0]-0.55, rb[1]), C["inh"], shrink=3)  # p27 ⊣ CDK2/Rb
 arrow((cd[0]+0.5, cd[1]), (rb[0]-0.6, rb[1]+0.15), C["act"], rad=-0.15)  # CyclinD → Rb (via CDK4/6)
 ax.text(5.2, 7.42, "CDK4/6", fontsize=6.8, color="#117a65", ha="center", style="italic", zorder=5)
-# --- p16 (Cdkn2a) COMPETITIVE brake + palbociclib (Vmax block) on the CyclinD1→Rb arm ---
-p16 = node(5.05, 8.72, "p16 (Cdkn2a)", w=1.5, h=0.5, fc="#f4ecf7", ec=C["ezh2_b"], fs=7.3, bold=True)
-inhibit((p16[0]-0.1, p16[1]-0.27), (5.0, 7.84), C["inh"], shrink=3)                 # competitive: ↑Cd→Rb half-max
-ax.text(4.25, 9.12, "EZH2-silenced (GNP 0) · high in MB", fontsize=6.3, color=C["ezh2_b"],
-        ha="left", style="italic")
+# --- INK4 (p16 + p18) COMPETITIVE brake + palbociclib (Vmax block) on the CyclinD1→Rb arm ---
+p16 = node(5.05, 8.72, "p16 + p18\n(INK4)", w=1.5, h=0.55, fc="#f4ecf7", ec=C["ezh2_b"], fs=7.2, bold=True)
+inhibit((p16[0]-0.1, p16[1]-0.3), (5.0, 7.84), C["inh"], shrink=3)                  # competitive: ↑Cd→Rb half-max
+ax.text(4.2, 9.18, "INK4 CDK4/6 brake: p16 (GNP 0→MB) + p18 (GNP-expressed)", fontsize=6.2,
+        color=C["ezh2_b"], ha="left", style="italic")
 palbo = node(5.15, 6.78, "CDK4/6i\n(palbo)", w=1.35, h=0.6, fc="#fdedeb", ec=C["drug"], fs=7.2, bold=True)
 inhibit((palbo[0]+0.05, palbo[1]+0.32), (5.1, 7.66), C["drug"], shrink=3)            # Vmax block (kPhRbCd=0)
 ax.text(5.15, 6.36, "Vmax block (not surmountable by Cd)", fontsize=6.0, color=C["drug"], ha="center", style="italic")

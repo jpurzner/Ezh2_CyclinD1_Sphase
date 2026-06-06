@@ -22,7 +22,7 @@ T_END, N_PTS, SETTLE = 14000, 70000, 6000
 P21_LO = 0.1
 
 
-def simulate(kTl=0.26, shh=0.5):
+def simulate(kTl=0.75, shh=0.5):
     rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True,
                                   params={"k_Cd_translation": kTl}))
     rr.integrator.setValue("absolute_tolerance", 1e-9)
@@ -60,7 +60,7 @@ def g0_metrics(res):
     return per, g0_p27, g0_prb
 
 
-LEVELS = [("low (kTl=0.30)", 0.30), ("default (kTl=0.26)", 0.26), ("high (kTl=0.40)", 0.40)]
+LEVELS = [("low (kTl=0.55)", 0.55), ("default (kTl=0.75)", 0.75), ("high (kTl=1.05)", 1.05)]
 sims = {lab: simulate(kTl=k) for lab, k in LEVELS}
 
 print("=" * 78)
@@ -72,7 +72,7 @@ for lab, k in LEVELS:
     print(f"{lab:>20} {np.mean(r['Cd'][m]):>7.3f} {per:>6.1f}h {g0p27:>7.2f}h {g0prb:>7.2f}h")
 
 # ---- figure: 2.5-cycle anatomy of the DEFAULT level ----
-r = sims["default (kTl=0.26)"]
+r = sims["default (kTl=0.75)"]
 t = r['time'] / 60.0
 divs = division_times(r) / 60.0
 divs = divs[(divs >= SETTLE/60.0)]
