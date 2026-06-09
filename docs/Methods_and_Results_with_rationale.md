@@ -302,6 +302,136 @@ percentage of integrable cells that cycled.
 
 ---
 
+## Model equations
+
+All species are concentrations in arbitrary units; time is in minutes; `Cell` is the (constant)
+compartment volume. Inputs/switches: **SHH** (ligand, 0–0.5), **GDC0449** = HHi (0/1), **EZH2i** (0/1),
+**HU** (0/1), **p16, p18** (INK4 tone), **Ptch1_copy_number = f** (functional Ptch1 fraction),
+**MYCN_amplification = A**, **CDK4/6i** (sets kPhRbCd→0), serum-starve (sets k_Cd_translation→0).
+Equations are grouped by module; the four cell-cycle components we added on top of the core are marked
+**[added]**. The Heldt (2018) G1/S core supplies the remaining standard reactions (Emi1/APC-Cdh1, PCNA
+cycling, p53/DNA-damage); these are reproduced in the model file (`src/build_model_v44_heldt.py`,
+`models_external/heldt2018.ant`) and the published model (BioModels BIOMD0000000700).
+
+### Symbol glossary
+`Cd_mRNA, Cd` = Cyclin D1 mRNA / protein · `Gli_act, Gli_rep` = Gli activator/repressor · `Gli1` ·
+`MYCN` · `Ptch1_mRNA, Ptch1_free, SHH_Ptch` · `Smo_active` · `EZH2m, EZH2` = Ezh2 mRNA/protein ·
+`Rb, pRb, E2f, RbE2f` = Rb / phospho-Rb / E2f / Rb·E2f complex · `Ce, Ca` = Cyclin E– and Cyclin A–CDK2 ·
+`P21` = p21/p27 (CIP/KIP) · `CeP21, CaP21` = CDK2·p21 complexes · `Skp2` · `C1, pC1` = APC/C-Cdh1
+(active/phospho) · `Rc, pRc, aRc, iRc` = replication complexes (licensed/primed/active/inactive) ·
+`Dna` (0→1) · `aPcna, iPcna` = PCNA · `MPF, preMPF` = Cyclin B–CDK1 (active/Tyr15-phos) · `Cdc20` ·
+`mass` · `P53, Dam` = p53 / DNA damage.
+
+### Module 1 — Hedgehog → Gli, with the Gli→Ptch1 negative feedback
+```
+d[Ptch1_mRNA]/dt = k_Ptch1_basal + k_Ptch1_Gli·Gli_act² / (K_Gli_Ptch² + Gli_act²)        ← Gli-induced
+                   − k_Ptch1_mRNA_deg·Ptch1_mRNA
+d[Ptch1_free]/dt = k_Ptch1_translation·Ptch1_mRNA − k_Ptch1_deg·Ptch1_free
+                   − k_SHH_Ptch_bind·SHH·Ptch1_free + k_SHH_Ptch_release·SHH_Ptch
+d[SHH_Ptch]/dt   = k_SHH_Ptch_bind·SHH·Ptch1_free − (k_SHH_Ptch_release + k_SHH_Ptch_deg)·SHH_Ptch
+d[Smo_active]/dt = k_Smo_act / (1 + Ptch1_free·f / K_Ptch_Smo) · (1 − GDC0449) − k_Smo_inact·Smo_active
+                                          ↑ functional Ptch1 (f) re-inhibits Smo; HHi blocks Smo
+   let  S2 = Smo_active² / (K_Smo_Gli_switch² + Smo_active²)            (Smo→Gli switch, Hill n=2)
+d[Gli_act]/dt   =  k_Gli_rep_to_act·S2·Gli_rep − k_Gli_act_to_rep·(1 − S2)·Gli_act
+d[Gli_rep]/dt   = −(above)                                              (Gli_act + Gli_rep conserved)
+d[Gli1_mRNA]/dt =  Vmax_Gli1_tx·Gli_act²/(K_Gli_act_Gli1² + Gli_act²)·(1 − Gli_rep²/(K_Gli_rep_Gli1² + Gli_rep²))
+                   − k_Gli1_mRNA_deg·Gli1_mRNA
+d[Gli1]/dt      =  k_Gli1_translation·Gli1_mRNA − k_Gli1_deg·Gli1
+```
+*f = Ptch1_copy_number*: 1.0 in GNP (loop intact, Gli mitogen-responsive) → ~0.1 in MB (loop broken,
+Gli constitutive).
+
+### Module 2 — Mycn
+```
+d[MYCN]/dt = k_MYCN_synth_basal·A + k_MYCN_synth_Gli·(Gli_act + Gli1)/(K_Gli_MYCN + Gli_act + Gli1)
+             − k_MYCN_deg·MYCN                                          (A = MYCN_amplification)
+```
+
+### Module 3 — Cyclin D1 (the integration node) and the Ezh2 feedback
+```
+Ezh2 repression factor:   R_EZH2 = K_EZH2_repression / (K_EZH2_repression + EZH2·(1 − EZH2i))
+
+d[Cd_mRNA]/dt = [ k_Cd_tx_basal
+                + k_Cd_tx_Gli_max · (Gli_act+Gli1)²/(K_Gli_act_CycD² + (Gli_act+Gli1)²)
+                                  · K_Gli_rep_CycD²/(K_Gli_rep_CycD² + Gli_rep²)            ← Gli-driven
+                + k_Cd_tx_MYCN · MYCN^n_MYCN / (K_MYCN_Cd^n_MYCN + MYCN^n_MYCN) ] · R_EZH2   ← Mycn-driven
+                − k_Cd_mRNA_deg·Cd_mRNA                                   (n_MYCN = 3.66)
+d[Cd]/dt      = k_Cd_translation·Cd_mRNA − k_Cd_deg·Cd
+
+Ezh2 (E2f-driven, gated on the S-phase cyclins → integrates time-in-S):
+d[EZH2m]/dt = kEZbas + kEZE2f · E2f/(K_E2f_EZ + E2f) · [ wCe·Ce/(K_Ce_EZ + Ce) + (1−wCe)·Ca/(K_Ca_EZ + Ca) ]
+              − kDeEZm·EZH2m
+d[EZH2]/dt  = kTlEZ·EZH2m − kDeEZ·EZH2          (EZH2 and EZH2m additionally halved at each division)
+```
+
+### Module 4 — Cell-cycle engine
+
+**Restriction point (Rb–E2f) with the INK4 commitment brake [added: saturating + competitive form]**
+```
+Rb-kinase activity per Rb:
+   v_Rb = kPhRbCd·Cd / (K_CdRb·(1 + p16 + p18) + Cd) · commit_gate   +  kPhRbCe·Ce + kPhRbCa·Ca
+                         ↑ Cyclin D–CDK4/6, saturating in Cd and competitively raised by INK4 (p16+p18)
+   Rb → pRb              at  v_Rb · Rb
+   RbE2f → pRb + E2f     at  v_Rb · RbE2f          (phospho-Rb releases E2f)
+   pRb → Rb             at  kDpRb · pRb
+d[E2f]/dt  = kSyE2f + kSyE2fE2f·E2f/(jSyE2f + E2f) − kDeE2f·E2f   (+ release from RbE2f; Rb+E2f ⇌ RbE2f)
+d[Ce]/dt   = kSyCe·E2f − (kDeCe + kDeCeCa·Ca)·Ce  (± p21 binding)   ;  d[Ca]/dt = kSyCa·E2f − … (± p21)
+```
+
+**p21 / p27 (CIP/KIP) with Skp2-dependent degradation**
+```
+d[P21]/dt = (kSyP21 + kSyP21P53·P53)                                    ← kSyP21 is the MB-elevated knob
+            − (kDeP21 + kDeP21Cy·Skp2·(Ce+Ca) + kDeP21aRc·Cdt2·aRc)·P21  (+ exchange with CeP21/CaP21/PCNA)
+```
+
+**Skp2–p27 feedforward [added: Skp2 made a dynamic E2f target]**
+```
+d[Skp2]/dt = (kSySkp2bas + kSySkp2·E2f) − kDeSkp2C1·C1·Skp2 − kDeSkp2bas·Skp2
+```
+(E2f raises Skp2 → Skp2 degrades p27 → CDK2 active → more E2f: the bistable commitment feedforward;
+APC/C-Cdh1 (C1) keeps Skp2 low in G0.)
+
+**Cell growth and size gates [added]**
+```
+d[mass]/dt  = mu·mass                                  (mu = 0.0005 min⁻¹; mass → mass/2 at division)
+size_gate   = mass^n / (M_size^n + mass^n)             (M_size = 2.5; gates S-entry / origin firing)
+commit_gate = mass^n / (M_commit^n + mass^n)           (M_commit = 1.3; gates G0→G1 commitment) ; n = 6
+```
+
+**Explicit DNA replication (Heldt core; HU enters here)**
+```
+Rc → pRc      at  kPhRc·(Ce+Ca)^n/(jCy^n + (Ce+Ca)^n) · size_gate · Rc      (origin licensing, size-gated)
+pRc (+PCNA) → aRc                                                            (firing)
+d[Dna]/dt    =  kSyDna · vfork · aRc                                         (DNA synthesis, 0 → 1)
+vfork        =  vmin_fork + (1 − vmin_fork)·KmHU_fork^h / (KmHU_fork^h + HU^h)   ← HU slows fork speed
+```
+
+**Cyclin B/CDK1 mitotic switch + intra-S Chk1 checkpoint [added]**
+```
+g2gate     = Dna^nG2 / (KG2^nG2 + Dna^nG2)             (≈1 only when replication ≈ complete; KG2=0.85, nG2=6)
+Chk1       = aRc / (jChk + aRc)                        (active forks = unfinished S → inhibits mitosis)
+Cdc25a     = (a25 + (1−a25)·MPF^n/(KmMpf^n + MPF^n)) / (1 + wChk·Chk1)        (activating, hysteretic)
+Wee1a      = (aWee + (1−aWee)·KmMpf^n/(KmMpf^n + MPF^n)) · (1 + wChkW·Chk1)    (inactivating)
+d[preMPF]/dt = kSyCb·g2gate + kWee·Wee1a·MPF − k25·Cdc25a·preMPF − (kDeCbBas + kDeCb·Cdc20)·preMPF
+d[MPF]/dt    = k25·Cdc25a·preMPF − kWee·Wee1a·MPF      − (kDeCbBas + kDeCb·Cdc20)·MPF
+d[Cdc20]/dt  = kaCdc20·MPF^nCdc20/(KmCdc20^nCdc20 + MPF^nCdc20)·(1 − Cdc20) − kiCdc20·Cdc20
+              (Cdc20 then drives mitotic Cyclin B and Cyclin A destruction → mitotic exit)
+```
+
+**Division event** (when MPF crosses MPF_div):
+```
+Dna→0; Rc→1, pRc=aRc=iRc=0; Rb→Rb+pRb, pRb→0; P21→P21_div (high); Skp2→0.05;
+Ce→Ce_div, Ca→Ca_div; MPF=preMPF=0; Cdc20→0; mass→mass/2; EZH2→EZH2/2, EZH2m→EZH2m/2.
+```
+(The p27 reset-high + halved mass create the growth-timed, p27-high transient G0; halving EZH2 is the
+dilution that makes EZH2 a time-in-S integrator.)
+
+**Drug switches** (recap): GDC0449 in `Smo_active`; EZH2i in `R_EZH2`; HU in `vfork`; CDK4/6i sets
+`kPhRbCd = 0` (a Vmax block of `v_Rb`'s Cyclin D term — note this cannot be overcome by raising Cd,
+unlike the competitive p16/p18 term); serum-starve sets `k_Cd_translation = 0`.
+
+---
+
 ## References
 Heldt et al. 2018 (PNAS 115:2532); Bracken et al. 2003 (EMBO J 22:5323); Pasini et al. 2004 (Cell Cycle
 3:396); Marigo & Tabin 1996 (PNAS 93:9346); Goodrich et al. 1997 (Science 277:1109); Serrano et al. 1993
