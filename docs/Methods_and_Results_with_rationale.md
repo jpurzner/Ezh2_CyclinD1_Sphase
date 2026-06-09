@@ -364,64 +364,130 @@ d[EZH2m]/dt = kEZbas + kEZE2f · E2f/(K_E2f_EZ + E2f) · [ wCe·Ce/(K_Ce_EZ + Ce
 d[EZH2]/dt  = kTlEZ·EZH2m − kDeEZ·EZH2          (EZH2 and EZH2m additionally halved at each division)
 ```
 
-### Module 4 — Cell-cycle engine
+### Module 4 — Cell-cycle engine (complete)
 
-**Restriction point (Rb–E2f) with the INK4 commitment brake [added: saturating + competitive form]**
-```
-Rb-kinase activity per Rb:
-   v_Rb = kPhRbCd·Cd / (K_CdRb·(1 + p16 + p18) + Cd) · commit_gate   +  kPhRbCe·Ce + kPhRbCa·Ca
-                         ↑ Cyclin D–CDK4/6, saturating in Cd and competitively raised by INK4 (p16+p18)
-   Rb → pRb              at  v_Rb · Rb
-   RbE2f → pRb + E2f     at  v_Rb · RbE2f          (phospho-Rb releases E2f)
-   pRb → Rb             at  kDpRb · pRb
-d[E2f]/dt  = kSyE2f + kSyE2fE2f·E2f/(jSyE2f + E2f) − kDeE2f·E2f   (+ release from RbE2f; Rb+E2f ⇌ RbE2f)
-d[Ce]/dt   = kSyCe·E2f − (kDeCe + kDeCeCa·Ca)·Ce  (± p21 binding)   ;  d[Ca]/dt = kSyCa·E2f − … (± p21)
-```
+The cell-cycle engine is given here as its full reaction network. Each line is
+`reactants → products : rate` (⇌ = reversible, net rate shown); every rate additionally carries the
+constant compartment factor `Cell` (omitted for brevity). **The ODE for any species is the signed sum
+of the rates of the reactions in which it appears** (with stoichiometry). The four components we added
+on top of the Heldt (2018) G1/S core are marked **[added]**; everything else is the Heldt core. First,
+the auxiliary (assignment) quantities used below:
 
-**p21 / p27 (CIP/KIP) with Skp2-dependent degradation**
 ```
-d[P21]/dt = (kSyP21 + kSyP21P53·P53)                                    ← kSyP21 is the MB-elevated knob
-            − (kDeP21 + kDeP21Cy·Skp2·(Ce+Ca) + kDeP21aRc·Cdt2·aRc)·P21  (+ exchange with CeP21/CaP21/PCNA)
-```
-
-**Skp2–p27 feedforward [added: Skp2 made a dynamic E2f target]**
-```
-d[Skp2]/dt = (kSySkp2bas + kSySkp2·E2f) − kDeSkp2C1·C1·Skp2 − kDeSkp2bas·Skp2
-```
-(E2f raises Skp2 → Skp2 degrades p27 → CDK2 active → more E2f: the bistable commitment feedforward;
-APC/C-Cdh1 (C1) keeps Skp2 low in G0.)
-
-**Cell growth and size gates [added]**
-```
-d[mass]/dt  = mu·mass                                  (mu = 0.0005 min⁻¹; mass → mass/2 at division)
-size_gate   = mass^n / (M_size^n + mass^n)             (M_size = 2.5; gates S-entry / origin firing)
-commit_gate = mass^n / (M_commit^n + mass^n)           (M_commit = 1.3; gates G0→G1 commitment) ; n = 6
+v_Rb       = kPhRbCd·Cd/(K_CdRb·(1 + p16 + p18) + Cd)·commit_gate + kPhRbCe·Ce + kPhRbCa·Ca   [Rb-kinase]
+D21        = kDeP21 + kDeP21Cy·Skp2·(Ce + Ca) + kDeP21aRc·Cdt2·aRc          [p21/p27 degradation rate]
+size_gate  = mass^n / (M_size^n  + mass^n)           (M_size  = 2.5, n = 6)     [S-entry / origin firing]
+commit_gate= mass^n / (M_commit^n + mass^n)          (M_commit = 1.3, n = 6)     [G0→G1 commitment]
+g2gate     = Dna^nG2 / (KG2^nG2 + Dna^nG2)            (KG2 = 0.85, nG2 = 6)       [≈1 when replication done]
+Chk1       = aRc / (jChk + aRc)                       [active forks = unfinished S → inhibits mitosis]  [added]
+Cdc25a     = (a25  + (1 − a25 )·MPF^nMpf/(KmMpf^nMpf + MPF^nMpf)) / (1 + wChk·Chk1)   [CDK1 activator]  [added]
+Wee1a      = (aWee + (1 − aWee)·KmMpf^nMpf/(KmMpf^nMpf + MPF^nMpf))·(1 + wChkW·Chk1)   [CDK1 inhibitor]  [added]
+vfork      = vmin_fork + (1 − vmin_fork)·KmHU_fork^h/(KmHU_fork^h + HU^h)              [HU slows forks]
+Cdt2       = constant (CRL4–Cdt2; degrades p21 on chromatin during S)
 ```
 
-**Explicit DNA replication (Heldt core; HU enters here)**
+**4a. Restriction point: Rb–E2f** (Cyclin D term is the saturating + competitive INK4 brake [added])
 ```
-Rc → pRc      at  kPhRc·(Ce+Ca)^n/(jCy^n + (Ce+Ca)^n) · size_gate · Rc      (origin licensing, size-gated)
-pRc (+PCNA) → aRc                                                            (firing)
-d[Dna]/dt    =  kSyDna · vfork · aRc                                         (DNA synthesis, 0 → 1)
-vfork        =  vmin_fork + (1 − vmin_fork)·KmHU_fork^h / (KmHU_fork^h + HU^h)   ← HU slows fork speed
-```
-
-**Cyclin B/CDK1 mitotic switch + intra-S Chk1 checkpoint [added]**
-```
-g2gate     = Dna^nG2 / (KG2^nG2 + Dna^nG2)             (≈1 only when replication ≈ complete; KG2=0.85, nG2=6)
-Chk1       = aRc / (jChk + aRc)                        (active forks = unfinished S → inhibits mitosis)
-Cdc25a     = (a25 + (1−a25)·MPF^n/(KmMpf^n + MPF^n)) / (1 + wChk·Chk1)        (activating, hysteretic)
-Wee1a      = (aWee + (1−aWee)·KmMpf^n/(KmMpf^n + MPF^n)) · (1 + wChkW·Chk1)    (inactivating)
-d[preMPF]/dt = kSyCb·g2gate + kWee·Wee1a·MPF − k25·Cdc25a·preMPF − (kDeCbBas + kDeCb·Cdc20)·preMPF
-d[MPF]/dt    = k25·Cdc25a·preMPF − kWee·Wee1a·MPF      − (kDeCbBas + kDeCb·Cdc20)·MPF
-d[Cdc20]/dt  = kaCdc20·MPF^nCdc20/(KmCdc20^nCdc20 + MPF^nCdc20)·(1 − Cdc20) − kiCdc20·Cdc20
-              (Cdc20 then drives mitotic Cyclin B and Cyclin A destruction → mitotic exit)
+Rb → pRb                         : v_Rb·Rb
+RbE2f → pRb + E2f                : v_Rb·RbE2f
+pRb → Rb                         : kDpRb·pRb
+∅ → E2f                          : kSyE2f + kSyE2fE2f·E2f/(jSyE2f + E2f)
+E2f → ∅                          : kDeE2f·E2f
+RbE2f → Rb                       : kDeE2f·RbE2f
+Rb + E2f ⇌ RbE2f                 : kAsRbE2f·Rb·E2f − kDsRbE2f·RbE2f
 ```
 
-**Division event** (when MPF crosses MPF_div):
+**4b. Cyclin E/A–CDK2 and p21/p27 (CIP/KIP)** (`kSyP21` is the MB-elevated CIP/KIP knob)
 ```
-Dna→0; Rc→1, pRc=aRc=iRc=0; Rb→Rb+pRb, pRb→0; P21→P21_div (high); Skp2→0.05;
-Ce→Ce_div, Ca→Ca_div; MPF=preMPF=0; Cdc20→0; mass→mass/2; EZH2→EZH2/2, EZH2m→EZH2m/2.
+∅ → P21                          : kSyP21 + kSyP21P53·P53
+E2f → E2f + Ce                   : kSyCe·E2f
+E2f → E2f + Ca                   : kSyCa·E2f
+Ce + P21 ⇌ CeP21                 : kAsCyP21·Ce·P21 − kDsCyP21·CeP21
+Ca + P21 ⇌ CaP21                 : kAsCyP21·Ca·P21 − kDsCyP21·CaP21
+CeP21 → Ce                       : D21·CeP21            (p21 degraded out of complex)
+CaP21 → Ca                       : D21·CaP21
+Ce → ∅                           : (kDeCe + kDeCeCa·Ca)·Ce
+CeP21 → P21                      : (kDeCe + kDeCeCa·Ca)·CeP21      (Cyclin E degraded, releases p21)
+Ca → ∅                           : (kDeCa + kDeCaC1·C1)·Ca
+CaP21 → P21                      : (kDeCa + kDeCaC1·C1)·CaP21
+P21 → ∅                          : D21·P21
+```
+
+**4c. Skp2–p27 feedforward [added: Skp2 is a dynamic E2f target degraded by APC/C-Cdh1]**
+```
+∅ → Skp2                         : kSySkp2bas + kSySkp2·E2f
+Skp2 → ∅                         : kDeSkp2C1·C1·Skp2          (APC/C-Cdh1 keeps Skp2 low in G0)
+Skp2 → ∅                         : kDeSkp2bas·Skp2
+```
+(E2f → Skp2 → p27 degradation → CDK2 active → more E2f: the bistable Cyclin D1/p27-ratio commitment switch.)
+
+**4d. Cell growth and size gates [added]**
+```
+∅ → mass                         : mu·mass               (mu = 0.0005 min⁻¹; mass → mass/2 at division)
+```
+(size_gate and commit_gate defined above act on origin firing and on commitment, respectively.)
+
+**4e. Emi1 and APC/C–Cdh1 (C1)** (Cdh1 governs Skp2/Cyclin-A timing and the point of no return)
+```
+E2f → E2f + E1                   : kSyE1·E2f
+E1 → ∅                           : kDeE1·E1
+E1 + C1 ⇌ E1C1                   : kAsE1C1·E1·C1 − kDsE1C1·E1C1
+E1C1 → C1                        : kDeE1C1·E1C1
+C1 → pC1                         : (kPhC1 + kPhC1Ce·Ce + kPhC1Ca·Ca)·C1     (CDK2 inactivates Cdh1)
+E1C1 → E1 + pC1                  : (kPhC1 + kPhC1Ce·Ce + kPhC1Ca·Ca)·E1C1
+pC1 → C1                         : kDpC1·pC1
+```
+
+**4f. PCNA cycling**
+```
+∅ → aPcna                        : kImPc                  (nuclear import)
+aPcna → ∅                        : kExPc·aPcna
+iPcna → P21                      : kExPc·iPcna            (export releases sequestered p21)
+aPcna + P21 ⇌ iPcna              : kAsPcP21·aPcna·P21 − kDsPcP21·iPcna
+iPcna → aPcna                    : D21·iPcna
+```
+
+**4g. Explicit DNA replication** (HU enters via `vfork`)
+```
+aPcna + pRc ⇌ aRc                : kAsRcPc·aPcna·pRc − kDsRcPc·aRc      (firing: loading PCNA)
+iPcna + pRc ⇌ iRc                : kAsRcPc·iPcna·pRc − kDsRcPc·iRc
+Rc → pRc                         : kPhRc·(Ce+Ca)^n/(jCy^n + (Ce+Ca)^n)·size_gate·Rc   (origin licensing)
+pRc → Rc                         : kDpRc·pRc
+aRc + P21 ⇌ iRc                  : kAsPcP21·aRc·P21 − kDsPcP21·iRc
+iRc → aRc                        : D21·iRc
+aRc → aRc + Dna                  : kSyDna·vfork·aRc       (DNA synthesis; Dna runs 0 → 1)
+   — disassembly when replication completes (Dna > 1): Rc → ∅, pRc → ∅, aRc → aPcna, iRc → iPcna
+     (piecewise: 0 while Dna < 1; full at Dna > 1)
+```
+
+**4h. p53 / DNA-damage checkpoint** (Heldt's quiescence-on-damage arm; damage is low in our conditions)
+```
+∅ → P53                          : kSyP53
+P53 → ∅                          : (kDeP53/(jP53 + Dam))·P53
+∅ → Dam                          : kGeDam                 (basal damage)
+aRc → aRc + Dam                  : kGeDamArc·aRc          (replication-associated damage)
+Dam → ∅                          : (kReDam + kReDamP53·P53/(jDam + Dam))·Dam      (repair)
+∅ → Pr                           : kSyPr                  (APC/C-Cdh1 activity probe)
+Pr → ∅                           : (kDePr + kDeCaC1·C1)·Pr
+```
+
+**4i. Cyclin B/CDK1 mitotic switch + intra-S Chk1 checkpoint [added]**
+(Cdc25a, Wee1a, Chk1, g2gate defined above)
+```
+∅ → preMPF                       : kSyCb·g2gate           (Cyclin B made inactive in G2)
+MPF → preMPF                     : kWee·Wee1a·MPF         (Wee1: Tyr15 phosphorylation → inactivate)
+preMPF → MPF                     : k25·Cdc25a·preMPF      (Cdc25: Tyr15 dephosphorylation → activate)
+MPF → ∅                          : (kDeCbBas + kDeCb·Cdc20)·MPF
+preMPF → ∅                       : (kDeCbBas + kDeCb·Cdc20)·preMPF
+∅ → Cdc20                        : kaCdc20·MPF^nCdc20/(KmCdc20^nCdc20 + MPF^nCdc20)·(1 − Cdc20)
+Cdc20 → ∅                        : kiCdc20·Cdc20
+Ca → ∅                           : kDeCaCdc20·Cdc20·Ca    (mitotic Cyclin A destruction)
+```
+
+**4j. Division event** (fires when MPF crosses MPF_div):
+```
+Dna → 0;  Rc → 1, pRc = aRc = iRc = 0;  Rb → Rb + pRb, pRb → 0;  P21 → P21_div (high);  Skp2 → 0.05;
+Ce → Ce_div, Ca → Ca_div;  MPF = preMPF = 0;  Cdc20 → 0;  mass → mass/2;  EZH2 → EZH2/2, EZH2m → EZH2m/2.
 ```
 (The p27 reset-high + halved mass create the growth-timed, p27-high transient G0; halving EZH2 is the
 dilution that makes EZH2 a time-in-S integrator.)
