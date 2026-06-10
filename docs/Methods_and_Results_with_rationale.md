@@ -12,17 +12,23 @@ Calibration data and CDK-inhibitor / RNA-seq tables: `docs/PARAMETERIZATION.md`.
 
 Having established that Ezh2 directly represses Cyclin D1 through H3K27me3 (Fig. 4L), we sought to
 understand the quantitative consequences of this repression for cell-cycle control and drug response.
-To do so, we constructed an ordinary differential equation (ODE) model integrating Hedgehog signaling,
-Mycn, Ezh2, and the mammalian cell cycle engine (Fig. S8A). Within the model architecture, Cyclin D1
+To do so, we constructed an ordinary differential equation (ODE) model integrating Hedgehog signaling
+and its target gene Mycn, Ezh2, and the mammalian cell-cycle engine (Fig. S8A). Within the model architecture, Cyclin D1
 mRNA transcription serves as the central integration node, receiving three inputs: basal transcription,
 Gli-driven transcription (via Shh/Ptch1/Smo/Gli), and Mycn-driven transcription. All inputs are subject
 to Ezh2-mediated repression through H3K27me3 at the Cyclin D1 promoter. Because our central observation
 is that Ezh2 accumulates in proportion to the time a cell spends in S-phase (Fig. 4G) — a quantity that
 is fixed in a phenomenological oscillator — we built the cell cycle core on the real-time mammalian G1/S
 model of Heldt et al. (2018), which represents DNA replication explicitly, so that S-phase has a
-mechanistic, concentration-dependent duration; we then extended this core so that it resolves mitosis,
-gates mitosis on completed replication, times cell-cycle phases by cell growth, and makes the G0/G1
-commitment switch-like (Methods). Two further features tie the model to the tumour genetics: the
+mechanistic, concentration-dependent duration. To this core we added four components needed to
+reproduce the relevant biology (Methods). A Cyclin B/CDK1 mitotic switch makes entry into and exit from
+mitosis abrupt and all-or-none, through feedback between the Cdc25 activator and the Wee1 inhibitor
+(Pomerening et al., 2003). An intra-S checkpoint lets ongoing DNA replication restrain mitotic entry,
+enforcing the dependence of mitosis on completed replication (Hartwell and Weinert, 1989). A
+growth-gated restriction point requires the cell to grow to a critical size before it licenses
+commitment and S-phase entry (Ginzberg et al., 2015; Cadart et al., 2018). Finally, a Skp2–p27
+feedforward switch, in which E2f-induced Skp2 degrades p27 (Carrano et al., 1999), makes the G0→G1
+commitment a sharp, all-or-none decision (Yao et al., 2008). Two further features tie the model to the tumour genetics: the
 Hedgehog module includes the canonical Gli→Ptch1 negative feedback, in which Ptch1 is itself a Gli
 target that re-inhibits Smo (Marigo and Tabin, 1996), intact in GNPs but broken in Ptch+/− MB, where
 loss-of-function Ptch1 yields constitutive, mitogen-independent Gli activity (Goodrich et al., 1997); and
@@ -503,6 +509,8 @@ Heldt et al. 2018 (PNAS 115:2532); Bracken et al. 2003 (EMBO J 22:5323); Pasini 
 3:396); Marigo & Tabin 1996 (PNAS 93:9346); Goodrich et al. 1997 (Science 277:1109); Serrano et al. 1993
 (Nature 366:704); Sherr & Roberts 1999 (Genes Dev 13:1501); Uziel et al. 2005 (Genes Dev 19:2656);
 Pomerening et al. 2003 (Nat Cell Biol 5:346); Yao et al. 2008 (Nat Cell Biol 10:476); Wechsler-Reya &
-Scott 1999 (Neuron 22:103); Spencer et al. 2013 (Cell 155:369); Cappell et al. 2016 (Cell 166:167).
+Scott 1999 (Neuron 22:103); Spencer et al. 2013 (Cell 155:369); Cappell et al. 2016 (Cell 166:167);
+Hartwell & Weinert 1989 (Science 246:629); Ginzberg et al. 2015 (Science 348:1245075); Cadart et al.
+2018 (Nat Commun 9:3275); Carrano et al. 1999 (Nat Cell Biol 1:193).
 Retained from the manuscript: Gérard & Goldbeter 2009 (ref 30); Tellurium (ref 69); GNP period (ref 70).
 Verify volume/page and renumber to the manuscript scheme.

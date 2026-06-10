@@ -179,7 +179,7 @@ HH_MYCN_BLOCK = """
   // (starting from low Gli/Cd lets the cell miss its restriction-point window -> false G0).
   species $SHH = 0.5, $GDC0449 = 0.0;
   species SHH_Ptch = 0.0, Ptch1_free = 0.3, Ptch1_mRNA = 0.6, Smo_active = 0.8;
-  species Gli_rep = 0.1, Gli_act = 0.5, Gli1_mRNA = 1.0, Gli1 = 1.4;
+  species Gli_rep = 0.1, Gli_act = 0.5, Gli1_mRNA = 1.0, Gli1 = 1.4, Gli1_epi = 0.0001;
   species MYCN = 0.4, Cd_mRNA = 2.6, Cd in Cell;
   Cd = 0.70;
   // Ptch1_copy_number is the FUNCTIONAL Ptch1 fraction (gene dosage x functional competence):
@@ -202,6 +202,25 @@ HH_MYCN_BLOCK = """
   k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 0.8879;
   Vmax_Gli1_tx = 1.27; K_Gli_act_Gli1 = 1.182; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
   k_Gli1_mRNA_deg = 0.8; k_Gli1_translation = 1.2; k_Gli1_deg = 0.8;
+  // GLI1 autoregulation via a SLOW epigenetic memory (Gli1_epi, a 0..1 chromatin state at the Gli
+  // locus). Gli1_epi is CHARGED by Smo activity (the drug target; Hill K_Gli1_auto, n_Gli1_auto),
+  // gated to BROKEN feedback (1 - Ptch1_copy_number) so it is GNP-silent and MB-active, and DISCHARGES
+  // slowly (k_epi_off). It feeds GLI1 TRANSCRIPTION Smo-independently (k_Gli1_auto*Gli1_epi below).
+  // Charging from Smo (not Gli1) makes it a non-bistable capacitor: vismo blocks Smo -> charging stops
+  // -> the memory discharges, so vismo on cycling MB leaves a Gli1 RESIDUAL that decays over ~a day.
+  // WHY it feeds Gli1 (not Gli_act): MYCN floors CyclinD1 but has NO path to Gli1, yet the data show a
+  // large Gli1 residual after vismo (MB_GDC0449 Gli1 413 / MB 17881 = 2.3% at 24h, 41x GNP+vismo's 10)
+  // -- a Gli-INTRINSIC residual. Feeding Gli1 reproduces that residual WITHOUT inflating CyclinD1/
+  // proliferation (the residual Gli1 is small, so CyclinD1 after vismo stays MYCN-floored ~ pRb 1/4).
+  // The no-memory model gives Gli1~0 by 24h, so ONLY the memory reproduces the residual.
+  // k_epi_off=0.0008 set by the 24h timepoint: model Gli1(24h)/baseline ~0.035 (data 0.023; same order,
+  // decay beyond 24h unmeasured). k_Gli1_auto=0 = legacy (off).
+  k_Gli1_auto = 0.012; K_Gli1_auto = 0.4; n_Gli1_auto = 4; k_epi_on = 0.02; k_epi_off = 0.0008;
+  // Re-attribution: with the memory ON, reduce the Smo-driven Gli1 transcription in MB (broken feedback)
+  // so the memory SUPPLIES part of MB's constitutive Gli1 rather than inflating baseline. Gates by
+  // (Ptch1_copy_number + (1 - Ptch1_copy_number)*g_smo_Gli1_broken): GNP (copy=1) unchanged.
+  // 1.0 = legacy (no re-attribution); 0.873 = calibrated (keeps MB Gli1 6.9x, Cd 7.58x with memory on).
+  g_smo_Gli1_broken = 0.873;
   k_Cd_tx_basal = 0.3086; k_Cd_tx_Gli_max = 46.31; K_Gli_act_CycD = 0.4568; K_Gli_rep_CycD = 0.3;
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
@@ -224,7 +243,9 @@ HH_MYCN_BLOCK = """
   Smo_inactivation: Smo_active => ; k_Smo_inact*Smo_active;
   Gli_rep_to_act: Gli_rep => Gli_act; k_Gli_rep_to_act*Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2)*Gli_rep;
   Gli_act_to_rep: Gli_act => Gli_rep; k_Gli_act_to_rep*(1 - Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2))*Gli_act;
-  Gli1_transcription: => Gli1_mRNA; Vmax_Gli1_tx*Gli_act^n_Gli_act/(K_Gli_act_Gli1^n_Gli_act + Gli_act^n_Gli_act)*(1 - Gli_rep^n_Gli_rep/(K_Gli_rep_Gli1^n_Gli_rep + Gli_rep^n_Gli_rep));
+  Gli1_transcription: => Gli1_mRNA; Vmax_Gli1_tx*Gli_act^n_Gli_act/(K_Gli_act_Gli1^n_Gli_act + Gli_act^n_Gli_act)*(1 - Gli_rep^n_Gli_rep/(K_Gli_rep_Gli1^n_Gli_rep + Gli_rep^n_Gli_rep))*(Ptch1_copy_number + (1 - Ptch1_copy_number)*g_smo_Gli1_broken) + k_Gli1_auto*Gli1_epi;
+  Gli1_epi_on:  => Gli1_epi; k_epi_on*(1 - Ptch1_copy_number)*Smo_active^n_Gli1_auto/(K_Gli1_auto^n_Gli1_auto + Smo_active^n_Gli1_auto)*(1 - Gli1_epi);
+  Gli1_epi_off: Gli1_epi => ; k_epi_off*Gli1_epi;
   Gli1_mRNA_degradation: Gli1_mRNA => ; k_Gli1_mRNA_deg*Gli1_mRNA;
   Gli1_translation: Gli1_mRNA => Gli1_mRNA + Gli1; k_Gli1_translation*Gli1_mRNA;
   Gli1_degradation: Gli1 => ; k_Gli1_deg*Gli1;
