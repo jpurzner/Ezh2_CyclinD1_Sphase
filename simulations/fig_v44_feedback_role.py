@@ -44,7 +44,7 @@ for tag, model in (('fb', M_fb), ('no', M_no)):
         if r is None:
             for k in res[tag]: res[tag][k].append(np.nan)
             continue
-        n, _, _ = count_divisions(r); f, _ = classify(r, P27_THR)
+        n, _, _ = count_divisions(r); f, _, _ = classify(r, P27_THR)   # f = COUNT-fraction (flow quiescent G0)
         res[tag]['cdm'].append(mean_settled(r, 'Cd_mRNA'))
         res[tag]['cd'].append(mean_settled(r, 'Cd'))
         res[tag]['div'].append(n); res[tag]['g0'].append(f['G0'])

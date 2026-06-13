@@ -70,7 +70,7 @@ for cname, cond in CONTEXTS.items():
             data[cname]['ndiv'].append(np.nan)
             continue
         n, _, per = count_divisions(r)
-        f, _ = classify(r, P27_THR)
+        f, _, _ = classify(r, P27_THR)   # f = COUNT-fraction (flow quiescent G0)
         data[cname]['cdm'].append(mean_settled(r, 'Cd_mRNA'))
         data[cname]['cd'].append(mean_settled(r, 'Cd'))
         data[cname]['ndiv'].append(n)

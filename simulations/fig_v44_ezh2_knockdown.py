@@ -46,7 +46,7 @@ for c, cond in ctxs.items():
     print(f"\n{c}:   EZH2%   EZH2prot  CyclinD1   div/168h   period   G0%")
     for kd in KD:
         r = run(kd, **cond)
-        n, _, per = count_divisions(r); f, _ = classify(r, P27_THR)
+        n, _, per = count_divisions(r); f, _, _ = classify(r, P27_THR)   # f = COUNT-fraction (flow quiescent G0)
         ez = mean_settled(r, 'EZH2'); cd = mean_settled(r, 'Cd_mRNA')
         pp = np.mean(per) if len(per) else np.nan
         D[c]['ez'].append(ez); D[c]['cd'].append(cd); D[c]['ndiv'].append(n)
