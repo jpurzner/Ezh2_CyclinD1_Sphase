@@ -106,7 +106,7 @@ GROWTH_BLOCK = """
   mass = 1.0;
   mu = 0.0005;            // specific growth rate (1/min); ~ ln2/period for size homeostasis (~22h)
   M_size = 2.5;           // critical cell size for S-entry (origin firing)
-  M_commit = 1.3;         // critical cell size for COMMITMENT (G0->G1; Skp2-p27 feedforward fires) ->
+  M_commit = 1.05;        // critical cell size for COMMITMENT (G0->G1; Skp2-p27 feedforward fires) ->
                           // transient G0 ~20% (MB); cell grows in G0 (p27 high) until mass>=M_commit
   n_size = 6;             // steepness of the size gates
   size_gate := mass^n_size/(M_size^n_size + mass^n_size);
@@ -362,6 +362,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
 
     # 1. HU-scale the replication fork flux
     m = m.replace(_DNA_RXN_OLD, _DNA_RXN_NEW)
+    # 1b. faster replication fork: S-phase ~3.5h (Heldt default 0.0093 gave ~10h, unrealistically long;
+    #     ~5x brings S to the data DMSO S proportion ~15.7% of the cycle). G1/G0 fills the rest.
+    m = m.replace("kSyDna = 0.0093;", "kSyDna = 0.044;")
     # 2. inject mitotic switch + HU blocks
     blocks = MITOSIS_BLOCK + HU_BLOCK
 
@@ -399,8 +402,10 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # earlier p18-free K_CdRb=0.5 -> GNP behavior preserved; MB tone is p16+p18.
         if "kPhRbCd*Cd " not in m:
             raise RuntimeError("Rb-phosphorylation (kPhRbCd*Cd) not found in expected form.")
-        m = m.replace("kPhRbCd*Cd ", "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18) + Cd) ")   # both Rb reactions
-        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.357;\n  p16 = 0.0;\n  p18 = 0.4;")
+        # INK4 (p16/p18) AND CIP/KIP p27 (P21) competitively inhibit CDK4/6: p27 acts on CDK4/6 too,
+        # not only CDK2 (w_p27 weights its CDK4/6 inhibition; 0 = legacy CDK2-only).
+        m = m.replace("kPhRbCd*Cd ", "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd) ")   # both Rb reactions
+        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.357;\n  p16 = 0.0;\n  p18 = 0.4;\n  w_p27 = 1.0;")
 
     if with_growth:
         # size gate on S-entry (origin firing) + mass growth + halving at division
@@ -410,7 +415,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # size gate on COMMITMENT: CyclinD->Rb trigger waits for size -> transient growth-timed G0.
         # With two-step Rb, commit_gate is already baked into the mono step (_apply_two_step_rb).
         if not with_two_step_rb:
-            cd_rb = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18) + Cd) +" if with_cd_sat else "kPhRbCd*Cd +"
+            cd_rb = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd) +" if with_cd_sat else "kPhRbCd*Cd +"
             if cd_rb not in m:
                 raise RuntimeError("Rb-phosphorylation (CyclinD term) not found in expected form.")
             m = m.replace(cd_rb, cd_rb[:-2] + "*commit_gate +")

@@ -27,7 +27,7 @@ from matplotlib.patches import FancyArrowPatch
 from scipy.signal import find_peaks
 from src.build_model_v44_heldt import build_model_v44
 
-MB_TONE  = dict(p16=0.88, p18=1.2, ksyp21=0.004)
+MB_TONE  = dict(p16=0.15, p18=1.5, ksyp21=0.004)
 GNP_TONE = dict(p16=0.0,  p18=0.4, ksyp21=0.002)
 TX0 = dict(basal=0.3086, gli=46.31, mycn=35.22)          # default Cyclin D1 transcription terms
 

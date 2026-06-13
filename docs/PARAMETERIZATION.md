@@ -105,15 +105,22 @@ brakes the model separates. **p57 (Cdkn1c) is EXCLUDED** (separate project; it g
 - **INK4 / CDK4/6 tone — two explicit params, `p16` + `p18`** — a *competitive* CDK4/6 brake raising the
   CyclinD1→Rb half‑max `kPhRbCd·Cd/(K_CdRb·(1 + p16 + p18) + Cd)` (`K_CdRb` 0.5→**0.357** when p18 was
   added, so the GNP p18 baseline keeps the GNP net half‑max at 0.357·1.4 = 0.5 — behavior preserved):
-  - **`p16` (Cdkn2a)** = the GNP‑silent, MB‑specific INK4 (H3K27me3‑silenced, 139× in MB): 0 in GNP, **0.88** in MB.
-  - **`p18` (Cdkn2c)** = the *constitutive* INK4, substantially expressed in GNPs and a literature‑backed
-    GNP/MB CDK4/6 inhibitor (Shh‑maintained): **0.4 in GNP → 1.2 in MB** (~3×, matching the data fold).
-    (p15 6.4× is folded into this competitive arm conceptually; p19 ns, not encoded.)
+  Tones are now **ABUNDANCE‑proportional (DESeq2 counts), not fold‑proportional**:
+  - **`p16` (Cdkn2a)** = the GNP‑silent, MB‑specific INK4 (H3K27me3‑silenced, **139× fold** in MB):
+    0 in GNP, **0.15** in MB. The dramatic fold reflects near‑absence in GNP (3 counts), but p16's
+    *absolute* MB level (417) is only ~0.1× of p18 (4288) — so it's a **small absolute brake** despite
+    the fold, and the cleanest MB‑specific marker. (Was 0.88, search‑tuned; corrected to abundance.)
+  - **`p18` (Cdkn2c)** = the *constitutive*, dominant INK4 (Shh‑maintained), the largest absolute CDK4/6
+    inhibitor: **0.4 in GNP → 1.5 in MB** (3.75× ≈ the data 1149→4288). p16/p18 ratio 0.10 ≈ data 0.097.
+    (p15 6.4× folded in conceptually; p19 ns, not encoded.)
   This is the **rescuable** axis: more CyclinD1 overcomes the competitive brake, so **EZH2i rescues**.
   Contrast CDK4/6i (palbociclib = `kPhRbCd=0`, a non‑competitive Vmax block) which raising CyclinD1
   cannot bypass → **not rescuable** (the model's clean contrast).
 - **model `kSyP21` = the CIP/KIP / CDK2 tone** (p21 3.1× + p27 1.4×) — raises p21/p27 synthesis ~2× in
-  MB (0.002→0.004), inhibiting CyclinE/A–CDK2; also lengthens the p21/p27‑high transient G0.
+  MB (0.002→0.004), inhibiting CyclinE/A–CDK2; also lengthens the p21/p27‑high transient G0. **p27 also
+  brakes CDK4/6** (Guiley 2019): the `P21` species enters the CDK4/6 half‑max via `w_p27·P21` (w_p27=1),
+  a G0‑weighted brake (p27 peaks in G0). p27 is the most abundant CKI (10,893) but acts mostly on CDK2;
+  only a modest CDK4/6 share is modeled (a larger w_p27 would over‑raise the GNP threshold).
 
 So the two brake parameters are *family aggregates* (INK4, CIP/KIP), not single genes — which is why
 the wider panel **reinforces** the structure: the CDK4/6 (INK4) arm is strongly and broadly induced
@@ -207,9 +214,14 @@ by Ezh2i). Key fit values (full list in `src/build_model_v44_heldt.py`):
   CyclinD1→Rb drive (`with_cd_sat`) this stays numerically stable. *(search‑tuned)*
 - `K_EZH2_repression = 0.75` — EZH2 ⊣ CyclinD1 feedback strength. *(search‑tuned: gives an EZH2i
   CyclinD1 fold of ~2.7× — closer to the Fig 3C qPCR ~2× than the prior 0.5 → 3.5×.)*
-- MB CDK‑inhibitor brake = **INK4 (p16 0.88 + p18 1.2; GNP p18 baseline 0.4, `K_CdRb` 0.357) + CIP/KIP
-  (kSyP21 0.004, 2× baseline)**; CyclinD1 heterogeneity σ = 0.68 — *(pRb rescue 100→~20→~74; see below)*.
-- EZH2 gate + turnover, and `KmHU_fork` / `vmin_fork` (HU→fork‑speed, S‑phase lengthening) — unchanged.
+- MB CDK‑inhibitor brake = **INK4 (p16 0.15 + p18 1.5, abundance‑proportional; GNP p18 baseline 0.4,
+  `K_CdRb` 0.357) + CIP/KIP (kSyP21 0.004, 2× baseline) + p27→CDK4/6 (`w_p27`=1)**; CyclinD1 heterogeneity
+  σ = 0.68 — *(pRb rescue 100→~23→~71; preserves the threshold the old p16‑heavy tone gave)*.
+- `kSyDna` = **0.044** (~5× the Heldt default 0.0093) — S‑phase ~3 h (was ~10 h, unrealistically long);
+  brings the DMSO S proportion to ~13–15% (data 15.7%). `M_commit` = **1.05** (was 1.3) rebalances the
+  G0/G1 split to the data (G0 ~25% / G1 ~43%) — interim, pending mechanistic G0/G1 timing elements.
+- EZH2 gate + turnover, and `KmHU_fork` / `vmin_fork` (HU→fork‑speed, S‑phase lengthening) — the HU‑fold
+  targets now need re‑tuning for the shorter S (a known follow‑up).
 
 *Calibration of the four rescue‑determining params (p16, σ, K_EZH2_repression, k_Cd_translation) was a
 broad random search (`v44_rescue_search.py`, ~hundreds of evals across 4 seeds) against the pRb+ targets

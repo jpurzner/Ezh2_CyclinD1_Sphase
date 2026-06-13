@@ -70,8 +70,8 @@ CONDITIONS = {
     'GNP':          dict(shh=0.50, ezh2i=0, mycn=1.0, ptch1=1.0),
     'GNP high-SHH': dict(shh=1.00, ezh2i=0, mycn=1.0, ptch1=1.0),
     'GNP + EZH2i':  dict(shh=0.50, ezh2i=1, mycn=1.0, ptch1=1.0),
-    'MB':           dict(shh=0.50, ezh2i=0, mycn=2.8, ptch1=0.1, p16=0.88, p18=1.2, ksyp21=0.004),
-    'MB + EZH2i':   dict(shh=0.50, ezh2i=1, mycn=2.8, ptch1=0.1, p16=0.88, p18=1.2, ksyp21=0.004),
+    'MB':           dict(shh=0.50, ezh2i=0, mycn=2.8, ptch1=0.1, p16=0.15, p18=1.5, ksyp21=0.004),
+    'MB + EZH2i':   dict(shh=0.50, ezh2i=1, mycn=2.8, ptch1=0.1, p16=0.15, p18=1.5, ksyp21=0.004),
 }
 
 results = {}

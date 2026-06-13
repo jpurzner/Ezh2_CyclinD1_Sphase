@@ -99,6 +99,27 @@ Summary target: cycling/G0 ≈ 2.0, i.e. **G0/cycling ≈ 0.5**.
 | S  | 13.7 ± 1.14 | 18.6 ± 1.87 | 4.04 ± 0.378 | 21.7 ± 1.50 |
 | G2 | 14.1 ± 1.42 | 3.28 ± 0.513 | 9.56 ± 2.22 | 17.7 ± 0.866 |
 
+> **PROVENANCE & how to compare these to the model (added after a count-vs-duration error was caught).**
+> These are **flow-cytometry COUNT-fractions** — the fraction of cells *sitting* in each phase in an
+> asynchronous, exponentially growing population. The DMSO targets used in `validate_v44.py`
+> (24.8/43.4/15.7/16.1) are the above DMSO column renormalized to 100% (÷0.874).
+> 1. **Compare to the model's age-weighted COUNT-fraction, NOT its duration-fraction** (phase time /
+>    period). In exp. growth there are ~2× more just-divided than about-to-divide cells, so duration%
+>    over-counts late phases. Apply the age density n(a)=2λe^(−λa), λ=ln2/Tc (the λ/Tpot correction);
+>    `classify()` now returns `count_frac`. Comparing duration% to these flow numbers spuriously
+>    "passed" S and G2 — a real bug.
+> 2. **G0 vs G1 cannot come from DNA content** (both 2N); the G0 column requires a separate marker
+>    (p27⁻/Ki67⁻), i.e. it is a **quiescent-fraction**, not a phase duration. For MB (growth fraction
+>    < 1) the 2N pool also contains truly-quiescent cells a single-cycle classifier misses — needs a
+>    growth-fraction term (not modeled). So fit the **resolvable 2N pool (G0+G1 = 68.2%)**; treat the
+>    G0/G1 split as soft/model-internal.
+> 3. **S duration:** the reliable anchor is cumulative-BrdU (control GCP Tc−Ts ≈ 20 h → Ts ≈ 3 h at
+>    Tc ≈ 23 h), not the 15.7% gate; S tracks the assumed period (true Tc ≈ 28 h → Ts ≈ 8 h).
+> 4. **G2/M duration:** the 16.1% 4N gate is an **unreliable duration proxy** (late-S near-4N content,
+>    doublets, tetraploidy). Direct methods (Fujita G2 ≈ 2 h + M ≈ 0.5 h; pHH3/BrdU mitotic index
+>    peaking < 2 h) → **G2+M ≈ 2.5 h**; anchor to that direct duration, not the 4N count.
+> 5. **M ≈ 0** in the model (a brief MPF spike); report 0.5–1 h in tables and note it displaces ~2%.
+
 ### F2. Fold change vs DMSO (SD shown; N=12, Palbo N=11)
 
 | Phase | Treatment | Mean % | SD | Fold | p | Sig |

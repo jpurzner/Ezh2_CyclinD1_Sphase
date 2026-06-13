@@ -30,7 +30,7 @@ from scipy.signal import find_peaks
 from src.build_model_v44_heldt import build_model_v44
 
 # MB CDK-inhibitor tone vs GNP baseline (same numbers as validate_v44 / the paramspace fig)
-MB_TONE  = dict(p16=0.88, p18=1.2,  ksyp21=0.004)
+MB_TONE  = dict(p16=0.15, p18=1.5,  ksyp21=0.004)
 GNP_TONE = dict(p16=0.0,  p18=0.4,  ksyp21=0.002)
 
 

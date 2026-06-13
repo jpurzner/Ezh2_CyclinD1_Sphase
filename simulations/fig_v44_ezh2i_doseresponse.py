@@ -51,7 +51,7 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=False,
                 continue
     return None     # very high-CyclinD1 (high EZH2i in MB) can be too stiff -> caller carries NaN
 
-_MB = dict(p16=0.88, p18=1.2, ksyp21=0.004)              # MB CDK-inhibitor brake (INK4 + CIP/KIP)
+_MB = dict(p16=0.15, p18=1.5, ksyp21=0.004)              # MB CDK-inhibitor brake (INK4 + CIP/KIP)
 CONTEXTS = {
     'GNP':          dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, mycn_amp=1.0),
     'MB':           dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8, **_MB),

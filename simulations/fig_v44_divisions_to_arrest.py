@@ -30,7 +30,7 @@ p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.15, N)), 0.5, 2.0)
 
 CTX = {
     'GNP': dict(f=1.0, mycn=1.0, p16=0.0,  p18=0.4, ksy=0.0020, col='#1b9e77'),
-    'MB':  dict(f=0.1, mycn=2.8, p16=0.88, p18=1.2, ksy=0.0040, col='#762A83'),
+    'MB':  dict(f=0.1, mycn=2.8, p16=0.15, p18=1.5, ksy=0.0040, col='#762A83'),
 }
 DATA_RESID = {'GNP': 10 / 2591, 'MB': 413 / 17881}   # 24 h vismo Gli1 / baseline (RNA-seq)
 _RR = te.loada(build_model_v44())

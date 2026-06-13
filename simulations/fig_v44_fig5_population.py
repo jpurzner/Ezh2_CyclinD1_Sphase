@@ -17,8 +17,8 @@ from src.build_model_v44_heldt import build_model_v44
 
 N = 120
 T_END, N_PTS, SETTLE = 12000, 48000, 4000
-P16_MB = 0.88     # MB CDK-inhibitor tone: INK4 (CDK4/6) = p16 0.88 + p18 1.2 (GNP p18 baseline 0.4) ...
-P18_MB = 1.2
+P16_MB = 0.15     # MB CDK-inhibitor tone: INK4 (CDK4/6) = p16 0.88 + p18 1.2 (GNP p18 baseline 0.4) ...
+P18_MB = 1.5
 KSYP21_MB = 0.004 # ... + CIP/KIP (CDK2) = p21/p27 (kSyP21 2x the GNP baseline 0.002). All elevated in MB.
 rng = np.random.default_rng(7)
 # CyclinD1 heterogeneity (sigma 0.68, search-tuned): vismo lowers MB CyclinD1 onto the p16-raised

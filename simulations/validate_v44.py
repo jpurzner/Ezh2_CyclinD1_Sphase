@@ -33,9 +33,10 @@ PARAMS = {}        # stable baseline; the de-saturated HH fit (above target) cra
 P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
 MYCN_AMP_MB = 2.8
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
-P16_MB = 0.88            # MB CDK-inhibitor tone = INK4 (CDK4/6, competitive) + CIP/KIP (CDK2):
-P18_MB = 1.2             #   INK4 = p16 (Cdkn2a, GNP-silent->MB 139x; P16_MB) + p18 (Cdkn2c, the constitutive
-KSYP21_MB = 0.004        #   INK4, GNP baseline 0.4 -> MB ~3x = P18_MB); raise K_CdRb*(1+p16+p18).
+P16_MB = 0.15            # MB CDK-inhibitor tone, ABUNDANCE-proportional (DESeq2 counts), not fold:
+P18_MB = 1.5             #   p16 (Cdkn2a) MB 417 = only ~0.1x of p18 (Cdkn2c) 4288, despite p16's 139x fold
+KSYP21_MB = 0.004        #   (GNP-silent). p18 is the dominant INK4 (GNP 0.4->MB 1.5 = 3.75x ~ data 3.7x).
+                         #   p27 (CIP/KIP) also brakes CDK4/6 via w_p27=1 (model default).
                          #   CIP/KIP = p21/p27 (kSyP21 2x the GNP baseline 0.002).
                          # GNP: p16=0, p18=0.4 (builder default), p21 baseline. Together they raise the
                          # CyclinD1 commitment threshold so vismo's CyclinD1 drop arrests MB; EZH2i (CyclinD1
@@ -111,24 +112,46 @@ def mean_settled(res, sp, settle=4000):
 
 
 def classify(res, pRb_thr, settle=4000):
-    """Time-fraction in each phase (= asynchronous population proportion).
+    """Cell-cycle phase fractions.  Returns (count_frac, ezph, dur_frac).
 
-    G0 is classified by the p27 marker (manuscript: G0 = p27-positive). With the two-step Rb,
-    phospho-Rb(hyper) is also low in G0, so the two markers agree; p27 is the principled split
-    (pRb_thr is accepted for backward-compat but ignored)."""
-    t = res['time']; m = t >= settle
-    P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]
+    *** count_frac is the COUNT-fraction = what flow cytometry actually measures ***, i.e. the
+    fraction of cells *sitting* in each phase in an asynchronous, exponentially growing population.
+    It is NOT the duration-fraction (phase time / period): in exp. growth there are ~2x as many
+    just-divided cells as about-to-divide cells, so late phases hold fewer cells than their duration
+    share.  We apply the standard age-density (lambda) correction: the normalized age density is
+    n(a) = 2*lam*exp(-lam*a), a = time since the last division, lam = ln2/Tc.  Each settled time point
+    is re-weighted by n(age); the weighted phase fraction is the count-fraction (= Tpot=lam*Ts/LI
+    kinetics literature).  dur_frac (the old time-fraction) is kept for reference/figures only.
+
+    G0 is the p27 marker (G0 = p27-positive); pRb_thr accepted for backward-compat but ignored.
+    NOTE: flow CANNOT resolve G0 from G1 (both 2N) -- the G0/G1 split here is a model-internal,
+    marker-based partition, and for MB (growth fraction < 1) the 2N pool also holds truly-quiescent
+    cells not captured by this single-cycle classifier (a separate growth-fraction term, not modeled)."""
+    t = res['time']; m = t >= settle; tt = t[m]; dt = tt[1] - tt[0]
+    P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]; MPF = res['MPF'][m]
     in_S = (aRc > 0.05) & (Dna < 0.98)
     in_G2 = (Dna >= 0.98)
     preS = ~in_S & ~in_G2
     G0 = preS & (P21 > P27_THR); G1 = preS & (P21 <= P27_THR)
-    frac = dict(G0=G0.mean(), G1=G1.mean(), S=in_S.mean(), G2=in_G2.mean())
-    s = sum(frac.values()) or 1.0
-    frac = {k: 100 * v / s for k, v in frac.items()}
+    sels = {"G0": G0, "G1": G1, "S": in_S, "G2": in_G2}
+    # duration-fraction (time-fraction = single-cell phase-duration share)
+    dur = {k: float(v.mean()) for k, v in sels.items()}; sd = sum(dur.values()) or 1.0
+    dur = {k: 100 * v / sd for k, v in dur.items()}
+    # COUNT-fraction (flow) via the age-density re-weighting n(a)=2*lam*exp(-lam*a)
+    pk, _ = find_peaks(MPF, prominence=0.15, distance=int(200 / dt))
+    if len(pk) >= 2:
+        divt = tt[pk]; Tc = float(np.mean(np.diff(divt))); lam = np.log(2) / Tc
+        idx = np.searchsorted(divt, tt, side="right") - 1            # last division before each point
+        age = np.where(idx >= 0, tt - divt[np.clip(idx, 0, None)], np.nan)
+        w = np.where(idx >= 0, 2 * lam * np.exp(-lam * np.clip(age, 0, None)), 0.0)
+        W = np.sum(w) or 1.0
+        cnt = {k: float(np.sum(w * v) / W) for k, v in sels.items()}; sc = sum(cnt.values()) or 1.0
+        cnt = {k: 100 * v / sc for k, v in cnt.items()}
+    else:
+        cnt = dict(dur)                                              # not cycling -> no correction
     ez = res['EZH2'][m]
-    ezph = {ph: (float(ez[sel].mean()) if sel.any() else np.nan)
-            for ph, sel in [("G0", G0), ("G1", G1), ("S", in_S), ("G2", in_G2)]}
-    return frac, ezph
+    ezph = {ph: (float(ez[sel].mean()) if sel.any() else np.nan) for ph, sel in sels.items()}
+    return cnt, ezph, dur
 
 
 # ---------------------------------------------------------------------------
@@ -232,14 +255,32 @@ def main():
     _, _, per_gnp = count_divisions(sims['GNP + SHH'])
     check("Period GNP (~22h)", np.mean(per_gnp) if len(per_gnp) else 0, 22.0, 0.30)
 
-    # phase proportions (MB DMSO, renormalized) + HU redistribution
-    f0, ez0 = classify(mb, pRb_thr)
-    f1, ez1 = classify(sims['MB + HU'], pRb_thr)
-    TGT_DMSO = dict(G0=24.8, G1=43.4, S=15.7, G2=16.1)
-    for ph in ('G0', 'G1', 'S', 'G2'):
-        check(f"MB DMSO {ph} proportion", f0[ph], TGT_DMSO[ph], 0.35, '%')
+    # ---- phase proportions: COUNT-fractions (what flow measures), via the lambda-correction ----
+    # EVIDENCE / PROVENANCE of these targets (and why the comparison quantity changed):
+    #  * DMSO G0/G1/S/G2 = 24.8/43.4/15.7/16.1 are FLOW-CYTOMETRY count-fractions (DNA-content gating):
+    #    the fraction of cells SITTING in each phase. The model must therefore report the age-weighted
+    #    COUNT-fraction (classify -> count_frac), NOT the duration-fraction (phase time / period).
+    #    In exp. growth ~2x more just-divided than about-to-divide cells, so duration% over-counts late
+    #    phases; n(a)=2*lam*exp(-lam*a), lam=ln2/Tc (the Tpot=lam*Ts/LI lambda-correction). [Comparing
+    #    duration% to flow count% was a real bug -- it spuriously "passed" S and G2.]
+    #  * Flow CANNOT resolve G0 vs G1 (both 2N). The 24.8% "G0" is really a p27-/Ki67- QUIESCENT
+    #    fraction (a marker, not a per-cycle duration); for MB (growth fraction < 1) the 2N pool also
+    #    holds truly-quiescent cells this single-cycle classifier misses (a growth-fraction term, not
+    #    modeled). So the G0/G1 split is SOFT/model-internal -- we test the resolvable 2N pool (G0+G1).
+    #  * S: reliable anchor is cumulative-BrdU (control GCP Tc-Ts ~20h -> Ts ~3h at Tc~23h), NOT the
+    #    15.7% gate; S duration tracks the assumed period (true Tc~28h -> Ts ~8h). Checked vs flow (soft).
+    #  * G2/M: the 16.1% 4N gate is an UNRELIABLE duration proxy (late-S near-4N content, doublets,
+    #    tetraploidy). Direct methods (Fujita G2~2h + M~0.5h; pHH3/BrdU mitotic index peaking <2h) give
+    #    G2+M ~2.5h. We anchor G2/M to that DIRECT DURATION, not the 4N count.
+    f0, ez0, f0_dur = classify(mb, pRb_thr)
+    f1, ez1, f1_dur = classify(sims['MB + HU'], pRb_thr)
+    TGT_DMSO = dict(G0=24.8, G1=43.4, S=15.7, G2=16.1)              # flow count-fractions (soft for G0/G1, G2)
+    _, _, per_mb = count_divisions(mb); Tc_mb = float(np.mean(per_mb)) if len(per_mb) else 23.0
+    check("MB 2N (G0+G1) count% (flow)", f0['G0'] + f0['G1'], TGT_DMSO['G0'] + TGT_DMSO['G1'], 0.20, '%')
+    check("MB S count% (flow; BrdU Ts~3h)", f0['S'], TGT_DMSO['S'], 0.35, '%')
+    check("MB G2+M duration ~2.5h (direct)", (f0_dur['G2'] + f0_dur.get('M', 0)) / 100.0 * Tc_mb, 2.5, 0.40, 'h')
     TGT_HU_FOLD = dict(G0=1.19, G1=1.16, S=1.36, G2=0.23)
-    for ph in ('S', 'G2'):  # the directionally clear ones
+    for ph in ('S', 'G2'):  # the directionally clear ones (count-fraction folds)
         mf = f1[ph]/f0[ph] if f0[ph] else 0
         check(f"MB HU {ph} fold", mf, TGT_HU_FOLD[ph], 0.40)
 
@@ -257,13 +298,14 @@ def main():
         tstr = f"{target}{unit}" if not isinstance(target, float) else f"{target:g}{unit}"
         print(f"  {sym} {name:34s}: {actual:8.3f}  (target {tstr})")
 
-    print(f"\nPhase proportions (MB):  DMSO {fmt(f0)}   HU {fmt(f1)}")
-    print(f"  targets DMSO G0/G1/S/G2 = 24.8/43.4/15.7/16.1")
+    print(f"\nPhase COUNT-fractions (MB, flow-comparable):  DMSO {fmt(f0)}   HU {fmt(f1)}")
+    print(f"  duration-fractions (single-cell, NOT flow):  DMSO {fmt(f0_dur)}")
+    print(f"  flow targets G0/G1/S/G2 = 24.8/43.4/15.7/16.1 (G0/G1 unresolvable -> 2N=68.2; G2/M 4N soft, direct ~2.5h)")
     print(f"\n{'=' * 92}\nVALIDATION SUMMARY: {passed[0]}/{total[0]} targets passed\n{'=' * 92}")
 
     out = dict(model='v44_heldt', params=PARAMS, passed=passed[0], total=total[0],
                divisions=div, pRb_thr=float(pRb_thr),
-               phase_dmso=f0, phase_hu=f1,
+               phase_dmso_count=f0, phase_dmso_duration=f0_dur, phase_hu_count=f1,
                checks=[{'name': n, 'actual': float(a), 'target': t, 'pass': bool(o)}
                        for o, n, a, t, u in rows])
     with open(os.path.join(os.path.dirname(__file__), 'validation_v44_results.json'), 'w') as fh:

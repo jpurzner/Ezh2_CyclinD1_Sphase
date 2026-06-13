@@ -25,8 +25,8 @@ from src.build_model_v44_heldt import build_model_v44
 rr = te.loada(build_model_v44())
 rr.integrator.setValue("relative_tolerance", 1e-6)
 DEF_kPhRbCd = rr['kPhRbCd']; DEF_ktl = rr['k_Cd_translation']
-P16_MB, KSY_BASE = 0.88, 0.002                    # MB INK4 = p16 0.88 + p18 1.2; CIP/KIP = kSyP21 2x
-P18_GNP, P18_MB = 0.4, 1.2                        # p18 (Cdkn2c): GNP baseline tone -> ~3x in MB
+P16_MB, KSY_BASE = 0.15, 0.002                    # MB INK4 = p16 0.88 + p18 1.2; CIP/KIP = kSyP21 2x
+P18_GNP, P18_MB = 0.4, 1.5                        # p18 (Cdkn2c): GNP baseline tone -> ~3x in MB
 
 # brake "tone" tau: GNP=0 (p16=0, p18=0.4, p21 1x), MB=1 (p16=0.88, p18=1.2, p21 2x); all co-vary with tau
 def p16_of(t):  return P16_MB * t
@@ -219,8 +219,8 @@ axB.text(6.4, 1.18, "MB +CDK4/6i:\nkPhRbCd→0 (Vmax block)\noff-plane → arres
          fontsize=7.6, color="#7b241c", ha="left", va="top",
          bbox=dict(boxstyle="round,pad=0.3", fc="#fdedec", ec="#c0392b", lw=1))
 # right axis: what the tone means
-for tn, lab in [(0.0, "GNP\np16 0 / p18 0.4 / p21 1×"), (0.4, "Ptch+/-\np16 0.4 / p18 0.7 / p21 1.4×"),
-                (1.0, "MB\np16 0.9 / p18 1.2 / p21 2×")]:
+for tn, lab in [(0.0, "GNP\np16 0 / p18 0.4 / p21 1×"), (0.4, "Ptch+/-\np16 0.06 / p18 0.84 / p21 1.4×"),
+                (1.0, "MB\np16 0.15 / p18 1.5 / p21 2×")]:
     axB.text(12.0, tn, lab, fontsize=7.0, color="#555", va="center", ha="left")
 
 axB.set_xscale("log")
