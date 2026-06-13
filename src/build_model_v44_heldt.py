@@ -61,7 +61,8 @@ MITOSIS_BLOCK = """
   Cdc20inact: Cdc20 => ; Cell*kiCdc20*Cdc20;
   DegCycACdc20: Ca => ; Cell*kDeCaCdc20*Cdc20*Ca;       // mitotic CycA destruction
 
-  kSyCb = 0.020; kDeCb = 0.08; kDeCbBas = 0.004;       // kSyCb=0.020 -> G2 ~14%
+  kSyCb = 0.020; kDeCb = 0.08; kDeCbBas = 0.004;       // kSyCb=0.020 -> G2+M ~3.3h (within tol of the
+                                                        // ~2.5h direct anchor; shortening it just shifts time into G0+G1 via the growth gate -> worse 2N count)
   kWee = 0.4; k25 = 0.7; KmMpf = 0.35; nMpf = 4;
   a25 = 0.02; aWee = 0.1;
   wChk = 12; wChkW = 4; jChk = 0.03;
