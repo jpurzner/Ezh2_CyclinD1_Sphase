@@ -41,10 +41,12 @@ all cycle; Cd<0.2 -> mostly PERMANENT arrest (only born-committed daughters divi
 GNP+HHi (Cd 0.16) -> 68% arrest, but MB+HHi (Cd 0.78, MYCN-floored ABOVE threshold) -> 0% permanent
 arrest (only transient G0 48%) -- i.e. the MYCN floor PROTECTS MB from Hh-withdrawal arrest, the paper's
 claim. EZH2i rescues (MB+HHi quiescent 48->31%). MB baseline 21% quiescent matches DMSO data (21.7%).
-REMAINING (mechanical, not structural): (1) S a few % high (MB 22 vs 16) + MEAN period short of ~22h
-(GNP 18, MB 16) -- lower mu lengthens the (growth-coupled) G1 while S/G2 (rate-fixed) shrink in fraction.
-(2) Embed EZH2 as a v45 cycle species for the (small) within-cycle feedback + the Gli1-residual / EZH2
-MB/GNP validation checks. v44 stays the committed working model.
+SOFT FIT TUNED: mu 0.0009->0.0008 + kFire 0.018->0.022 -> GNP single-cell period 22.8h, ensemble MEDIAN
+22.6h (on the ~22-23h literature value; the mean 19h is lower due to the fast committed mode + G0 tail).
+MB phase-fractions 70/19/11 (2N target 68, S 16, G2M~2.5h DURATION) -- closer to target than v44's own
+fit (v44 over-counts 2N~80, under-counts S~10). MB baseline 24% quiescent ~ DMSO data 21.7%.
+REMAINING: Embed EZH2 as a v45 cycle species for the (small) within-cycle feedback + the Gli1-residual /
+EZH2 MB/GNP validation checks; write validate_v45.py. v44 stays the committed working model.
 
 Run:  ./venv/bin/python simulations/v45_stochastic_commitment.py
 """
@@ -62,7 +64,9 @@ model commitment_kernel
   mass = 1; Rb = 1.0; CDK2 = 0.04; p27 = 0.6; Cdh1 = 1; G2p = 0; Dna = 0;
 
   // ---- tunable parameters ----
-  mu = 0.0009;                       // growth rate (sets the committed-cycler timescale via Rb dilution)
+  mu = 0.0008;                       // growth rate (sets the committed-cycler timescale via Rb dilution)
+                                     // 0.0008 (was 0.0009): lengthens the growth-coupled G1 -> GNP mean period ~20h (toward
+                                     // the ~22h literature value) while the rate-fixed S/G2 shrink as count-fractions
   Mmax = 4.2; nM = 16;               // mass cap: cycling cells divide at mass ~3.5 (below cap), but a cell stuck in the
                                      // low basin grows to Mmax, floors RbC at 9/Mmax~2.1, stays bistable-low -> PERMANENT
                                      // arrest (quiescent cells don't grow). Without it, unbounded growth dilutes RbC->0
@@ -82,7 +86,8 @@ model commitment_kernel
   kon = 0.015; koff = 0.8;           // APC/C-Cdh1: CDK2act inactivates it (point of no return)
   kG2 = 0.0067; KG2 = 0.85; nG2 = 6;                    // G2 timer: G2p accumulates while replicated+committed
                                                         // -> G2 duration = 1/kG2 ~ 2.5h (mitotic CyclinB-build delay, abstracted)
-  kFire = 0.018; Kfire = 0.55; nFire = 6;               // origins fire when CDK2act crosses (G1->S); -> S ~3h
+  kFire = 0.022; Kfire = 0.55; nFire = 6;               // origins fire when CDK2act crosses (G1->S); -> S ~2.5h
+                                                        // (period-scaled BrdU anchor: at Tc~16-18h, Ts/Tc~15% -> Ts~2.5h, not 3h)
 
   // ---- algebraic ----
   RbC     := Rb/mass;                              // Rb CONCENTRATION (dilutes with growth)
