@@ -42,8 +42,8 @@ from scipy.optimize import brentq
 # ---------------------------------------------------------------------------
 KERNEL = """
 model commitment_kernel
-  species mass, Rb, CDK2, p27, Cdh1, Cb, Dna;
-  mass = 1; Rb = 1.0; CDK2 = 0.04; p27 = 0.6; Cdh1 = 1; Cb = 0; Dna = 0;
+  species mass, Rb, CDK2, p27, Cdh1, G2p, Dna;
+  mass = 1; Rb = 1.0; CDK2 = 0.04; p27 = 0.6; Cdh1 = 1; G2p = 0; Dna = 0;
 
   // ---- tunable parameters ----
   mu = 0.0009;                       // growth rate (sets the committed-cycler timescale via Rb dilution)
@@ -58,9 +58,9 @@ model commitment_kernel
   // NB: Cd does NOT move the separatrix (it's on the E2F nullcline); Cd acts via the p27-CLEARANCE DYNAMICS
   // -- MB (low ksp) clears p27 faster -> CDK2act rises across the fixed separatrix sooner -> shorter G0.
   kon = 0.015; koff = 0.8;           // APC/C-Cdh1: CDK2act inactivates it (point of no return)
-  ksCb = 0.024; kdCb = 0.010; KG2 = 0.85; nG2 = 6;      // CyclinB builds when Cdh1 off AND replication done
+  kG2 = 0.0067; KG2 = 0.85; nG2 = 6;                    // G2 timer: G2p accumulates while replicated+committed
+                                                        // -> G2 duration = 1/kG2 ~ 2.5h (mitotic CyclinB-build delay, abstracted)
   kFire = 0.014; Kfire = 0.55; nFire = 6;               // origins fire when CDK2act crosses (G1->S); -> S ~3.6h
-  // (G2 is short in this prototype -- a slow CyclinB build / Erlang chain is the refinement)
 
   // ---- algebraic ----
   RbC     := Rb/mass;                              // Rb CONCENTRATION (dilutes with growth)
@@ -84,14 +84,13 @@ model commitment_kernel
   Cdh1on:  => Cdh1; kon*(1 - Cdh1);
   Cdh1off: Cdh1 => ; koff*CDK2act*Cdh1;
   DnaRep:  => Dna; kFire*fire*(1 - Dna);             // replicate once committed
-  CbSyn:   => Cb; ksCb*(1 - Cdh1)*g2gate;
-  CbDeg:   Cb => ; kdCb*Cb;
+  G2acc:   => G2p; kG2*(1 - Cdh1)*g2gate;               // G2 clock: runs only when committed (Cdh1 off) AND replication done
 end
 """
 
-Cb_DIV = 0.5                                   # CyclinB-CDK1 (MPF) threshold = mitosis/division
+G2_DIV = 1.0                                   # G2 clock threshold = mitosis/division
 COMMIT_CDK2 = 0.30                             # CDK2act above this = committed (for G0/G1 classification)
-SEL = ["time", "mass", "Rb", "CDK2", "p27", "Cdh1", "Cb", "Dna"]
+SEL = ["time", "mass", "Rb", "CDK2", "p27", "Cdh1", "G2p", "Dna"]
 _rr = te.loada(KERNEL)
 
 
@@ -106,7 +105,7 @@ def run_cell(p27_0, CDK2_0, Cd, mass_0=1.0, t_max=4000):
         _rr.reset()
         _rr['Cd'] = Cd; _rr['mass'] = mass_0
         _rr['p27'] = p27_0; _rr['CDK2'] = CDK2_0
-        _rr['Cdh1'] = 1.0; _rr['Cb'] = 0.0; _rr['Dna'] = 0.0
+        _rr['Cdh1'] = 1.0; _rr['G2p'] = 0.0; _rr['Dna'] = 0.0
         _rr['Rb'] = _rr['ksRb'] / _rr['kdRb'] * mass_0    # Rb at its size-scaled steady level
         _rr.integrator.setValue("absolute_tolerance", atol)
         _rr.integrator.setValue("relative_tolerance", 1e-7)
@@ -116,9 +115,9 @@ def run_cell(p27_0, CDK2_0, Cd, mass_0=1.0, t_max=4000):
             r = _rr.simulate(0, t_max, t_max, selections=SEL)
         except Exception:
             continue
-        Cb = r['Cb']
-        idx = np.argmax(Cb > Cb_DIV)
-        if Cb[idx] <= Cb_DIV:                 # never divided
+        G2p = r['G2p']
+        idx = np.argmax(G2p > G2_DIV)
+        if G2p[idx] <= G2_DIV:                # never divided
             return None, np.nan
         sub = {k: r[k][:idx + 1] for k in SEL}
         return sub, float(r['CDK2'][idx])
