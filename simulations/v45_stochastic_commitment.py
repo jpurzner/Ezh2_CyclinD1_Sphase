@@ -34,12 +34,17 @@ cascade is quasi-static, and v44's steady EZH2 is ~condition-independent so the 
 dynamically lengthen the period). `rescue_panel()` shows the paper's story EMERGES: HH withdrawal raises
 the quiescent (G0) fraction (MB 29->47%, GNP 44->67%); EZH2i RESCUES (MB+HHi G0 47->35%); the effect is
 larger in GNP than MB (MYCN floors MB's CyclinD1); period lengthens under HHi (the slow extra divisions).
-REMAINING (mechanical, not structural): (1) S a few % high + MEAN period short of ~22h (GNP 18, MB 16) --
-a genuine trade: fattening the G0 tail to lift the mean inflates 2N above 68 (the KfireRb/ksp0/sig_p
-balance). (2) Rescue MAGNITUDE is softer than v44's pRb 1/4->3/4 flip -- v45 cells SLOW rather than
-hard-arrest at low Cd; sharpening it needs a monostable-OFF regime at low Cd (lower the SN bound so
-high-p27 births can't commit). (3) Embed EZH2 in the v45 cycle for the (small) within-cycle feedback.
-v44 stays the committed working model.
+ARREST MECHANISM DONE (was REMAINING #2): the CyclinD bootstrap d0:=dmax*Cd/(Kd0+Cd) makes Rb mono-
+phospho MITOGEN-gated, and a mass cap (Mmax,nM) stops growth in the low basin so quiescent cells can't
+dilute their way to commitment. Together they give a SHARP commitment threshold ~Cd 0.2-0.3: Cd>0.3 ->
+all cycle; Cd<0.2 -> mostly PERMANENT arrest (only born-committed daughters divide). Emergent result:
+GNP+HHi (Cd 0.16) -> 68% arrest, but MB+HHi (Cd 0.78, MYCN-floored ABOVE threshold) -> 0% permanent
+arrest (only transient G0 48%) -- i.e. the MYCN floor PROTECTS MB from Hh-withdrawal arrest, the paper's
+claim. EZH2i rescues (MB+HHi quiescent 48->31%). MB baseline 21% quiescent matches DMSO data (21.7%).
+REMAINING (mechanical, not structural): (1) S a few % high (MB 22 vs 16) + MEAN period short of ~22h
+(GNP 18, MB 16) -- lower mu lengthens the (growth-coupled) G1 while S/G2 (rate-fixed) shrink in fraction.
+(2) Embed EZH2 as a v45 cycle species for the (small) within-cycle feedback + the Gli1-residual / EZH2
+MB/GNP validation checks. v44 stays the committed working model.
 
 Run:  ./venv/bin/python simulations/v45_stochastic_commitment.py
 """
@@ -58,13 +63,18 @@ model commitment_kernel
 
   // ---- tunable parameters ----
   mu = 0.0009;                       // growth rate (sets the committed-cycler timescale via Rb dilution)
+  Mmax = 4.2; nM = 16;               // mass cap: cycling cells divide at mass ~3.5 (below cap), but a cell stuck in the
+                                     // low basin grows to Mmax, floors RbC at 9/Mmax~2.1, stays bistable-low -> PERMANENT
+                                     // arrest (quiescent cells don't grow). Without it, unbounded growth dilutes RbC->0
+                                     // and forces commitment at ANY Cd>0 (low-Cd cells only slow, never arrest).
   ksRb = 0.0135; kdRb = 0.0015;      // Rb made size-INDEPENDENTLY -> [Rb]=Rb/mass dilutes (Rb_ss=9 -> birth
                                      // RbC~9 sits INSIDE the bistable window 5-11, so birth noise can scatter cells)
   KfireRb = 3.5; hRb = 8;            // origins fire only once Rb CONCENTRATION dilutes below this = the G1 timer
                                      // (3.5: cells must dilute Rb further -> committed G1 ~17h -> period ~22h, lowers S count-fraction)
   Cd = 1.0;                          // mitogen (CyclinD1): 1 = GNP, ~7 = MB (sets p27 synthesis)
-  wE = 2.6; d0 = 0.06; K_CdRb = 0.45; Km = 0.42; nE = 4;   // E2F release driven by CDK2 toggle (+ small basal d0)
-                                                           // -- Cd is NOT in the drive: it's a basin-probability setter (via p27), not a timer
+  wE = 2.6; dmax = 0.12; Kd0 = 1.0; K_CdRb = 0.45; Km = 0.42; nE = 4;  // E2F release: CDK2 toggle + a SATURATING CyclinD bootstrap
+                                                           // Cd enters ONLY the BASAL bootstrap d0 (CyclinD-CDK4/6 mono-phospho of Rb),
+                                                           // NOT the wE*CDK2act toggle gain (that gain-coupling collapses the MB period)
   ksE = 0.040; ksE0 = 0.0015; kdE = 0.013; Ki = 0.12;   // CDK2 (E2F-driven, faster bootstrap) ; p27 buffers CDK2
   ksp0 = 0.040; Kp = 0.4; kdp = 2.5; kdp0 = 0.0022;     // p27 synth (STRONG mitogen suppression Kp=0.4) + faster CDK2(Skp2) clearance
   // NB: Cd does NOT move the separatrix (it's on the E2F nullcline); Cd acts via the p27-CLEARANCE DYNAMICS
@@ -77,7 +87,10 @@ model commitment_kernel
   // ---- algebraic ----
   RbC     := Rb/mass;                              // Rb CONCENTRATION (dilutes with growth)
   CDK2act := CDK2/(1 + p27/Ki);                    // p27 buffers/inhibits CDK2
-  drive   := d0 + wE*CDK2act;                      // CDK2 (the toggle) drives Rb-P; Cd enters only via p27 (ksp)
+  d0      := dmax*Cd/(Kd0 + Cd);                    // CyclinD-CDK4/6 mono-phospho = MITOGEN-GATED bootstrap, SATURATING:
+                                                   // 0 at Cd=0 (no basal Rb-P -> dilution alone can't start E2F -> ARREST);
+                                                   // ~0.06 at GNP Cd=1; saturates ~0.105 at MB Cd=7 (keeps MB's bistable birth -> retains G0)
+  drive   := d0 + wE*CDK2act;                      // CyclinD bootstrap (d0) + CyclinE/CDK2 toggle (wE*CDK2act, the commitment switch)
   RbP     := drive/(K_CdRb*RbC + drive);           // fraction Rb inactivated (0..1); low [Rb] lowers the bar
   E2F     := RbP^nE/(Km^nE + RbP^nE);              // ultrasensitive E2F release
   ksp     := ksp0/(1 + Cd/Kp);                     // MITOGEN sets the brake: more Cd -> less p27 synth
@@ -89,7 +102,7 @@ model commitment_kernel
   g2gate  := Dna^nG2/(KG2^nG2 + Dna^nG2);          // CyclinB only after replication ~complete
 
   // ---- dynamics ----
-  Growth:  => mass; mu*mass;
+  Growth:  => mass; mu*mass*(1 - (mass/Mmax)^nM);   // exponential growth with a soft cap at Mmax (quiescent cells stall)
   RbSyn:   => Rb; ksRb;
   RbDeg:   Rb => ; kdRb*Rb;
   CDK2syn: => CDK2; ksE*E2F + ksE0;
@@ -114,8 +127,9 @@ def _cdk2act(CDK2, p27, Ki=0.22):
 
 
 def run_cell(p27_0, CDK2_0, Cd, mass_0=1.0, t_max=4000):
-    """Simulate one cell from a (noisy) birth state to its first division. Returns trajectory dict
-    + premitotic CDK2 (for daughter carryover), or None if it fails to divide in t_max."""
+    """Simulate one cell from a (noisy) birth state to its first division. Returns
+    (trajectory dict, premitotic CDK2, status) with status in {'divided','arrested','failed'}.
+    'arrested' = integrated cleanly but never divided in t_max (mass-capped, stuck in the low basin)."""
     for atol in (1e-9, 1e-8, 1e-7, 1e-6):
         _rr.reset()
         _rr['Cd'] = Cd; _rr['mass'] = mass_0
@@ -132,11 +146,11 @@ def run_cell(p27_0, CDK2_0, Cd, mass_0=1.0, t_max=4000):
             continue
         G2p = r['G2p']
         idx = np.argmax(G2p > G2_DIV)
-        if G2p[idx] <= G2_DIV:                # never divided
-            return None, np.nan
+        if G2p[idx] <= G2_DIV:                # integrated but never divided -> permanent arrest (mass cap + low basin)
+            return None, np.nan, 'arrested'
         sub = {k: r[k][:idx + 1] for k in SEL}
-        return sub, float(r['CDK2'][idx])
-    return None, np.nan
+        return sub, float(r['CDK2'][idx]), 'divided'
+    return None, np.nan, 'failed'             # integrator gave up (rare); not counted as a biological arrest
 
 
 def phase_at(traj):
@@ -150,22 +164,30 @@ def phase_at(traj):
     return dict(G0=is_G0, G1=is_G1, S=is_S, G2M=is_G2M)
 
 
-def ensemble(Cd_base, N=200, sig_cd=0.0, P21_div=0.42, sig_p=0.55, phi=0.55, sig_c=0.5, seed=0):
-    """Draw N noisy births, simulate each to division. Return periods, per-cell phase ages, G0 durations."""
+def ensemble(Cd_base, N=200, sig_cd=0.0, P21_div=0.42, sig_p=0.55, phi=0.55, sig_c=0.5, seed=0,
+             return_stats=False):
+    """Draw N noisy births, simulate each to division. Returns the list of DIVIDED cells
+    (or, if return_stats, also a dict with arrested/failed counts -> the population arrest fraction)."""
     rng = np.random.default_rng(seed)
-    cells = []
+    cells = []; n_arrested = 0; n_failed = 0
     for _ in range(N):
         Cd = Cd_base * (rng.lognormal(0, sig_cd) if sig_cd else 1.0)
         p27_0 = P21_div * rng.lognormal(0, sig_p)
         CDK2_0 = phi * rng.lognormal(0, sig_c)
-        traj, _ = run_cell(p27_0, CDK2_0, Cd)
+        traj, _, status = run_cell(p27_0, CDK2_0, Cd)
         if traj is None:
+            n_arrested += status == 'arrested'; n_failed += status == 'failed'
             continue
         t = traj['time']; per = t[-1] / 60.0          # hours
         ph = phase_at(traj)
         durs = {k: float(np.sum(v) * (t[1] - t[0]) / 60.0) for k, v in ph.items()}  # phase durations (h)
         g0_dur = durs['G0']
         cells.append(dict(per=per, durs=durs, g0=g0_dur, traj=traj, ph=ph))
+    if return_stats:
+        resolved = len(cells) + n_arrested                 # exclude integrator failures from the denominator
+        arrest_frac = n_arrested / resolved if resolved else np.nan
+        return cells, dict(N=N, divided=len(cells), arrested=n_arrested, failed=n_failed,
+                           arrest_frac=arrest_frac)
     return cells
 
 
@@ -198,13 +220,13 @@ def fixed_points(RbC, Cd, p=None):
     3 roots = BISTABLE (low/separatrix/high). The calibration tool for placing the bifurcation."""
     if p is None:
         rr = te.loada(KERNEL)
-        p = {k: rr[k] for k in ['wE', 'd0', 'K_CdRb', 'Km', 'nE', 'ksE', 'ksE0', 'kdE', 'Ki',
+        p = {k: rr[k] for k in ['wE', 'dmax', 'Kd0', 'K_CdRb', 'Km', 'nE', 'ksE', 'ksE0', 'kdE', 'Ki',
                                 'ksp0', 'Kp', 'kdp', 'kdp0']}
     ksp = p['ksp0'] / (1 + Cd / p['Kp'])
     xs = np.linspace(1e-4, 3.0, 4000)
     p27 = ksp / (p['kdp'] * xs + p['kdp0'])
     cdk2_from_p27 = xs * (1 + p27 / p['Ki'])
-    drive = p['d0'] + p['wE'] * xs
+    drive = p['dmax'] * Cd / (p['Kd0'] + Cd) + p['wE'] * xs   # saturating Cd-gated CyclinD bootstrap
     RbP = drive / (p['K_CdRb'] * RbC + drive)
     E2F = RbP ** p['nE'] / (p['Km'] ** p['nE'] + RbP ** p['nE'])
     cdk2_from_E2F = (p['ksE'] * E2F + p['ksE0']) / p['kdE']
@@ -274,24 +296,26 @@ def condition_cd(name, normalize=True):
     return cd
 
 
-def rescue_panel(N=200):
-    """Drive the v45 ensemble with the v44-derived Cd for each condition; report the
-    born-committed fraction + cycling behaviour (the population rescue read-out)."""
+def rescue_panel(N=300):
+    """Drive the v45 ensemble with the v44-derived Cd for each condition.
+    arrest% = newborns that PERMANENTLY exit the cycle (mass-capped, low basin) = the pRb-/Ki67-
+    fraction analog. Quiescent% ~ arrest + (1-arrest)*cyclerG0 (snapshot estimate; ignores growth-
+    dilution of the arrested pool). EZH2i should LOWER both arrest% and Quiescent%."""
     print("RESCUE PANEL (v45 commitment driven by the v44 HH/MYCN/EZH2 -> CyclinD1 cascade):")
-    print("  G0% = quiescent count-fraction (the pRb-/Ki67- population read-out); EZH2i should LOWER it.")
-    print(f"  {'condition':16s} {'Cd(norm)':>9s} {'committed%':>11s} {'meanT(h)':>9s} {'G0%':>5s} {'cycling%':>9s}")
+    print(f"  {'condition':16s} {'Cd(norm)':>9s} {'arrest%':>8s} {'cyclerG0%':>10s} {'Quiesc%':>8s} "
+          f"{'meanT(h)':>9s} {'2N/S/G2M':>10s}")
     for name in CONDITIONS:
         cd = condition_cd(name)
-        cells = ensemble(cd, N=N)
+        cells, st = ensemble(cd, N=N, return_stats=True)
+        arr = 100 * st['arrest_frac']
         if not cells:
-            print(f"  {name:16s} {cd:9.2f} {'--':>11s}  (no cells divide -> arrest)")
+            print(f"  {name:16s} {cd:9.2f} {arr:7.0f}% {'--':>10s} {arr:7.0f}%  (all arrest)")
             continue
-        g0s = np.array([c['g0'] for c in cells])
-        committed = 100 * np.mean(g0s < 2.0)
         pers = np.array([c['per'] for c in cells])
         cf, _ = count_fractions(cells)
-        cycling = cf['G1'] + cf['S'] + cf['G2M']
-        print(f"  {name:16s} {cd:9.2f} {committed:10.0f}% {pers.mean():8.1f}  {cf['G0']:4.0f}  {cycling:8.0f}")
+        quiesc = arr + (1 - st['arrest_frac']) * cf['G0']
+        print(f"  {name:16s} {cd:9.2f} {arr:7.0f}% {cf['G0']:9.0f}% {quiesc:7.0f}% "
+              f"{pers.mean():8.1f}  {cf['G0']+cf['G1']:.0f}/{cf['S']:.0f}/{cf['G2M']:.0f}")
 
 
 if __name__ == "__main__":
@@ -303,7 +327,7 @@ if __name__ == "__main__":
     print("=" * 70)
     print("SINGLE-CELL sanity (deterministic, low-p27 birth = born committed):")
     for nm, Cd in [("GNP", 1.0), ("MB", 7.0)]:
-        traj, _ = run_cell(p27_0=0.2, CDK2_0=0.15, Cd=Cd)
+        traj, _, _ = run_cell(p27_0=0.2, CDK2_0=0.15, Cd=Cd)
         if traj is None:
             print(f"  {nm}: did not divide"); continue
         ph = phase_at(traj); t = traj['time']; dt = (t[1] - t[0]) / 60
