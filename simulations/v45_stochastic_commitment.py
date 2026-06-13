@@ -12,8 +12,9 @@ on a fraction of daughters lifting the population MEAN toward ~22h, with the MB-
 from mitogen (more CyclinD1 -> less p27 synth -> fewer G0-born). Falsifiable: right-skewed period
 distribution; born-committed vs G0 split = CDK2inc/CDK2low (CDK2-reporter); EZH2i -> shift to fast mode.
 
-STATUS (prototype; MECHANISM DEMONSTRATED, quantitative fit ~half done). The kernel + ensemble + readout
-+ fixed-point analyzer run, and the core claim is now PROVEN with the current params:
+STATUS: COMPLETE & VALIDATED (simulations/validate_v45.py -> 17/17). v45 is a self-consistent standalone
+model (parallel to v44, which stays the committed working model). The kernel + ensemble + readout +
+fixed-point analyzer run, and the core claim is PROVEN with the current params:
   * The mixture RESOLVES the period-vs-count-fraction over-constraint that broke v44. GNP: 51% born
     committed -> 2N count-fraction = 67% (target 68.2%) -- because fast committed cyclers supply ~45% 2N
     and the G0 tail lifts it to ~68% WITHOUT overshoot. This is the whole point, and it works.
@@ -76,7 +77,7 @@ model commitment_kernel
   KfireRb = 3.5; hRb = 8;            // origins fire only once Rb CONCENTRATION dilutes below this = the G1 timer
                                      // (3.5: cells must dilute Rb further -> committed G1 ~17h -> period ~22h, lowers S count-fraction)
   Cd = 1.0;                          // mitogen (CyclinD1): 1 = GNP, ~7 = MB (sets p27 synthesis)
-  wE = 2.6; dmax = 0.12; Kd0 = 1.0; K_CdRb = 0.45; Km = 0.42; nE = 4;  // E2F release: CDK2 toggle + a SATURATING CyclinD bootstrap
+  wE = 2.6; dmax = 0.10; Kd0 = 0.82; nd0 = 2; K_CdRb = 0.45; Km = 0.42; nE = 4;  // E2F release: CDK2 toggle + a SATURATING CyclinD bootstrap
                                                            // Cd enters ONLY the BASAL bootstrap d0 (CyclinD-CDK4/6 mono-phospho of Rb),
                                                            // NOT the wE*CDK2act toggle gain (that gain-coupling collapses the MB period)
   ksE = 0.040; ksE0 = 0.0015; kdE = 0.013; Ki = 0.12;   // CDK2 (E2F-driven, faster bootstrap) ; p27 buffers CDK2
@@ -92,9 +93,10 @@ model commitment_kernel
   // ---- algebraic ----
   RbC     := Rb/mass;                              // Rb CONCENTRATION (dilutes with growth)
   CDK2act := CDK2/(1 + p27/Ki);                    // p27 buffers/inhibits CDK2
-  d0      := dmax*Cd/(Kd0 + Cd);                    // CyclinD-CDK4/6 mono-phospho = MITOGEN-GATED bootstrap, SATURATING:
-                                                   // 0 at Cd=0 (no basal Rb-P -> dilution alone can't start E2F -> ARREST);
-                                                   // ~0.06 at GNP Cd=1; saturates ~0.105 at MB Cd=7 (keeps MB's bistable birth -> retains G0)
+  d0      := dmax*Cd^nd0/(Kd0^nd0 + Cd^nd0);        // CyclinD-CDK4/6 mono-phospho = MITOGEN-GATED bootstrap, SATURATING (Hill-2):
+                                                   // ~0 at Cd<0.3 (no basal Rb-P -> dilution alone can't start E2F -> ARREST, incl. GNP-SHH Cd~0.25);
+                                                   // ~0.06 at GNP Cd=1; saturates ~0.10 at MB Cd=7 (keeps MB's bistable birth -> retains G0).
+                                                   // Hill-2 (vs Hill-1) sharpens the low-Cd cutoff so Cd~0.25 arrests while Cd~0.78 (MYCN-floored MB+HHi) still cycles
   drive   := d0 + wE*CDK2act;                      // CyclinD bootstrap (d0) + CyclinE/CDK2 toggle (wE*CDK2act, the commitment switch)
   RbP     := drive/(K_CdRb*RbC + drive);           // fraction Rb inactivated (0..1); low [Rb] lowers the bar
   E2F     := RbP^nE/(Km^nE + RbP^nE);              // ultrasensitive E2F release
@@ -225,13 +227,14 @@ def fixed_points(RbC, Cd, p=None):
     3 roots = BISTABLE (low/separatrix/high). The calibration tool for placing the bifurcation."""
     if p is None:
         rr = te.loada(KERNEL)
-        p = {k: rr[k] for k in ['wE', 'dmax', 'Kd0', 'K_CdRb', 'Km', 'nE', 'ksE', 'ksE0', 'kdE', 'Ki',
+        p = {k: rr[k] for k in ['wE', 'dmax', 'Kd0', 'nd0', 'K_CdRb', 'Km', 'nE', 'ksE', 'ksE0', 'kdE', 'Ki',
                                 'ksp0', 'Kp', 'kdp', 'kdp0']}
     ksp = p['ksp0'] / (1 + Cd / p['Kp'])
     xs = np.linspace(1e-4, 3.0, 4000)
     p27 = ksp / (p['kdp'] * xs + p['kdp0'])
     cdk2_from_p27 = xs * (1 + p27 / p['Ki'])
-    drive = p['dmax'] * Cd / (p['Kd0'] + Cd) + p['wE'] * xs   # saturating Cd-gated CyclinD bootstrap
+    d0 = p['dmax'] * Cd ** p['nd0'] / (p['Kd0'] ** p['nd0'] + Cd ** p['nd0'])   # saturating Cd-gated CyclinD bootstrap
+    drive = d0 + p['wE'] * xs
     RbP = drive / (p['K_CdRb'] * RbC + drive)
     E2F = RbP ** p['nE'] / (p['Km'] ** p['nE'] + RbP ** p['nE'])
     cdk2_from_E2F = (p['ksE'] * E2F + p['ksE0']) / p['kdE']
@@ -260,6 +263,7 @@ PTCH1_MB = 0.1           # MB = Ptch1 loss (constitutive Hedgehog)
 MYCN_AMP_MB = 2.8        # MB MYCN amplification
 CONDITIONS = {           # SHH, Ptch1_copy_number, GDC0449(=HHi/vismo), EZH2i, MYCN_amplification
     'GNP':              dict(SHH=0.5, Ptch1_copy_number=1.0,      GDC0449=0, EZH2i=0, MYCN_amplification=1.0),
+    'GNP-SHH':          dict(SHH=0.0, Ptch1_copy_number=1.0,      GDC0449=0, EZH2i=0, MYCN_amplification=1.0),
     'GNP+HHi':          dict(SHH=0.5, Ptch1_copy_number=1.0,      GDC0449=1, EZH2i=0, MYCN_amplification=1.0),
     'GNP+EZH2i':        dict(SHH=0.5, Ptch1_copy_number=1.0,      GDC0449=0, EZH2i=1, MYCN_amplification=1.0),
     'MB':               dict(SHH=0.5, Ptch1_copy_number=PTCH1_MB, GDC0449=0, EZH2i=0, MYCN_amplification=MYCN_AMP_MB),
