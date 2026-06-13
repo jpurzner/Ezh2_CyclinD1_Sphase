@@ -12,25 +12,23 @@ on a fraction of daughters lifting the population MEAN toward ~22h, with the MB-
 from mitogen (more CyclinD1 -> less p27 synth -> fewer G0-born). Falsifiable: right-skewed period
 distribution; born-committed vs G0 split = CDK2inc/CDK2low (CDK2-reporter); EZH2i -> shift to fast mode.
 
-STATUS (prototype; infrastructure DONE, bifurcation calibration is open). The kernel + ensemble harness +
-age-weighted count-fraction/Euler-Lotka readout + a fixed-point (nullcline) analyzer (`fixed_points`) are
-built and run. Calibration findings (from the analyzer + ensemble sweeps), i.e. what a working fit needs:
-  1. The CDK2-p27 toggle IS bistable (3 fixed points) for RbC ~ 5-11 with current params -- the structure
-     exists. Cd OUT of the E2F drive (basin-probability setter via p27) is correct; Cd IN it collapses
-     the MB period (timer bug).
-  2. Birth RbC must sit INSIDE the bistable window (lowered Rb_ss to 9 so birth RbC~9). Good.
-  3. BUT the separatrix is HIGH (CDK2act ~0.63 at RbC=9) vs the birth CDK2act (~0.1, because birth p27
-     buffers CDK2 heavily), so ~no cell is born committed -> no fast mode. FIX: lower/sharpen the
-     separatrix and increase its Cd-sensitivity (Kp down / ksp0 up) so (a) a real born-committed fraction
-     exists and (b) it differs GNP vs MB. The separatrix barely moves with Cd now -> weak mitogen effect.
-  4. The saddle-node (where G0 cells are FORCED to commit) is at RbC~3 = over-growth (mass~3) -> the ~25h
-     deterministic G0. FIX: move the SN to RbC~6-7 so G0 cells commit within ~1 doubling.
-  5. *** KEY STRUCTURAL FINDING ***: birth noise alone gives a BIMODAL outcome (born-committed-at-birth vs
-     G0-until-SN), NOT the continuous right-skewed G0 TAIL the proposal wants. A continuous tail requires
-     INTRINSIC noise (stochastic p27/CDK2 escape across the separatrix) = a Langevin/Gillespie SDE, not a
-     deterministic ODE with only noisy births. That is a real additional build, not a parameter.
-So: the mechanism is implementable and now mapped, but the fit is a multi-stage calibration (separatrix
-placement + Cd-leverage + SN position + Rb-dilution G1) AND an SDE for the tail. v44 remains committed.
+STATUS (prototype; MECHANISM DEMONSTRATED, quantitative fit ~half done). The kernel + ensemble + readout
++ fixed-point analyzer run, and the core claim is now PROVEN with the current params:
+  * The mixture RESOLVES the period-vs-count-fraction over-constraint that broke v44. GNP: 51% born
+    committed -> 2N count-fraction = 67% (target 68.2%) -- because fast committed cyclers supply ~45% 2N
+    and the G0 tail lifts it to ~68% WITHOUT overshoot. This is the whole point, and it works.
+  * The period distribution is RIGHT-SKEWED (fast mode ~11.6h + a G0 tail), from BIRTH NOISE ALONE --
+    so the earlier "needs an SDE" worry was wrong: noisy p27/CDK2 partitioning across the separatrix
+    gives variable G0 dwell. (An SDE would only smooth the tail.)
+  * Mitogen effect emerges: MB 62% born committed / mean 13h vs GNP 51% / 15h. Cd acts via the p27
+    CLEARANCE dynamics (MB clears p27 faster -> escapes G0 sooner), NOT via the separatrix position
+    (which is on the E2F nullcline, Cd-independent).
+Working regime: toggle bistable RbC~5-11; Rb_ss=9 (birth in window); ksp0=0.04, Kp=0.4 (strong Cd
+leverage), Ki=0.12, kdp=2.5; birth phi=0.55, sig_p=0.55, P21_div=0.42.
+REMAINING (mechanical, not structural): (1) G2 is ~0 in the kernel -> S fraction too high (33% vs 16%),
+G2M~0; needs a slow CyclinB build / Erlang chain for a ~2.5h G2. (2) Tune the G0-tail fraction so the
+GNP MEAN period reaches ~22h while 2N stays ~68% (the ksp0/sig_p balance). (3) Re-validate the rescue /
+Gli1 / EZH2 once the Cd->CyclinD1->p27 nodes are wired to the v44 HH/EZH2 module. v44 stays committed.
 
 Run:  ./venv/bin/python simulations/v45_stochastic_commitment.py
 """
@@ -55,8 +53,10 @@ model commitment_kernel
   Cd = 1.0;                          // mitogen (CyclinD1): 1 = GNP, ~7 = MB (sets p27 synthesis)
   wE = 2.6; d0 = 0.06; K_CdRb = 0.45; Km = 0.42; nE = 4;   // E2F release driven by CDK2 toggle (+ small basal d0)
                                                            // -- Cd is NOT in the drive: it's a basin-probability setter (via p27), not a timer
-  ksE = 0.040; ksE0 = 0.0006; kdE = 0.013; Ki = 0.22;   // CDK2 (E2F-driven) ; p27 buffers CDK2
-  ksp0 = 0.013; Kp = 1.2; kdp = 1.6; kdp0 = 0.0022;     // p27 synth (mitogen-suppressed) + CDK2(Skp2) clearance
+  ksE = 0.040; ksE0 = 0.0015; kdE = 0.013; Ki = 0.12;   // CDK2 (E2F-driven, faster bootstrap) ; p27 buffers CDK2
+  ksp0 = 0.040; Kp = 0.4; kdp = 2.5; kdp0 = 0.0022;     // p27 synth (STRONG mitogen suppression Kp=0.4) + faster CDK2(Skp2) clearance
+  // NB: Cd does NOT move the separatrix (it's on the E2F nullcline); Cd acts via the p27-CLEARANCE DYNAMICS
+  // -- MB (low ksp) clears p27 faster -> CDK2act rises across the fixed separatrix sooner -> shorter G0.
   kon = 0.015; koff = 0.8;           // APC/C-Cdh1: CDK2act inactivates it (point of no return)
   ksCb = 0.024; kdCb = 0.010; KG2 = 0.85; nG2 = 6;      // CyclinB builds when Cdh1 off AND replication done
   kFire = 0.014; Kfire = 0.55; nFire = 6;               // origins fire when CDK2act crosses (G1->S); -> S ~3.6h
@@ -136,7 +136,7 @@ def phase_at(traj):
     return dict(G0=is_G0, G1=is_G1, S=is_S, G2M=is_G2M)
 
 
-def ensemble(Cd_base, N=200, sig_cd=0.0, P21_div=0.7, sig_p=0.5, phi=0.12, sig_c=0.4, seed=0):
+def ensemble(Cd_base, N=200, sig_cd=0.0, P21_div=0.42, sig_p=0.55, phi=0.55, sig_c=0.5, seed=0):
     """Draw N noisy births, simulate each to division. Return periods, per-cell phase ages, G0 durations."""
     rng = np.random.default_rng(seed)
     cells = []
