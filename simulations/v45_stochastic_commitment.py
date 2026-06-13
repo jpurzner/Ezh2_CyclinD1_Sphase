@@ -12,9 +12,14 @@ on a fraction of daughters lifting the population MEAN toward ~22h, with the MB-
 from mitogen (more CyclinD1 -> less p27 synth -> fewer G0-born). Falsifiable: right-skewed period
 distribution; born-committed vs G0 split = CDK2inc/CDK2low (CDK2-reporter); EZH2i -> shift to fast mode.
 
-STATUS: COMPLETE & VALIDATED (simulations/validate_v45.py -> 17/17). v45 is a self-consistent standalone
-model (parallel to v44, which stays the committed working model). The kernel + ensemble + readout +
-fixed-point analyzer run, and the core claim is PROVEN with the current params:
+STATUS: COMPLETE & VALIDATED (simulations/validate_v45.py -> 20/20), WITH a dynamic EZH2 species. v45 is
+a self-consistent standalone model (parallel to v44, which stays the committed working model). EZH2 is a
+DYNAMIC v45 cell-cycle species (synthesis tracks CDK2act -> peaks S/G2, Fig4A/B G2/G0~1.7x; STABLE ->
+integrates; HALVED at division) that REPRESSES CyclinD1: Cd := Cd_drive*K/(K+EZH2*(1-EZH2i)), where
+Cd_drive is the EZH2-independent Gli/MYCN drive from the v44 cascade (condition_drive). So the EZH2->
+CyclinD1 feedback (the paper's mechanism) is INTERNAL to v45 and the EZH2i rescue is EMERGENT (remove
+v45's EZH2 -> Cd_eff jumps to Cd_drive; GNP Cd 0.94->2.56, ~Fig3C 2.2x). The kernel + ensemble + readout
++ fixed-point analyzer run, and the core claim is PROVEN with the current params:
   * The mixture RESOLVES the period-vs-count-fraction over-constraint that broke v44. GNP: 51% born
     committed -> 2N count-fraction = 67% (target 68.2%) -- because fast committed cyclers supply ~45% 2N
     and the G0 tail lifts it to ~68% WITHOUT overshoot. This is the whole point, and it works.
@@ -61,8 +66,8 @@ from scipy.optimize import brentq
 # ---------------------------------------------------------------------------
 KERNEL = """
 model commitment_kernel
-  species mass, Rb, CDK2, p27, Cdh1, G2p, Dna;
-  mass = 1; Rb = 1.0; CDK2 = 0.04; p27 = 0.6; Cdh1 = 1; G2p = 0; Dna = 0;
+  species mass, Rb, CDK2, p27, Cdh1, G2p, Dna, EZH2;
+  mass = 1; Rb = 1.0; CDK2 = 0.04; p27 = 0.6; Cdh1 = 1; G2p = 0; Dna = 0; EZH2 = 1.5;
 
   // ---- tunable parameters ----
   mu = 0.0008;                       // growth rate (sets the committed-cycler timescale via Rb dilution)
@@ -76,7 +81,13 @@ model commitment_kernel
                                      // RbC~9 sits INSIDE the bistable window 5-11, so birth noise can scatter cells)
   KfireRb = 3.5; hRb = 8;            // origins fire only once Rb CONCENTRATION dilutes below this = the G1 timer
                                      // (3.5: cells must dilute Rb further -> committed G1 ~17h -> period ~22h, lowers S count-fraction)
-  Cd = 1.0;                          // mitogen (CyclinD1): 1 = GNP, ~7 = MB (sets p27 synthesis)
+  // ---- EZH2 -> CyclinD1 feedback (the paper's mechanism) ----
+  Cd_drive = 2.56;                   // EZH2-INDEPENDENT CyclinD1 transcription drive (Gli/MYCN), set per condition
+                                     // from the v44 cascade's UN-repressed Cd (GNP drive = GNP+EZH2i/GNP = 2.56).
+  EZH2i = 0;                         // EZH2->CyclinD1 repression toggle (1 = EZH2 inhibitor -> removes the brake -> de-represses Cd)
+  K_EZH2_Cd = 1.0;                   // EZH2 repression half-max; cycle-mean EZH2~1.56 -> R~0.39 -> GNP Cd~1.0 (preserves commitment)
+  kEZbas = 0.00020; kEZsyn = 0.00090; kDeEZ = 0.00010;  // EZH2: low basal + CELL-CYCLE-DRIVEN synth (tracks CDK2act -> peaks S/G2,
+                                     // Fig 4A/B ~2x G0); STABLE (small kDeEZ) -> INTEGRATES synthesis over the cycle; HALVED at division.
   wE = 2.6; dmax = 0.10; Kd0 = 0.82; nd0 = 2; K_CdRb = 0.45; Km = 0.42; nE = 4;  // E2F release: CDK2 toggle + a SATURATING CyclinD bootstrap
                                                            // Cd enters ONLY the BASAL bootstrap d0 (CyclinD-CDK4/6 mono-phospho of Rb),
                                                            // NOT the wE*CDK2act toggle gain (that gain-coupling collapses the MB period)
@@ -93,6 +104,8 @@ model commitment_kernel
   // ---- algebraic ----
   RbC     := Rb/mass;                              // Rb CONCENTRATION (dilutes with growth)
   CDK2act := CDK2/(1 + p27/Ki);                    // p27 buffers/inhibits CDK2
+  Cd      := Cd_drive*K_EZH2_Cd/(K_EZH2_Cd + EZH2*(1 - EZH2i));   // EZH2 REPRESSES CyclinD1 (the paper's feedback);
+                                                   // EZH2i=1 removes it -> Cd jumps to Cd_drive (the de-repression / rescue)
   d0      := dmax*Cd^nd0/(Kd0^nd0 + Cd^nd0);        // CyclinD-CDK4/6 mono-phospho = MITOGEN-GATED bootstrap, SATURATING (Hill-2):
                                                    // ~0 at Cd<0.3 (no basal Rb-P -> dilution alone can't start E2F -> ARREST, incl. GNP-SHH Cd~0.25);
                                                    // ~0.06 at GNP Cd=1; saturates ~0.10 at MB Cd=7 (keeps MB's bistable birth -> retains G0).
@@ -120,12 +133,14 @@ model commitment_kernel
   Cdh1off: Cdh1 => ; koff*CDK2act*Cdh1;
   DnaRep:  => Dna; kFire*(fire + latch - fire*latch)*(1 - Dna);   // fire INITIATES (G1 timer); latch COMPLETES (clean S)
   G2acc:   => G2p; kG2*(1 - Cdh1)*g2gate;               // G2 clock: runs only when committed (Cdh1 off) AND replication done
+  EZH2syn: => EZH2; kEZbas + kEZsyn*CDK2act;            // CELL-CYCLE-DRIVEN: CDK2act low in G0, high in S/G2 -> EZH2 peaks late cycle
+  EZH2deg: EZH2 => ; kDeEZ*EZH2;                        // STABLE -> EZH2 integrates synthesis over the cycle (halved at division -> dilution)
 end
 """
 
 G2_DIV = 1.0                                   # G2 clock threshold = mitosis/division
 COMMIT_CDK2 = 0.30                             # CDK2act above this = committed (for G0/G1 classification)
-SEL = ["time", "mass", "Rb", "CDK2", "p27", "Cdh1", "G2p", "Dna"]
+SEL = ["time", "mass", "Rb", "CDK2", "p27", "Cdh1", "G2p", "Dna", "EZH2", "Cd"]
 _rr = te.loada(KERNEL)
 
 
@@ -133,14 +148,15 @@ def _cdk2act(CDK2, p27, Ki=0.22):
     return CDK2 / (1 + p27 / Ki)
 
 
-def run_cell(p27_0, CDK2_0, Cd, mass_0=1.0, t_max=4000):
-    """Simulate one cell from a (noisy) birth state to its first division. Returns
-    (trajectory dict, premitotic CDK2, status) with status in {'divided','arrested','failed'}.
-    'arrested' = integrated cleanly but never divided in t_max (mass-capped, stuck in the low basin)."""
+def run_cell(p27_0, CDK2_0, Cd_drive, EZH2_0=1.5, EZH2i=0, mass_0=1.0, t_max=4000):
+    """Simulate one cell from a (noisy) birth state to its first division. Cd_drive = the EZH2-independent
+    CyclinD1 drive (Gli/MYCN); EZH2_0 = inherited EZH2 at birth (the stable, diluted-at-division integrator).
+    Returns (trajectory dict, premitotic CDK2, premitotic EZH2, status) with status in
+    {'divided','arrested','failed'}. 'arrested' = integrated cleanly but never divided in t_max."""
     for atol in (1e-9, 1e-8, 1e-7, 1e-6):
         _rr.reset()
-        _rr['Cd'] = Cd; _rr['mass'] = mass_0
-        _rr['p27'] = p27_0; _rr['CDK2'] = CDK2_0
+        _rr['Cd_drive'] = Cd_drive; _rr['EZH2i'] = EZH2i; _rr['mass'] = mass_0
+        _rr['p27'] = p27_0; _rr['CDK2'] = CDK2_0; _rr['EZH2'] = EZH2_0
         _rr['Cdh1'] = 1.0; _rr['G2p'] = 0.0; _rr['Dna'] = 0.0
         _rr['Rb'] = _rr['ksRb'] / _rr['kdRb'] * mass_0    # Rb at its size-scaled steady level
         _rr.integrator.setValue("absolute_tolerance", atol)
@@ -154,10 +170,10 @@ def run_cell(p27_0, CDK2_0, Cd, mass_0=1.0, t_max=4000):
         G2p = r['G2p']
         idx = np.argmax(G2p > G2_DIV)
         if G2p[idx] <= G2_DIV:                # integrated but never divided -> permanent arrest (mass cap + low basin)
-            return None, np.nan, 'arrested'
+            return None, np.nan, np.nan, 'arrested'
         sub = {k: r[k][:idx + 1] for k in SEL}
-        return sub, float(r['CDK2'][idx]), 'divided'
-    return None, np.nan, 'failed'             # integrator gave up (rare); not counted as a biological arrest
+        return sub, float(r['CDK2'][idx]), float(r['EZH2'][idx]), 'divided'
+    return None, np.nan, np.nan, 'failed'     # integrator gave up (rare); not counted as a biological arrest
 
 
 def phase_at(traj):
@@ -171,30 +187,44 @@ def phase_at(traj):
     return dict(G0=is_G0, G1=is_G1, S=is_S, G2M=is_G2M)
 
 
-def ensemble(Cd_base, N=200, sig_cd=0.0, P21_div=0.42, sig_p=0.55, phi=0.55, sig_c=0.5, seed=0,
-             return_stats=False):
-    """Draw N noisy births, simulate each to division. Returns the list of DIVIDED cells
-    (or, if return_stats, also a dict with arrested/failed counts -> the population arrest fraction)."""
+def equilibrate_ezh2(Cd_drive, EZH2i=0, iters=6):
+    """EZH2 is inherited (halved) across divisions, so its birth value is a fixed point.
+    Iterate a committed cell deterministically: EZH2_birth -> run -> EZH2_div -> birth = EZH2_div/2.
+    Returns the self-consistent birth EZH2 for a CYCLING cell in this condition."""
+    E = 1.5
+    for _ in range(iters):
+        traj, _, E_div, status = run_cell(0.20, 0.55, Cd_drive, EZH2_0=E, EZH2i=EZH2i)
+        if status != 'divided':
+            return E                                       # non-cycling here; birth value moot
+        E = E_div / 2.0
+    return E
+
+
+def ensemble(Cd_drive, EZH2i=0, N=200, P21_div=0.42, sig_p=0.55, phi=0.55, sig_c=0.5, sig_ez=0.25,
+             seed=0, return_stats=False):
+    """Draw N noisy births, simulate each to division. Cd_drive = EZH2-independent CyclinD1 drive;
+    EZH2 birth value is equilibrated (self-consistent halving) then drawn with lognormal noise.
+    Returns the list of DIVIDED cells (+ a stats dict with arrest fraction if return_stats)."""
     rng = np.random.default_rng(seed)
+    E_eq = equilibrate_ezh2(Cd_drive, EZH2i)               # steady birth EZH2 for a cycling cell
     cells = []; n_arrested = 0; n_failed = 0
     for _ in range(N):
-        Cd = Cd_base * (rng.lognormal(0, sig_cd) if sig_cd else 1.0)
         p27_0 = P21_div * rng.lognormal(0, sig_p)
         CDK2_0 = phi * rng.lognormal(0, sig_c)
-        traj, _, status = run_cell(p27_0, CDK2_0, Cd)
+        EZH2_0 = E_eq * rng.lognormal(0, sig_ez)
+        traj, _, _, status = run_cell(p27_0, CDK2_0, Cd_drive, EZH2_0=EZH2_0, EZH2i=EZH2i)
         if traj is None:
             n_arrested += status == 'arrested'; n_failed += status == 'failed'
             continue
         t = traj['time']; per = t[-1] / 60.0          # hours
         ph = phase_at(traj)
         durs = {k: float(np.sum(v) * (t[1] - t[0]) / 60.0) for k, v in ph.items()}  # phase durations (h)
-        g0_dur = durs['G0']
-        cells.append(dict(per=per, durs=durs, g0=g0_dur, traj=traj, ph=ph))
+        cells.append(dict(per=per, durs=durs, g0=durs['G0'], traj=traj, ph=ph))
     if return_stats:
         resolved = len(cells) + n_arrested                 # exclude integrator failures from the denominator
         arrest_frac = n_arrested / resolved if resolved else np.nan
         return cells, dict(N=N, divided=len(cells), arrested=n_arrested, failed=n_failed,
-                           arrest_frac=arrest_frac)
+                           arrest_frac=arrest_frac, E_eq=E_eq)
     return cells
 
 
@@ -244,17 +274,16 @@ def fixed_points(RbC, Cd, p=None):
 
 
 # ===========================================================================
-# v44 BIOLOGY WIRING -- replace the bare `Cd` parameter with the v44 HH/MYCN/EZH2 -> CyclinD1
-# cascade, so the v45 commitment toggle is driven by the REAL mitogen module and the paper's
-# perturbations (HHi/vismo, EZH2i, Ptch1-loss = MB, MYCN amplification) flow through to commitment.
+# v44 BIOLOGY WIRING -- drive the v45 commitment toggle from the v44 HH/MYCN -> CyclinD1 cascade,
+# so the paper's perturbations (HHi/vismo, Ptch1-loss = MB, MYCN amplification) flow through.
 #
-# Two-timescale separation (justified): the HH cascade is QUASI-STATIC vs the ~hours cell cycle
-# (v44's own framing), and v44's steady EZH2 is nearly condition-independent (GNP 1.17 vs MB 1.21
-# -> the EZH2->CyclinD1 feedback does NOT dynamically lengthen the period, per the v44 calibration
-# outcome). So we run the cascade to steady state per condition, read its CyclinD1 (Cd), and feed
-# the GNP-NORMALIZED value (GNP=1) into v45's mitogen scale (where Kp=0.4 was tuned for Cd~1..7).
-# This reproduces the rescue ORDERING from the actual biology; the (small) within-cycle EZH2
-# feedback is a later refinement once EZH2 is embedded in the v45 cycle.
+# EZH2 is NOT taken from the cascade -- it is a DYNAMIC v45 cycle species (see the kernel) that
+# represses CyclinD1 inside the v45 cell cycle (the paper's feedback). From the cascade we take only
+# the EZH2-INDEPENDENT drive `Cd_drive` (the Gli/MYCN transcription), obtained by running the cascade
+# with EZH2i=1 (repression removed) and GNP-normalizing. v45's own EZH2 then re-applies the repression:
+# Cd = Cd_drive * K/(K + EZH2*(1-EZH2i)). So the EZH2i RESCUE is emergent (remove v45's EZH2 -> Cd
+# rises to Cd_drive), and EZH2's phase-dependence + MB/GNP elevation are v45 OUTPUTS. The HH cascade is
+# quasi-static vs the ~hours cycle, so steady Cd_drive is principled.
 # ===========================================================================
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
@@ -284,75 +313,111 @@ def _v44_cascade():
     return _V44_RR
 
 
-def condition_cd(name, normalize=True):
-    """Steady-state CyclinD1 (Cd) from the v44 HH/MYCN/EZH2 cascade for a named condition.
-    normalize=True returns it on the v45 mitogen scale (GNP=1)."""
-    if name in _CD_CACHE:
-        return _CD_CACHE[name]
+def _cascade_cd(cond_params, force_ezh2i=None):
+    """Run the v44 cascade to steady state and return its CyclinD1 (raw, un-normalized)."""
     rr = _v44_cascade(); rr.reset()
-    for k, v in CONDITIONS[name].items():
+    for k, v in cond_params.items():
         rr[k] = v
+    if force_ezh2i is not None:
+        rr['EZH2i'] = force_ezh2i
     try:
         rr.simulate(0, 3000, 1500)
     except Exception:
         pass
-    cd = float(rr['Cd'])
-    _CD_CACHE[name] = cd
+    return float(rr['Cd'])
+
+
+def condition_cd(name, normalize=True):
+    """Steady-state REPRESSED CyclinD1 from the v44 cascade (reference value; GNP-normalized).
+    This is the effective Cd v45 should land at the cycle level once its own EZH2 represses Cd_drive."""
+    key = ('cd', name)
+    if key not in _CD_CACHE:
+        _CD_CACHE[key] = _cascade_cd(CONDITIONS[name])
+    cd = _CD_CACHE[key]
     if normalize:
-        if 'GNP' not in _CD_CACHE:
-            condition_cd('GNP', normalize=False)
-        return cd / _CD_CACHE['GNP']
+        if ('cd', 'GNP') not in _CD_CACHE:
+            _CD_CACHE[('cd', 'GNP')] = _cascade_cd(CONDITIONS['GNP'])
+        return cd / _CD_CACHE[('cd', 'GNP')]
     return cd
 
 
+def condition_drive(name):
+    """(Cd_drive, EZH2i) for a condition. Cd_drive = the EZH2-INDEPENDENT Gli/MYCN CyclinD1 drive
+    (cascade with EZH2i=1, repression removed), GNP-normalized to the cascade's REPRESSED GNP Cd so
+    the v45 scale matches (GNP drive ~2.56). EZH2i = the condition's flag (whether v45 re-represses)."""
+    key = ('drive', name)
+    if key not in _CD_CACHE:
+        _CD_CACHE[key] = _cascade_cd(CONDITIONS[name], force_ezh2i=1)      # naked Gli/MYCN drive
+    if ('cd', 'GNP') not in _CD_CACHE:
+        _CD_CACHE[('cd', 'GNP')] = _cascade_cd(CONDITIONS['GNP'])
+    drive = _CD_CACHE[key] / _CD_CACHE[('cd', 'GNP')]
+    return drive, CONDITIONS[name]['EZH2i']
+
+
+def ezh2_stats(cells):
+    """EZH2 read-outs over cyclers: cycle-mean EZH2, the G2/G0 EZH2 ratio (Fig 4A/B ~2x),
+    and the cycle-mean effective CyclinD1 (Cd = Cd_drive * EZH2-repression)."""
+    allE, cdm, g0, g2 = [], [], [], []
+    for c in cells:
+        E = c['traj']['EZH2']; Cd = c['traj']['Cd']; ph = c['ph']
+        allE.append(float(E.mean())); cdm.append(float(Cd.mean()))
+        if ph['G0'].any():  g0.append(float(E[ph['G0']].mean()))
+        if ph['G2M'].any(): g2.append(float(E[ph['G2M']].mean()))
+    return dict(mean=float(np.mean(allE)) if allE else np.nan,
+                cd_mean=float(np.mean(cdm)) if cdm else np.nan,
+                g2_g0=(float(np.mean(g2)) / float(np.mean(g0))) if (g0 and g2) else np.nan)
+
+
 def rescue_panel(N=300):
-    """Drive the v45 ensemble with the v44-derived Cd for each condition.
-    arrest% = newborns that PERMANENTLY exit the cycle (mass-capped, low basin) = the pRb-/Ki67-
-    fraction analog. Quiescent% ~ arrest + (1-arrest)*cyclerG0 (snapshot estimate; ignores growth-
-    dilution of the arrested pool). EZH2i should LOWER both arrest% and Quiescent%."""
-    print("RESCUE PANEL (v45 commitment driven by the v44 HH/MYCN/EZH2 -> CyclinD1 cascade):")
-    print(f"  {'condition':16s} {'Cd(norm)':>9s} {'arrest%':>8s} {'cyclerG0%':>10s} {'Quiesc%':>8s} "
-          f"{'meanT(h)':>9s} {'2N/S/G2M':>10s}")
+    """Drive the v45 ensemble from the v44 Gli/MYCN drive; EZH2 represses CyclinD1 INSIDE v45.
+    arrest% = newborns that PERMANENTLY exit (mass-capped, low basin) = the pRb-/Ki67- analog.
+    Quiescent% ~ arrest + (1-arrest)*cyclerG0. EZH2(rel) = cycle-mean EZH2 / GNP's."""
+    print("RESCUE PANEL (v45; CyclinD1 = v44 Gli/MYCN drive repressed by v45's OWN dynamic EZH2):")
+    print(f"  {'condition':16s} {'drive':>6s} {'Cd_eff':>7s} {'EZH2rel':>8s} {'arrest%':>8s} "
+          f"{'Quiesc%':>8s} {'meanT':>6s} {'2N/S/G2M':>10s}")
+    gnp_E = None
     for name in CONDITIONS:
-        cd = condition_cd(name)
-        cells, st = ensemble(cd, N=N, return_stats=True)
+        drive, ezh2i = condition_drive(name)
+        cells, st = ensemble(drive, EZH2i=ezh2i, N=N, return_stats=True)
         arr = 100 * st['arrest_frac']
         if not cells:
-            print(f"  {name:16s} {cd:9.2f} {arr:7.0f}% {'--':>10s} {arr:7.0f}%  (all arrest)")
+            print(f"  {name:16s} {drive:6.2f} {'--':>7s} {'--':>8s} {arr:7.0f}%  (all arrest)")
             continue
-        pers = np.array([c['per'] for c in cells])
+        ez = ezh2_stats(cells)
+        if name == 'GNP':
+            gnp_E = ez['mean']
+        erel = ez['mean'] / gnp_E if gnp_E else np.nan
         cf, _ = count_fractions(cells)
         quiesc = arr + (1 - st['arrest_frac']) * cf['G0']
-        print(f"  {name:16s} {cd:9.2f} {arr:7.0f}% {cf['G0']:9.0f}% {quiesc:7.0f}% "
-              f"{pers.mean():8.1f}  {cf['G0']+cf['G1']:.0f}/{cf['S']:.0f}/{cf['G2M']:.0f}")
+        pers = np.array([c['per'] for c in cells])
+        print(f"  {name:16s} {drive:6.2f} {ez['cd_mean']:7.2f} {erel:8.2f} {arr:7.0f}% "
+              f"{quiesc:7.0f}% {pers.mean():6.1f}  {cf['G0']+cf['G1']:.0f}/{cf['S']:.0f}/{cf['G2M']:.0f}")
 
 
 if __name__ == "__main__":
-    print("BISTABILITY (fixed points of the CDK2-p27 toggle vs RbC):")
-    for RbC in [11, 9, 7, 5, 3]:
-        print(f"  RbC={RbC:4.1f}  GNP {[round(x,2) for x in fixed_points(RbC,1.0)]}  "
-              f"MB {[round(x,2) for x in fixed_points(RbC,7.0)]}")
-    print()
-    print("=" * 70)
     print("SINGLE-CELL sanity (deterministic, low-p27 birth = born committed):")
-    for nm, Cd in [("GNP", 1.0), ("MB", 7.0)]:
-        traj, _, _ = run_cell(p27_0=0.2, CDK2_0=0.15, Cd=Cd)
+    for nm in ("GNP", "MB"):
+        drive, ezh2i = condition_drive(nm)
+        E0 = equilibrate_ezh2(drive, ezh2i)
+        traj, _, _, _ = run_cell(p27_0=0.2, CDK2_0=0.15, Cd_drive=drive, EZH2_0=E0, EZH2i=ezh2i)
         if traj is None:
             print(f"  {nm}: did not divide"); continue
         ph = phase_at(traj); t = traj['time']; dt = (t[1] - t[0]) / 60
         d = {k: float(np.sum(v) * dt) for k, v in ph.items()}
-        print(f"  {nm} (Cd={Cd}): period {t[-1]/60:.1f}h  G0 {d['G0']:.1f} G1 {d['G1']:.1f} "
-              f"S {d['S']:.1f} G2M {d['G2M']:.1f}")
+        E = traj['EZH2']; Cd = traj['Cd']
+        print(f"  {nm} (drive={drive:.2f}): period {t[-1]/60:.1f}h  G0 {d['G0']:.1f} G1 {d['G1']:.1f} "
+              f"S {d['S']:.1f} G2M {d['G2M']:.1f}  EZH2 {E[0]:.2f}->{E[-1]:.2f}  Cd_eff {Cd.mean():.2f}")
     print("\nENSEMBLE (noisy births):")
-    for nm, Cd in [("GNP", 1.0), ("MB", 7.0)]:
-        cells = ensemble(Cd, N=150)
+    for nm in ("GNP", "MB"):
+        drive, ezh2i = condition_drive(nm)
+        cells = ensemble(drive, EZH2i=ezh2i, N=150)
         if not cells:
             print(f"  {nm}: no cells divided"); continue
         pers = np.array([c['per'] for c in cells]); g0s = np.array([c['g0'] for c in cells])
-        committed = np.mean(g0s < 2.0)                     # born-committed = short G0
-        cf, lam = count_fractions(cells)
-        print(f"  {nm} (Cd={Cd}, n={len(cells)}/{150}): period mean {pers.mean():.1f}h median {np.median(pers):.1f}h "
-              f"mode~{pers.min():.1f}h  born-committed {100*committed:.0f}%")
+        cf, lam = count_fractions(cells); ez = ezh2_stats(cells)
+        print(f"  {nm} (drive={drive:.2f}, n={len(cells)}/150): period mean {pers.mean():.1f}h "
+              f"median {np.median(pers):.1f}h  born-committed {100*np.mean(g0s < 2.0):.0f}%  "
+              f"EZH2 mean {ez['mean']:.2f} (G2/G0 {ez['g2_g0']:.2f})  Cd_eff {ez['cd_mean']:.2f}")
         print(f"       count-fractions G0/G1/S/G2M = {cf['G0']:.0f}/{cf['G1']:.0f}/{cf['S']:.0f}/{cf['G2M']:.0f}  "
               f"(2N={cf['G0']+cf['G1']:.0f}%; target ~68/16/16)")
     print("\n" + "=" * 70)

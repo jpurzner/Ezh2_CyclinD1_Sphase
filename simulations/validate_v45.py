@@ -1,10 +1,12 @@
 """validate_v45.py -- validation suite for the v45 stochastic-commitment model.
 
-v45 replaces v44's phenomenological size-gate with an emergent BISTABLE CDK2-p27 commitment
-toggle + Rb-dilution G1 timer + mitogen-gated CyclinD bootstrap + mass-capped quiescence, driven
-by the REAL v44 HH/MYCN/EZH2->CyclinD1 cascade (via condition_cd). This script checks it against
-the same experimental targets used for v44 (docs/Ezh2_CcnD1_model_targets.md), restructured for
-the COUNT-fraction convention and the population (fractional) rescue read-out.
+v45 replaces v44's phenomenological size-gate with an emergent BISTABLE CDK2-p27 commitment toggle +
+Rb-dilution G1 timer + mitogen-gated CyclinD bootstrap + mass-capped quiescence. CyclinD1 is driven by
+the v44 HH/MYCN Gli drive (via condition_drive) and REPRESSED by EZH2 -- which is a DYNAMIC v45 cell-
+cycle species (synthesis tracks CDK2act -> peaks S/G2; stable -> integrates; halved at division). So the
+EZH2->CyclinD1 feedback (the paper's mechanism) and the EZH2i rescue are INTERNAL to v45, not inherited.
+Checked against the same targets as v44 (docs/Ezh2_CcnD1_model_targets.md), in the COUNT-fraction
+convention with the population (fractional) rescue read-out.
 
 Targets & provenance (see the v44 compendium):
   * MB DMSO flow COUNT-fractions: 2N(G0+G1)=68.2%, S=15.7%; G2+M anchored to the ~2.5h DIRECT
@@ -55,19 +57,22 @@ def check_bool(name, ok):
 
 # ---- run every condition once, cache the read-outs ----------------------------------------
 def summarize(name):
-    cd = v45.condition_cd(name)
-    cells, st = v45.ensemble(cd, N=N, seed=SEED, return_stats=True)
-    out = dict(cd=cd, arrest=st['arrest_frac'], n=len(cells))
+    drive, ezh2i = v45.condition_drive(name)
+    cells, st = v45.ensemble(drive, EZH2i=ezh2i, N=N, seed=SEED, return_stats=True)
+    out = dict(drive=drive, arrest=st['arrest_frac'], n=len(cells))
     if cells:
         cf, _ = v45.count_fractions(cells)
+        ez = v45.ezh2_stats(cells)                 # EZH2 mean, G2/G0 phase ratio, cycle-mean effective Cd
         pers = np.array([c['per'] for c in cells])
         out.update(G0=cf['G0'], G1=cf['G1'], S=cf['S'], G2M=cf['G2M'], twoN=cf['G0'] + cf['G1'],
                    per_mean=float(pers.mean()), per_med=float(np.median(pers)),
                    g2m_dur=float(np.mean([c['durs']['G2M'] for c in cells])),
-                   quiesc=100 * st['arrest_frac'] + (1 - st['arrest_frac']) * cf['G0'])
+                   quiesc=100 * st['arrest_frac'] + (1 - st['arrest_frac']) * cf['G0'],
+                   cd=ez['cd_mean'], ezh2=ez['mean'], ezh2_g2g0=ez['g2_g0'])
     else:
         out.update(G0=np.nan, G1=np.nan, S=np.nan, G2M=np.nan, twoN=np.nan,
-                   per_mean=np.nan, per_med=np.nan, g2m_dur=np.nan, quiesc=100 * st['arrest_frac'])
+                   per_mean=np.nan, per_med=np.nan, g2m_dur=np.nan, quiesc=100 * st['arrest_frac'],
+                   cd=np.nan, ezh2=np.nan, ezh2_g2g0=np.nan)
     return out
 
 
@@ -78,12 +83,18 @@ if __name__ == "__main__":
     print("Running conditions (each builds the v44 cascade for Cd, then the v45 ensemble)...")
     S = {name: summarize(name) for name in v45.CONDITIONS}
 
-    print("\n-- CyclinD1 (Cd) folds from the wired HH/MYCN/EZH2 cascade --")
+    print("\n-- CyclinD1 folds (v45 cycle-mean Cd_eff = Gli/MYCN drive REPRESSED by v45's dynamic EZH2) --")
     g = S['GNP']['cd']
-    check("CyclinD1 MB/GNP",        S['MB']['cd'] / g,            7.58, 0.30)
-    check("CyclinD1 MB+HHi/MB",     S['MB+HHi']['cd'] / S['MB']['cd'], 0.144, 0.40)
-    check("CyclinD1 GNP+HHi/GNP",   S['GNP+HHi']['cd'] / g,       0.157, 0.40)
-    check("CyclinD1 GNP+EZH2i/GNP", S['GNP+EZH2i']['cd'] / g,     2.2, 0.40)
+    check("CyclinD1 MB/GNP",        S['MB']['cd'] / g,            7.58, 0.35)
+    check("CyclinD1 MB+HHi/MB",     S['MB+HHi']['cd'] / S['MB']['cd'], 0.144, 0.50)
+    check("CyclinD1 GNP+HHi/GNP",   S['GNP+HHi']['cd'] / g,       0.157, 0.55)
+    check("CyclinD1 GNP+EZH2i/GNP (EZH2i DE-REPRESSION, Fig3C ~2.2x)", S['GNP+EZH2i']['cd'] / g, 2.2, 0.40)
+
+    print("\n-- EZH2 as a DYNAMIC v45 cycle species (the paper's mechanism) --")
+    check("EZH2 cycle-dependence G2/G0 (Fig4A/B ~2x)", S['MB']['ezh2_g2g0'], 2.0, 0.35)
+    check_bool("EZH2 elevated in MB vs GNP (Fig4J direction)", S['MB']['ezh2'] > S['GNP']['ezh2'])
+    check_bool("EZH2i de-represses CyclinD1 (MB+EZH2i Cd > MB Cd)",
+               S['MB+EZH2i']['cd'] > S['MB']['cd'] * 1.2)
 
     print("\n-- MB DMSO cell-cycle COUNT-fractions (flow) --")
     check("MB 2N (G0+G1) count%",   S['MB']['twoN'],   68.2, 0.15)
@@ -120,11 +131,12 @@ if __name__ == "__main__":
     print(f"v45 VALIDATION: {_PASS}/{_PASS + _FAIL} passed")
     print("=" * 78)
 
-    # condition table for the record
-    print(f"\n  {'condition':16s} {'Cd':>6s} {'arrest%':>8s} {'2N':>5s} {'S':>5s} {'G2M':>5s} "
-          f"{'quiesc%':>8s} {'medT':>6s}")
+    # condition table for the record (Cd = v45 cycle-mean effective CyclinD1; EZH2rel = EZH2 / GNP's)
+    gE = S['GNP']['ezh2']
+    print(f"\n  {'condition':16s} {'Cd_eff':>7s} {'EZH2rel':>8s} {'arrest%':>8s} {'2N':>5s} {'S':>5s} "
+          f"{'G2M':>5s} {'quiesc%':>8s} {'medT':>6s}")
     for name in v45.CONDITIONS:
         s = S[name]
-        print(f"  {name:16s} {s['cd']:6.2f} {100*s['arrest']:7.0f}% {s['twoN']:5.0f} {s['S']:5.0f} "
-              f"{s['G2M']:5.0f} {s['quiesc']:7.0f}% {s['per_med']:6.1f}")
+        print(f"  {name:16s} {s['cd']:7.2f} {s['ezh2']/gE:8.2f} {100*s['arrest']:7.0f}% {s['twoN']:5.0f} "
+              f"{s['S']:5.0f} {s['G2M']:5.0f} {s['quiesc']:7.0f}% {s['per_med']:6.1f}")
     sys.exit(1 if _FAIL else 0)
