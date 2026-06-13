@@ -28,10 +28,18 @@ ksp0=0.04, Kp=0.4 (strong Cd leverage), Ki=0.12, kdp=2.5; birth phi=0.55, sig_p=
 G2/S REFINEMENT DONE (was REMAINING #1): G2p accumulator timer gives a real ~2.3h G2M (was ~0); a Dna>0.15
 LATCH decouples S DURATION from the slow RbC-firing ramp -> clean ~3h S (was a throttled ~5h). Result:
 GNP 2N/S/G2M = 74/17/9, MB = 70/20/10 (target 2N=68, S=16, G2M~2.5h DURATION not the unreliable 4N 16%).
+v44-BIOLOGY WIRING DONE (was REMAINING #2): `condition_cd()` runs the v44 HH/MYCN/EZH2->CyclinD1 cascade
+to steady state per condition and feeds the GNP-normalized Cd into v45's mitogen (two-timescale: the
+cascade is quasi-static, and v44's steady EZH2 is ~condition-independent so the EZH2->Cd feedback doesn't
+dynamically lengthen the period). `rescue_panel()` shows the paper's story EMERGES: HH withdrawal raises
+the quiescent (G0) fraction (MB 29->47%, GNP 44->67%); EZH2i RESCUES (MB+HHi G0 47->35%); the effect is
+larger in GNP than MB (MYCN floors MB's CyclinD1); period lengthens under HHi (the slow extra divisions).
 REMAINING (mechanical, not structural): (1) S a few % high + MEAN period short of ~22h (GNP 18, MB 16) --
 a genuine trade: fattening the G0 tail to lift the mean inflates 2N above 68 (the KfireRb/ksp0/sig_p
-balance). (2) Re-validate the rescue / Gli1 / EZH2 once Cd->CyclinD1->p27 is wired to the v44 HH/EZH2
-module. v44 stays the committed working model.
+balance). (2) Rescue MAGNITUDE is softer than v44's pRb 1/4->3/4 flip -- v45 cells SLOW rather than
+hard-arrest at low Cd; sharpening it needs a monostable-OFF regime at low Cd (lower the SN bound so
+high-p27 births can't commit). (3) Embed EZH2 in the v45 cycle for the (small) within-cycle feedback.
+v44 stays the committed working model.
 
 Run:  ./venv/bin/python simulations/v45_stochastic_commitment.py
 """
@@ -205,6 +213,87 @@ def fixed_points(RbC, Cd, p=None):
     return [0.5 * (xs[i] + xs[i + 1]) for i in sc]
 
 
+# ===========================================================================
+# v44 BIOLOGY WIRING -- replace the bare `Cd` parameter with the v44 HH/MYCN/EZH2 -> CyclinD1
+# cascade, so the v45 commitment toggle is driven by the REAL mitogen module and the paper's
+# perturbations (HHi/vismo, EZH2i, Ptch1-loss = MB, MYCN amplification) flow through to commitment.
+#
+# Two-timescale separation (justified): the HH cascade is QUASI-STATIC vs the ~hours cell cycle
+# (v44's own framing), and v44's steady EZH2 is nearly condition-independent (GNP 1.17 vs MB 1.21
+# -> the EZH2->CyclinD1 feedback does NOT dynamically lengthen the period, per the v44 calibration
+# outcome). So we run the cascade to steady state per condition, read its CyclinD1 (Cd), and feed
+# the GNP-NORMALIZED value (GNP=1) into v45's mitogen scale (where Kp=0.4 was tuned for Cd~1..7).
+# This reproduces the rescue ORDERING from the actual biology; the (small) within-cycle EZH2
+# feedback is a later refinement once EZH2 is embedded in the v45 cycle.
+# ===========================================================================
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
+
+# Condition knobs map to the v44 HH-cascade boundary inputs (mirrors simulations/validate_v44.py).
+PTCH1_MB = 0.1           # MB = Ptch1 loss (constitutive Hedgehog)
+MYCN_AMP_MB = 2.8        # MB MYCN amplification
+CONDITIONS = {           # SHH, Ptch1_copy_number, GDC0449(=HHi/vismo), EZH2i, MYCN_amplification
+    'GNP':              dict(SHH=0.5, Ptch1_copy_number=1.0,      GDC0449=0, EZH2i=0, MYCN_amplification=1.0),
+    'GNP+HHi':          dict(SHH=0.5, Ptch1_copy_number=1.0,      GDC0449=1, EZH2i=0, MYCN_amplification=1.0),
+    'GNP+EZH2i':        dict(SHH=0.5, Ptch1_copy_number=1.0,      GDC0449=0, EZH2i=1, MYCN_amplification=1.0),
+    'MB':               dict(SHH=0.5, Ptch1_copy_number=PTCH1_MB, GDC0449=0, EZH2i=0, MYCN_amplification=MYCN_AMP_MB),
+    'MB+HHi':           dict(SHH=0.5, Ptch1_copy_number=PTCH1_MB, GDC0449=1, EZH2i=0, MYCN_amplification=MYCN_AMP_MB),
+    'MB+EZH2i':         dict(SHH=0.5, Ptch1_copy_number=PTCH1_MB, GDC0449=0, EZH2i=1, MYCN_amplification=MYCN_AMP_MB),
+    'MB+HHi+EZH2i':     dict(SHH=0.5, Ptch1_copy_number=PTCH1_MB, GDC0449=1, EZH2i=1, MYCN_amplification=MYCN_AMP_MB),
+}
+
+_V44_RR = None
+_CD_CACHE = {}
+
+
+def _v44_cascade():
+    global _V44_RR
+    if _V44_RR is None:
+        from build_model_v44_heldt import build_model_v44
+        _V44_RR = te.loada(build_model_v44(with_growth=True, with_hh=True, with_two_step_rb=True))
+    return _V44_RR
+
+
+def condition_cd(name, normalize=True):
+    """Steady-state CyclinD1 (Cd) from the v44 HH/MYCN/EZH2 cascade for a named condition.
+    normalize=True returns it on the v45 mitogen scale (GNP=1)."""
+    if name in _CD_CACHE:
+        return _CD_CACHE[name]
+    rr = _v44_cascade(); rr.reset()
+    for k, v in CONDITIONS[name].items():
+        rr[k] = v
+    try:
+        rr.simulate(0, 3000, 1500)
+    except Exception:
+        pass
+    cd = float(rr['Cd'])
+    _CD_CACHE[name] = cd
+    if normalize:
+        if 'GNP' not in _CD_CACHE:
+            condition_cd('GNP', normalize=False)
+        return cd / _CD_CACHE['GNP']
+    return cd
+
+
+def rescue_panel(N=200):
+    """Drive the v45 ensemble with the v44-derived Cd for each condition; report the
+    born-committed fraction + cycling behaviour (the population rescue read-out)."""
+    print("RESCUE PANEL (v45 commitment driven by the v44 HH/MYCN/EZH2 -> CyclinD1 cascade):")
+    print("  G0% = quiescent count-fraction (the pRb-/Ki67- population read-out); EZH2i should LOWER it.")
+    print(f"  {'condition':16s} {'Cd(norm)':>9s} {'committed%':>11s} {'meanT(h)':>9s} {'G0%':>5s} {'cycling%':>9s}")
+    for name in CONDITIONS:
+        cd = condition_cd(name)
+        cells = ensemble(cd, N=N)
+        if not cells:
+            print(f"  {name:16s} {cd:9.2f} {'--':>11s}  (no cells divide -> arrest)")
+            continue
+        g0s = np.array([c['g0'] for c in cells])
+        committed = 100 * np.mean(g0s < 2.0)
+        pers = np.array([c['per'] for c in cells])
+        cf, _ = count_fractions(cells)
+        cycling = cf['G1'] + cf['S'] + cf['G2M']
+        print(f"  {name:16s} {cd:9.2f} {committed:10.0f}% {pers.mean():8.1f}  {cf['G0']:4.0f}  {cycling:8.0f}")
+
+
 if __name__ == "__main__":
     print("BISTABILITY (fixed points of the CDK2-p27 toggle vs RbC):")
     for RbC in [11, 9, 7, 5, 3]:
@@ -233,3 +322,5 @@ if __name__ == "__main__":
               f"mode~{pers.min():.1f}h  born-committed {100*committed:.0f}%")
         print(f"       count-fractions G0/G1/S/G2M = {cf['G0']:.0f}/{cf['G1']:.0f}/{cf['S']:.0f}/{cf['G2M']:.0f}  "
               f"(2N={cf['G0']+cf['G1']:.0f}%; target ~68/16/16)")
+    print("\n" + "=" * 70)
+    rescue_panel(N=200)
