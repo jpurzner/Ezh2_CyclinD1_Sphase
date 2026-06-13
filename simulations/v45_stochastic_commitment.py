@@ -23,12 +23,15 @@ STATUS (prototype; MECHANISM DEMONSTRATED, quantitative fit ~half done). The ker
   * Mitogen effect emerges: MB 62% born committed / mean 13h vs GNP 51% / 15h. Cd acts via the p27
     CLEARANCE dynamics (MB clears p27 faster -> escapes G0 sooner), NOT via the separatrix position
     (which is on the E2F nullcline, Cd-independent).
-Working regime: toggle bistable RbC~5-11; Rb_ss=9 (birth in window); ksp0=0.04, Kp=0.4 (strong Cd
-leverage), Ki=0.12, kdp=2.5; birth phi=0.55, sig_p=0.55, P21_div=0.42.
-REMAINING (mechanical, not structural): (1) G2 is ~0 in the kernel -> S fraction too high (33% vs 16%),
-G2M~0; needs a slow CyclinB build / Erlang chain for a ~2.5h G2. (2) Tune the G0-tail fraction so the
-GNP MEAN period reaches ~22h while 2N stays ~68% (the ksp0/sig_p balance). (3) Re-validate the rescue /
-Gli1 / EZH2 once the Cd->CyclinD1->p27 nodes are wired to the v44 HH/EZH2 module. v44 stays committed.
+Working regime: toggle bistable RbC~5-11; Rb_ss=9 (birth in window); KfireRb=3.5 (Rb-dilution G1 ~17h);
+ksp0=0.04, Kp=0.4 (strong Cd leverage), Ki=0.12, kdp=2.5; birth phi=0.55, sig_p=0.55, P21_div=0.42.
+G2/S REFINEMENT DONE (was REMAINING #1): G2p accumulator timer gives a real ~2.3h G2M (was ~0); a Dna>0.15
+LATCH decouples S DURATION from the slow RbC-firing ramp -> clean ~3h S (was a throttled ~5h). Result:
+GNP 2N/S/G2M = 74/17/9, MB = 70/20/10 (target 2N=68, S=16, G2M~2.5h DURATION not the unreliable 4N 16%).
+REMAINING (mechanical, not structural): (1) S a few % high + MEAN period short of ~22h (GNP 18, MB 16) --
+a genuine trade: fattening the G0 tail to lift the mean inflates 2N above 68 (the KfireRb/ksp0/sig_p
+balance). (2) Re-validate the rescue / Gli1 / EZH2 once Cd->CyclinD1->p27 is wired to the v44 HH/EZH2
+module. v44 stays the committed working model.
 
 Run:  ./venv/bin/python simulations/v45_stochastic_commitment.py
 """
@@ -49,7 +52,8 @@ model commitment_kernel
   mu = 0.0009;                       // growth rate (sets the committed-cycler timescale via Rb dilution)
   ksRb = 0.0135; kdRb = 0.0015;      // Rb made size-INDEPENDENTLY -> [Rb]=Rb/mass dilutes (Rb_ss=9 -> birth
                                      // RbC~9 sits INSIDE the bistable window 5-11, so birth noise can scatter cells)
-  KfireRb = 5.0; hRb = 8;            // origins fire only once Rb CONCENTRATION dilutes below this = the G1 timer
+  KfireRb = 3.5; hRb = 8;            // origins fire only once Rb CONCENTRATION dilutes below this = the G1 timer
+                                     // (3.5: cells must dilute Rb further -> committed G1 ~17h -> period ~22h, lowers S count-fraction)
   Cd = 1.0;                          // mitogen (CyclinD1): 1 = GNP, ~7 = MB (sets p27 synthesis)
   wE = 2.6; d0 = 0.06; K_CdRb = 0.45; Km = 0.42; nE = 4;   // E2F release driven by CDK2 toggle (+ small basal d0)
                                                            // -- Cd is NOT in the drive: it's a basin-probability setter (via p27), not a timer
@@ -60,7 +64,7 @@ model commitment_kernel
   kon = 0.015; koff = 0.8;           // APC/C-Cdh1: CDK2act inactivates it (point of no return)
   kG2 = 0.0067; KG2 = 0.85; nG2 = 6;                    // G2 timer: G2p accumulates while replicated+committed
                                                         // -> G2 duration = 1/kG2 ~ 2.5h (mitotic CyclinB-build delay, abstracted)
-  kFire = 0.014; Kfire = 0.55; nFire = 6;               // origins fire when CDK2act crosses (G1->S); -> S ~3.6h
+  kFire = 0.018; Kfire = 0.55; nFire = 6;               // origins fire when CDK2act crosses (G1->S); -> S ~3h
 
   // ---- algebraic ----
   RbC     := Rb/mass;                              // Rb CONCENTRATION (dilutes with growth)
@@ -71,6 +75,9 @@ model commitment_kernel
   ksp     := ksp0/(1 + Cd/Kp);                     // MITOGEN sets the brake: more Cd -> less p27 synth
   fire    := (CDK2act^nFire/(Kfire^nFire + CDK2act^nFire)) * (KfireRb^hRb/(KfireRb^hRb + RbC^hRb));
              // origins fire only when COMMITTED (CDK2act high) AND Rb diluted (RbC low) -> Rb-dilution G1 timer
+  latch   := Dna^8/(0.15^8 + Dna^8);               // once replication has truly STARTED (Dna>0.15, above the pre-commit
+                                                   // fire-leak ~0.03) it runs to completion -> decouples S DURATION from
+                                                   // the slow RbC-firing ramp (clean ~3h S) WITHOUT bypassing the G1 timer
   g2gate  := Dna^nG2/(KG2^nG2 + Dna^nG2);          // CyclinB only after replication ~complete
 
   // ---- dynamics ----
@@ -83,7 +90,7 @@ model commitment_kernel
   p27deg:  p27 => ; (kdp*CDK2act + kdp0)*p27;        // CDK2 (Skp2) clears p27 = the toggle
   Cdh1on:  => Cdh1; kon*(1 - Cdh1);
   Cdh1off: Cdh1 => ; koff*CDK2act*Cdh1;
-  DnaRep:  => Dna; kFire*fire*(1 - Dna);             // replicate once committed
+  DnaRep:  => Dna; kFire*(fire + latch - fire*latch)*(1 - Dna);   // fire INITIATES (G1 timer); latch COMPLETES (clean S)
   G2acc:   => G2p; kG2*(1 - Cdh1)*g2gate;               // G2 clock: runs only when committed (Cdh1 off) AND replication done
 end
 """
