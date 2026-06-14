@@ -21,6 +21,11 @@ BIOMD0000000700), converted to Antimony; the builder injects everything below by
 - **v44** (this model): rebuilt on **Heldt 2018** — real-time (minutes, **no `eps`**) with
   **explicit DNA replication**, so S-phase duration is mechanistic and concentration-dependent.
   Then extended with mitosis, growth control, and the Skp2–p27 switch.
+- **v45** (parallel successor): replaces v44's *phenomenological* growth-gated restriction point
+  with an **emergent bistable CDK2–p27 commitment toggle** + Rb-dilution G1 timer + mitogen-gated
+  arrest + dynamic-EZH2 feedback (`simulations/v45_stochastic_commitment.py`,
+  `docs/v45_MODEL_DESCRIPTION.md`; validated 20/20). **v44 remains the committed working model**;
+  v45 shows the same biology emerges mechanistically.
 
 Central hypothesis being tested: **longer S-phase → more EZH2 → stronger CyclinD1 repression →
 longer G0/G1** (in SHH-driven cerebellar granule-neuron progenitors, GNPs, and SHH medulloblastoma,
