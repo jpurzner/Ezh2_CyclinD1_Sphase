@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *.so
+
+# cached parameter sweeps (regeneratable)
+simulations/*_cache.npz
 *.egg-info/
 .Python
 
