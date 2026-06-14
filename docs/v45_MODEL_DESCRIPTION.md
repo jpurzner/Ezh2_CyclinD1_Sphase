@@ -200,7 +200,20 @@ with status `divided|arrested|failed`; `ensemble(...)`; `equilibrate_ezh2(...)`;
 
 ---
 
-## 7. Provenance
+## 7. Figures
+
+Figure suite in `simulations/` (each writes `.png` preview + `.pdf` vector; see `docs/FIGURES.md`):
+
+| Script | Shows |
+|---|---|
+| `fig_v45_rescue.py` | **headline** — quiescence by condition (permanent arrest vs transient G0), the MYCN floor, CyclinD1⊣EZH2 de-repression, the MB→+HHi→+EZH2i rescue arc |
+| `fig_v45_commitment_bifurcation.py` | the bistable CDK2-p27 toggle (nullclines, OFF/separatrix/ON), fixed points vs RbC (the G1 timer), commit-or-arrest threshold vs CyclinD1 |
+| `fig_v45_single_cell.py` | committed cycler vs mass-capped arrested cell — mass/RbC, CDK2/p27, DNA/G2, EZH2/CyclinD1 |
+| `fig_v45_ezh2_period.py` | EZH2 by phase (peaks S/G2), EZH2i de-repression, the period mixture, MB count-fractions vs flow |
+
+---
+
+## 8. Provenance
 
 - Spencer, Cappell, et al. (2013) *Cell* 155:369; Cappell et al. (2016/2018); Yao et al. (2008) —
   CDK2/p27 bistable commitment and the proliferation–quiescence bifurcation.

@@ -55,3 +55,22 @@ Data sources used to parameterize the model: `docs/PARAMETERIZATION.md`.
 | `v44_calibrate_final.py`, `v44_probe_sets.py` | constrained whole‑model parameter search (figure‑safe guard). |
 | `probe_transient_g0_v2.py`, `analyze_cyclind1_g0.py` | transient‑G0 vs CyclinD1 probes (p27 marker). |
 | `probe_two_step.py` | two‑step‑Rb variant probes (`with_two_step_rb=True`). |
+
+---
+
+## v45 figures (stochastic-commitment model)
+
+The **v45** parallel-successor model (`simulations/v45_stochastic_commitment.py`,
+`docs/v45_MODEL_DESCRIPTION.md`) has its own figure suite. Each writes a `.png` (preview) + `.pdf`
+(vector) into `simulations/`. They import the v45 module directly (ensemble + `condition_drive` +
+`fixed_points` + `ezh2_stats`). Regenerate with, e.g., `./venv/bin/python simulations/fig_v45_rescue.py`.
+
+| Output PDF | Generating script | Shows |
+|---|---|---|
+| `fig_v45_rescue.pdf` | `fig_v45_rescue.py` | **headline**: quiescence by condition (permanent arrest vs transient G0), the MYCN floor (MB+HHi does not permanently arrest), CyclinD1⊣EZH2 (EZH2i de-represses), and the MB→+HHi→+EZH2i rescue arc |
+| `fig_v45_commitment_bifurcation.pdf` | `fig_v45_commitment_bifurcation.py` | the bistable CDK2-p27 toggle nullclines (OFF/separatrix/ON), fixed points vs Rb concentration (the G1 timer), and the commit-or-arrest threshold vs CyclinD1 drive |
+| `fig_v45_single_cell.pdf` | `fig_v45_single_cell.py` | single-cell anatomy: a committed cycler (commit→S→G2→divide) vs a mass-capped arrested cell, with mass/RbC, CDK2/p27, DNA/G2, EZH2/CyclinD1 |
+| `fig_v45_ezh2_period.pdf` | `fig_v45_ezh2_period.py` | EZH2 by phase (peaks S/G2), EZH2i de-repression of CyclinD1, the period mixture (fast cyclers + G0 tail), and MB count-fractions vs flow data |
+
+Validation harness: `simulations/validate_v45.py` (20/20). **v44 remains the committed working model**
+for the manuscript figures above; the v45 figures document the mechanistic successor.
