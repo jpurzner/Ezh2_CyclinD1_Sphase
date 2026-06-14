@@ -214,7 +214,8 @@ Figure suite in `simulations/` (each writes `.png` preview + `.pdf` vector; see 
 | `fig_v45_commitment_bifurcation.py` | the bistable CDK2-p27 toggle (nullclines, OFF/separatrix/ON), fixed points vs RbC (the G1 timer), commit-or-arrest threshold vs CyclinD1 |
 | `fig_v45_single_cell.py` | committed cycler vs mass-capped arrested cell — mass/RbC, CDK2/p27, DNA/G2, EZH2/CyclinD1 |
 | `fig_v45_ezh2_period.py` | EZH2 by phase (peaks S/G2), EZH2i de-repression, the period mixture, MB count-fractions vs flow |
-| `fig_v45_mitogen_ramp.py` | mitogen up→down ± EZH2 feedback: the feedback raises the entry threshold ~3.5× and buffers CyclinD1; the dynamic "extra divisions" buffer is weak (feedback cells arrest sooner) |
+| `fig_v45_mitogen_ramp.py` | mitogen up→down ± EZH2 feedback: the feedback raises the entry threshold ~3× and buffers CyclinD1; the dynamic "extra divisions" buffer is weak (feedback cells arrest sooner) |
+| `fig_v45_cyclind1_decline.py` | CyclinD1 transcript & protein under a linear mitogen decline ± feedback: the feedback represses CyclinD1 (lower) AND buffers its decline (sub-linear, since EZH2 tracks falling mitogen); protein lags transcript |
 
 ---
 
