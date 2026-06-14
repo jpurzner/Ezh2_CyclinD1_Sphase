@@ -85,18 +85,22 @@ the population is an ensemble of such cells (Section 5).
   (APC/C) is inactivated by CDK2act (`koff·CDK2act·Cdh1`) = the point of no return.
 
 ### F. EZH2 → CyclinD1 feedback (the paper's mechanism)
-- **EZH2 is a dynamic cell-cycle species**: synthesis `kEZbas + kEZsyn·CDK2act` **tracks CDK2act →
-  peaks in S/G2** (Fig 4A/B; model G2/G0 ratio ~1.7×). It is **STABLE** (small `kDeEZ`) so it
-  **integrates** over the cycle, and is **halved at division** (dilution).
+- **EZH2 is a dynamic species and a Rb-E2f TARGET**, so synthesis tracks the **CyclinD1-CDK4/6-Rb-E2f
+  axis**: `kEZbas + kEZsyn·(Cd/(Kcd+Cd))·ezgate`. It is **mitogen-dose-dependent** (saturating in
+  CyclinD1, `Cd`; rShh dose → ↑EZH2; MB 2.05× GNP, Fig 4H–J) **AND cycle-gated** (`ezgate :=
+  CDK2act²/(Kez²+CDK2act²)`, ~0 in G0 / under CDK4/6i which blocks commitment — Fig 4F — and ~1 in
+  S/G2, so EZH2 peaks late cycle, Fig 4A/B). It is **STABLE** (small `kDeEZ`) so it **integrates** over
+  the cycle (longer S → more EZH2, the HU result, Fig 4G), and is **halved at division** (dilution).
 - **EZH2 represses CyclinD1**: `Cd := Cd_drive·K_EZH2_Cd/(K_EZH2_Cd + EZH2·(1−EZH2i))`. `Cd_drive`
   is the EZH2-*independent* Gli/MYCN drive (Section H); `EZH2i=1` removes the brake → `Cd → Cd_drive`
-  (de-repression). So the feedback is **internal to the v45 cycle** and the EZH2i rescue is
-  **emergent** (GNP Cd 0.94→2.56, ≈ Fig 3C qPCR 2.2×).
-- *Protein-vs-transcript note:* the repressing EZH2 is only ~1.34× in MB, not the 2.05× RNA-seq
-  transcript fold (Fig 4J). Forcing 2× (a steeper `CDK2act^2` synthesis) over-represses MB CyclinD1
-  (Cd 3.06 vs the required ~7×) — the same reason v44's repressing EZH2 *protein* is ~condition-
-  independent (1.03×) while the transcript is 2.05×. v45 validates the cycle-dependence, MB-direction,
-  and de-repression, not the bulk transcript magnitude.
+  (de-repression). This closes the **CyclinD1↔EZH2 negative feedback loop (Fig 4K)** inside the v45
+  cycle; the EZH2i rescue is **emergent**.
+- **Calibrated to the paper folds** (and these jointly resolve the apparent protein-vs-transcript
+  tension): EZH2 MB/GNP **2.05×** (Fig 4J) AND CyclinD1 MB/GNP **~4.4×** (Fig 4I 5.07×) hold *together*
+  because MB's high mitogen drive overcomes the 2× EZH2 repression — and the feedback pulls MB CyclinD1
+  *down* from the cascade's raw 7.6× toward the measured fold. EZH2i de-repression ~2.6× (Fig 3C 2.2×);
+  G2/G0 ~1.7× (Fig 4A/B). (The earlier `∝CDK2act`-only synthesis was wrong — it lost the mitogen
+  dependence and gave only 1.34× in MB.)
 
 ### G. Birth noise & division (in the Python harness, not the kernel)
 - `run_cell` resets a daughter at birth: `mass=1`, `Rb=ksRb/kdRb·mass`, `Cdh1=1`, `G2p=Dna=0`, and

@@ -110,7 +110,7 @@ for rows, c in [(NF, CNF), (FB, CFB)]:
 axA.set_xlabel('mitogen (CyclinD1 drive)'); axA.set_ylabel('dividing fraction (%)'); axA.set_ylim(-3, 103)
 axA.set_title('A  EZH2 raises the entry threshold', loc='left', fontweight='bold', fontsize=11)
 axA.legend(fontsize=7, loc='center right')
-axA.annotate('feedback shifts\nthreshold ~3.5x', xy=(0.52, 50), xytext=(1.0, 62),
+axA.annotate('feedback shifts\nthreshold ~3x', xy=(0.40, 50), xytext=(0.9, 62),
              fontsize=7.5, color=CFB, arrowprops=dict(arrowstyle='->', color=CFB, lw=1))
 
 # (B) effective CyclinD1 buffering

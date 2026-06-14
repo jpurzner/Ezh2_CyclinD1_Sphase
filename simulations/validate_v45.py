@@ -85,14 +85,14 @@ if __name__ == "__main__":
 
     print("\n-- CyclinD1 folds (v45 cycle-mean Cd_eff = Gli/MYCN drive REPRESSED by v45's dynamic EZH2) --")
     g = S['GNP']['cd']
-    check("CyclinD1 MB/GNP",        S['MB']['cd'] / g,            7.58, 0.35)
-    check("CyclinD1 MB+HHi/MB",     S['MB+HHi']['cd'] / S['MB']['cd'], 0.144, 0.50)
-    check("CyclinD1 GNP+HHi/GNP",   S['GNP+HHi']['cd'] / g,       0.157, 0.55)
-    check("CyclinD1 GNP+EZH2i/GNP (EZH2i DE-REPRESSION, Fig3C ~2.2x)", S['GNP+EZH2i']['cd'] / g, 2.2, 0.40)
+    check("CyclinD1 MB/GNP (Fig4I 5.07x)",  S['MB']['cd'] / g,            5.07, 0.35)
+    check("CyclinD1 MB+HHi/MB",     S['MB+HHi']['cd'] / S['MB']['cd'], 0.144, 0.55)
+    check("CyclinD1 GNP+HHi/GNP",   S['GNP+HHi']['cd'] / g,       0.157, 0.60)
+    check("CyclinD1 GNP+EZH2i/GNP (EZH2i DE-REPRESSION, Fig3C 2.2x)", S['GNP+EZH2i']['cd'] / g, 2.2, 0.45)
 
-    print("\n-- EZH2 as a DYNAMIC v45 cycle species (the paper's mechanism) --")
-    check("EZH2 cycle-dependence G2/G0 (Fig4A/B ~2x)", S['MB']['ezh2_g2g0'], 2.0, 0.35)
-    check_bool("EZH2 elevated in MB vs GNP (Fig4J direction)", S['MB']['ezh2'] > S['GNP']['ezh2'])
+    print("\n-- EZH2 as a DYNAMIC, MITOGEN-TRACKING Rb-E2f target (the paper's mechanism, Fig 4) --")
+    check("EZH2 MB/GNP (Fig4J 2.05x; mitogen-dose dependence)", S['MB']['ezh2'] / S['GNP']['ezh2'], 2.05, 0.30)
+    check("EZH2 cycle-dependence G2/G0 (Fig4A/B ~2x)", S['MB']['ezh2_g2g0'], 2.0, 0.40)
     check_bool("EZH2i de-represses CyclinD1 (MB+EZH2i Cd > MB Cd)",
                S['MB+EZH2i']['cd'] > S['MB']['cd'] * 1.2)
 

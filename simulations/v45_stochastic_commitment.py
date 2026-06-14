@@ -14,12 +14,16 @@ distribution; born-committed vs G0 split = CDK2inc/CDK2low (CDK2-reporter); EZH2
 
 STATUS: COMPLETE & VALIDATED (simulations/validate_v45.py -> 20/20), WITH a dynamic EZH2 species. v45 is
 a self-consistent standalone model (parallel to v44, which stays the committed working model). EZH2 is a
-DYNAMIC v45 cell-cycle species (synthesis tracks CDK2act -> peaks S/G2, Fig4A/B G2/G0~1.7x; STABLE ->
-integrates; HALVED at division) that REPRESSES CyclinD1: Cd := Cd_drive*K/(K+EZH2*(1-EZH2i)), where
-Cd_drive is the EZH2-independent Gli/MYCN drive from the v44 cascade (condition_drive). So the EZH2->
-CyclinD1 feedback (the paper's mechanism) is INTERNAL to v45 and the EZH2i rescue is EMERGENT (remove
-v45's EZH2 -> Cd_eff jumps to Cd_drive; GNP Cd 0.94->2.56, ~Fig3C 2.2x). The kernel + ensemble + readout
-+ fixed-point analyzer run, and the core claim is PROVEN with the current params:
+DYNAMIC v45 species and a Rb-E2f TARGET, so its synthesis tracks the CyclinD1-CDK4/6-Rb-E2f axis:
+MITOGEN-DOSE-dependent (saturating in CyclinD1: kEZsyn*(Cd/(Kcd+Cd))) AND cycle-gated (ezgate, ~0 in G0 /
+under CDK4/6i, ~1 in S/G2). STABLE -> integrates over the cycle (longer S -> more EZH2); HALVED at
+division. EZH2 REPRESSES CyclinD1: Cd := Cd_drive*K/(K+EZH2*(1-EZH2i)) (Cd_drive = the EZH2-independent
+Gli/MYCN drive from the v44 cascade, condition_drive) -> the CyclinD1<->EZH2 NEGATIVE FEEDBACK (Fig 4K)
+is INTERNAL to v45. Calibrated to the paper folds: EZH2 MB/GNP ~2.1x (Fig4J 2.05x), CyclinD1 MB/GNP ~4.4x
+(Fig4I 5.07x -- the feedback pulls MB CyclinD1 DOWN from the cascade's 7.6x toward the measured fold),
+EZH2i de-repression ~2.6x (Fig3C 2.2x), G2/G0 ~1.7x (Fig4A/B). The EZH2i rescue is EMERGENT (remove v45's
+EZH2 -> Cd_eff jumps to Cd_drive). The kernel + ensemble + readout + fixed-point analyzer run, and the
+core claim is PROVEN with the current params:
   * The mixture RESOLVES the period-vs-count-fraction over-constraint that broke v44. GNP: 51% born
     committed -> 2N count-fraction = 67% (target 68.2%) -- because fast committed cyclers supply ~45% 2N
     and the G0 tail lifts it to ~68% WITHOUT overshoot. This is the whole point, and it works.
@@ -85,9 +89,12 @@ model commitment_kernel
   Cd_drive = 2.56;                   // EZH2-INDEPENDENT CyclinD1 transcription drive (Gli/MYCN), set per condition
                                      // from the v44 cascade's UN-repressed Cd (GNP drive = GNP+EZH2i/GNP = 2.56).
   EZH2i = 0;                         // EZH2->CyclinD1 repression toggle (1 = EZH2 inhibitor -> removes the brake -> de-represses Cd)
-  K_EZH2_Cd = 1.0;                   // EZH2 repression half-max; cycle-mean EZH2~1.56 -> R~0.39 -> GNP Cd~1.0 (preserves commitment)
-  kEZbas = 0.00020; kEZsyn = 0.00090; kDeEZ = 0.00010;  // EZH2: low basal + CELL-CYCLE-DRIVEN synth (tracks CDK2act -> peaks S/G2,
-                                     // Fig 4A/B ~2x G0); STABLE (small kDeEZ) -> INTEGRATES synthesis over the cycle; HALVED at division.
+  K_EZH2_Cd = 1.0;                   // EZH2 repression half-max; calibrated (with kEZsyn/Kcd) to EZH2 MB/GNP ~2.1x (Fig4J 2.05x),
+                                     // CyclinD1 MB/GNP ~4.4x (Fig4I 5.07x), EZH2i de-repression ~2.6x (Fig3C 2.2x), GNP Cd~1.0 (period ~21h)
+  kEZbas = 0.00020; kEZsyn = 0.0045; kDeEZ = 0.00010; Kez = 0.35; Kcd = 2.0;  // EZH2 is a Rb-E2f target -> synthesis tracks
+                                     // the CyclinD1-CDK4/6-Rb-E2f axis: MITOGEN-DOSE-dependent (proportional to CyclinD1 = Cd) AND
+                                     // cycle-gated (ezgate, high in S/G2, ~0 in G0 / under CDK4/6i). Fig 4A/B/H-J. STABLE (small
+                                     // kDeEZ) -> INTEGRATES over the cycle (longer S -> more EZH2, the HU result); HALVED at division.
   wE = 2.6; dmax = 0.10; Kd0 = 0.82; nd0 = 2; K_CdRb = 0.45; Km = 0.42; nE = 4;  // E2F release: CDK2 toggle + a SATURATING CyclinD bootstrap
                                                            // Cd enters ONLY the BASAL bootstrap d0 (CyclinD-CDK4/6 mono-phospho of Rb),
                                                            // NOT the wE*CDK2act toggle gain (that gain-coupling collapses the MB period)
@@ -120,6 +127,8 @@ model commitment_kernel
                                                    // fire-leak ~0.03) it runs to completion -> decouples S DURATION from
                                                    // the slow RbC-firing ramp (clean ~3h S) WITHOUT bypassing the G1 timer
   g2gate  := Dna^nG2/(KG2^nG2 + Dna^nG2);          // CyclinB only after replication ~complete
+  ezgate  := CDK2act^2/(Kez^2 + CDK2act^2);        // E2f/commitment gate for EZH2 synthesis: ~0 in G0 (and under CDK4/6i,
+                                                   // which blocks commitment -> abolishes cycle-driven EZH2, Fig 4F), ~1 once committed (S/G2)
 
   // ---- dynamics ----
   Growth:  => mass; mu*mass*(1 - (mass/Mmax)^nM);   // exponential growth with a soft cap at Mmax (quiescent cells stall)
@@ -133,7 +142,9 @@ model commitment_kernel
   Cdh1off: Cdh1 => ; koff*CDK2act*Cdh1;
   DnaRep:  => Dna; kFire*(fire + latch - fire*latch)*(1 - Dna);   // fire INITIATES (G1 timer); latch COMPLETES (clean S)
   G2acc:   => G2p; kG2*(1 - Cdh1)*g2gate;               // G2 clock: runs only when committed (Cdh1 off) AND replication done
-  EZH2syn: => EZH2; kEZbas + kEZsyn*CDK2act;            // CELL-CYCLE-DRIVEN: CDK2act low in G0, high in S/G2 -> EZH2 peaks late cycle
+  EZH2syn: => EZH2; kEZbas + kEZsyn*(Cd/(Kcd + Cd))*ezgate;   // MITOGEN-DOSE (SATURATING in Cd: high-mitogen MB doesn't over-drive
+                                                       // EZH2) x CYCLE-GATE (ezgate): Rb-E2f-driven, CyclinD1-dependent EZH2 -> tracks Hh/CyclinD1
+                                                       // dose AND peaks S/G2; the CyclinD1<->EZH2 NEGATIVE feedback (Fig 4K)
   EZH2deg: EZH2 => ; kDeEZ*EZH2;                        // STABLE -> EZH2 integrates synthesis over the cycle (halved at division -> dilution)
 end
 """
