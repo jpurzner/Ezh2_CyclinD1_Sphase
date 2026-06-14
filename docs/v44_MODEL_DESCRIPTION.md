@@ -75,11 +75,21 @@ pRb=0` (hypophosphorylated), **`P21=P21_div` (high p27)**, `CeP21=CaP21=0`, **`S
 `Ce=Ce_div, Ca=Ca_div` (low — mitotic APC degradation), `E1/=2`, `MPF=preMPF=Cdc20=0`,
 `mass/=2`, `EZH2/=2, EZH2m/=2`.
 
-### E. Growth-gated restriction point (**redesign #2**)
+### E. Growth-gated restriction point = the Rb-dilution timer (**redesign #2**)
 - `mass` grows exponentially (`Growth: => mass; mu·mass`), halves at division (size homeostasis).
 - **Size gate on S-entry**: origin firing × `size_gate := mass^n/(M_size^n+mass^n)`. Committed cells
   **wait for size** before replicating → **G1 length = growth time, DECOUPLED from CyclinD level**
   (high-CyclinD MB no longer has a collapsed G1). Sets period ~22 h.
+- **Mechanistic grounding — this size gate *is* the Rb-DILUTION restriction point** (Zatulovskiy et al.
+  2020; the same mechanism the v45 successor makes explicit). Rb is made at a ~constant, size-independent
+  amount per cell, so its *concentration* `[Rb] = tRb/mass` is titrated down by growth, and commitment/
+  S-entry are licensed once `[Rb]` dilutes below a threshold CyclinD–CDK4/6 can overcome. Heldt's total
+  Rb is **conserved** (`tRb := Rb+pRb+RbE2f`, no synthesis/degradation; division converts pRb→Rb without
+  halving the total), so `[Rb] ∝ 1/mass` exactly — and the mass gate `mass^n/(M^n+mass^n)` is
+  **algebraically identical** to an Rb-dilution gate `Krb^n/(Krb^n+[Rb]^n)` (reparametrize `M = tRb/Krb`).
+  So the "size checkpoint" is not a postulated absolute-size sensor — it is the molecular **Rb titration**.
+  (Making Rb-dilution behave *differently* from a mass gate requires breaking Rb conservation with
+  size-independent, *condition-regulated* Rb synthesis — currently unconstrained by data, so not modeled.)
 
 ### F. Skp2–p27 feedforward restriction-point switch (**redesign #3**)
 - **Skp2 is now a dynamic E2F target degraded by APC/C-Cdh1 (`C1`)**:

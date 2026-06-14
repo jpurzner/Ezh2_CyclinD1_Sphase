@@ -101,6 +101,18 @@ _DNA_RXN_NEW = "Synthesis_of_DNA: aRc => aRc + Dna; Cell*kSyDna*vfork*aRc;"
 # the GROWTH TIME, DECOUPLED from CyclinD level: high CyclinD (MB) no longer collapses G1 to ~0,
 # letting the model have MB with high CyclinD1 AND a substantial G1 (reconciling the
 # phase-proportion and HH between-condition calibrations).
+#
+# MECHANISTIC GROUNDING -- the size gate IS the Rb-DILUTION / titration restriction point
+# (Zatulovskiy et al. 2020 Science 369:466; cf. the v45 successor's explicit Rb-dilution timer):
+# Rb is made at a ~constant, size-INDEPENDENT amount per cell, so its CONCENTRATION [Rb] = tRb/mass
+# is titrated DOWN by growth; commitment / S-entry are licensed once [Rb] dilutes below a threshold
+# that CyclinD-CDK4/6 can overcome. Heldt's total Rb is CONSERVED (tRb := Rb+pRb+RbE2f, no synth/deg;
+# the division event converts pRb->Rb without halving the total), so [Rb] is exactly proportional to
+# 1/mass and oscillates tRb -> tRb/2 over the cycle. Hence the mass gate mass^n/(M^n+mass^n) is
+# ALGEBRAICALLY the Rb-dilution gate Krb^n/(Krb^n + [Rb]^n) up to a reparametrization (M = tRb/Krb).
+# So the "size checkpoint" here is not a postulated absolute-size sensor -- it is the molecular Rb
+# titration. (To make Rb-dilution behave DIFFERENTLY from a mass gate one must break Rb conservation
+# with size-independent, CONDITION-REGULATED Rb synthesis -- currently unconstrained by data.)
 GROWTH_BLOCK = """
   // ===== v44 structural #2: cell-growth-gated restriction point (size gate on S-entry) =====
   species mass in Cell;
