@@ -76,3 +76,4 @@ The **v45** parallel-successor model (`simulations/v45_stochastic_commitment.py`
 
 Validation harness: `simulations/validate_v45.py` (20/20). **v44 remains the committed working model**
 for the manuscript figures above; the v45 figures document the mechanistic successor.
+| `fig_v45_feedback_paramspace.pdf` | `fig_v45_feedback_paramspace.py` | **parameter-space** analysis of the CyclinD1↔EZH2 feedback over loop STRENGTH (EZH2 gain) × DELAY (EZH2 stability): mitogen-sensitivity heatmap (homeostasis), overshoot/ringing heatmap, dose-response and regime time-courses. KEY: the measured CyclinD1 MB/GNP fold (5.07×) pins the feedback to a weak/mild regime (sensitivity ~0.81) — v45 sits there; strong-buffering (~36% of swept space) and oscillatory (~13%) regimes are **data-excluded** |
