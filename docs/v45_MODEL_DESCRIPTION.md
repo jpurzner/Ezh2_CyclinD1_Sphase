@@ -219,7 +219,25 @@ Figure suite in `simulations/` (each writes `.png` preview + `.pdf` vector; see 
 
 ---
 
-## 8. Provenance
+## 8. What's different from v44 (`fig_v45_vs_v44.py`)
+
+Same biology (HH/MYCN→CyclinD1, EZH2 feedback, the rescue), **different cell-cycle mechanism**:
+
+| | **v44** (committed working model) | **v45** (this model) |
+|---|---|---|
+| Cell-cycle engine | full Heldt-2018 G1/S (CyclinE/A, Rb–E2F, p21, explicit replication) + CyclinB/CDK1 mitosis + intra-S checkpoint | reduced kernel: CDK2–p27 toggle, Rb-dilution, Dna-latch S, G2 clock |
+| Commitment | **phenomenological growth/size gate** (`M_commit`, `M_size`) — cell grows to a size, then Skp2–p27 fires | **emergent bistable CDK2–p27 toggle** (Spencer/Cappell) — a bifurcation, not a phase everyone traverses |
+| Period | a **growth clock** (`mu` sets ~22 h) | **Rb-dilution timer + a G0-tail mixture** → a right-skewed *distribution* (median ~21 h) |
+| Cells | **one deterministic cell**, simulated continuously | a **stochastic ensemble** (noisy birth partitioning) |
+| Arrest | the single cell is **all-or-none** (MB+HHi → 0 divisions); the *population* rescue needs a separate CyclinD1/p27 **heterogeneity layer** | **graded at the single-cell level** — intrinsic birth noise + mass-capped quiescence give a fractional arrest directly (MB+HHi ~55% still cycling = the MYCN floor) |
+| Phase count-fractions (MB) | 2N/S/G2 ≈ **80/10/10** (over-counts 2N) | ≈ **71/18/11** (closer to flow data 68/16/16) |
+| EZH2 | E2f×cyclin-driven, represses CyclinD1 transcription | dynamic species, mitogen-dose × cycle-gated (Rb-E2f), represses CyclinD1 |
+
+**Behavioral upshot (panels A–C):** v45 fits the phase fractions better (the count-fraction mixture), turns the period into a distribution, and produces the fractional arrest/rescue *intrinsically* (where v44 needs an added heterogeneity layer). Both reproduce the HHi→arrest→EZH2i-rescue ordering; v44's deterministic cell shows it as a sharp 0-divisions arrest at MB+HHi, v45 as a graded drop in cycling fraction. **v44 remains the committed model for the manuscript; v45 is the mechanistic successor.**
+
+---
+
+## 9. Provenance
 
 - Spencer, Cappell, et al. (2013) *Cell* 155:369; Cappell et al. (2016/2018); Yao et al. (2008) —
   CDK2/p27 bistable commitment and the proliferation–quiescence bifurcation.
