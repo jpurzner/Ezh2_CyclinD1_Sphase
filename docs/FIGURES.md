@@ -43,6 +43,7 @@ Data sources used to parameterize the model: `docs/PARAMETERIZATION.md`.
 | `fig_v44_cycle_anatomy.pdf` | `fig_v44_cycle_anatomy.py` | One‑cycle anatomy: the transient G0 is the p27‑high window (phospho‑Rb saturates early — why we classify G0 by p27). |
 | `fig_v44_g0_bifurcation.pdf` | `sim_g0_bifurcation.py` | Proliferation–quiescence bifurcation from cyclin D1/p27 heterogeneity; SHH and EZH2i tune the split. (~10 min) |
 | `fig_v44_mitogen_sensitivity.pdf` | `fig_v44_mitogen_sensitivity.py` | **mitogen sensitivity** on the Heldt‑engine model: sweep SHH (Hh dose) ± the EZH2⊣CyclinD1 feedback. (A) CyclinD1 transcript+protein dose‑response — feedback represses & flattens it (lower sensitivity); (B) EZH2 tracks mitogen (Fig 4H); (C) the feedback **installs** the Hh threshold to cycle (without it, basal CyclinD1 lets GNP cycle even at SHH=0). Caches the sweep; `--fresh` to recompute. (~10 min) |
+| `fig_v44_mitogen_paramspace.pdf` | `fig_v44_mitogen_paramspace.py` | **2‑D mitogen‑sensitivity planes**: proliferation (divisions/168 h) over (A) SHH × EZH2‑feedback strength `K_EZH2_repression` and (B) SHH × p16, with the cycle/arrest boundary drawn and the defaults marked. The Hh threshold to proliferate **rises** with both stronger feedback and more CKI. Cached grids; `--fresh` recomputes. (~20–30 min cold) |
 
 ---
 
