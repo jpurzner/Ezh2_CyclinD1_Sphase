@@ -34,8 +34,8 @@ Thumbs.db
 !simulations/fig_ezh2_data_constrained.pdf
 # v44 model figures (paper + exploratory) — vector PDFs tracked for the manuscript
 !simulations/fig_v44_*.pdf
-# v45 stochastic-commitment model figures — vector PDFs tracked
-!simulations/fig_v45_*.pdf
+# v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
+!archive/v45/*.pdf
 
 # Exploratory / pre-v42 build scripts
 src/build_model_v1*.py
