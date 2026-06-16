@@ -1,0 +1,174 @@
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2243.63 and h = 4.39136e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2532.08, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2542.55 and h = 5.55432e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2363.06, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2380.81, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2473.52 and h = 6.754e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2724.1 and h = 1.92184e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2829.33 and h = 3.33415e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2555.89 and h = 6.1009e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2546.89, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2566.54, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2566.54, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2579.43 and h = 1.26759e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2370.13 and h = 1.86215e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2356.79 and h = 2.40439e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2593.82, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2188.19 and h = 1.451e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2539.05, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2539.05, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2539.05, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2223.58 and h = 3.91779e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2435.1 and h = 1.65359e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2585.3, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2604.63 and h = 1.6932e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2565.08 and h = 6.92821e-15, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2350.09 and h = 1.23639e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2266.39, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2695.04, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2695.04, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2695.04, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2910.35, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2910.34, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2529.1 and h = 2.0481e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2833.14, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2833.14, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2308.28, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2308.28, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2431.56 and h = 3.18579e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2583.63, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2593.29 and h = 6.22498e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2901.17, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3004.52, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3622.83, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2140.06 and h = 5.8313e-16, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2180.11, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2194.37 and h = 1.08227e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2361.22, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2128.11 and h = 5.69348e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2908.59 and h = 1.952e-14, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2210.49, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2275.46 and h = 3.88442e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3153.01, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2274.23 and h = 1.60294e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2345.22 and h = 2.96105e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2487.66, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2487.66, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2487.66 and h = 1.88408e-14, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3166.47, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2407.16 and h = 2.94334e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2305.24 and h = 3.32854e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2962.34, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2962.34, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 3038.26 and h = 3.21944e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2050.72 and h = 2.98931e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2377.62 and h = 1.37095e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2363.4, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3378.65, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 3378.65 and h = 6.23293e-15, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3378.65, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2280.63, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2305.11 and h = 5.89448e-16, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2306.1 and h = 6.56589e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2276.21, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3601.76, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3809.3, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2318.16 and h = 2.79183e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2356.02 and h = 8.3291e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2387, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 4058.88 and h = 1.93214e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 4249.66, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2716.56, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2272.33, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3355.05, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3355.05, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2496.76, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2935.19 and h = 1.05163e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2922.88, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2418.05 and h = 3.08553e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2655.98, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2722.6 and h = 4.20622e-08, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2554.79, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2565.56 and h = 5.50931e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2622.33, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2622.38 and h = 5.61731e-09, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2622.33, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2197.65 and h = 1.13034e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2497.85, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2497.85, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2362.45 and h = 6.5955e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2874.15, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3617.38, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2106.57 and h = 1.68264e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2163.95 and h = 3.45225e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2682.9 and h = 6.55933e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2675.23, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2345.79, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2381.71 and h = 3.1094e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2183.52, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2623.42, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2265.74 and h = 6.34105e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 3443.15, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2236.89 and h = 5.87157e-16, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2496.72 and h = 2.44727e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2548.62 and h = 2.76575e-07, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2506.58, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2506.58, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2132.01 and h = 5.82702e-16, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+[35mError: CVODE Error: CV_TOO_MUCH_ACC, Module: CVODES, Function: CVode, Message: At t = 2396.26, too much accuracy requested.[0m
+[35mError: CVODE Error: CV_ILL_INPUT, Module: CVODES, Function: cvInitialSetup, Message: Initial ewt has component(s) equal to zero (illegal).[0m
+[35mError: CVODE Error: CV_CONV_FAILURE, Module: CVODES, Function: CVode, Message: At t = 2346.01 and h = 4.06688e-06, the corrector convergence test failed repeatedly or with |h| = hmin.[0m
+MB                : 100% cycling
+MB+HHi            : 18% cycling
+MB+HHi+EZH2i      : 58% cycling
+MB+CDK4/6i        : 0% cycling
+MB+CDK4/6i+EZH2i  : 0% cycling
+
+Saved: fig_v44_fig5_population.png

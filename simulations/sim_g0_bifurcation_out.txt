@@ -1,0 +1,8 @@
+GNP low-SHH   : arrest   52%  transient-G0   48%  immediate    0%   (mean G0 dwell 7.7 h)
+GNP           : arrest   43%  transient-G0   57%  immediate    0%   (mean G0 dwell 7.6 h)
+GNP high-SHH  : arrest   33%  transient-G0   67%  immediate    0%   (mean G0 dwell 7.4 h)
+GNP + EZH2i   : arrest    0%  transient-G0   58%  immediate   42%   (mean G0 dwell 3.5 h)
+MB            : arrest    1%  transient-G0   94%  immediate    5%   (mean G0 dwell 5.2 h)
+MB + EZH2i    : arrest    0%  transient-G0    9%  immediate   91%   (mean G0 dwell 2.4 h)
+
+Saved: fig_v44_g0_bifurcation.png
