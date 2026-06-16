@@ -1,0 +1,56 @@
+{
+  "score": 909.509286674077,
+  "params": {
+    "kPhRbCd": 0.35,
+    "K_CdRb": 0.31919902754717205,
+    "p18": 0.463957169475628,
+    "k_Cd_tx_basal": 0.4829870784350447,
+    "k_Cd_tx_Gli_max": 59.200417282322775,
+    "k_Cd_tx_MYCN": 21.658405499194288,
+    "K_EZH2_repression": 0.5388606783522287,
+    "Kez_cd": 2.9414744715181,
+    "kEZE2f": 0.02199497643439153,
+    "kEZbas": 0.000267094794143415,
+    "kDeEZ": 0.00015273778964894943,
+    "k_Cd_translation": 0.8012650331409767,
+    "P16_MB": 0.3061684687051479,
+    "P18_MB": 1.552898289061545,
+    "KSYP21_MB": 0.002,
+    "KmHU_fork": 0.2,
+    "wCe": 0.5817361673420381
+  },
+  "detail": {
+    "guards": {
+      "GNP_cycles": true,
+      "GNP-SHH_arrest": true,
+      "GNP+HHi_arrest": true,
+      "MB_cycles": true,
+      "MB+HHi_arrest": true,
+      "rescue": true,
+      "CDK46i_arrest": true,
+      "CDK46i_norescue": true
+    },
+    "nguard": 8,
+    "npass": 11,
+    "targets": {
+      "CyclinD1 MB/GNP": 4.4529,
+      "CyclinD1 MB+HHi/MB": 0.1433,
+      "CyclinD1 GNP+HHi/GNP": 0.1579,
+      "EZH2 MB/GNP": 2.0229,
+      "EZH2i CycD1 fold": 2.1765,
+      "MYCN MB/GNP": 2.711,
+      "MYCN GNP+HHi/GNP": 0.9085,
+      "MYCN MB+HHi/MB": 0.9383,
+      "Gli1 MB/GNP": 7.1528,
+      "EZH2 dose wide (SHH4/0.5)": 1.9193,
+      "EZH2 dose monotonic": 1.0
+    },
+    "edose": [
+      0.654,
+      0.874,
+      1.088,
+      1.255
+    ]
+  },
+  "eval": 1327
+}
