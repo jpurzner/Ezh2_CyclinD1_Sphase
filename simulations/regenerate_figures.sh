@@ -15,25 +15,29 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 PY=./venv/bin/python
 
-# --- SLOW ensemble figures (explicit; not caught by the fig_v44_* glob) ---
+# --- SLOW ensemble / analysis figures (explicit; not caught by the fig_v44_* glob) ---
+# Each entry is "script [args]"; cached scripts get --fresh so they actually recompute
+# against the changed model (without it they would silently reuse a stale .npz cache).
 SLOW=(
-  simulations/sim_g0_bifurcation.py        # fig_v44_g0_bifurcation -- cyclin D1 / birth-p27 bifurcation (immediate vs transient-G0); ~10 min, N=140
+  "simulations/sim_g0_bifurcation.py"            # fig_v44_g0_bifurcation -- cyclin D1 / birth-p27 bifurcation (immediate vs transient-G0); ~10 min, N=140
+  "simulations/sim_ezh2_phaseplane.py --fresh"   # fig_v44_ezh2_phaseplane -- EZH2-CyclinD1 nullcline portrait + bifurcation diagrams; ~35 min (cached)
 )
 
 ok=0; fail=0
 run() {
-  if $PY "$1" > "/tmp/regenfig_$(basename "$1").log" 2>&1; then
-    echo "OK   $(basename "$1")"; ok=$((ok+1))
+  local script="$1"
+  if $PY "$@" > "/tmp/regenfig_$(basename "$script").log" 2>&1; then
+    echo "OK   $(basename "$script")"; ok=$((ok+1))
   else
-    echo "FAIL $(basename "$1")  (see /tmp/regenfig_$(basename "$1").log)"; fail=$((fail+1))
+    echo "FAIL $(basename "$script")  (see /tmp/regenfig_$(basename "$script").log)"; fail=$((fail+1))
   fi
 }
 
 echo "== FAST: per-condition fig_v44_*.py =="
 for f in simulations/fig_v44_*.py; do run "$f"; done
 
-echo "== SLOW: ensemble figures =="
-for f in "${SLOW[@]}"; do run "$f"; done
+echo "== SLOW: ensemble / analysis figures =="
+for entry in "${SLOW[@]}"; do run $entry; done   # unquoted -> split script + args
 
 echo "------------------------------------------------------------"
 echo "regenerated: $ok ok, $fail failed"
