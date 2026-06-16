@@ -8,8 +8,8 @@ population bifurcation -- the transient-G0 fraction and dwell-time distribution 
 SHH (mitogen) and EZH2 inhibition tune it.
 
 Heterogeneity (paired across conditions: same draws, only SHH/EZH2i differ):
-  - CyclinD1 setpoint  : k_Cd_translation = 0.26 * lognormal(CV~0.30)   [the D1 axis]
-  - inherited p27      : P21_div          = lognormal(median 0.85, CV~0.32)  [the p27 axis]
+  - CyclinD1 setpoint  : k_Cd_translation = 0.801 * lognormal       [the D1 axis]
+  - inherited p27      : P21_div          = lognormal(median 0.45, wide)  [the BIRTH-p27 axis]
   ratio_i = mean(Cd_i) / P21_div_i
 
 Class per cell (settled limit cycle, p27 marker):
@@ -33,9 +33,11 @@ DWELL_CUT = 2.0                       # h; transient-G0 vs immediate re-entry
 rng = np.random.default_rng(7)
 
 # mother-set heterogeneity, sampled ONCE (paired across conditions)
-cd_scale = np.clip(np.exp(rng.normal(0.0, 0.68, N)), 0.25, 4.0)      # CyclinD1 setpoint multiplier
-p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.15, N)), 0.5, 2.0)  # inherited p27
-KTL0 = 0.75                                                          # builder default k_Cd_translation
+cd_scale = np.clip(np.exp(rng.normal(0.0, 0.68, N)), 0.25, 4.0)      # CyclinD1 setpoint multiplier (arrest axis)
+# BIRTH p27 (P21_div): wide lognormal straddling the baked ultrasensitive threshold
+# (probe_birthp27_dwell.py: p27<~0.2 -> immediate re-entry; 0.3-0.45 -> short G0 5-6h; >=0.6 -> ~12h plateau).
+p21_div = np.clip(np.exp(rng.normal(np.log(0.45), 0.60, N)), 0.12, 2.5)  # immediate (low) <-> prolonged G0 (high)
+KTL0 = 0.801                                                         # builder default k_Cd_translation (wide-search baked)
 
 _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
 _RR.integrator.setValue("absolute_tolerance", 1e-9)
@@ -43,7 +45,7 @@ _RR.integrator.setValue("relative_tolerance", 1e-6)
 SEL = ["time", "MPF", "P21", "aRc", "Dna", "Cd"]
 
 
-def cell(ktl, p21d, shh, ezh2i, mycn, ptch1, p16=0.0, p18=0.4, ksyp21=0.002):
+def cell(ktl, p21d, shh, ezh2i, mycn, ptch1, p16=0.0, p18=0.464, ksyp21=0.002):
     _RR.reset()
     _RR['SHH'] = shh; _RR['EZH2i'] = ezh2i; _RR['MYCN_amplification'] = mycn
     _RR['Ptch1_copy_number'] = ptch1; _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
@@ -70,8 +72,8 @@ CONDITIONS = {
     'GNP':          dict(shh=0.50, ezh2i=0, mycn=1.0, ptch1=1.0),
     'GNP high-SHH': dict(shh=1.00, ezh2i=0, mycn=1.0, ptch1=1.0),
     'GNP + EZH2i':  dict(shh=0.50, ezh2i=1, mycn=1.0, ptch1=1.0),
-    'MB':           dict(shh=0.50, ezh2i=0, mycn=2.8, ptch1=0.1, p16=0.15, p18=1.5, ksyp21=0.004),
-    'MB + EZH2i':   dict(shh=0.50, ezh2i=1, mycn=2.8, ptch1=0.1, p16=0.15, p18=1.5, ksyp21=0.004),
+    'MB':           dict(shh=0.50, ezh2i=0, mycn=2.8, ptch1=0.1, p16=0.306, p18=1.553, ksyp21=0.002),
+    'MB + EZH2i':   dict(shh=0.50, ezh2i=1, mycn=2.8, ptch1=0.1, p16=0.306, p18=1.553, ksyp21=0.002),
 }
 
 results = {}

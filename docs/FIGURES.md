@@ -2,10 +2,18 @@
 
 All scripts live in `simulations/` and run against the calibrated **v44 single-step default**
 (`src/build_model_v44_heldt.py`). Each writes a `.png` (preview) and a `.pdf` (vector, for the paper)
-into `simulations/`. Regenerate any figure with, e.g.:
+into `simulations/`. Regenerate any single figure with, e.g.:
 
 ```bash
 ./venv/bin/python simulations/fig_v44_fig5_rescue.py
+```
+
+**After any model change, regenerate the whole set with the manifest** (auto-globs every
+`fig_v44_*.py` and explicitly runs the slow ensemble figures that don't match that glob, e.g. the
+cyclin D1 / birth-p27 bifurcation):
+
+```bash
+bash simulations/regenerate_figures.sh
 ```
 
 The unified validation harness `simulations/validate_v44.py` defines the conditions, the division
@@ -41,7 +49,7 @@ Data sources used to parameterize the model: `docs/PARAMETERIZATION.md`.
 | `fig_v44_ckoo_feedback_strength.pdf` | `fig_v44_ckoo_feedback_strength.py` | Is the ~3× CyclinD1 supported by the cKO? Recombination correction of the bulk fold + model feedback‑strength sweep. |
 | `fig_v44_g0_mechanism.pdf` | `fig_v44_g0_mechanism.py` | CyclinD1 sets transient‑G0 duration (p27 marker); EZH2i collapses it; arrest below threshold. |
 | `fig_v44_cycle_anatomy.pdf` | `fig_v44_cycle_anatomy.py` | One‑cycle anatomy: the transient G0 is the p27‑high window (phospho‑Rb saturates early — why we classify G0 by p27). |
-| `fig_v44_g0_bifurcation.pdf` | `sim_g0_bifurcation.py` | Proliferation–quiescence bifurcation from cyclin D1/p27 heterogeneity; SHH and EZH2i tune the split. (~10 min) |
+| `fig_v44_g0_bifurcation.pdf` | `sim_g0_bifurcation.py` | Proliferation–quiescence bifurcation from cyclin D1 / **birth-p27** (`P21_div`) heterogeneity (N=140). Low birth p27 → immediate re-entry, high → prolonged transient G0 (the ultrasensitive Fan–Meyer threshold; mapped by `probe_birthp27_dwell.py`); low CyclinD1 → arrest. SHH and EZH2i tune the split (immediate ↑, arrest ↓, dwell ↓). On the baked model. (~10 min) |
 | `fig_v44_mitogen_sensitivity.pdf` | `fig_v44_mitogen_sensitivity.py` | **mitogen sensitivity in Hh-activity (Gli1) units**, with the correct knobs: (A) **GNP — SHH** is the mitogen (sweep up; vismo only extends the axis below the SHH=0 basal floor); (B) **MB — vismodegib** titrates the tonically-high Hh DOWN toward the MYCN floor (MB CKI tones on). Each: CyclinD1 vs Gli1 ± the EZH2⊣CyclinD1 feedback — the feedback represses/flattens CyclinD1 (lower mitogen sensitivity) and raises the cycling threshold (GNP +fb Gli1~0.008, MB +fb ~0.015; arrest region shaded). NB the basal floor still sits close to threshold (small sub-threshold range). Caches; `--fresh`. (~12 min) |
 | `fig_v44_mitogen_paramspace.pdf` | `fig_v44_mitogen_paramspace.py` | **2‑D mitogen‑sensitivity planes**: proliferation (divisions/168 h) over (A) SHH × EZH2‑feedback strength `K_EZH2_repression` and (B) SHH × p16, with the cycle/arrest boundary drawn and the defaults marked. The Hh threshold to proliferate **rises** with both stronger feedback and more CKI. Cached grids; `--fresh` recomputes. (~20–30 min cold) |
 
