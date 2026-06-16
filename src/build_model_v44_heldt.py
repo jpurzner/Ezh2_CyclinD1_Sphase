@@ -161,12 +161,14 @@ EZH2_CORE_BLOCK = """
   species EZH2m in Cell, EZH2 in Cell;
   EZH2m = 0.1; EZH2 = 0.5;
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
-  kEZbas = 0.0003; kEZE2f = 0.010; K_E2f_EZ = 0.3;
-  K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.5;        // CycE(S-onset)/CycA(S-G2) gate weights
+  kEZbas = 0.0003; kEZE2f = 0.026; K_E2f_EZ = 0.3; Kez_cd = 2.0;   // kEZE2f raised (was 0.010) to hold the GNP EZH2
+  K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.5;        // CycE(S-onset)/CycA(S-G2) gate weights  // level after adding the Cd term
   kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.00005;   // stable EZH2 -> integrates S-duration
-  // kDeEZ=0.0002 calibrated (v44_calibrate_ezh2.py, post-G2-redesign): HU->EZH2-in-S boost 1.24x
-  // (experimental 1.22-1.31); transcript gradient S/G0=2.0, G2/G0=2.1 (Section D 1.8-2.5).
-  EZH2_tx: => EZH2m; Cell*(kEZbas + kEZE2f*E2f/(K_E2f_EZ + E2f)*(wCe*Ce/(K_Ce_EZ + Ce) + (1 - wCe)*Ca/(K_Ca_EZ + Ca)));
+  // EZH2 is a Rb-E2f target driven by CyclinD1-CDK4/6: synthesis is cycle-gated (E2f x CycE/CycA, peaks S/G2)
+  // AND MITOGEN-DOSE dependent (the *Cd/(Kez_cd+Cd) factor). The Cd term reproduces the dose-dependent EZH2
+  // increase over a WIDE rShh range (Fig 4H) and the MB/GNP=2.05x (Fig 4J), while SATURATING (Kez_cd=2) so the
+  // ~7x CyclinD1 fold compresses to ~2x EZH2. Without it EZH2 only tracks the binary commitment (MB/GNP~1.1).
+  EZH2_tx: => EZH2m; Cell*(kEZbas + kEZE2f*E2f/(K_E2f_EZ + E2f)*(wCe*Ce/(K_Ce_EZ + Ce) + (1 - wCe)*Ca/(K_Ca_EZ + Ca))*Cd/(Kez_cd + Cd));
   EZH2m_deg: EZH2m => ; Cell*kDeEZm*EZH2m;
   EZH2_tl: EZH2m => EZH2m + EZH2; Cell*kTlEZ*EZH2m;
   EZH2_deg: EZH2 => ; Cell*kDeEZ*EZH2;
@@ -442,7 +444,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             raise RuntimeError("Heldt Skp2 const declaration not found in expected form.")
         m = m.replace(", Skp2,", ",", 1)            # remove Skp2 from the const list
         m = m.replace("\n  Skp2 = 1;", "\n  Skp2 = 0.05;")   # low initial (G0 level)
-        # raise CyclinD->Rb so the feedforward fires for GNP+SHH (Cd~0.5) but not GNP-SHH (Cd~0.28)
+        # raise CyclinD->Rb so the feedforward fires for GNP+SHH (Cd~0.5) but not GNP-SHH (Cd~0.28).
+        # NB kPhRbCd is GLOBAL (it raises the MB threshold too, which breaks the MB+HHi+EZH2i rescue) -- to widen
+        # the GNP-specific sub-threshold range, raise GNP's baseline CKI brake (p18 default) instead, see below.
         m = m.replace("kPhRbCd = 0.2;", "kPhRbCd = 0.5;")
         blocks += SKP2_BLOCK
 
