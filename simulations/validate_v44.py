@@ -33,9 +33,9 @@ PARAMS = {}        # stable baseline; the de-saturated HH fit (above target) cra
 P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
 MYCN_AMP_MB = 2.8
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
-P16_MB = 0.15            # MB CDK-inhibitor tone, ABUNDANCE-proportional (DESeq2 counts), not fold:
-P18_MB = 1.5             #   p16 (Cdkn2a) MB 417 = only ~0.1x of p18 (Cdkn2c) 4288, despite p16's 139x fold
-KSYP21_MB = 0.004        #   (GNP-silent). p18 is the dominant INK4 (GNP 0.4->MB 1.5 = 3.75x ~ data 3.7x).
+P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
+P18_MB = 1.553           #   dominant INK4 (GNP 0.464 -> MB 1.553 = 3.35x ~ data 3.7x); p16 the MB-specific small one.
+KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment threshold kPhRbCd=0.35 to preserve the rescue.)
                          #   p27 (CIP/KIP) also brakes CDK4/6 via w_p27=1 (model default).
                          #   CIP/KIP = p21/p27 (kSyP21 2x the GNP baseline 0.002).
                          # GNP: p16=0, p18=0.4 (builder default), p21 baseline. Together they raise the

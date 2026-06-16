@@ -84,7 +84,7 @@ HU_BLOCK = """
   // ===== v44: HU -> fork speed (hydroxyurea depletes dNTPs -> slower replication) =====
   HU = 0;                 // hydroxyurea dose (0 = none; 1 ~ 10 uM experiment)
   vmin_fork = 0.1;        // residual fork speed at saturating HU (>0 -> S finite, no arrest)
-  KmHU_fork = 0.35;       // HU IC50 (HU=1~10uM gives ~2.8x S -> EZH2-in-S boost ~1.3)
+  KmHU_fork = 0.2;        // HU IC50 (wide-search baked, was 0.35)
   hHU_fork = 3;           // Hill coefficient
   vfork := vmin_fork + (1 - vmin_fork)*KmHU_fork^hHU_fork/(KmHU_fork^hHU_fork + HU^hHU_fork);
 """
@@ -161,9 +161,9 @@ EZH2_CORE_BLOCK = """
   species EZH2m in Cell, EZH2 in Cell;
   EZH2m = 0.1; EZH2 = 0.5;
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
-  kEZbas = 0.0003; kEZE2f = 0.026; K_E2f_EZ = 0.3; Kez_cd = 2.0;   // kEZE2f raised (was 0.010) to hold the GNP EZH2
-  K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.5;        // CycE(S-onset)/CycA(S-G2) gate weights  // level after adding the Cd term
-  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.00005;   // stable EZH2 -> integrates S-duration
+  kEZbas = 0.00027; kEZE2f = 0.022; K_E2f_EZ = 0.3; Kez_cd = 2.94;   // wide-search baked (EZH2 mitogen-dose term)
+  K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.582;       // CycE(S-onset)/CycA(S-G2) gate weights (wCe baked)
+  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.00015;   // stable EZH2 -> integrates S-duration (kDeEZ baked)
   // EZH2 is a Rb-E2f target driven by CyclinD1-CDK4/6: synthesis is cycle-gated (E2f x CycE/CycA, peaks S/G2)
   // AND MITOGEN-DOSE dependent (the *Cd/(Kez_cd+Cd) factor). The Cd term reproduces the dose-dependent EZH2
   // increase over a WIDE rShh range (Fig 4H) and the MB/GNP=2.05x (Fig 4J), while SATURATING (Kez_cd=2) so the
@@ -236,12 +236,12 @@ HH_MYCN_BLOCK = """
   // (Ptch1_copy_number + (1 - Ptch1_copy_number)*g_smo_Gli1_broken): GNP (copy=1) unchanged.
   // 1.0 = legacy (no re-attribution); 0.873 = calibrated (keeps MB Gli1 6.9x, Cd 7.58x with memory on).
   g_smo_Gli1_broken = 0.873;
-  k_Cd_tx_basal = 0.3086; k_Cd_tx_Gli_max = 46.31; K_Gli_act_CycD = 0.4568; K_Gli_rep_CycD = 0.3;
+  k_Cd_tx_basal = 0.483; k_Cd_tx_Gli_max = 59.2; K_Gli_act_CycD = 0.4568; K_Gli_rep_CycD = 0.3;   // wide-search baked (basal, Gli_max)
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
-  k_Cd_tx_MYCN = 35.22; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;
-  K_EZH2_repression = 0.75;   // (search-tuned to the pRb rescue; also brings EZH2i CyclinD1 fold ~3.5x->~2.7x, closer to Fig3C ~2x)
-  k_Cd_translation = 0.75; k_Cd_deg = 1.0;   // Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
+  k_Cd_tx_MYCN = 21.66; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;   // wide-search baked (was 35.22)
+  K_EZH2_repression = 0.539;   // wide-search baked (was 0.75)
+  k_Cd_translation = 0.801; k_Cd_deg = 1.0;   // wide-search baked (was 0.75). Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
   // MB_GDC0449 dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
   // numerically on the threshold and crashing); 0.8 puts GNP/MB+HHi clearly above it. Consistent with
@@ -420,7 +420,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # INK4 (p16/p18) AND CIP/KIP p27 (P21) competitively inhibit CDK4/6: p27 acts on CDK4/6 too,
         # not only CDK2 (w_p27 weights its CDK4/6 inhibition; 0 = legacy CDK2-only).
         m = m.replace("kPhRbCd*Cd ", "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd) ")   # both Rb reactions
-        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.357;\n  p16 = 0.0;\n  p18 = 0.4;\n  w_p27 = 1.0;")
+        m = m.replace("\n  kDpRb = 0.05;", "\n  kDpRb = 0.05;\n  K_CdRb = 0.319;\n  p16 = 0.0;\n  p18 = 0.464;\n  w_p27 = 1.0;")  # K_CdRb, p18 wide-search baked
 
     if with_growth:
         # size gate on S-entry (origin firing) + mass growth + halving at division
@@ -447,7 +447,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # raise CyclinD->Rb so the feedforward fires for GNP+SHH (Cd~0.5) but not GNP-SHH (Cd~0.28).
         # NB kPhRbCd is GLOBAL (it raises the MB threshold too, which breaks the MB+HHi+EZH2i rescue) -- to widen
         # the GNP-specific sub-threshold range, raise GNP's baseline CKI brake (p18 default) instead, see below.
-        m = m.replace("kPhRbCd = 0.2;", "kPhRbCd = 0.5;")
+        m = m.replace("kPhRbCd = 0.2;", "kPhRbCd = 0.35;")   # wide-search baked: raises GNP commitment threshold (wider sub-threshold range; rescue preserved by co-tuned CKIs)
         blocks += SKP2_BLOCK
 
     if with_two_step_rb:
