@@ -78,7 +78,7 @@ else:
 
 def g(tag, k): return D[f'{tag}_{k}']
 CFB, CNF = '#762A83', '#1B7837'
-fig, axes = plt.subplots(1, 2, figsize=(13.5, 5.0))
+fig, axes = plt.subplots(2, 2, figsize=(13.5, 8.6))
 
 
 def cross(tag):                                  # Gli1 where it starts cycling (div>1)
@@ -87,36 +87,29 @@ def cross(tag):                                  # Gli1 where it starts cycling 
     return (G[0] if a[0] == 0 else 0.5 * (G[a[0] - 1] + G[a[0]])) if len(a) else np.nan
 
 
-def panel(ax, tag_fb, tag_nf, title, drive_note):
-    # CyclinD1 protein vs Gli1 = the mitogen dose-response (primary)
-    ax.plot(g(tag_nf, 'Gli1_mRNA'), g(tag_nf, 'Cd'), '--s', color=CNF, lw=2, ms=4, label='CyclinD1, no feedback')
-    ax.plot(g(tag_fb, 'Gli1_mRNA'), g(tag_fb, 'Cd'), '-o', color=CFB, lw=2.4, ms=4, label='CyclinD1, EZH2 feedback')
-    tFB, tNF = cross(tag_fb), cross(tag_nf)
-    # shade the ARRESTED region (Gli1 below the cycling threshold) for each condition
-    for t, c in [(tNF, CNF), (tFB, CFB)]:
-        if not np.isnan(t):
-            ax.axvline(t, color=c, ls=':', lw=1.4, alpha=0.8)
-    lo = ax.get_xlim()[0]
-    if not np.isnan(tFB):
-        ax.axvspan(lo, tFB, color='#F2EEF6', alpha=0.45)
-    ax.set_xlabel('Hh activity = Gli1 transcript (a.u.)'); ax.set_ylabel('CyclinD1 protein (a.u.)')
-    ax.set_title(title, loc='left', fontweight='bold', fontsize=11)
+def panel(ax, tag_fb, tag_nf, key, ylabel, title, shade=True):
+    ax.plot(g(tag_nf, 'Gli1_mRNA'), g(tag_nf, key), '--s', color=CNF, lw=2, ms=4, label='no feedback')
+    ax.plot(g(tag_fb, 'Gli1_mRNA'), g(tag_fb, key), '-o', color=CFB, lw=2.4, ms=4, label='EZH2 feedback')
+    tFB = cross(tag_fb)
+    if shade and not np.isnan(tFB):
+        ax.axvline(tFB, color=CFB, ls=':', lw=1.3, alpha=0.8)
+        ax.axvspan(ax.get_xlim()[0], tFB, color='#F2EEF6', alpha=0.45)
+    ax.set_xlabel('Hh activity = Gli1 transcript (a.u.)'); ax.set_ylabel(ylabel)
+    ax.set_title(title, loc='left', fontweight='bold', fontsize=10.5)
     ax.legend(fontsize=8, loc='upper left')
-    ax.text(0.97, 0.05, drive_note, transform=ax.transAxes, fontsize=7.0, color='#444', va='bottom', ha='right')
-    ax.text(0.97, 0.93, f'cycling threshold (div>0):\nno-fb Gli1 {tNF:.3f}  |  +fb {tFB:.3f}\n(dotted; arrest = shaded)',
-            transform=ax.transAxes, fontsize=6.6, color='#666', va='top', ha='right')
 
 
-panel(axes[0], 'gfb', 'gnf', 'A  GNP — mitogen = SHH (drives Hh UP $\\to$)',
-      'SHH $\\to$ raises Gli1 (the GNP mitogen);\nvismo only extends the axis below the\nSHH=0 basal floor')
-panel(axes[1], 'mfb', 'mnf', 'B  MB — knob = vismodegib ($\\leftarrow$ Hh tonically high)',
-      'MB Hh tonically HIGH (right edge);\nvismo (GDC0449) titrates it DOWN\ntoward the MYCN floor')
+panel(axes[0, 0], 'gfb', 'gnf', 'Cd', 'CyclinD1 protein (a.u.)', 'A  GNP CyclinD1 (mitogen = SHH $\\to$)')
+panel(axes[0, 1], 'mfb', 'mnf', 'Cd', 'CyclinD1 protein (a.u.)', 'B  MB CyclinD1 (vismodegib $\\leftarrow$)')
+panel(axes[1, 0], 'gfb', 'gnf', 'EZH2', 'EZH2 (a.u.)', 'C  GNP EZH2 dose-response (Fig 4H)')
+panel(axes[1, 1], 'mfb', 'mnf', 'EZH2', 'EZH2 (a.u.)', 'D  MB EZH2 vs Hh activity')
+axes[1, 0].text(0.97, 0.05, 'EZH2 now tracks the mitogen\nDOSE (saturating) -> rises across\nthe wide rShh range, not just at\nthe commitment threshold',
+                transform=axes[1, 0].transAxes, fontsize=6.8, color='#B26500', va='bottom', ha='right')
+axes[0, 0].text(0.97, 0.05, 'feedback represses & flattens\nCyclinD1 (lower mitogen sensitivity);\narrest region shaded',
+                transform=axes[0, 0].transAxes, fontsize=6.8, color='#444', va='bottom', ha='right')
 
-fig.suptitle('v44 mitogen sensitivity in Hh activity (Gli1): GNP driven UP by SHH (ligand), MB tuned DOWN by vismodegib -- with vs without the EZH2$\\dashv$CyclinD1 feedback (arrest region shaded)',
-             fontsize=9.6, y=1.0)
-
-fig.suptitle('v44 mitogen sensitivity in Hh activity (Gli1): GNP driven by SHH (ligand), MB tuned by vismodegib (suppresses tonic Hh) -- both with vs without the EZH2$\\dashv$CyclinD1 feedback',
-             fontsize=9.8, y=1.0)
+fig.suptitle('v44 mitogen sensitivity in Hh activity (Gli1): CyclinD1 (top) and the EZH2 dose-response (bottom), GNP via SHH / MB via vismodegib, +/- the EZH2$\\dashv$CyclinD1 feedback',
+             fontsize=10, y=1.0)
 fig.tight_layout()
 fig.savefig('simulations/fig_v44_mitogen_sensitivity.png', dpi=160, bbox_inches='tight')
 fig.savefig('simulations/fig_v44_mitogen_sensitivity.pdf', bbox_inches='tight')
