@@ -1,7 +1,29 @@
 # v44 EZH2 recalibration + wide parameter search — results
 
-_June 2026. Session summary written before context ran out. Current committed model = the EZH2
-mitogen-dose recalibration (commit `41485f7`); the search's best params are a CANDIDATE, not yet baked._
+_June 2026. Session summary._
+
+**>> STATUS UPDATE: the wide-search best params are now BAKED into the model (commit `9802d8a`).** JP
+chose dynamic range over G2 length. The committed model now has kPhRbCd=0.35 (raised threshold, wider
+GNP sub-threshold range, rescue preserved), all 14 baked builder params, and MB CKIs 0.306/1.553/0.002.
+Re-validated **22/27, rescue intact, MB+HHi/MB now 0.14** (was 0.20). Figures being regenerated.
+
+**REMAINING NEXT STEPS (JP agreed to all):**
+1. ✅ DONE — best params baked.
+2. **Expand the search objective** to add classify-based targets the current search omits — **EZH2
+   transcript S/G0** (now 5.7, the worst miss; baked kDeEZ=0.00015 worsened it), **MB HU S/G2 folds**,
+   **MYCN GNP+HHi** — plus search params **K_Ce_EZ, K_Ca_EZ** (the cyclE/cyclA gate, for the S/G0
+   gradient) and **vmin_fork** (HU). Seed from the baked best (now `P` defaults in v44_wide_search.py
+   should be updated to the baked values). Fix the seed-2 parallel launch (run seeds sequentially, or the
+   `&`/cwd issue made seed 2 die). NOT a target: MB G2+M duration (accepted G2 sacrifice).
+3. EZH2 S/G0 gradient too steep — tune wCe/K_Ce_EZ/K_Ca_EZ + kDeEZ (kDeEZ was raised in the bake, which
+   worsened it — there's a tension with the dose-response; the search should balance them).
+4. HU fork-coupling (KmHU_fork now 0.2 / vmin_fork) re-tune for the short S-phase.
+
+_The classify-based S/G0 and HU-fold targets require `classify()` per eval (a couple more conditions +
+phase classification), making each eval ~7-8 min — still fine for an overnight run._
+
+---
+
 
 ---
 
