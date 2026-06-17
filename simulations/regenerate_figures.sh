@@ -22,6 +22,7 @@ SLOW=(
   "simulations/sim_g0_bifurcation.py"            # fig_v44_g0_bifurcation -- cyclin D1 / birth-p27 bifurcation (immediate vs transient-G0); ~10 min, N=140
   "simulations/sim_ezh2_phaseplane.py --fresh"   # fig_v44_ezh2_phaseplane -- EZH2-CyclinD1 nullcline portrait + bifurcation diagrams; ~35 min (cached)
   "simulations/sim_mitogen_withdrawal.py --fresh" # fig_v44_mitogen_withdrawal -- sudden/gradual mitogen withdrawal x depth x +/-feedback, post-withdrawal divisions; ~2.5 h (cached)
+  "simulations/sim_vismo_withdrawal.py --fresh"   # fig_v44_vismo_withdrawal -- MB+vismodegib (partial-withdrawal analog) x dose x +/-feedback; EZH2i rescue dose/heterogeneity-resolved; ~2.5 h (cached)
 )
 
 ok=0; fail=0
