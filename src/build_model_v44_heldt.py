@@ -478,7 +478,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # S-phase fork signal aRc) is off by default (needs recalibration of K_EZH2_repression if used).
         h3k27 = (
             "\n  species H3K27_Cd in Cell; H3K27_Cd = 0.5;"
-            "\n  k_meth_cd = 0.0015; k_demeth_cd = 0.0015; k_dil_cd = 0.0;   // de-repression half-life ln2/k_demeth_cd ~ 7.7 h"
+            "\n  k_meth_cd = 0.0010; k_demeth_cd = 0.0010; k_dil_cd = 0.010;   // CALIBRATED (JP): CyclinD1 de-represses"
+            "\n  // clearly by ~24h, ~max by ~48h after EZH2i; BOTH active demethylation (k_demeth, breaks the"
+            "\n  // arrested-cell deadlock) + replication-dilution (k_dil*aRc, accelerates once cycling resumes)."
             "\n  H3K27_methylation:   => H3K27_Cd; Cell*k_meth_cd*EZH2*(1 - EZH2i);"
             "\n  H3K27_demethylation: H3K27_Cd => ; Cell*k_demeth_cd*H3K27_Cd;"
             "\n  H3K27_dilution:      H3K27_Cd => ; Cell*k_dil_cd*aRc*H3K27_Cd;"
