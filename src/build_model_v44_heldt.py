@@ -357,7 +357,8 @@ def _apply_overrides(model, overrides):
 
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
-                    with_skp2=True, with_two_step_rb=False, with_cd_sat=True, params=None):
+                    with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
+                    with_h3k27_memory=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -464,6 +465,28 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         blocks = blocks.replace("KG2 = 0.85;", "KG2 = 0.9;")
 
     m = m.replace("\nend", blocks + "\nend")
+
+    if with_h3k27_memory and with_ezh2:
+        # Explicit H3K27me3 mark at the CyclinD1 locus (epigenetic MEMORY). EZH2 deposits the mark
+        # (deposition blocked by EZH2i), it is removed by demethylation (+ optional replication-dilution
+        # via aRc). The MARK (H3K27_Cd), not EZH2 directly, represses CyclinD1 -> after EZH2i the
+        # de-repression has a real timescale (~ln2/k_demeth_cd) instead of being instantaneous.
+        # CALIBRATION: k_meth_cd = k_demeth_cd makes the mark TRACK EZH2 at steady state
+        # (H3K27_Cd_ss = EZH2*(1-EZH2i), dilution off), so every settled-state validation target is
+        # UNCHANGED -- only the transient de-repression kinetics differ. The mark is INHERITED through
+        # division (not in the E_div reset) = the memory; replication-dilution (k_dil_cd>0, gated on the
+        # S-phase fork signal aRc) is off by default (needs recalibration of K_EZH2_repression if used).
+        h3k27 = (
+            "\n  species H3K27_Cd in Cell; H3K27_Cd = 0.5;"
+            "\n  k_meth_cd = 0.0015; k_demeth_cd = 0.0015; k_dil_cd = 0.0;   // de-repression half-life ln2/k_demeth_cd ~ 7.7 h"
+            "\n  H3K27_methylation:   => H3K27_Cd; Cell*k_meth_cd*EZH2*(1 - EZH2i);"
+            "\n  H3K27_demethylation: H3K27_Cd => ; Cell*k_demeth_cd*H3K27_Cd;"
+            "\n  H3K27_dilution:      H3K27_Cd => ; Cell*k_dil_cd*aRc*H3K27_Cd;"
+        )
+        m = m.replace("\nend", h3k27 + "\nend")
+        # repress CyclinD1 via the mark instead of EZH2 directly (HH transcription path)
+        m = m.replace("K_EZH2_repression + EZH2*(1 - EZH2i)", "K_EZH2_repression + H3K27_Cd")
+
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
     if params:
