@@ -503,15 +503,18 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # use together with with_h3k27_memory.
         mk = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  k_w_mk = 0.0025; k0_mk = 0.0005; del_mk = 0.00188;   // read-write, de-novo floor, demeth/turnover (search-calibrated)"
-            "\n  K_mk = 0.323; n_mk = 4.95;   // Ccnd1 repression Hill -- search-calibrated: GNP/MB cycle, fold 4.1, ezf 2.1, periods 22h"
+            "\n  k_w_mk = 0.00261; k0_mk = 0.000258; del_mk = 0.00117;   // read-write, de-novo floor, demeth/turnover (leaky-search calibrated)"
+            "\n  K_mk = 0.305; n_mk = 4.15; f0_mk = 0.233;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
+            "\n  // transcription at full mark -- H3K27me3 impedes elongation but Pol II stays, so it DAMPENS,"
+            "\n  // does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
             "\n  Mk_methylation: => Mk; Cell*(k_w_mk*EZH2*(1 - EZH2i)*Mk + k0_mk*(1 - EZH2i))*(1 - Mk);"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
             "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
         )
         m = m.replace("\nend", mk + "\nend")
+        # leaky repression: R = f0 + (1-f0)/(1+(Mk/K)^n) -> R=1 at Mk=0, saturates at residual f0 (no lockout)
         m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
-                      "(1/(1 + (Mk/K_mk)^n_mk))")
+                      "(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk))")
 
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")

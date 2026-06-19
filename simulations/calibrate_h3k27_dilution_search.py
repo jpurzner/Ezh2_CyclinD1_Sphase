@@ -19,10 +19,11 @@ rng = np.random.default_rng(1000 + SEED)
 _RR = te.loada(build_model_v44(with_hh=True, with_h3k27_dilution=True))
 _RR.integrator.setValue("absolute_tolerance", 1e-9)
 _RR.integrator.setValue("relative_tolerance", 1e-6)
-PMK = ['k_w_mk', 'k0_mk', 'del_mk', 'K_mk', 'n_mk']
-LO = np.array([0.0012, 0.0001, 0.0010, 0.22, 3.0])
-HI = np.array([0.0035, 0.0005, 0.0025, 0.34, 6.5])
-SEED_P = np.array([0.0023, 0.0002, 0.0015, 0.27, 4.0])
+PMK = ['k_w_mk', 'k0_mk', 'del_mk', 'K_mk', 'n_mk', 'f0_mk']
+LO = np.array([0.0012, 0.0001, 0.0010, 0.22, 2.0, 0.08])
+HI = np.array([0.0035, 0.0005, 0.0025, 0.40, 6.5, 0.25])
+SEED_P = np.array([0.0025, 0.0005, 0.00188, 0.323, 4.0, 0.15])
+NP = len(PMK)
 
 COND = {
     'GNP':          dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, GDC0449=0, EZH2i=0),
@@ -80,8 +81,8 @@ def evaluate(p):
 
 def sample(best_p):
     if rng.random() < 0.2:
-        return LO + rng.random(5) * (HI - LO)
-    step = (HI - LO) * 0.08 * rng.standard_normal(5)
+        return LO + rng.random(NP) * (HI - LO)
+    step = (HI - LO) * 0.08 * rng.standard_normal(NP)
     return np.clip(best_p + step, LO, HI)
 
 
