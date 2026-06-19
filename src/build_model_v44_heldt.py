@@ -502,9 +502,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # calibration; this module is for the locus dynamics + T_cc phenotype). Default OFF; not for
         # use together with with_h3k27_memory.
         mk = (
-            "\n  species Mk in Cell; Mk = 0.45;   // H3K27me3 occupancy at Ccnd1 domain [0,1]"
-            "\n  k_w_mk = 0.0023; k0_mk = 0.0002; del_mk = 0.0015;   // read-write, de-novo floor, demeth/turnover"
-            "\n  K_mk = 0.25; n_mk = 6;   // Ccnd1 repression Hill (K ~ 0.55*M_ss; sharp)"
+            "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
+            "\n  k_w_mk = 0.0025; k0_mk = 0.0005; del_mk = 0.00188;   // read-write, de-novo floor, demeth/turnover (search-calibrated)"
+            "\n  K_mk = 0.323; n_mk = 4.95;   // Ccnd1 repression Hill -- search-calibrated: GNP/MB cycle, fold 4.1, ezf 2.1, periods 22h"
             "\n  Mk_methylation: => Mk; Cell*(k_w_mk*EZH2*(1 - EZH2i)*Mk + k0_mk*(1 - EZH2i))*(1 - Mk);"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
             "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
