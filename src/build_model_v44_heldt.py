@@ -358,7 +358,7 @@ def _apply_overrides(model, overrides):
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
-                    with_h3k27_memory=False, params=None):
+                    with_h3k27_memory=False, with_h3k27_dilution=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -488,6 +488,30 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         m = m.replace("\nend", h3k27 + "\nend")
         # repress CyclinD1 via the mark instead of EZH2 directly (HH transcription path)
         m = m.replace("K_EZH2_repression + EZH2*(1 - EZH2i)", "K_EZH2_repression + H3K27_Cd")
+
+    if with_h3k27_dilution and with_ezh2:
+        # Replicative-dilution H3K27me3 module at the Ccnd1 locus (Purzner design spec). Mk = H3K27me3
+        # occupancy over the ~7 kb domain in [0,1]. Continuous: AUTOCATALYTIC read-write methylation
+        # (k_w*EZH2*Mk -- EED reads me3) + de-novo nucleation floor (k0, so a halved locus can reseed),
+        # both on unmethylated substrate (1-Mk) and both blocked by EZH2i (PRC2 inhibition); minus
+        # demethylation/turnover (del*Mk) -> sub-saturating bivalent M_ss emerges. Discrete: the mark is
+        # HALVED once per cycle at EARLY S (Dna>0.05 event) = replicative dilution -- the emergent cycle
+        # period sets the dilution frequency (the loop the spec closes). Mk represses Ccnd1 via a SHARP
+        # Hill (n~6, K~0.55*M_ss) -> ~one-division margin + digital switching. NOTE: reformulates the
+        # repression term, so the MB/GNP CyclinD1 fold must be re-derived via EZH2->M_ss (separate
+        # calibration; this module is for the locus dynamics + T_cc phenotype). Default OFF; not for
+        # use together with with_h3k27_memory.
+        mk = (
+            "\n  species Mk in Cell; Mk = 0.45;   // H3K27me3 occupancy at Ccnd1 domain [0,1]"
+            "\n  k_w_mk = 0.0023; k0_mk = 0.0002; del_mk = 0.0015;   // read-write, de-novo floor, demeth/turnover"
+            "\n  K_mk = 0.25; n_mk = 6;   // Ccnd1 repression Hill (K ~ 0.55*M_ss; sharp)"
+            "\n  Mk_methylation: => Mk; Cell*(k_w_mk*EZH2*(1 - EZH2i)*Mk + k0_mk*(1 - EZH2i))*(1 - Mk);"
+            "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
+            "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
+        )
+        m = m.replace("\nend", mk + "\nend")
+        m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
+                      "(1/(1 + (Mk/K_mk)^n_mk))")
 
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")

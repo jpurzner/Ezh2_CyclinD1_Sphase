@@ -96,3 +96,7 @@ simulations/*.png
 !simulations/fig_ezh2_feedback_periods.png
 !simulations/fig_ezh2_compensation.png
 !simulations/fig_ezh2_data_constrained.png
+
+# H3K27me3 dilution calibration search outputs (regenerable)
+simulations/h3k27_dilution_search_*.jsonl
+simulations/h3k27_dilution_search_*_best.json
