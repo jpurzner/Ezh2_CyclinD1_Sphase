@@ -46,7 +46,10 @@ SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
        "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass"]
 
 # Build once; reset + set runtime inputs per condition (fast).
-_MODEL = build_model_v44(with_ezh2=True, with_hh=True, params=PARAMS or None)
+# H3K27_DILUTION=1 env var swaps in the replicative-dilution (leaky H3K27me3) repression module.
+_MODEL = build_model_v44(with_ezh2=True, with_hh=True,
+                         with_h3k27_dilution=(os.environ.get('H3K27_DILUTION') == '1'),
+                         params=PARAMS or None)
 
 
 def _new_rr():
