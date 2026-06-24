@@ -43,7 +43,7 @@ inhibition, so Smo becomes active and converts the Gli transcription factor from
 (`Gli_rep`) to its **activator** form (`Gli_act`).
 
 Smo activation rate:
-$$ v_{\text{Smo}} = \frac{k_{\text{Smo}}}{1 + \dfrac{P_{\text{free}}\,c_{\text{Ptch1}}}{K_{\text{Ptch,Smo}}}}\;(1 - \text{GDC}) $$
+$$ v_{\text{Smo}} = \frac{k_{\text{Smo}}}{1 + \dfrac{P_{\text{free}}\,c_{\text{Ptch1}}}{K_{\text{Ptch,Smo}}}}\;(1 - \text{HHi}) $$
 
 - The denominator is the **Ptch1 brake**: free Ptch1 (`P_free`) suppresses Smo. `c_Ptch1` is the
   *functional Ptch1 copy number* — in GNPs it is 1; in SHH-MB, Ptch1 is mutated/lost, so `c_Ptch1` ≈ 0.1,
