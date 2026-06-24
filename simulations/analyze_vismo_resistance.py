@@ -27,10 +27,15 @@ def comps(ga, g1, grep, mycn):
 
 
 def run_at(hhi, times):
-    """return Gli_act/Gli1/Gli_rep/MYCN/Cd sampled at given times (h), plus a late-steady mean."""
+    """sample Gli_act/Gli1/Gli_rep/MYCN/Cd at given times (h). IMPORTANT: for vismo (hhi>0) we first
+    equilibrate at baseline so the slow Gli1_epi memory CHARGES, THEN apply vismo -- otherwise the Gli1
+    residual is missed (it only charges from baseline Smo). Times are relative to vismo application."""
     rr.reset()
     for k, v in MB.items():
         rr[k] = v
+    rr['HHi'] = 0
+    if hhi > 0:
+        rr.simulate(0, 8000, 16000)            # charge Gli1_epi at baseline, THEN apply vismo
     rr['HHi'] = hhi
     r = rr.simulate(0, 11000, 44000, selections=['time', 'Cd', 'Gli_act', 'Gli1', 'Gli_rep', 'MYCN'])
     th = r['time'] / 60.0
@@ -60,5 +65,8 @@ show('MB+vismo  @12h', vis[12])
 show('MB+vismo  @24h', vis[24])
 show('MB+vismo  @48h', vis[48])
 show('MB+vismo  steady', vis['ss'])
-print("\n(In the model, vismo drives Gli1 -> ~0 within ~a day; the residual CyclinD1 floor is held up by")
-print(" the MYCN amplification floor + basal transcription, NOT by residual Gli1.)")
+print("\nFINDING: the Gli1 residual IS present (~3.5% of baseline at 24h, via the Gli1_epi memory), but it")
+print("contributes only ~0.1% to the resistant CyclinD1 floor -- the floor is ~78% MYCN + ~22% basal.")
+print("Reason: the Gli->CyclinD1 term is a steep Hill (K_Gli_act_CycD ~0.46, n=2) and the residual Gli")
+print("(~0.007) sits far below K, so a real 3.5% transcript residual drives ~no CyclinD1. To make the")
+print("residual OFFLOAD MYCN, the lever is the Gli->CyclinD1 COUPLING (lower K / lower n), not the residual.")
