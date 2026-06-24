@@ -48,7 +48,7 @@ $$ v_{\text{Smo}} = \frac{k_{\text{Smo}}}{1 + \dfrac{P_{\text{free}}\,c_{\text{P
 - The denominator is the **Ptch1 brake**: free Ptch1 (`P_free`) suppresses Smo. `c_Ptch1` is the
   *functional Ptch1 copy number* — in GNPs it is 1; in SHH-MB, Ptch1 is mutated/lost, so `c_Ptch1` ≈ 0.1,
   which releases the brake and gives the **tonically high** Hedgehog activity that defines the tumour.
-- `(1 − GDC)` is **vismodegib (GDC-0449)**, a Smo antagonist: GDC = 1 fully blocks Smo. (Biologically it
+- `(1 − GDC)` is **vismodegib (GDC-0449)**, a Smo antagonist: HHi = 1 fully blocks Smo. (Biologically it
   never blocks 100%, which matters numerically — see §5.)
 
 Gli switching (repressor ↔ activator), driven by Smo with a sharp (Hill-2) switch:
