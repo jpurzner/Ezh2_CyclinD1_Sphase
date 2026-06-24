@@ -43,9 +43,9 @@ def _seg(rr, t0, t1, n):
     return None
 
 
-def _set(rr, c, gdc):
+def _set(rr, c, hhi):
     rr['SHH'] = 0.5; rr['Ptch1_copy_number'] = c['f']; rr['MYCN_amplification'] = c['mycn']
-    rr['p16'] = c['p16']; rr['p18'] = c['p18']; rr['kSyP21'] = c['ksy']; rr['EZH2i'] = 0; rr['GDC0449'] = gdc
+    rr['p16'] = c['p16']; rr['p18'] = c['p18']; rr['kSyP21'] = c['ksy']; rr['EZH2i'] = 0; rr['HHi'] = hhi
 
 
 def baseline(P, c, T=9000):
@@ -67,7 +67,7 @@ def withdrawal(P, c, T1=8000, TEND=46000):
     rr = _mk(P); rr.reset(); _set(rr, c, 0.0)
     s1 = _seg(rr, 0, T1, T1 * 3)
     if s1 is None: return None
-    rr['GDC0449'] = 1.0
+    rr['HHi'] = 1.0
     s2 = _seg(rr, T1, TEND, (TEND - T1) * 3)
     if s2 is None: return None
     t = np.concatenate([s1['time'], s2['time']]); mpf = np.concatenate([s1['MPF'], s2['MPF']])

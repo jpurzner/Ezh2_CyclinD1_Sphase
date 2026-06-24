@@ -53,9 +53,9 @@ def run(ezi_time):
     rr['SHH'] = 0.5; rr['MYCN_amplification'] = 2.8; rr['Ptch1_copy_number'] = 0.1
     rr['p16'] = 0.306; rr['p18'] = 1.553; rr['kSyP21'] = 0.002
     rr['k_Cd_translation'] = 0.801 * 1.5; rr['P21_div'] = 0.5
-    rr['EZH2i'] = 0; rr['GDC0449'] = 0
+    rr['EZH2i'] = 0; rr['HHi'] = 0
     rr.simulate(0, 6500, 13000)            # equilibrate cycling MB
-    rr['GDC0449'] = GDC_VISMO              # apply vismo at t=0
+    rr['HHi'] = GDC_VISMO              # apply vismo at t=0
     segs, off = [], 0.0
     if ezi_time == 0:
         rr['EZH2i'] = 1

@@ -29,9 +29,9 @@ def build(K_Me, w_Me):
     return m
 
 
-def simulate(m, basal, shh=0.5, gdc=0.0, hu=0.0, e2f=3.5):
+def simulate(m, basal, shh=0.5, hhi=0.0, hu=0.0, e2f=3.5):
     rr = te.loada(m)
-    rr['SHH'] = shh; rr['GDC0449'] = gdc; rr['HU'] = hu
+    rr['SHH'] = shh; rr['HHi'] = hhi; rr['HU'] = hu
     rr['k_EZH2_mRNA_synth_basal'] = basal
     rr['k_EZH2_mRNA_synth_E2F'] = e2f
     if shh == 0.0:
@@ -56,8 +56,8 @@ def ndiv(r, t_start=40):
 def row(K_Me, w_Me, basal, e2f=3.5):
     m = build(K_Me, w_Me)
     cyc = simulate(m, basal, e2f=e2f); g0 = simulate(m, basal, shh=0.0, e2f=e2f)
-    gdc = simulate(m, basal, gdc=1.0, e2f=e2f); hu1 = simulate(m, basal, hu=1.0, e2f=e2f)
-    ez_cyc = mean_last(cyc,'EZH2'); ez_g0 = mean_last(g0,'EZH2'); ez_gdc = mean_last(gdc,'EZH2')
+    hhi = simulate(m, basal, hhi=1.0, e2f=e2f); hu1 = simulate(m, basal, hu=1.0, e2f=e2f)
+    ez_cyc = mean_last(cyc,'EZH2'); ez_g0 = mean_last(g0,'EZH2'); ez_gdc = mean_last(hhi,'EZH2')
     by, thr = mean_ezh2_by_phase(cyc)
     rG1, rS, rG2 = by['G1']/ez_g0, by['S']/ez_g0, by['G2M']/ez_g0
     gdc_red = 100*(1-ez_gdc/ez_cyc)

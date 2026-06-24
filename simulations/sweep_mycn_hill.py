@@ -22,13 +22,13 @@ import json
 base_model = build_model_v42()
 
 
-def run_condition(model_str, shh, cn, gdc, ezh2i, mycn_amp, t_end=600, n_pts=6000):
+def run_condition(model_str, shh, cn, hhi, ezh2i, mycn_amp, t_end=600, n_pts=6000):
     """Run a single condition and extract metrics."""
     try:
         rr = te.loada(model_str)
         rr['SHH'] = shh
         rr['Ptch1_copy_number'] = cn
-        rr['GDC0449'] = gdc
+        rr['HHi'] = hhi
         rr['EZH2i'] = ezh2i
         rr['MYCN_amplification'] = mycn_amp
         if cn == 0.0:
@@ -104,8 +104,8 @@ def test_params(n_MYCN_Cd, k_Cd_tx_MYCN, K_MYCN_Cd, k_Cd_tx_Gli_max,
     ]
 
     results = {}
-    for name, shh, cn, gdc, ezh2i, mycn_amp in conditions:
-        r = run_condition(model_str, shh, cn, gdc, ezh2i, mycn_amp)
+    for name, shh, cn, hhi, ezh2i, mycn_amp in conditions:
+        r = run_condition(model_str, shh, cn, hhi, ezh2i, mycn_amp)
         if r is None:
             return None
         results[name] = r

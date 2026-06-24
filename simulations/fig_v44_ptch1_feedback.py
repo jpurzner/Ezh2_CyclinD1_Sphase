@@ -23,7 +23,7 @@ def step(func_frac, mycn, t_pre=1500, t_post=300):
     """Settle at SHH=0 (quiescent), then step SHH on; return the post-step trace."""
     _RR.reset()
     _RR['SHH'] = 0.0; _RR['Ptch1_copy_number'] = func_frac
-    _RR['MYCN_amplification'] = mycn; _RR['GDC0449'] = 0
+    _RR['MYCN_amplification'] = mycn; _RR['HHi'] = 0
     _RR.simulate(0, t_pre, 1500)
     _RR['SHH'] = 0.5
     return _RR.simulate(0, t_post, 6000, selections=SEL)

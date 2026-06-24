@@ -28,7 +28,7 @@ T_END, N_PTS = 10080, 20160          # 168 h
 DOSES = np.round(np.linspace(0, 1, 21), 3)
 
 
-def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=False,
+def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=False,
         p16=0.0, p18=None, ksyp21=None, t_end=T_END, n_pts=N_PTS):
     """Robust single-condition run (retry on the flaky CVODE init error with looser tol)."""
     for te_end, te_pts in ((t_end, n_pts), (8000, 32000), (6000, 24000)):
@@ -38,7 +38,7 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=False,
             rr.integrator.setValue("relative_tolerance", 1e-6)
             try: rr.integrator.setValue("maximum_num_steps", 300000)
             except Exception: pass
-            rr['SHH'] = shh; rr['Ptch1_copy_number'] = ptch1_cn; rr['GDC0449'] = gdc
+            rr['SHH'] = shh; rr['Ptch1_copy_number'] = ptch1_cn; rr['HHi'] = hhi
             rr['EZH2i'] = ezh2i; rr['MYCN_amplification'] = mycn_amp
             rr['p16'] = p16                                  # INK4 (Cdkn2a) competitive CDK4/6 brake
             if p18 is not None: rr['p18'] = p18              # INK4 (Cdkn2c), GNP default 0.4
@@ -53,10 +53,10 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=False,
 
 _MB = dict(p16=0.15, p18=1.5, ksyp21=0.004)              # MB CDK-inhibitor brake (INK4 + CIP/KIP)
 CONTEXTS = {
-    'GNP':          dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, mycn_amp=1.0),
-    'MB':           dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8, **_MB),
-    'MB + HHi':     dict(shh=0.5, ptch1_cn=0.1, gdc=1.0, mycn_amp=2.8, **_MB),
-    'MB + CDK4/6i': dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, mycn_amp=2.8, cdk46i=True, **_MB),
+    'GNP':          dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, mycn_amp=1.0),
+    'MB':           dict(shh=0.5, ptch1_cn=0.1, hhi=0.0, mycn_amp=2.8, **_MB),
+    'MB + HHi':     dict(shh=0.5, ptch1_cn=0.1, hhi=1.0, mycn_amp=2.8, **_MB),
+    'MB + CDK4/6i': dict(shh=0.5, ptch1_cn=0.1, hhi=0.0, mycn_amp=2.8, cdk46i=True, **_MB),
 }
 COL = {'GNP': '#1b9e77', 'MB': '#762A83', 'MB + HHi': '#E08214', 'MB + CDK4/6i': '#C2185B'}
 

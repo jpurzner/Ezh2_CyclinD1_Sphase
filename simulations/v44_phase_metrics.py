@@ -29,9 +29,9 @@ M = build_model_v44(with_ezh2=True, with_hh=True)
 SEL = ["time", "pRb", "E2f", "aRc", "Dna", "MPF", "EZH2", "Ce", "Ca"]
 
 
-def run(hu, mycn_amp=2.8, gdc=0.0, t_end=14000, n_pts=56000):
+def run(hu, mycn_amp=2.8, hhi=0.0, t_end=14000, n_pts=56000):
     rr = te.loada(M)
-    rr['HU'] = hu; rr['MYCN_amplification'] = mycn_amp; rr['GDC0449'] = gdc
+    rr['HU'] = hu; rr['MYCN_amplification'] = mycn_amp; rr['HHi'] = hhi
     return rr.simulate(0, t_end, n_pts, selections=SEL)
 
 

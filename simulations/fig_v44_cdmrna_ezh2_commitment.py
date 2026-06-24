@@ -38,7 +38,7 @@ def _runner():
     return rr
 
 
-def simulate(rr, tx=1.0, SHH=0.5, f=0.1, mycn=2.86, ezh2i=0.0, gdc=0.0,
+def simulate(rr, tx=1.0, SHH=0.5, f=0.1, mycn=2.86, ezh2i=0.0, hhi=0.0,
              p16=0.0, p18=0.4, ksyp21=0.002):
     """mean settled Cd_mRNA (transcript) + division count.  tx scales the transcription terms;
     EZH2i=1 turns Ezh2 repression OFF, giving a clean transcript-drive scan."""
@@ -46,7 +46,7 @@ def simulate(rr, tx=1.0, SHH=0.5, f=0.1, mycn=2.86, ezh2i=0.0, gdc=0.0,
         for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
             rr.reset()
             rr['SHH'] = SHH; rr['Ptch1_copy_number'] = f; rr['MYCN_amplification'] = mycn
-            rr['GDC0449'] = gdc; rr['EZH2i'] = ezh2i
+            rr['HHi'] = hhi; rr['EZH2i'] = ezh2i
             rr['p16'] = p16; rr['p18'] = p18; rr['kSyP21'] = ksyp21
             rr['k_Cd_tx_basal'] = tx * TX0['basal']
             rr['k_Cd_tx_Gli_max'] = tx * TX0['gli']
@@ -99,7 +99,7 @@ print("\nMeasuring MB operating transcript + EZH2i de-repression fold (full dyna
 rr_full = _runner()
 mRNA_MB, _     = simulate(rr_full, f=0.1, mycn=2.86, **MB_TONE)                 # repression ON
 mRNA_MB_nr, _  = simulate(rr_full, f=0.1, mycn=2.86, ezh2i=1.0, **MB_TONE)      # repression OFF, same drive
-mRNA_HHi, _    = simulate(rr_full, f=0.1, mycn=2.86, gdc=1.0, **MB_TONE)        # vismodegib
+mRNA_HHi, _    = simulate(rr_full, f=0.1, mycn=2.86, hhi=1.0, **MB_TONE)        # vismodegib
 F = (mRNA_MB_nr / mRNA_MB) if (mRNA_MB and not np.isnan(mRNA_MB_nr) and mRNA_MB > 1e-6) else 2.5
 F = float(np.clip(F, 1.3, 6.0))
 r_phys = 1.0 - 1.0 / F

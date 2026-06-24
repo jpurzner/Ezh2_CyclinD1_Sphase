@@ -32,7 +32,7 @@ def run_sim(context='wt_shh', ezh2_boost=1.0, no_ezh2_fb=False,
         rr['MYCN_amplification'] = MYCN_AMP_MB
         rr['Ptch1_mRNA'] = 0.0; rr['Ptch1_free'] = 0.0
         rr['SHH_Ptch'] = 0.0; rr['Smo_active'] = 1.0
-    rr['GDC0449'] = 0.0; rr['EZH2i'] = 0.0
+    rr['HHi'] = 0.0; rr['EZH2i'] = 0.0
 
     # Boost EZH2 synthesis (simulating MYCN→EZH2 transcription)
     rr['k_EZH2_mRNA_synth_basal'] *= ezh2_boost

@@ -26,7 +26,7 @@ K_EZH2 = 0.5
 
 
 def run_sim(context='wt_shh', ezh2_boost=1.0, no_ezh2_fb=False,
-            gdc=0.0, ezh2i=0.0, t_end=800, n_pts=8000):
+            hhi=0.0, ezh2i=0.0, t_end=800, n_pts=8000):
     rr = te.loada(model_str)
     if context == 'wt_shh':
         rr['SHH'] = 0.5; rr['Ptch1_copy_number'] = 1.0
@@ -36,7 +36,7 @@ def run_sim(context='wt_shh', ezh2_boost=1.0, no_ezh2_fb=False,
         rr['MYCN_amplification'] = MYCN_AMP_MB
         rr['Ptch1_mRNA'] = 0.0; rr['Ptch1_free'] = 0.0
         rr['SHH_Ptch'] = 0.0; rr['Smo_active'] = 1.0
-    rr['GDC0449'] = gdc; rr['EZH2i'] = ezh2i
+    rr['HHi'] = hhi; rr['EZH2i'] = ezh2i
     rr['k_EZH2_mRNA_synth_basal'] *= ezh2_boost
     if no_ezh2_fb:
         rr['K_EZH2_repression'] = 1e6
@@ -169,16 +169,16 @@ print("DRUG RESPONSES: Current vs Data-Matched EZH2")
 print("=" * 90)
 
 # MB + GDC
-mb_gdc_curr = analyze(run_sim('mb', gdc=1.0))
-mb_gdc_data = analyze(run_sim('mb', gdc=1.0, ezh2_boost=optimal_boost))
+mb_gdc_curr = analyze(run_sim('mb', hhi=1.0))
+mb_gdc_data = analyze(run_sim('mb', hhi=1.0, ezh2_boost=optimal_boost))
 
 # MB + EZH2i
 mb_ezh2i_curr = analyze(run_sim('mb', ezh2i=1.0))
 mb_ezh2i_data = analyze(run_sim('mb', ezh2i=1.0, ezh2_boost=optimal_boost))
 
 # MB + combo
-mb_combo_curr = analyze(run_sim('mb', gdc=1.0, ezh2i=1.0))
-mb_combo_data = analyze(run_sim('mb', gdc=1.0, ezh2i=1.0, ezh2_boost=optimal_boost))
+mb_combo_curr = analyze(run_sim('mb', hhi=1.0, ezh2i=1.0))
+mb_combo_data = analyze(run_sim('mb', hhi=1.0, ezh2i=1.0, ezh2_boost=optimal_boost))
 
 print(f"\n  {'Condition':25s} {'CycD1 (curr)':>12s} {'CycD1 (data)':>12s} {'Div (curr)':>10s} {'Div (data)':>10s}")
 print(f"  {'-'*75}")

@@ -21,7 +21,7 @@ for col, (name, c) in enumerate(CONDS.items()):
     rr.reset()
     for k, v in c.items():
         rr[k] = v
-    rr['EZH2i'] = 0; rr['GDC0449'] = 0; rr['Mk'] = 0.2     # start derepressed (cycling)
+    rr['EZH2i'] = 0; rr['HHi'] = 0; rr['Mk'] = 0.2     # start derepressed (cycling)
     try:
         r = rr.simulate(0, 16000, 32000, selections=['time', 'Mk', 'Cd', 'Dna', 'MPF', 'EZH2'])
     except Exception as e:

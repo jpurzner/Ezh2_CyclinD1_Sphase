@@ -59,7 +59,7 @@ def _new_rr():
     return rr
 
 
-def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, ksyp21=None,
+def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, ksyp21=None,
         hu=0.0, cdk46i=False, serum_starve=False, t_end=12000, n_pts=48000):
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
@@ -74,7 +74,7 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
                 pass
             rr['SHH'] = shh
             rr['Ptch1_copy_number'] = ptch1_cn
-            rr['GDC0449'] = gdc
+            rr['HHi'] = hhi
             rr['EZH2i'] = ezh2i
             rr['MYCN_amplification'] = mycn_amp
             rr['p16'] = p16              # INK4 (Cdkn2a): competitive CDK4/6 brake (0 in GNP, elevated in MB)
@@ -161,19 +161,19 @@ def classify(res, pRb_thr, settle=4000):
 # Run all conditions
 # ---------------------------------------------------------------------------
 CONDITIONS = {
-    'GNP + SHH':         dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0),
-    'GNP - SHH':         dict(shh=0.0, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0),
-    'GNP + HHi':         dict(shh=0.5, ptch1_cn=1.0, gdc=1.0, ezh2i=0.0, mycn_amp=1.0),
-    'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=1.0, mycn_amp=1.0),
-    'GNP + HHi + EZH2i': dict(shh=0.5, ptch1_cn=1.0, gdc=1.0, ezh2i=1.0, mycn_amp=1.0),
-    'GNP Serum-starved': dict(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0, serum_starve=True),
-    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
-    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
-    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, gdc=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, hu=1.0),
+    'GNP + SHH':         dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0),
+    'GNP - SHH':         dict(shh=0.0, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0),
+    'GNP + HHi':         dict(shh=0.5, ptch1_cn=1.0, hhi=1.0, ezh2i=0.0, mycn_amp=1.0),
+    'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=1.0, mycn_amp=1.0),
+    'GNP + HHi + EZH2i': dict(shh=0.5, ptch1_cn=1.0, hhi=1.0, ezh2i=1.0, mycn_amp=1.0),
+    'GNP Serum-starved': dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, serum_starve=True),
+    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
+    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
+    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
+    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, hu=1.0),
 }
 
 
@@ -227,7 +227,7 @@ def main():
 
     # Section A — between-condition ratios
     check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.30)
-    check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.30)  # MB_GDC0449: 86% drop
+    check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.30)  # MB_HHi: 86% drop
     check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        5.07, 0.35)  # Fig 4I (now reachable: the mitogen-dose EZH2 feedback represses MB CyclinD1 down from the cascade's raw ~7x)
     check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.15)
     check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.15)

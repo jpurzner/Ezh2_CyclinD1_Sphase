@@ -23,11 +23,11 @@ T_END = 10080      # 168 h in minutes
 N_PTS = 20160
 
 RESCUE = {
-    'Ptch+/- MB':            dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, ezh2i=0.0, mycn_amp=2.8, **_MB),
-    'MB + HHi':              dict(shh=0.5, ptch1_cn=0.1, gdc=1.0, ezh2i=0.0, mycn_amp=2.8, **_MB),
-    'MB + HHi + EZH2i':      dict(shh=0.5, ptch1_cn=0.1, gdc=1.0, ezh2i=1.0, mycn_amp=2.8, **_MB),
-    'MB + CDK4/6i':          dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, ezh2i=0.0, mycn_amp=2.8, cdk46i=True, **_MB),
-    'MB + CDK4/6i + EZH2i':  dict(shh=0.5, ptch1_cn=0.1, gdc=0.0, ezh2i=1.0, mycn_amp=2.8, cdk46i=True, **_MB),
+    'Ptch+/- MB':            dict(shh=0.5, ptch1_cn=0.1, hhi=0.0, ezh2i=0.0, mycn_amp=2.8, **_MB),
+    'MB + HHi':              dict(shh=0.5, ptch1_cn=0.1, hhi=1.0, ezh2i=0.0, mycn_amp=2.8, **_MB),
+    'MB + HHi + EZH2i':      dict(shh=0.5, ptch1_cn=0.1, hhi=1.0, ezh2i=1.0, mycn_amp=2.8, **_MB),
+    'MB + CDK4/6i':          dict(shh=0.5, ptch1_cn=0.1, hhi=0.0, ezh2i=0.0, mycn_amp=2.8, cdk46i=True, **_MB),
+    'MB + CDK4/6i + EZH2i':  dict(shh=0.5, ptch1_cn=0.1, hhi=0.0, ezh2i=1.0, mycn_amp=2.8, cdk46i=True, **_MB),
 }
 COLORS = ['#762A83', '#E08214', '#4A1486', '#C2185B', '#D81B60']
 

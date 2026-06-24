@@ -38,7 +38,7 @@ import tellurium as te
 # at RUNTIME (no rebuild needed). basal sets the G0/G1 floor; E2F_amp sets the
 # Ma-driven amplitude. Lowering basal drops quiescent G0 below the G1 trough so the
 # within-cycle gradient (G0<G1<S<G2) emerges.
-def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, hu=0.0,
+def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, hu=0.0,
         t_end=200, n_pts=20000, rewire=True, ezh2_rewire_params=None,
         checkpoint=None, serum_starve=False, basal=None, e2f_amp=None):
     m = build_model_v43(checkpoint_params=checkpoint, rewire_ezh2=rewire,
@@ -46,7 +46,7 @@ def run(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, hu=0.0,
     rr = te.loada(m)
     rr['SHH'] = shh
     rr['Ptch1_copy_number'] = ptch1_cn
-    rr['GDC0449'] = gdc
+    rr['HHi'] = hhi
     rr['EZH2i'] = ezh2i
     rr['HU'] = hu
     if basal is not None:
@@ -130,11 +130,11 @@ def evaluate(ezh2_rewire_params=None, basal=None, e2f_amp=None, verbose=True):
     kw = dict(ezh2_rewire_params=ezh2_rewire_params, basal=basal, e2f_amp=e2f_amp)
     cyc = run(shh=0.5, **kw)          # GNP + SHH (cycling)
     g0 = run(shh=0.0, **kw)           # quiescent reference
-    gdc = run(shh=0.5, gdc=1.0, **kw)  # HHi
+    hhi = run(shh=0.5, hhi=1.0, **kw)  # HHi
 
     ez_cyc = mean_last(cyc, 'EZH2')
     ez_g0 = mean_last(g0, 'EZH2')
-    ez_gdc = mean_last(gdc, 'EZH2')
+    ez_gdc = mean_last(hhi, 'EZH2')
     by, thr = mean_ezh2_by_phase(cyc)
     sdur, _ = s_phase_duration(cyc)
     per = period(cyc)

@@ -29,7 +29,7 @@ def cycles(ktl, p21d, ezh2i, cdk46i):
         _RR.reset()
         _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 0.1; _RR['MYCN_amplification'] = 2.8
         _RR['p16'] = 0.88; _RR['p18'] = 1.2; _RR['kSyP21'] = 0.004   # MB CDK-inhibitor brake (INK4 + CIP/KIP)
-        _RR['GDC0449'] = 0.0 if cdk46i else 1.0           # CDK4/6i context has no HHi; HHi context has GDC=1
+        _RR['HHi'] = 0.0 if cdk46i else 1.0           # CDK4/6i context has no HHi; HHi context has GDC=1
         _RR['EZH2i'] = ezh2i; _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
         if cdk46i:
             _RR['kPhRbCd'] = 0.0

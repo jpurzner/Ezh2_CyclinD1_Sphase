@@ -42,13 +42,13 @@ def withdraw(c, ktl, p21d, sel):
         _RR.reset()
         _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = c['f']; _RR['MYCN_amplification'] = c['mycn']
         _RR['p16'] = c['p16']; _RR['p18'] = c['p18']; _RR['kSyP21'] = c['ksy']
-        _RR['EZH2i'] = 0; _RR['GDC0449'] = 0.0; _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
+        _RR['EZH2i'] = 0; _RR['HHi'] = 0.0; _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
         _RR.integrator.setValue("absolute_tolerance", atol)
         try: _RR.integrator.setValue("maximum_num_steps", 300000)
         except Exception: pass
         try:
             s1 = _RR.simulate(0, T1, T1 * 3, selections=sel)
-            _RR['GDC0449'] = 1.0
+            _RR['HHi'] = 1.0
             s2 = _RR.simulate(T1, TEND, (TEND - T1) * 3, selections=sel)
         except Exception:
             continue

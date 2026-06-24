@@ -32,20 +32,20 @@ _RR.integrator.setValue("absolute_tolerance", 1e-9); _RR.integrator.setValue("re
 KTL0 = 0.75   # matches builder default k_Cd_translation (search-tuned)
 
 CONDS = {  # MB context (Ptch1=0.1, MYCN_amp=2.8, p16 high) + treatment
-    'MB':                 dict(gdc=0.0, ezh2i=0, cdk46i=False),
-    'MB+HHi':             dict(gdc=1.0, ezh2i=0, cdk46i=False),
-    'MB+HHi+EZH2i':       dict(gdc=1.0, ezh2i=1, cdk46i=False),
-    'MB+CDK4/6i':         dict(gdc=0.0, ezh2i=0, cdk46i=True),
-    'MB+CDK4/6i+EZH2i':   dict(gdc=0.0, ezh2i=1, cdk46i=True),
+    'MB':                 dict(hhi=0.0, ezh2i=0, cdk46i=False),
+    'MB+HHi':             dict(hhi=1.0, ezh2i=0, cdk46i=False),
+    'MB+HHi+EZH2i':       dict(hhi=1.0, ezh2i=1, cdk46i=False),
+    'MB+CDK4/6i':         dict(hhi=0.0, ezh2i=0, cdk46i=True),
+    'MB+CDK4/6i+EZH2i':   dict(hhi=0.0, ezh2i=1, cdk46i=True),
 }
 
 
-def cycles(ktl, p21d, gdc, ezh2i, cdk46i):
+def cycles(ktl, p21d, hhi, ezh2i, cdk46i):
     """True/False cycling, or None if integration fails at every tolerance (excluded from denominator)."""
     for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
         _RR.reset()
         _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 0.1; _RR['MYCN_amplification'] = 2.8
-        _RR['GDC0449'] = gdc; _RR['EZH2i'] = ezh2i; _RR['p16'] = P16_MB; _RR['p18'] = P18_MB; _RR['kSyP21'] = KSYP21_MB
+        _RR['HHi'] = hhi; _RR['EZH2i'] = ezh2i; _RR['p16'] = P16_MB; _RR['p18'] = P18_MB; _RR['kSyP21'] = KSYP21_MB
         _RR['P21_div'] = p21d; _RR['k_Cd_translation'] = ktl
         if cdk46i:
             _RR['kPhRbCd'] = 0.0

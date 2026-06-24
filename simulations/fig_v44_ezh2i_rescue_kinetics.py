@@ -26,7 +26,7 @@ rr.integrator.setValue("relative_tolerance", 1e-6)
 SEL = ['time', 'Cd', 'H3K27_Cd', 'MPF']
 T_POST = 9600                      # 160 h window
 MB = dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002,
-          k_Cd_translation=0.801 * 1.4, P21_div=0.5, EZH2i=0, GDC0449=0)
+          k_Cd_translation=0.801 * 1.4, P21_div=0.5, EZH2i=0, HHi=0)
 DOSE_MIN = {None: None, 0: 0, 24: 1440, 48: 2880, 72: 4320}   # dosing time label(h) -> minutes
 
 
@@ -51,7 +51,7 @@ def trajectory(ezi_min):
     for k, v in MB.items():
         rr[k] = v
     rr.simulate(0, 6500, 13000)               # equilibrate cycling MB
-    rr['GDC0449'] = 0.85                        # vismo at t=0
+    rr['HHi'] = 0.85                        # vismo at t=0
     if ezi_min == 0:
         rr['EZH2i'] = 1; segs = [(_phase(T_POST), 0.0)]
     elif ezi_min is None:

@@ -1,8 +1,8 @@
 """v44 -- mitogen sensitivity in Hh-activity (Gli1) units, with the CORRECT knobs:
   * GNP: the mitogen is SHH (ligand). Sweep SHH up from 0; GNP proliferation is SHH-driven.
     (To reach BELOW the SHH=0 basal-Smo-leak floor -- needed to see the no-feedback threshold --
-     we extend the axis downward with a little GDC0449; SHH remains the physiological mitogen.)
-  * MB: Hh is tonically high (Ptch1 loss, ligand-independent). The knob is vismodegib (GDC0449),
+     we extend the axis downward with a little HHi; SHH remains the physiological mitogen.)
+  * MB: Hh is tonically high (Ptch1 loss, ligand-independent). The knob is vismodegib (HHi),
     which titrates the pathway DOWN. Sweep GDC up from 0 at the MB baseline.
 Both knobs are tunable; the common x-axis is Gli1 transcript (the Hh-activity readout). Each panel
 shows CyclinD1 and proliferation vs Gli1, with the EZH2->CyclinD1 feedback ON vs OFF.
@@ -21,13 +21,13 @@ WIN_H = (T_END - 4000) / 60.0
 _rr = _new_rr()
 
 
-def run(shh, gdc, ezh2i, ptch, mycn, p16=0.0, p18=None, ksyp21=None):
+def run(shh, hhi, ezh2i, ptch, mycn, p16=0.0, p18=None, ksyp21=None):
     for te_end, te_pts in ((T_END, N_PTS), (6000, 9000), (5000, 7000)):   # horizon retry for stiff (MB+vismo) conditions
         for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
             _rr.reset()
             try: _rr.integrator.setValue("maximum_num_steps", 400000)
             except Exception: pass
-            _rr['SHH'] = shh; _rr['Ptch1_copy_number'] = ptch; _rr['GDC0449'] = gdc
+            _rr['SHH'] = shh; _rr['Ptch1_copy_number'] = ptch; _rr['HHi'] = hhi
             _rr['EZH2i'] = ezh2i; _rr['MYCN_amplification'] = mycn
             _rr['p16'] = p16                          # MB CKI tones (INK4/CIP-KIP) raise the commitment threshold
             if p18 is not None: _rr['p18'] = p18
@@ -53,9 +53,9 @@ _MBCKI = dict(p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB)
 
 def sweep(points, ezh2i, ptch, mycn, is_mb):
     if is_mb:                                    # points = GDC (vismo) values at MB baseline, SHH=0.5; MB CKI tones on
-        rows = [run(0.5, gdc, ezh2i, ptch, mycn, **_MBCKI) for gdc in points]
+        rows = [run(0.5, hhi, ezh2i, ptch, mycn, **_MBCKI) for hhi in points]
     else:                                        # points = (SHH, GDC) tuples in GNP context (GNP CKI defaults)
-        rows = [run(shh, gdc, ezh2i, ptch, mycn) for (shh, gdc) in points]
+        rows = [run(shh, hhi, ezh2i, ptch, mycn) for (shh, hhi) in points]
     d = {k: np.array([r[k] for r in rows]) for k in rows[0]}
     o = np.argsort(d['Gli1_mRNA'])               # order by Hh activity (Gli1)
     return {k: v[o] for k, v in d.items()}

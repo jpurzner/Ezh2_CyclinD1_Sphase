@@ -2,10 +2,10 @@
 
 Measures steady/mean levels of CyclinD1 (Cd), MYCN, Gli1, EZH2 in the four conditions and
 scores the cross-condition ratios:
-  GNP    = SHH 0.5, MYCN_amplification 1.0, GDC0449 0
-  GNP+HHi= SHH 0.5, MYCN_amplification 1.0, GDC0449 1
-  MB     = SHH 0.5, MYCN_amplification 2.8, GDC0449 0
-  MB+HHi = SHH 0.5, MYCN_amplification 2.8, GDC0449 1
+  GNP    = SHH 0.5, MYCN_amplification 1.0, HHi 0
+  GNP+HHi= SHH 0.5, MYCN_amplification 1.0, HHi 1
+  MB     = SHH 0.5, MYCN_amplification 2.8, HHi 0
+  MB+HHi = SHH 0.5, MYCN_amplification 2.8, HHi 1
 
 Targets (Section A):
   CyclinD1  GNP+HHi/GNP=0.14   MB+HHi/MB=0.40   MB/GNP=5.07
@@ -32,10 +32,10 @@ PARAMS = {
 }
 # MB = Ptch1 loss (constitutive Hedgehog) + MYCN amplification; GNP = WT (Ptch1=1), SHH-driven.
 COND = {
-    "GNP":     dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, GDC0449=0.0),
-    "GNP+HHi": dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, GDC0449=1.0),
-    "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, GDC0449=0.0),
-    "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, GDC0449=1.0),
+    "GNP":     dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, HHi=0.0),
+    "GNP+HHi": dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, HHi=1.0),
+    "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, HHi=0.0),
+    "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, HHi=1.0),
 }
 SPECIES = ["Cd", "MYCN", "Gli1", "EZH2"]
 

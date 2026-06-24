@@ -40,12 +40,12 @@ rng = np.random.default_rng(1000 + SEED)
 Z = rng.normal(0.0, 1.0, max(N_MB, N_HHI, N_RES))   # fixed standard-normal draws -> sigma scales them
 
 
-def _cycles(ktl, p16, kez, gdc, ezh2i, cdk46i):
+def _cycles(ktl, p16, kez, hhi, ezh2i, cdk46i):
     """True/False cycling, or None if integration fails at all tolerances."""
     for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
         _RR.reset()
         _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 0.1; _RR['MYCN_amplification'] = 2.86
-        _RR['GDC0449'] = gdc; _RR['EZH2i'] = ezh2i; _RR['p16'] = p16
+        _RR['HHi'] = hhi; _RR['EZH2i'] = ezh2i; _RR['p16'] = p16
         _RR['k_Cd_translation'] = ktl; _RR['K_EZH2_repression'] = kez
         _RR['kPhRbCd'] = 0.0 if cdk46i else DEF_kPhRbCd
         _RR.integrator.setValue("absolute_tolerance", atol)
@@ -63,11 +63,11 @@ def _cycles(ktl, p16, kez, gdc, ezh2i, cdk46i):
     return None
 
 
-def _frac(ktl_arr, p16, kez, gdc, ezh2i, cdk46i):
+def _frac(ktl_arr, p16, kez, hhi, ezh2i, cdk46i):
     """Cycling % over cells that integrated (crashes excluded). Returns (pct, n_ok, n_crash)."""
     cyc = ok = crash = 0
     for ktl in ktl_arr:
-        c = _cycles(ktl, p16, kez, gdc, ezh2i, cdk46i)
+        c = _cycles(ktl, p16, kez, hhi, ezh2i, cdk46i)
         if c is None:
             crash += 1
         else:
@@ -75,14 +75,14 @@ def _frac(ktl_arr, p16, kez, gdc, ezh2i, cdk46i):
     return (100.0 * cyc / ok if ok else 0.0), ok, crash
 
 
-def _gnp_cycles(ktl, kez, gdc):
+def _gnp_cycles(ktl, kez, hhi):
     _RR.reset()
     _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 1.0; _RR['MYCN_amplification'] = 1.0
-    _RR['GDC0449'] = gdc; _RR['EZH2i'] = 0; _RR['p16'] = 0.0
+    _RR['HHi'] = hhi; _RR['EZH2i'] = 0; _RR['p16'] = 0.0
     _RR['k_Cd_translation'] = ktl; _RR['K_EZH2_repression'] = kez; _RR['kPhRbCd'] = DEF_kPhRbCd
     for atol in (1e-9, 1e-8, 1e-7):
         _RR.reset(); _RR['SHH'] = 0.5; _RR['Ptch1_copy_number'] = 1.0; _RR['MYCN_amplification'] = 1.0
-        _RR['GDC0449'] = gdc; _RR['p16'] = 0.0; _RR['k_Cd_translation'] = ktl; _RR['K_EZH2_repression'] = kez
+        _RR['HHi'] = hhi; _RR['p16'] = 0.0; _RR['k_Cd_translation'] = ktl; _RR['K_EZH2_repression'] = kez
         _RR.integrator.setValue("absolute_tolerance", atol)
         try:
             r = _RR.simulate(0, T_END, N_PTS, selections=["time", "MPF"]); break

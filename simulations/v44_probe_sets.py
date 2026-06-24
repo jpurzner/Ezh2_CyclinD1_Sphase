@@ -8,12 +8,12 @@ from scipy.signal import find_peaks
 from src.build_model_v44_heldt import build_model_v44
 
 COND = {
-    "GNP":     dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, GDC0449=0.0, EZH2i=0.0),
-    "GNP+HHi": dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, GDC0449=1.0, EZH2i=0.0),
-    "GNP+EZH2i":dict(SHH=0.5,Ptch1_copy_number=1.0, MYCN_amplification=1.0, GDC0449=0.0, EZH2i=1.0),
-    "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, GDC0449=0.0, EZH2i=0.0),
-    "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, GDC0449=1.0, EZH2i=0.0),
-    "MB+HHi+EZH2i": dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, GDC0449=1.0, EZH2i=1.0),
+    "GNP":     dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, HHi=0.0, EZH2i=0.0),
+    "GNP+HHi": dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0, HHi=1.0, EZH2i=0.0),
+    "GNP+EZH2i":dict(SHH=0.5,Ptch1_copy_number=1.0, MYCN_amplification=1.0, HHi=0.0, EZH2i=1.0),
+    "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, HHi=0.0, EZH2i=0.0),
+    "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, HHi=1.0, EZH2i=0.0),
+    "MB+HHi+EZH2i": dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, HHi=1.0, EZH2i=1.0),
 }
 SPEC = ["time", "Cd_mRNA", "EZH2", "MYCN", "MPF"]
 

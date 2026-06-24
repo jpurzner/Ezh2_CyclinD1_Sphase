@@ -36,9 +36,9 @@ def build(gate, K_Me=0.30, w_Me=0.5):
     return m
 
 
-def simulate(m, shh=0.5, gdc=0.0, hu=0.0):
+def simulate(m, shh=0.5, hhi=0.0, hu=0.0):
     rr = te.loada(m)
-    rr['SHH'] = shh; rr['GDC0449'] = gdc; rr['HU'] = hu
+    rr['SHH'] = shh; rr['HHi'] = hhi; rr['HU'] = hu
     rr['k_EZH2_mRNA_synth_basal'] = BASAL
     rr['k_EZH2_mRNA_synth_E2F'] = E2F_AMP
     if shh == 0.0:
@@ -63,10 +63,10 @@ def n_div(r, t_start=40):
 
 def report(label, gate, K_Me=0.30, w_Me=0.5):
     m = build(gate, K_Me=K_Me, w_Me=w_Me)
-    cyc = simulate(m); g0 = simulate(m, shh=0.0); gdc = simulate(m, gdc=1.0)
+    cyc = simulate(m); g0 = simulate(m, shh=0.0); hhi = simulate(m, hhi=1.0)
     hu1 = simulate(m, hu=1.0)
     ez_cyc = mean_last(cyc, 'EZH2'); ez_g0 = mean_last(g0, 'EZH2')
-    ez_gdc = mean_last(gdc, 'EZH2')
+    ez_gdc = mean_last(hhi, 'EZH2')
     by, thr = mean_ezh2_by_phase(cyc)
     rG1, rS, rG2 = by['G1']/ez_g0, by['S']/ez_g0, by['G2M']/ez_g0
     gdc_red = 100*(1 - ez_gdc/ez_cyc)

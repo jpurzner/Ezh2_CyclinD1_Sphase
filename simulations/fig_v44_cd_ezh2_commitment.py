@@ -40,7 +40,7 @@ def _runner():
     return rr
 
 
-def simulate(rr, ktl=None, SHH=0.5, f=0.1, mycn=2.86, ezh2i=0.0, gdc=0.0,
+def simulate(rr, ktl=None, SHH=0.5, f=0.1, mycn=2.86, ezh2i=0.0, hhi=0.0,
              p16=0.0, p18=0.4, ksyp21=0.002):
     """mean settled Cd + division count; robust to the flaky CVODE init.
     EZH2i=1 turns the Ezh2 repression OFF, giving a clean drive (net-Cd) scan."""
@@ -48,7 +48,7 @@ def simulate(rr, ktl=None, SHH=0.5, f=0.1, mycn=2.86, ezh2i=0.0, gdc=0.0,
         for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
             rr.reset()
             rr['SHH'] = SHH; rr['Ptch1_copy_number'] = f; rr['MYCN_amplification'] = mycn
-            rr['GDC0449'] = gdc
+            rr['HHi'] = hhi
             rr['p16'] = p16; rr['p18'] = p18; rr['kSyP21'] = ksyp21; rr['EZH2i'] = ezh2i
             if ktl is not None:
                 rr['k_Cd_translation'] = ktl
@@ -102,7 +102,7 @@ print("\nMeasuring MB operating Cyclin D1 + EZH2i de-repression fold (full dynam
 rr_full = _runner()
 Cd_MB, _      = simulate(rr_full, f=0.1, mycn=2.86, **MB_TONE)                  # repression ON
 Cd_MB_norep,_ = simulate(rr_full, f=0.1, mycn=2.86, ezh2i=1.0, **MB_TONE)      # repression OFF (same drive)
-Cd_HHi, _     = simulate(rr_full, f=0.1, mycn=2.86, gdc=1.0, **MB_TONE)        # vismodegib: Gli drive off
+Cd_HHi, _     = simulate(rr_full, f=0.1, mycn=2.86, hhi=1.0, **MB_TONE)        # vismodegib: Gli drive off
 # de-repression fold measured at MB operating drive (non-stiff): F = Cd(no repression) / Cd(repression)
 F = (Cd_MB_norep / Cd_MB) if (Cd_MB and not np.isnan(Cd_MB_norep) and Cd_MB > 1e-6) else 2.5
 F = float(np.clip(F, 1.3, 6.0))

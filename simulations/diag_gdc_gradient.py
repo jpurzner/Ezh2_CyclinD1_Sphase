@@ -1,6 +1,6 @@
 """
 Diagnose the two failing v43 invariants (HU=0):
-  A3  GDC0449 (HHi) should LOWER EZH2 (v42: 25-47% reduction); currently flat.
+  A3  HHi (HHi) should LOWER EZH2 (v42: 25-47% reduction); currently flat.
   B1  within-cycle gradient should be monotone G0<G1<S<G2; currently G1,S dip below G0.
 
 Both hinge on what GDC and cell-cycle phase do to the EZH2 transcription DRIVERS
@@ -50,11 +50,11 @@ if __name__ == "__main__":
     print(f"rewire: {REW}  basal={BASAL} e2f_amp={E2F_AMP}")
 
     cyc = run(shh=0.5, **KW)
-    gdc = run(shh=0.5, gdc=1.0, **KW)
+    hhi = run(shh=0.5, hhi=1.0, **KW)
     g0 = run(shh=0.0, **KW)
 
     show("CYCLING (SHH)", cyc)
-    show("GDC0449 (HHi)", gdc)
+    show("HHi (HHi)", hhi)
     show("G0 (no SHH)", g0)
 
     # within-cycle gradient

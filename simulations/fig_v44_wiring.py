@@ -83,9 +83,9 @@ arrow((smo[0]-0.55, smo[1]-0.3), (ptch[0]+0.4, ptch[1]+0.28), C["hh_b"], rad=-0.
 inhibit((ptch[0]+0.0, ptch[1]+0.33), (smo[0]-0.62, smo[1]-0.25), C["inh"], rad=0.30, shrink=3)   # functional Ptch1 ⊣ Smo
 ax.text(0.30, 6.32, "neg. feedback  GliA→Ptch1⊣Smo", fontsize=7.0, color=C["hh_b"], ha="left", fontweight="bold")
 ax.text(0.30, 6.06, "functional Ptch1 f: GNP 1.0 → MB ~0.1 (broken → Gli↑)", fontsize=6.3, color="#555", ha="left", style="italic")
-# drug GDC0449 ⊣ Smo
-gdc = node(2.45, 9.6, "GDC0449", w=1.3, fc="#fdedeb", ec=C["drug"], fs=8, bold=True)
-inhibit((gdc[0], gdc[1]-0.3), (smo[0], smo[1]+0.3), C["drug"], shrink=4)
+# drug HHi ⊣ Smo
+hhi = node(2.45, 9.6, "HHi", w=1.3, fc="#fdedeb", ec=C["drug"], fs=8, bold=True)
+inhibit((hhi[0], hhi[1]-0.3), (smo[0], smo[1]+0.3), C["drug"], shrink=4)
 
 # ===================== growth =====================
 mass = node(2.4, 4.2, "cell mass\n(grows, ÷2 at division)", w=2.6, h=0.7, fc="#ffffff", ec=C["growth_b"], fs=8)

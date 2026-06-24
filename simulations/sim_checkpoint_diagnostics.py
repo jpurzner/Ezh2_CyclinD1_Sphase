@@ -23,7 +23,7 @@ import tellurium as te
 MODEL_STR = build_model_v43()
 
 
-def run_sim(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0,
+def run_sim(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0,
             hu=0.0, t_end=168, n_pts=None, serum_starve=False, cdk46i=False,
             checkpoint=None):
     """Run a v43 simulation. checkpoint = dict of checkpoint param overrides."""
@@ -32,7 +32,7 @@ def run_sim(shh=0.5, ptch1_cn=1.0, gdc=0.0, ezh2i=0.0, mycn_amp=1.0,
     rr = te.loada(MODEL_STR)
     rr['SHH'] = shh
     rr['Ptch1_copy_number'] = ptch1_cn
-    rr['GDC0449'] = gdc
+    rr['HHi'] = hhi
     rr['EZH2i'] = ezh2i
     rr['MYCN_amplification'] = mycn_amp
     rr['HU'] = hu

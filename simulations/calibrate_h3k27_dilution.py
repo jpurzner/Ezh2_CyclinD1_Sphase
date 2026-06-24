@@ -14,12 +14,12 @@ _RR.integrator.setValue("absolute_tolerance", 1e-9)
 _RR.integrator.setValue("relative_tolerance", 1e-6)
 
 COND = {
-    'GNP':          dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, GDC0449=0, EZH2i=0),
-    'GNP+HHi':      dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, GDC0449=0.95, EZH2i=0),
-    'GNP+EZH2i':    dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, GDC0449=0, EZH2i=1),
-    'MB':           dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002, GDC0449=0, EZH2i=0),
-    'MB+HHi':       dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002, GDC0449=0.95, EZH2i=0),
-    'MB+HHi+EZH2i': dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002, GDC0449=0.95, EZH2i=1),
+    'GNP':          dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=0),
+    'GNP+HHi':      dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0.95, EZH2i=0),
+    'GNP+EZH2i':    dict(SHH=0.5, MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=1),
+    'MB':           dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002, HHi=0, EZH2i=0),
+    'MB+HHi':       dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002, HHi=0.95, EZH2i=0),
+    'MB+HHi+EZH2i': dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553, kSyP21=0.002, HHi=0.95, EZH2i=1),
 }
 PMK = ['k_w_mk', 'k0_mk', 'del_mk', 'K_mk', 'n_mk']
 

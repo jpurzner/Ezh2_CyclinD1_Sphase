@@ -52,7 +52,7 @@ def _set(SHH, f, mycn, tone, hhi, ezh2i, hu, cdk46i, starve):
     rr['kPhRbCd'] = DEF_kPhRbCd; rr['k_Cd_translation'] = DEF_ktl
     rr['SHH'] = SHH; rr['Ptch1_copy_number'] = f; rr['MYCN_amplification'] = mycn
     rr['p16'] = p16_of(tone); rr['p18'] = p18_of(tone); rr['kSyP21'] = ksy_of(tone)
-    rr['GDC0449'] = hhi; rr['EZH2i'] = ezh2i; rr['HU'] = hu
+    rr['HHi'] = hhi; rr['EZH2i'] = ezh2i; rr['HU'] = hu
     if cdk46i: rr['kPhRbCd'] = 0.0
     if starve: rr['k_Cd_translation'] = 0.0
 

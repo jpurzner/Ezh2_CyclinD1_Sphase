@@ -37,7 +37,7 @@ def mb_setup(cdscale=1.5):
     rr['SHH'] = 0.5; rr['MYCN_amplification'] = 2.8; rr['Ptch1_copy_number'] = 0.1
     rr['p16'] = 0.306; rr['p18'] = 1.553; rr['kSyP21'] = 0.002
     rr['k_Cd_translation'] = 0.801 * cdscale; rr['P21_div'] = 0.5
-    rr['EZH2i'] = 0; rr['GDC0449'] = 0
+    rr['EZH2i'] = 0; rr['HHi'] = 0
 
 
 def evaluate(k_demeth, k_meth=None, k_dil=0.0):
@@ -53,7 +53,7 @@ def evaluate(k_demeth, k_meth=None, k_dil=0.0):
     mb_setup()
     rr['k_demeth_cd'] = k_demeth; rr['k_meth_cd'] = k_meth; rr['k_dil_cd'] = k_dil
     rr.simulate(0, 6500, 13000)            # equilibrate cycling
-    rr['GDC0449'] = 0.85                    # vismo
+    rr['HHi'] = 0.85                    # vismo
     _sim(2400, 480, ['time', 'Cd'])        # arrest (40h)
     rr['EZH2i'] = 1                         # add inhibitor
     r = _sim(4500, 900, ['time', 'Cd'])    # 75h de-repression phase
@@ -67,7 +67,7 @@ rr_nomem = te.loada(build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_mem
 rr_nomem.integrator.setValue("absolute_tolerance", 1e-9); rr_nomem.integrator.setValue("relative_tolerance", 1e-6)
 rr_nomem.reset()
 for k, v in dict(SHH=0.5, MYCN_amplification=2.8, Ptch1_copy_number=0.1, p16=0.306, p18=1.553,
-                 kSyP21=0.002, k_Cd_translation=0.801 * 1.5, P21_div=0.5, EZH2i=0, GDC0449=0).items():
+                 kSyP21=0.002, k_Cd_translation=0.801 * 1.5, P21_div=0.5, EZH2i=0, HHi=0).items():
     rr_nomem[k] = v
 _rn = rr_nomem.simulate(0, 9000, 18000, selections=['time', 'MPF', 'Cd']); _mn = _rn['time'] >= 5500
 print(f"no-memory MB reference: ss Cd = {_rn['Cd'][_mn].mean():.2f}")

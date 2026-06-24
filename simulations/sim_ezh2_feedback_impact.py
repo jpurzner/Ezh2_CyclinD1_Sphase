@@ -35,7 +35,7 @@ def run_sim(context='wt_shh', ezh2_feedback=True, t_end=168, n_pts=16800):
         rr['SHH_Ptch'] = 0.0
         rr['Smo_active'] = 1.0
 
-    rr['GDC0449'] = 0.0
+    rr['HHi'] = 0.0
     rr['EZH2i'] = 0.0
 
     # Remove EZH2 feedback by making K_EZH2_repression very large

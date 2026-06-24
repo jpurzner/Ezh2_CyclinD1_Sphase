@@ -21,11 +21,11 @@ BASE = dict(K_Ma_EZH2=0.35, k_EZH2_deg=0.20, k_EZH2_translation=0.80, k_EZH2_str
 T_END, NPTS = 240, 24000
 
 
-def go(n, e2f_amp, basal, hu=0.0, shh=0.5, gdc=0.0, k_stress=None):
+def go(n, e2f_amp, basal, hu=0.0, shh=0.5, hhi=0.0, k_stress=None):
     rew = dict(BASE, n_Ma_EZH2=n)
     if k_stress is not None:
         rew['k_EZH2_stress'] = k_stress
-    return run(shh=shh, hu=hu, gdc=gdc, ezh2_rewire_params=rew,
+    return run(shh=shh, hu=hu, hhi=hhi, ezh2_rewire_params=rew,
                basal=basal, e2f_amp=e2f_amp, t_end=T_END, n_pts=NPTS)
 
 
@@ -47,9 +47,9 @@ def sg2_ezh2(r, thr_ma, t_start=40):
 def report(n, e2f_amp, basal):
     cyc = go(n, e2f_amp, basal)
     g0 = go(n, e2f_amp, basal, shh=0.0)
-    gdc = go(n, e2f_amp, basal, gdc=1.0)
+    hhi = go(n, e2f_amp, basal, hhi=1.0)
     ez_cyc = mean_last(cyc, 'EZH2'); ez_g0 = mean_last(g0, 'EZH2')
-    ez_gdc = mean_last(gdc, 'EZH2')
+    ez_gdc = mean_last(hhi, 'EZH2')
     by, thr = mean_ezh2_by_phase(cyc)
     rG1, rS, rG2 = by['G1']/ez_g0, by['S']/ez_g0, by['G2M']/ez_g0
     gdc_red = 100 * (1 - ez_gdc/ez_cyc)

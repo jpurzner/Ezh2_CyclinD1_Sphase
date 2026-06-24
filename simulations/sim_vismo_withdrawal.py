@@ -1,4 +1,4 @@
-"""Vismodegib (GDC0449) treatment of the heterogeneous MB ensemble (v44 baked).
+"""Vismodegib (HHi) treatment of the heterogeneous MB ensemble (v44 baked).
 
 The MB analogue of the mitogen-withdrawal experiment (sim_mitogen_withdrawal.py). Vismo blocks Smo,
 removing the Gli-driven CyclinD1 but leaving the MYCN floor intact -> even FULL vismo is a PARTIAL
@@ -53,7 +53,7 @@ SEL = ['time', 'MPF', 'Cd', 'EZH2']
 
 def _setup(ktl, p21d, feedback):
     rr.reset()
-    rr['SHH'] = MB['shh']; rr['EZH2i'] = 0; rr['GDC0449'] = 0.0
+    rr['SHH'] = MB['shh']; rr['EZH2i'] = 0; rr['HHi'] = 0.0
     rr['MYCN_amplification'] = MB['mycn_amp']; rr['Ptch1_copy_number'] = MB['ptch1']
     rr['p16'] = MB['p16']; rr['p18'] = MB['p18']; rr['kSyP21'] = MB['ksyp21']
     rr['k_Cd_translation'] = ktl; rr['P21_div'] = p21d
@@ -94,7 +94,7 @@ def _post(mode, dose):
     t0 = 0.0
     while t0 < T_POST:
         g = dose if mode == 'sudden' else min(dose, dose * t0 / T_RAMP)
-        rr['GDC0449'] = g
+        rr['HHi'] = g
         r = _sim_chunk(CHUNK)
         if r is None:
             break
@@ -106,10 +106,10 @@ def _post(mode, dose):
     if not ts:
         return np.nan, None
     t = np.concatenate(ts); mpf = np.concatenate(mpfs)
-    cd = np.concatenate(cds); ez = np.concatenate(ezs); gdc = np.concatenate(gdcs)
+    cd = np.concatenate(cds); ez = np.concatenate(ezs); hhi = np.concatenate(gdcs)
     dt = t[1] - t[0]
     pk, _ = find_peaks(mpf, prominence=0.15, distance=int(200 / dt))
-    return len(pk), dict(t=t / 60.0, mpf=mpf, cd=cd, ez=ez, gdc=gdc, pk=pk)
+    return len(pk), dict(t=t / 60.0, mpf=mpf, cd=cd, ez=ez, hhi=hhi, pk=pk)
 
 
 def withdrawal(ktl, p21d, feedback, mode, dose):
@@ -140,8 +140,8 @@ if PROBE:
 
 
 # ---------------------------------------------------------------- dose-resolved grid
-# vismo dose (GDC0449): 0 = untreated -> 0.95 = near-complete Smo block. Capped at 0.95 (not 1.0):
-# at GDC=1.0 exactly Smo_active ~ (1-GDC0449) = 0 is a stiff singularity that spuriously arrests cells
+# vismo dose (HHi): 0 = untreated -> 0.95 = near-complete Smo block. Capped at 0.95 (not 1.0):
+# at GDC=1.0 exactly Smo_active ~ (1-HHi) = 0 is a stiff singularity that spuriously arrests cells
 # (verified: a high-CyclinD1 no-fb cell rescues at 0.85/0.95/0.98 but artifactually arrests at 1.0);
 # biologically vismodegib is a competitive antagonist that never 100%-blocks Smo, so 0.95 is realistic.
 DOSES = [0.0, 0.3, 0.6, 0.85, 0.95]
@@ -176,7 +176,7 @@ if FRESH or not os.path.exists(CACHE):
     save = dict(res)
     for k, tr in traces.items():
         if tr is not None:
-            for f in ['t', 'mpf', 'cd', 'ez', 'gdc']:
+            for f in ['t', 'mpf', 'cd', 'ez', 'hhi']:
                 save[f"tr_{k}_{f}"] = tr[f]
             save[f"tr_{k}_pk"] = tr['pk']
     np.savez(CACHE, doses=np.array(DOSES), disc=DISC, cd_scale=cd_scale, p21_div=p21_div, **save)
@@ -206,7 +206,7 @@ def _dose_panel(axp, mode, title):
     mf, _ = _msem(z[f'{mode}_fb']); mn, _ = _msem(z[f'{mode}_nofb'])
     axp.fill_between(dose, mf, mn, where=(mn >= mf), color='#8e44ad', alpha=0.10)
     axp.axvline(DISC, color='k', ls=':', alpha=0.5)
-    axp.set_xlabel('vismodegib dose  (GDC0449;  right = near-complete Hh block)', fontsize=11)
+    axp.set_xlabel('vismodegib dose  (HHi;  right = near-complete Hh block)', fontsize=11)
     axp.set_ylabel('post-treatment divisions / cell', fontsize=11)
     axp.set_title(title, fontweight='bold', fontsize=11)
     axp.legend(fontsize=9, loc='lower left'); axp.grid(alpha=0.15)

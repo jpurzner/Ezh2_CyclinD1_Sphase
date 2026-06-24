@@ -187,12 +187,12 @@ CD_PLACEHOLDER_BLOCK = """
 # mitogen input) vs the ~hours cell cycle. Cd is now a dynamic species (Cd_mRNA -> Cd).
 # NOTE: parameter MAGNITUDES are inherited from v42 and not yet rescaled to the Heldt
 # minute/Cd~0.65 frame -- deferred to the whole-data calibration pass (k_Cd_translation/k_Cd_deg
-# set the Cd scale). SHH, GDC0449 are boundary inputs; Ptch1_copy_number, MYCN_amplification params.
+# set the Cd scale). SHH, HHi are boundary inputs; Ptch1_copy_number, MYCN_amplification params.
 HH_MYCN_BLOCK = """
   // ===== v44: Hedgehog + MYCN -> CyclinD1 (drives Cd) =====
   // HH species initialized near the PROLIFERATING steady state so Cd is ~0.65 from t=0
   // (starting from low Gli/Cd lets the cell miss its restriction-point window -> false G0).
-  species $SHH = 0.5, $GDC0449 = 0.0;
+  species $SHH = 0.5, $HHi = 0.0;
   species SHH_Ptch = 0.0, Ptch1_free = 0.3, Ptch1_mRNA = 0.6, Smo_active = 0.8;
   species Gli_rep = 0.1, Gli_act = 0.5, Gli1_mRNA = 1.0, Gli1 = 1.4, Gli1_epi = 0.0001;
   species MYCN = 0.4, Cd_mRNA = 2.6, Cd in Cell;
@@ -224,7 +224,7 @@ HH_MYCN_BLOCK = """
   // Charging from Smo (not Gli1) makes it a non-bistable capacitor: vismo blocks Smo -> charging stops
   // -> the memory discharges, so vismo on cycling MB leaves a Gli1 RESIDUAL that decays over ~a day.
   // WHY it feeds Gli1 (not Gli_act): MYCN floors CyclinD1 but has NO path to Gli1, yet the data show a
-  // large Gli1 residual after vismo (MB_GDC0449 Gli1 413 / MB 17881 = 2.3% at 24h, 41x GNP+vismo's 10)
+  // large Gli1 residual after vismo (MB_HHi Gli1 413 / MB 17881 = 2.3% at 24h, 41x GNP+vismo's 10)
   // -- a Gli-INTRINSIC residual. Feeding Gli1 reproduces that residual WITHOUT inflating CyclinD1/
   // proliferation (the residual Gli1 is small, so CyclinD1 after vismo stays MYCN-floored ~ pRb 1/4).
   // The no-memory model gives Gli1~0 by 24h, so ONLY the memory reproduces the residual.
@@ -243,7 +243,7 @@ HH_MYCN_BLOCK = """
   K_EZH2_repression = 0.539;   // wide-search baked (was 0.75)
   k_Cd_translation = 0.801; k_Cd_deg = 1.0;   // wide-search baked (was 0.75). Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
-  // MB_GDC0449 dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
+  // MB_HHi dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
   // numerically on the threshold and crashing); 0.8 puts GNP/MB+HHi clearly above it. Consistent with
   // the data: MB+HHi Mki67 is high, so vismo-treated MB keeps proliferating (no single-cell arrest).
 
@@ -254,7 +254,7 @@ HH_MYCN_BLOCK = """
   SHH_Ptch_binding: Ptch1_free => SHH_Ptch; k_SHH_Ptch_bind*SHH*Ptch1_free;
   SHH_Ptch_release: SHH_Ptch => Ptch1_free; k_SHH_Ptch_release*SHH_Ptch;
   SHH_Ptch_degradation: SHH_Ptch => ; k_SHH_Ptch_deg*SHH_Ptch;
-  Smo_activation: => Smo_active; k_Smo_act/(1 + Ptch1_free*Ptch1_copy_number/K_Ptch_Smo)*(1 - GDC0449);
+  Smo_activation: => Smo_active; k_Smo_act/(1 + Ptch1_free*Ptch1_copy_number/K_Ptch_Smo)*(1 - HHi);
   Smo_inactivation: Smo_active => ; k_Smo_inact*Smo_active;
   Gli_rep_to_act: Gli_rep => Gli_act; k_Gli_rep_to_act*Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2)*Gli_rep;
   Gli_act_to_rep: Gli_act => Gli_rep; k_Gli_act_to_rep*(1 - Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2))*Gli_act;
@@ -363,7 +363,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
     with_hh=True (default; requires with_ezh2): drive Cd from the full Hedgehog/MYCN module
-      (SHH, GDC0449, MYCN, Ptch1_copy_number inputs) with EZH2 repression of CyclinD1.
+      (SHH, HHi, MYCN, Ptch1_copy_number inputs) with EZH2 repression of CyclinD1.
     with_hh=False: Cd is a placeholder (constant mitogen x EZH2 repression).
     with_ezh2=False: Heldt's constant Cd=0.65 (core engine only).
     with_growth=True (default): cell-growth-gated restriction point (mass-scaled CyclinE/A

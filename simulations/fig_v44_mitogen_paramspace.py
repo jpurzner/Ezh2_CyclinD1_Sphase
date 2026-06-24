@@ -30,7 +30,7 @@ def divrun(shh, K_ezh2=None, p16=0.0, ptch1_cn=1.0, mycn_amp=1.0):
             _rr.reset()
             try: _rr.integrator.setValue("maximum_num_steps", 300000)
             except Exception: pass
-            _rr['SHH'] = shh; _rr['Ptch1_copy_number'] = ptch1_cn; _rr['GDC0449'] = 0.0
+            _rr['SHH'] = shh; _rr['Ptch1_copy_number'] = ptch1_cn; _rr['HHi'] = 0.0
             _rr['EZH2i'] = 0.0; _rr['MYCN_amplification'] = mycn_amp; _rr['p16'] = p16
             if K_ezh2 is not None:
                 _rr['K_EZH2_repression'] = K_ezh2

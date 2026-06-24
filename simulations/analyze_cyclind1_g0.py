@@ -25,12 +25,12 @@ SEL = ["time", "Cd_mRNA", "Cd", "pRb", "P21", "aRc", "Dna", "MPF", "mass", "EZH2
 T_END, N_PTS, SETTLE = 14000, 56000, 5000
 
 
-def simulate(params=None, shh=0.5, ptch1=1.0, mycn=1.0, gdc=0.0, ezh2i=0.0):
+def simulate(params=None, shh=0.5, ptch1=1.0, mycn=1.0, hhi=0.0, ezh2i=0.0):
     rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True, params=(params or None)))
     rr.integrator.setValue("absolute_tolerance", 1e-9)
     rr.integrator.setValue("relative_tolerance", 1e-6)
     rr['SHH'] = shh; rr['Ptch1_copy_number'] = ptch1; rr['MYCN_amplification'] = mycn
-    rr['GDC0449'] = gdc; rr['EZH2i'] = ezh2i
+    rr['HHi'] = hhi; rr['EZH2i'] = ezh2i
     return rr.simulate(0, T_END, N_PTS, selections=SEL)
 
 

@@ -49,7 +49,7 @@ P = {
 }
 KEYS = list(P)
 
-# conditions: (SHH, ptch1, gdc, ezh2i, mycn, is_mb, cdk46i, hu)
+# conditions: (SHH, ptch1, hhi, ezh2i, mycn, is_mb, cdk46i, hu)
 CONDS = {
     'GNP':      (0.5, 1.0, 0, 0, 1.0, 0, 0, 0),
     'GNP-SHH':  (0.0, 1.0, 0, 0, 1.0, 0, 0, 0),
@@ -67,8 +67,8 @@ SEL = ["time", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2"]
 
 
 def _set(p, cond):
-    shh, ptch, gdc, ezh2i, mycn, is_mb, cdk46i, hu = cond
-    _RR['SHH'] = shh; _RR['Ptch1_copy_number'] = ptch; _RR['GDC0449'] = gdc
+    shh, ptch, hhi, ezh2i, mycn, is_mb, cdk46i, hu = cond
+    _RR['SHH'] = shh; _RR['Ptch1_copy_number'] = ptch; _RR['HHi'] = hhi
     _RR['EZH2i'] = ezh2i; _RR['MYCN_amplification'] = mycn; _RR['HU'] = hu
     for k in KEYS:
         if k in ('P16_MB', 'P18_MB', 'KSYP21_MB'):

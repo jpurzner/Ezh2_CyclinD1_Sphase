@@ -16,11 +16,11 @@ from src.build_model_v44_heldt import build_model_v44
 
 # context = Ptch1 dosage + MYCN amplification (from the data Mycn fold), +/- HHi
 COND = {
-    "GNP":     dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0,  GDC0449=0.0),
-    "GNP+HHi": dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0,  GDC0449=1.0),
-    "P7Ptch":  dict(SHH=0.5, Ptch1_copy_number=0.5, MYCN_amplification=1.38, GDC0449=0.0),
-    "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.86, GDC0449=0.0),
-    "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.86, GDC0449=1.0),
+    "GNP":     dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0,  HHi=0.0),
+    "GNP+HHi": dict(SHH=0.5, Ptch1_copy_number=1.0, MYCN_amplification=1.0,  HHi=1.0),
+    "P7Ptch":  dict(SHH=0.5, Ptch1_copy_number=0.5, MYCN_amplification=1.38, HHi=0.0),
+    "MB":      dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.86, HHi=0.0),
+    "MB+HHi":  dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.86, HHi=1.0),
 }
 SPEC = ["Cd_mRNA", "MYCN", "Gli1", "Ptch1_mRNA"]
 
@@ -44,7 +44,7 @@ NAMES = [p[0] for p in PSPEC]
 LO = np.array([p[1] for p in PSPEC]); HI = np.array([p[2] for p in PSPEC]); X0 = np.array([p[3] for p in PSPEC])
 
 # (species, num, den, target, weight)   -- folds from docs/PARAMETERIZATION.md bulk RNA-seq
-# KEY UPDATE: MB_GDC0449 row shows vismo crashes MB CyclinD1 by 85.6% (0.144), not 0.40.
+# KEY UPDATE: MB_HHi row shows vismo crashes MB CyclinD1 by 85.6% (0.144), not 0.40.
 # So Gli must DOMINATE MB CyclinD1 (~86%); Mycn/basal is only the ~14% HHi-resistant residual.
 # Ptch1 is a Gli TARGET (negative feedback): elevated in MB (co-regulated with Gli1), dropping under HHi.
 TARGETS = [
