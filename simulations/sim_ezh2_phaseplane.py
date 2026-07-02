@@ -1,13 +1,14 @@
 """Ferrell-style phase-plane / bifurcation analysis of the EZH2 -| CyclinD1 feedback (v44 baked).
 
-The feedback is a two-node loop: CyclinD1 -> (Rb-E2f / cell cycle, + mitogen-dose) -> EZH2 -| CyclinD1.
-CyclinD1 is FAST (~1 min) with no cycle-dependent production except EZH2 repression -> its nullcline
-is exact & analytic. EZH2 is SLOW (~4.6 cycles) -> its nullcline is traced numerically by breaking the
-loop (EZH2i=1) and sweeping the CyclinD1 drive, so EZH2 becomes a pure readout of Cd.
+AUM model: the direct repressor is the H3K27me3 mark Mk (not EZH2), so the phase plane is (Mk, CyclinD1).
+The loop: CyclinD1 -> (Rb-E2f/cell cycle -> EZH2; and nascent RNA -| PRC2) -> Mk -| CyclinD1. CyclinD1 is
+FAST (~1 min) -> its nullcline is exact & analytic in Mk. Mk is SLOW -> its nullcline is traced numerically
+by breaking the repression (f0_mk=1, so Cd is un-repressed) and sweeping the CyclinD1 drive, so Mk becomes
+a pure readout of Cd (via EZH2 induction + transcription-eviction).
 
-  Cd-nullcline (dCd/dt=0):   Cd = A * Krep/(Krep+EZH2),  A = ktl*D/(k_Cd_deg*k_Cd_mRNA_deg)
-                             D = mitogen drive (Gli/MYCN, constant per condition)   [decreasing]
-  EZH2-nullcline (dEZH2/dt=0): feedback OFF, sweep ktl -> (mean Cd, mean EZH2)        [increasing]
+  Cd-nullcline (dCd/dt=0):   Cd = A * R(Mk),  R = f0 + (1-f0)/(1+(Mk/K)^n),  A = ktl*D/(k_Cd_deg*k_Cd_mRNA_deg)
+                             D = mitogen drive (Gli/MYCN, constant per condition)   [decreasing in Mk]
+  Mk-nullcline (dMk/dt=0):   repression OFF (f0_mk=1), sweep ktl -> (mean Cd, mean Mk)  [Cd induces the mark]
   intersection = operating point; the real limit cycle (feedback ON) orbits it.
 
 Panels:
@@ -35,10 +36,12 @@ rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
 rr.integrator.setValue("absolute_tolerance", 1e-9)
 rr.integrator.setValue("relative_tolerance", 1e-6)
 
-C = {k: rr[k] for k in ['k_Cd_translation', 'k_Cd_deg', 'k_Cd_mRNA_deg', 'K_EZH2_repression', 'kDeEZ',
+C = {k: rr[k] for k in ['k_Cd_translation', 'k_Cd_deg', 'k_Cd_mRNA_deg', 'kDeEZ', 'del_mk',
+                         'f0_mk', 'K_mk', 'n_mk',
                          'k_Cd_tx_basal', 'k_Cd_tx_Gli_max', 'K_Gli_act_CycD', 'K_Gli_rep_CycD',
                          'n_Gli_act', 'n_Gli_rep', 'k_Cd_tx_MYCN', 'K_MYCN_Cd', 'n_MYCN_Cd']}
-KREP = C['K_EZH2_repression']
+# AUM repression readout R(Mk) = f0 + (1-f0)/(1+(Mk/K)^n): the H3K27me3 mark (not EZH2) directly represses Cd.
+F0, KMK, NMK = C['f0_mk'], C['K_mk'], C['n_mk']
 
 GNP = dict(shh=0.5, ezh2i=0, mycn_amp=1.0, ptch1=1.0, p16=0.0, p18=0.464, ksyp21=0.002)
 MB = dict(shh=0.5, ezh2i=0, mycn_amp=2.8, ptch1=0.1, p16=0.306, p18=1.553, ksyp21=0.002)
@@ -52,7 +55,7 @@ def drive_D(ga, g1, grep, mycn):
     return C['k_Cd_tx_basal'] + gli_term + mycn_term
 
 
-SEL = ['time', 'Cd', 'EZH2', 'Gli_act', 'Gli1', 'Gli_rep', 'MYCN', 'MPF']
+SEL = ['time', 'Cd', 'EZH2', 'Mk', 'Gli_act', 'Gli1', 'Gli_rep', 'MYCN', 'MPF']
 
 
 def run(shh, ezh2i, mycn_amp, ptch1, p16, p18, ksyp21, ktl=None, T=14000, settle=8000, reset=True):
@@ -80,22 +83,23 @@ def _meas(seg):
 
 
 def cond_pack(cond, label):
-    """operating point + analytic Cd-nullcline coeff A for a condition (feedback ON)."""
+    """operating point (Cd, Mk) + analytic Cd-nullcline coeff A for a condition (feedback ON)."""
     o = run(**cond)
     D = drive_D(o['Gli_act'].mean(), o['Gli1'].mean(), o['Gli_rep'].mean(), o['MYCN'].mean())
     A = C['k_Cd_translation'] * D / (C['k_Cd_deg'] * C['k_Cd_mRNA_deg'])
-    return dict(label=label, cd=o['Cd'], ez=o['EZH2'], cd_op=float(o['Cd'].mean()),
-                ez_op=float(o['EZH2'].mean()), A=float(A), D=float(D))
+    return dict(label=label, cd=o['Cd'], mk=o['Mk'], cd_op=float(o['Cd'].mean()),
+                mk_op=float(o['Mk'].mean()), A=float(A), D=float(D))
 
 
-def ezh2_nullcline(base, ktls, T=14000, settle=8000):
-    """feedback OFF (ezh2i=1), sweep ktl -> (meanCd, meanEZH2)."""
-    cds, ezs = [], []
+def mk_nullcline(base, ktls, T=14000, settle=8000):
+    """repression OFF (f0_mk=1 -> Cd un-repressed), sweep ktl -> (meanCd, meanMk): Cd induces the mark."""
+    cds, mks = [], []
     for k in ktls:
-        c = dict(base); c['ezh2i'] = 1
-        o = run(**c, ktl=k, T=T, settle=settle)
-        cds.append(float(o['Cd'].mean())); ezs.append(float(o['EZH2'].mean()))
-    return np.array(cds), np.array(ezs)
+        rr.reset(); _apply(base); rr['f0_mk'] = 1.0; rr['k_Cd_translation'] = k
+        r = rr.simulate(0, T, int(T / 0.5), selections=SEL)
+        m = r['time'] >= settle
+        cds.append(float(r['Cd'][m].mean())); mks.append(float(r['Mk'][m].mean()))
+    return np.array(cds), np.array(mks)
 
 
 _PMAP = {'shh': 'SHH', 'ezh2i': 'EZH2i', 'mycn_amp': 'MYCN_amplification',
@@ -145,13 +149,13 @@ if FRESH or not os.path.exists(NCACHE):
     mb = cond_pack(MB, 'MB')
     gnp_ezi = cond_pack(dict(GNP, ezh2i=1), 'GNP+EZH2i')
     ktls_null = np.geomspace(0.08, 4.5, 16)
-    nc_gnp_cd, nc_gnp_ez = ezh2_nullcline(GNP, ktls_null)
-    nc_mb_cd, nc_mb_ez = ezh2_nullcline(MB, ktls_null)
+    nc_gnp_cd, nc_gnp_mk = mk_nullcline(GNP, ktls_null)
+    nc_mb_cd, nc_mb_mk = mk_nullcline(MB, ktls_null)
     np.savez(NCACHE,
-             gnp_cd=gnp['cd'], gnp_ez=gnp['ez'], gnp_op=[gnp['cd_op'], gnp['ez_op'], gnp['A']],
-             mb_cd=mb['cd'], mb_ez=mb['ez'], mb_op=[mb['cd_op'], mb['ez_op'], mb['A']],
-             gnpezi_cd=gnp_ezi['cd'], gnpezi_ez=gnp_ezi['ez'], gnpezi_op=[gnp_ezi['cd_op'], gnp_ezi['ez_op'], gnp_ezi['A']],
-             ktls_null=ktls_null, nc_gnp_cd=nc_gnp_cd, nc_gnp_ez=nc_gnp_ez, nc_mb_cd=nc_mb_cd, nc_mb_ez=nc_mb_ez)
+             gnp_cd=gnp['cd'], gnp_mk=gnp['mk'], gnp_op=[gnp['cd_op'], gnp['mk_op'], gnp['A']],
+             mb_cd=mb['cd'], mb_mk=mb['mk'], mb_op=[mb['cd_op'], mb['mk_op'], mb['A']],
+             gnpezi_cd=gnp_ezi['cd'], gnpezi_mk=gnp_ezi['mk'], gnpezi_op=[gnp_ezi['cd_op'], gnp_ezi['mk_op'], gnp_ezi['A']],
+             ktls_null=ktls_null, nc_gnp_cd=nc_gnp_cd, nc_gnp_mk=nc_gnp_mk, nc_mb_cd=nc_mb_cd, nc_mb_mk=nc_mb_mk)
     print("  stage-1 cached ->", NCACHE)
 nz = np.load(NCACHE)
 
@@ -172,66 +176,66 @@ if FRESH or not os.path.exists(CACHE):
     np.savez(CACHE, **{k: nz[k] for k in nz.files},
              ktl_bif=ktl_bif, cF_rate=cF_rate, cF_e2f=cF_e2f, cN_rate=cN_rate, cN_e2f=cN_e2f,
              shh_bif=shh_bif, gli1_at=gli1_at, dF_rate=dF_rate, dF_e2f=dF_e2f, dN_rate=dN_rate, dN_e2f=dN_e2f,
-             KREP=KREP, kDeEZ=C['kDeEZ'], k_Cd_deg=C['k_Cd_deg'])
+             F0=F0, KMK=KMK, NMK=NMK, del_mk=C['del_mk'], k_Cd_deg=C['k_Cd_deg'])
     print("  cached ->", CACHE)
 
 z = np.load(CACHE)
-KREP = float(z['KREP'])
+F0, KMK, NMK = float(z['F0']), float(z['KMK']), float(z['NMK'])
 
 # ------------------------------------------------------------------ figure
 fig, ax = plt.subplots(2, 2, figsize=(15, 12))
 
 
-def cd_nullcline(A, ez):
-    return A * KREP / (KREP + ez)
+def cd_nullcline(A, mk):
+    return A * (F0 + (1 - F0) / (1 + (mk / KMK) ** NMK))
 
 
-# ---- Panel A: GNP nullcline portrait ----
+# ---- Panel A: GNP nullcline portrait (Mk, Cd) ----
 a = ax[0, 0]
-cd_op, ez_op, A = z['gnp_op']
-ez_axis = np.linspace(0.001, 2.2, 200)
-a.plot(cd_nullcline(A, ez_axis), ez_axis, '-', color='#c0392b', lw=2.5, label='Cd-nullcline (EZH2 represses Cd)')
+cd_op, mk_op, A = z['gnp_op']
+mk_axis = np.linspace(0.001, 1.0, 200)
+a.plot(cd_nullcline(A, mk_axis), mk_axis, '-', color='#c0392b', lw=2.5, label='Cd-nullcline (H3K27me3 represses Cd)')
 order = np.argsort(z['nc_gnp_cd'])
-a.plot(z['nc_gnp_cd'][order], z['nc_gnp_ez'][order], '-', color='#2471a3', lw=2.5, label='EZH2-nullcline (Cd induces EZH2)')
-a.plot(z['nc_gnp_cd'][order], z['nc_gnp_ez'][order], 'o', color='#2471a3', ms=4)
+a.plot(z['nc_gnp_cd'][order], z['nc_gnp_mk'][order], '-', color='#2471a3', lw=2.5, label='Mk-nullcline (Cd induces the mark)')
+a.plot(z['nc_gnp_cd'][order], z['nc_gnp_mk'][order], 'o', color='#2471a3', ms=4)
 # fast/slow direction field (normalized)
 from scipy.interpolate import interp1d
-ez_of_cd = interp1d(z['nc_gnp_cd'][order], z['nc_gnp_ez'][order], bounds_error=False, fill_value=(z['nc_gnp_ez'][order][0], z['nc_gnp_ez'][order][-1]))
-gx, gy = np.meshgrid(np.linspace(0.3, 6.0, 22), np.linspace(0.05, 2.1, 18))
-dC = float(z['k_Cd_deg']) * (cd_nullcline(A, gy) - gx)          # fast
-dE = float(z['kDeEZ']) * (ez_of_cd(gx) - gy)                    # slow
+mk_of_cd = interp1d(z['nc_gnp_cd'][order], z['nc_gnp_mk'][order], bounds_error=False, fill_value=(z['nc_gnp_mk'][order][0], z['nc_gnp_mk'][order][-1]))
+gx, gy = np.meshgrid(np.linspace(0.3, 6.0, 22), np.linspace(0.03, 0.95, 18))
+dC = float(z['k_Cd_deg']) * (cd_nullcline(A, gy) - gx)          # fast (Cd)
+dM = float(z['del_mk']) * (mk_of_cd(gx) - gy)                   # slow (Mk)
 # scale to comparable visual magnitude per-component then normalize direction
-u = dC / (np.abs(dC).max() + 1e-9); v = dE / (np.abs(dE).max() + 1e-9)
+u = dC / (np.abs(dC).max() + 1e-9); v = dM / (np.abs(dM).max() + 1e-9)
 nrm = np.hypot(u, v) + 1e-9
 a.quiver(gx, gy, u / nrm, v / nrm, color='#95a5a6', alpha=0.55, width=0.0035, scale=28, pivot='mid')
-a.plot(z['gnp_cd'], z['gnp_ez'], '-', color='#27ae60', lw=1.3, alpha=0.9, label='limit-cycle orbit (feedback ON)')
-a.plot(cd_op, ez_op, '*', color='k', ms=20, zorder=6, label=f'operating point ({cd_op:.2f}, {ez_op:.2f})')
-# no-feedback point: where Cd sits with repression removed (on EZH2-nullcline at full drive A)
-a.plot(A, float(ez_of_cd(A)), 'D', color='#e67e22', ms=10, zorder=6, label=f'no-feedback Cd ({A:.2f})')
-a.annotate('', xy=(cd_op, ez_op), xytext=(A, float(ez_of_cd(A))),
+a.plot(z['gnp_cd'], z['gnp_mk'], '-', color='#27ae60', lw=1.3, alpha=0.9, label='limit-cycle orbit (feedback ON)')
+a.plot(cd_op, mk_op, '*', color='k', ms=20, zorder=6, label=f'operating point ({cd_op:.2f}, {mk_op:.2f})')
+# no-feedback point: where Cd sits with repression removed (on Mk-nullcline at full drive A)
+a.plot(A, float(mk_of_cd(A)), 'D', color='#e67e22', ms=10, zorder=6, label=f'no-feedback Cd ({A:.2f})')
+a.annotate('', xy=(cd_op, mk_op), xytext=(A, float(mk_of_cd(A))),
            arrowprops=dict(arrowstyle='->', color='#e67e22', lw=2, ls='--'))
-a.text((A + cd_op) / 2, float(ez_of_cd(A)) + 0.08, 'EZH2 buffers\nCyclinD1', color='#e67e22', fontsize=9, ha='center')
-a.set_xlim(0, 6.2); a.set_ylim(0, 2.2)
-a.set_xlabel('CyclinD1 (Cd)', fontsize=11); a.set_ylabel('EZH2', fontsize=11)
-a.set_title('(A) EZH2–CyclinD1 phase plane (GNP)\nnegative feedback → single stable node (monostable, buffering)', fontweight='bold', fontsize=11)
+a.text((A + cd_op) / 2, float(mk_of_cd(A)) + 0.05, 'H3K27me3 buffers\nCyclinD1', color='#e67e22', fontsize=9, ha='center')
+a.set_xlim(0, 6.2); a.set_ylim(0, 1.0)
+a.set_xlabel('CyclinD1 (Cd)', fontsize=11); a.set_ylabel('H3K27me3 mark (Mk)', fontsize=11)
+a.set_title('(A) H3K27me3–CyclinD1 phase plane (GNP)\nnegative feedback → single stable node (monostable, buffering)', fontweight='bold', fontsize=11)
 a.legend(fontsize=8, loc='upper right'); a.grid(alpha=0.15)
 
-# ---- Panel B: condition overlay ----
+# ---- Panel B: condition overlay (Mk, Cd) ----
 b = ax[0, 1]
-for pack_cd, pack_op, col, lab, ncd, ncz in [
-    ('gnp_cd', 'gnp_op', '#27ae60', 'GNP', 'nc_gnp_cd', 'nc_gnp_ez'),
-    ('mb_cd', 'mb_op', '#8e44ad', 'MB', 'nc_mb_cd', 'nc_mb_ez'),
-    ('gnpezi_cd', 'gnpezi_op', '#e67e22', 'GNP+EZH2i', 'nc_gnp_cd', 'nc_gnp_ez')]:
-    cdv, ezv, Av = z[pack_op]
-    b.plot(cd_nullcline(Av, ez_axis), ez_axis, '--', color=col, lw=1.6, alpha=0.8)
-    b.plot(z[pack_cd], z['%s' % pack_cd.replace('_cd', '_ez')], '-', color=col, lw=0.6, alpha=0.18)
-    b.plot(cdv, ezv, '*', color=col, ms=18, zorder=6, label=f'{lab}  ({cdv:.2f}, {ezv:.2f})')
+for pack_cd, pack_op, col, lab in [
+    ('gnp_cd', 'gnp_op', '#27ae60', 'GNP'),
+    ('mb_cd', 'mb_op', '#8e44ad', 'MB'),
+    ('gnpezi_cd', 'gnpezi_op', '#e67e22', 'GNP+EZH2i')]:
+    cdv, mkv, Av = z[pack_op]
+    b.plot(cd_nullcline(Av, mk_axis), mk_axis, '--', color=col, lw=1.6, alpha=0.8)
+    b.plot(z[pack_cd], z['%s' % pack_cd.replace('_cd', '_mk')], '-', color=col, lw=0.6, alpha=0.18)
+    b.plot(cdv, mkv, '*', color=col, ms=18, zorder=6, label=f'{lab}  ({cdv:.2f}, {mkv:.2f})')
 ordm = np.argsort(z['nc_mb_cd'])
-b.plot(z['nc_mb_cd'][ordm], z['nc_mb_ez'][ordm], '-', color='#2471a3', lw=2.0, alpha=0.9, label='EZH2-nullcline (MB CKIs)')
+b.plot(z['nc_mb_cd'][ordm], z['nc_mb_mk'][ordm], '-', color='#2471a3', lw=2.0, alpha=0.9, label='Mk-nullcline (MB CKIs)')
 ordg = np.argsort(z['nc_gnp_cd'])
-b.plot(z['nc_gnp_cd'][ordg], z['nc_gnp_ez'][ordg], '-', color='#5dade2', lw=2.0, alpha=0.9, label='EZH2-nullcline (GNP CKIs)')
-b.set_xlim(0, 12); b.set_ylim(0, 2.2)
-b.set_xlabel('CyclinD1 (Cd)', fontsize=11); b.set_ylabel('EZH2', fontsize=11)
+b.plot(z['nc_gnp_cd'][ordg], z['nc_gnp_mk'][ordg], '-', color='#5dade2', lw=2.0, alpha=0.9, label='Mk-nullcline (GNP CKIs)')
+b.set_xlim(0, 12); b.set_ylim(0, 1.0)
+b.set_xlabel('CyclinD1 (Cd)', fontsize=11); b.set_ylabel('H3K27me3 mark (Mk)', fontsize=11)
 b.set_title('(B) Mitogen drive & feedback removal move the operating point\n(dashed = Cd-nullcline per condition; EZH2i → un-repressed)', fontweight='bold', fontsize=11)
 b.legend(fontsize=8, loc='lower right'); b.grid(alpha=0.15)
 

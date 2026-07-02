@@ -4,7 +4,7 @@ Each cell is equilibrated cycling at high SHH (long enough for the slow EZH2 to 
 mitogen is withdrawn either SUDDENLY (SHH steps down instantly) or GRADUALLY (SHH ramped from 2
 down over 60 h) to a RANGE of final levels (full -> partial -> near-baseline). We count the cell
 divisions AFTER withdrawal, WITH vs WITHOUT the EZH2 -| CyclinD1 feedback (no-feedback =
-K_EZH2_repression -> inf, the structural knockout). State-reuse: each cell is equilibrated once
+f0_mk -> 1.0, the H3K27me3 mark cannot repress). State-reuse: each cell is equilibrated once
 (saveState) and every depth/mode is run from that saved state.
 
 KEY FINDING: the feedback effect is DEPTH-DEPENDENT. At FULL withdrawal both arrest (mitogen below
@@ -38,7 +38,7 @@ T_PRE = 6500            # equilibrate cycling + let slow EZH2 settle (~5 cycles)
 T_POST = 6000           # ~100 h window to count post-withdrawal divisions
 CHUNK = 250             # piecewise step (min) -- chunked for robustness in both modes
 T_RAMP = 3600           # gradual: linear SHH 2->low over 60 h, then hold
-KREP_OFF = 1e6          # feedback knockout
+FB_OFF = 1.0            # feedback knockout: f0_mk=1 -> R==1, mark cannot repress
 
 rng = np.random.default_rng(7)
 cd_scale = np.clip(np.exp(rng.normal(0.0, 0.68, N)), 0.25, 4.0)
@@ -48,7 +48,7 @@ KTL0 = 0.801
 rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
 rr.integrator.setValue("absolute_tolerance", 1e-9)
 rr.integrator.setValue("relative_tolerance", 1e-6)
-KREP_ON = rr['K_EZH2_repression']
+FB_ON = rr['f0_mk']     # feedback ON: default leaky floor (mark represses)
 SEL = ['time', 'MPF', 'Cd', 'EZH2']
 
 
@@ -57,7 +57,7 @@ def _setup(ktl, p21d, feedback):
     rr['SHH'] = SHH_HIGH; rr['EZH2i'] = 0; rr['MYCN_amplification'] = 1.0; rr['Ptch1_copy_number'] = 1.0
     rr['p16'] = 0.0; rr['p18'] = 0.464; rr['kSyP21'] = 0.002
     rr['k_Cd_translation'] = ktl; rr['P21_div'] = p21d
-    rr['K_EZH2_repression'] = KREP_ON if feedback else KREP_OFF
+    rr['f0_mk'] = FB_ON if feedback else FB_OFF
 
 
 def _set_tol(atol, rtol):

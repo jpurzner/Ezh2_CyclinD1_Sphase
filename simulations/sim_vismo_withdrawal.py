@@ -3,8 +3,8 @@
 The MB analogue of the mitogen-withdrawal experiment (sim_mitogen_withdrawal.py). Vismo blocks Smo,
 removing the Gli-driven CyclinD1 but leaving the MYCN floor intact -> even FULL vismo is a PARTIAL
 mitogen withdrawal for MB. So the EZH2 -| CyclinD1 feedback is decisive: WITH feedback the residual
-(MYCN-floor) CyclinD1 is repressed below threshold -> ARREST; WITHOUT it (no-fb = K_EZH2_repression
--> inf, equivalent to EZH2i / tazemetostat) the MYCN floor keeps CyclinD1 up -> the cell COASTS
+(MYCN-floor) CyclinD1 is repressed below threshold -> ARREST; WITHOUT it (no-fb = f0_mk -> 1.0, the
+H3K27me3 mark cannot repress, equivalent to EZH2i / tazemetostat) the MYCN floor keeps CyclinD1 up -> the cell COASTS
 (= the model's EZH2i rescue), now dose-resolved + sudden/gradual + ensemble.
 
 Each MB cell is equilibrated cycling at GDC=0 (EZH2 settled), then vismo is applied either SUDDENLY
@@ -34,7 +34,7 @@ T_PRE = 6500            # equilibrate cycling MB + let slow EZH2 settle
 T_POST = 6000           # ~100 h window to count post-treatment divisions
 CHUNK = 250             # piecewise step (min) -- chunked for robustness in both modes
 T_RAMP = 3600           # gradual: linear GDC 0->dose over 60 h, then hold
-KREP_OFF = 1e6          # feedback knockout (= EZH2i / tazemetostat)
+FB_OFF = 1.0            # feedback knockout: f0_mk=1 -> R==1, mark cannot repress (= EZH2i / tazemetostat)
 
 # MB identity (matches validate_v44 / sim_g0_bifurcation MB)
 MB = dict(shh=0.5, mycn_amp=2.8, ptch1=0.1, p16=0.306, p18=1.553, ksyp21=0.002)
@@ -47,7 +47,7 @@ KTL0 = 0.801
 rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
 rr.integrator.setValue("absolute_tolerance", 1e-9)
 rr.integrator.setValue("relative_tolerance", 1e-6)
-KREP_ON = rr['K_EZH2_repression']
+FB_ON = rr['f0_mk']     # feedback ON: default leaky floor (mark represses)
 SEL = ['time', 'MPF', 'Cd', 'EZH2']
 
 
@@ -57,7 +57,7 @@ def _setup(ktl, p21d, feedback):
     rr['MYCN_amplification'] = MB['mycn_amp']; rr['Ptch1_copy_number'] = MB['ptch1']
     rr['p16'] = MB['p16']; rr['p18'] = MB['p18']; rr['kSyP21'] = MB['ksyp21']
     rr['k_Cd_translation'] = ktl; rr['P21_div'] = p21d
-    rr['K_EZH2_repression'] = KREP_ON if feedback else KREP_OFF
+    rr['f0_mk'] = FB_ON if feedback else FB_OFF
 
 
 def _set_tol(atol, rtol):

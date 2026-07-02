@@ -32,21 +32,28 @@ top. Built via `build_model_v44(with_ezh2=True, with_hh=True, ...)`. **Validatio
    CyclinB/CDK1 mitotic switch, APC/C + division reset. EZH2 is a stable, cell-cycle-coupled protein
    (E2F × cyclins × mitogen-dose) that integrates S-phase duration.
 
-### The H3K27me3 epigenetic layer (three repression variants, all gated, default OFF)
+### The H3K27me3 epigenetic layer (repression variants; AUM is now the default)
 
-The production model lumps EZH2's repression into one factor; two newer flags make the **mark** explicit
-(the committed default is unchanged and still 22/27):
+As of June 2026 the **mean-field AUM H3K27me3 module is the default repression** (`with_h3k27_dilution=True`
+by default). The two legacy variants remain available behind flags:
 
 | build flag | repression of CyclinD1 | role |
 |---|---|---|
-| **default** | `K_rep/(K_rep + EZH2·(1−EZH2i))` — instantaneous | production model (22/27) |
-| `with_h3k27_memory` | explicit mark tracks EZH2; EZH2i → mark decays over ~24–48 h | de-repression **kinetics** (validation-preserving) |
-| `with_h3k27_dilution` | explicit replicative-dilution mark + **leaky** Hill `f0 + (1−f0)/(1+(Mk/K)^n)` | the mechanistic model (**22/27 parity**) |
+| **`with_h3k27_dilution`** (default) | **mean-field AUM mark** + transcription→PRC2 arm + **leaky** Hill `f0 + (1−f0)/(1+(Mk/K)^n)` | the mechanistic model, **default** (**22/27**) |
+| `with_h3k27_dilution=False` | `K_rep/(K_rep + EZH2·(1−EZH2i))` — instantaneous | legacy direct-repression model (22/27) |
+| `with_h3k27_memory=True` | explicit mark tracks EZH2; EZH2i → mark decays over ~24–48 h | de-repression **kinetics** variant (takes priority over dilution) |
 
-The dilution module (Purzner spec): autocatalytic read-write methylation + de-novo floor (EZH2-deposited,
-EZH2i-blocked), a **replicative halving at early S** (so the cycle period sets the dilution frequency),
-and a **leaky** graded repressor — H3K27me3 dampens *Ccnd1* but never locks it out (Pol II stays;
-residual transcription ~23% at full mark). All EZH2 repression flows through the dilution-sensitive mark.
+The AUM "feedback OFF" knob (used by the figure scripts, replacing the legacy `K_EZH2_repression→∞`) is
+`f0_mk=1.0` (the leaky floor at 1 → `R≡1`, the mark cannot repress).
+
+The dilution module (Purzner spec + literature review, `docs/H3K27me3_CyclinD1_literature_review.md`) is
+the **mean-field reduction of the Berry–Howard A/U/M per-nucleosome model**: EZH2-scaled autocatalytic
+read-write methylation + de-novo floor (EZH2i-blocked), a **transcription→PRC2 reciprocal eviction arm**
+(nascent *Ccnd1* RNA evicts PRC2 → the bivalent set-point *emerges* and vismo arrest is self-reinforcing),
+a **replicative halving at early S** (the cycle period sets the dilution frequency; halving lowers the mark
+17–25%), lit-review-paced turnover (de-repression t½ ≈ 16 h), and a **leaky** graded repressor —
+H3K27me3 dampens *Ccnd1* but never locks it out (Ser5P Pol II stays; residual transcription at full mark).
+All EZH2 repression flows through the dilution-sensitive mark. Calibration: `simulations/calibrate_h3k27_aum.py`.
 
 ### Key results (figures in `simulations/`, regenerated via `regenerate_figures.sh`)
 
@@ -123,8 +130,10 @@ The v44 production model is **calibrated (22/27)** and the H3K27me3 replicative-
 
 - **5 standing validation fails** (both models): EZH2 transcript S/G0 gradient (the worst), MB HU S/G2
   folds, MYCN GNP+HHi, MB G2+M duration — plus an expanded wide-search to make these a strict win.
-- **Decision:** promote the dilution model to the default repression (it is at parity), then regenerate
-  all figures on it.
+- **DONE:** the AUM dilution model is now the **default** repression (validate 22/27 on it; legacy via
+  `H3K27_DILUTION=0` or `with_h3k27_dilution=False`). All registry figures regenerated on it — the ~12
+  feedback figures were remapped from the legacy `K_EZH2_repression` knob to `f0_mk` (and the phase-plane
+  reworked into the (H3K27me3-mark, CyclinD1) plane).
 - **Gli→CyclinD1 coupling:** to make the persistent Gli1 residual offload MYCN from the resistant floor,
   lower `K_Gli_act_CycD` / the Hill exponent (a structural change, recalibration needed).
 - **Spec §8 (not yet run):** the cycle-length (T_cc) sweep (the replicative-dilution phenotype) and the

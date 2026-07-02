@@ -1,7 +1,7 @@
 """Supp Fig 8 A-H: impact of the EZH2 -> CyclinD1 feedback (v44 model).
 
 Compares the model WITH feedback (EZH2 represses CyclinD1) vs WITHOUT (repression removed by
-K_EZH2_repression -> 1e6) in GNP+SHH and Ptch+/- MB contexts. Panels:
+f0_mk -> 1.0, the H3K27me3 mark cannot repress) in GNP+SHH and Ptch+/- MB contexts. Panels:
   A,B  Cyclin B traces +/- feedback (GNP, MB)
   C,D  CyclinD1 mRNA +/- feedback   (GNP, MB)
   E,F  EZH2 protein +/- feedback    (GNP, MB)
@@ -35,7 +35,7 @@ CTX = {
 def run(ctx, feedback=True):
     p = dict(PARAMS)
     if not feedback:
-        p["K_EZH2_repression"] = 1e6        # ablate EZH2 -> CyclinD1 repression
+        p["f0_mk"] = 1.0                    # ablate H3K27me3 -> CyclinD1 repression (R==1)
     rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True, params=p or None))
     rr.integrator.setValue("absolute_tolerance", 1e-9)
     rr.integrator.setValue("relative_tolerance", 1e-6)

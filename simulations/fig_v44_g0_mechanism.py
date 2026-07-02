@@ -44,7 +44,7 @@ def metrics(res):
 # sweeps
 shh_s = [(metrics(sim(shh=s))) for s in [0.35, 0.45, 0.6, 0.8, 1.0]]
 tl_s = [(metrics(sim({"k_Cd_translation": k}))) for k in [0.35, 0.45, 0.55, 0.65, 0.75, 0.95]]
-ke_s = [(metrics(sim({"K_EZH2_repression": k}))) for k in [0.5, 0.75, 1.2, 2.0]]
+ke_s = [(metrics(sim({"f0_mk": k}))) for k in [0.05, 0.2, 0.4, 0.7]]   # AUM: f0_mk leaky floor (lower = stronger repression)
 mb = metrics(sim(shh=0.5, ptch1=0.1, mycn=2.8))
 mb_e = metrics(sim(shh=0.5, ptch1=0.1, mycn=2.8, ezh2i=1.0))
 gnp = metrics(sim(shh=0.5)); gnp_e = metrics(sim(shh=0.5, ezh2i=1.0))

@@ -2,7 +2,7 @@
 
 The CyclinD1 -> Rb-E2F -> EZH2 arm is ubiquitous; the EZH2 -| CyclinD1 arm is context-specific and
 CLOSES a negative feedback loop. We compare the cell WITH this arm (default) vs WITHOUT it
-(K_EZH2_repression -> 1e6, i.e. EZH2 present but cannot repress CyclinD1, as in 'most cells') across
+(f0_mk -> 1.0, i.e. the H3K27me3 mark is present but cannot repress CyclinD1, as in 'most cells') across
 mitogen (SHH) levels, to see the functional consequences:
 
   - homeostasis: does the feedback BUFFER CyclinD1 (and proliferation) against mitogen level?
@@ -21,7 +21,7 @@ T_END, N_PTS = 10080, 20160
 SHH = np.round(np.linspace(0.2, 1.0, 9), 2)
 
 M_fb = build_model_v44()                                        # feedback ON (default)
-M_no = build_model_v44(params={"K_EZH2_repression": 1e6})       # feedback OFF (EZH2 cannot repress Cd)
+M_no = build_model_v44(params={"f0_mk": 1.0})                   # feedback OFF (H3K27me3 mark cannot repress Cd)
 
 
 def run(model, shh):

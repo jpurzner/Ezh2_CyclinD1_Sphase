@@ -358,7 +358,7 @@ def _apply_overrides(model, overrides):
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
-                    with_h3k27_memory=False, with_h3k27_dilution=False, params=None):
+                    with_h3k27_memory=False, with_h3k27_dilution=True, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -489,25 +489,43 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # repress CyclinD1 via the mark instead of EZH2 directly (HH transcription path)
         m = m.replace("K_EZH2_repression + EZH2*(1 - EZH2i)", "K_EZH2_repression + H3K27_Cd")
 
-    if with_h3k27_dilution and with_ezh2:
-        # Replicative-dilution H3K27me3 module at the Ccnd1 locus (Purzner design spec). Mk = H3K27me3
-        # occupancy over the ~7 kb domain in [0,1]. Continuous: AUTOCATALYTIC read-write methylation
-        # (k_w*EZH2*Mk -- EED reads me3) + de-novo nucleation floor (k0, so a halved locus can reseed),
-        # both on unmethylated substrate (1-Mk) and both blocked by EZH2i (PRC2 inhibition); minus
-        # demethylation/turnover (del*Mk) -> sub-saturating bivalent M_ss emerges. Discrete: the mark is
-        # HALVED once per cycle at EARLY S (Dna>0.05 event) = replicative dilution -- the emergent cycle
-        # period sets the dilution frequency (the loop the spec closes). Mk represses Ccnd1 via a SHARP
-        # Hill (n~6, K~0.55*M_ss) -> ~one-division margin + digital switching. NOTE: reformulates the
-        # repression term, so the MB/GNP CyclinD1 fold must be re-derived via EZH2->M_ss (separate
-        # calibration; this module is for the locus dynamics + T_cc phenotype). Default OFF; not for
-        # use together with with_h3k27_memory.
+    if with_h3k27_dilution and with_ezh2 and not with_h3k27_memory:
+        # Mean-field AUM H3K27me3 module at the Ccnd1 locus (Purzner spec + literature review, June 2026).
+        # NOTE: this is now the DEFAULT repression (promoted June 2026); pass with_h3k27_dilution=False for
+        # the legacy direct-EZH2 term, or with_h3k27_memory=True for the memory variant (which takes priority).
+        # Mk = H3K27me3 occupancy over the ~7 kb / ~35-nucleosome bivalent Ccnd1 domain in [0,1]. This is
+        # the MEAN-FIELD REDUCTION of the Berry-Dean-Howard 2017 A/U/M per-nucleosome model: one state Mk
+        # (the U<->M arm with read-write); the "active/A" (H3K27ac) state's antagonism is supplied not by a
+        # separate acetyl species but by the TRANSCRIPTION -> PRC2 reciprocal arm below (lit-review S3.3:
+        # nascent RNA evicts PRC2 / inhibits its HMTase in real time). Well-mixed mean-field is justified at
+        # N~35 because PRC2 read-write recruitment is non-local (Dodd 2007; lit-review S3.9).
+        #
+        # Continuous methylation (PRC2 catalytic-rate term, lit-review S3.6):
+        #   * AUTOCATALYTIC read-write k_w*EZH2*Mk  (EED reads me3 -> allosterically activates EZH2)
+        #   * de-novo nucleation floor k0  (accessory-driven, so a halved locus can reseed)
+        #   * both on unmethylated substrate (1-Mk), both blocked by EZH2i (PRC2 inhibition)
+        #   * RECIPROCAL ARM (1 - g*tx-Hill): ongoing Ccnd1 transcription (proxied by Cd_mRNA = nascent
+        #     output) evicts PRC2 -> a double-negative => positive feedback that makes the BIVALENT,
+        #     sub-saturating M_ss EMERGE from the antagonism balance (rather than be imposed), sharpens the
+        #     switch and adds hysteresis. g_mk is the (deliberately weak/tunable) eviction strength: the
+        #     measured 5.07x MB/GNP CyclinD1 fold pins the feedback to the weak regime. g_mk=0 recovers the
+        #     prior read-write-only module exactly.
+        # minus demethylation/turnover (del*Mk; tau_restore ~ ln2/del ~ 10 h, the lit-review fast end).
+        # Discrete: the mark is HALVED at EARLY S (Dna>0.05 event) = replicative dilution -- the emergent
+        # cycle period sets the dilution frequency, so the dilution-vs-restoration race is the T_cc
+        # phenotype (Jadhav 2020). Readout = LEAKY frequency-acting Hill R = f0 + (1-f0)/(1+(Mk/K)^n):
+        # H3K27me3 throttles initiation/burst frequency with a residual floor f0 (loaded Ser5P Pol II ->
+        # leaky firing; lit-review S3.1/S3.8) -- it DAMPENS, never locks out. NOTE: reformulates the
+        # repression term, so the MB/GNP fold is re-derived via EZH2/transcription -> M_ss (separate
+        # calibration). Default OFF; not for use together with with_h3k27_memory.
         mk = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  k_w_mk = 0.00261; k0_mk = 0.000258; del_mk = 0.00117;   // read-write, de-novo floor, demeth/turnover (leaky-search calibrated)"
+            "\n  k_w_mk = 0.00160; k0_mk = 0.000258; del_mk = 0.00070;   // read-write, de-novo floor, demeth/turnover (de-repression t1/2~16h, lit-review tau_restore band)"
+            "\n  g_mk = 0.30; K_tx_mk = 5.0; p_tx_mk = 2.0;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
             "\n  K_mk = 0.305; n_mk = 4.15; f0_mk = 0.233;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
-            "\n  // transcription at full mark -- H3K27me3 impedes elongation but Pol II stays, so it DAMPENS,"
-            "\n  // does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
-            "\n  Mk_methylation: => Mk; Cell*(k_w_mk*EZH2*(1 - EZH2i)*Mk + k0_mk*(1 - EZH2i))*(1 - Mk);"
+            "\n  // transcription at full mark -- H3K27me3 impedes initiation/burst freq but Pol II stays, so it"
+            "\n  // DAMPENS, does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
+            "\n  Mk_methylation: => Mk; Cell*EZH2*(1 - EZH2i)*(k_w_mk*Mk + k0_mk)*(1 - Mk)*(1 - g_mk*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
             "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
         )
