@@ -23,6 +23,7 @@ SLOW=(
   "simulations/sim_ezh2_phaseplane.py --fresh"   # fig_v44_ezh2_phaseplane -- EZH2-CyclinD1 nullcline portrait + bifurcation diagrams; ~35 min (cached)
   "simulations/sim_ezh2_dilution_tension.py --fresh" # fig_v44_dilution_tension -- EZH2-methylation vs replicative-dilution tension (mitogen x S-phase) -> CyclinD1 transcript; ~10 min (cached)
   "simulations/sim_ezh2_dilution_tension_variants.py --fresh" # fig_v44_dilution_tension_variants -- HU-axis (replication stress) + MB/vismo variants of the tension surface; ~13 min (cached)
+  "simulations/sim_ezh2_mitogen_buffering.py --fresh" # fig_v44_mitogen_buffering -- EZH2 buffers CyclinD1 vs mitogen (sensitivity/onset, fluctuation frequency-response, withdrawal, R-point commitment memory); ~20 min (cached)
   "simulations/sim_mitogen_withdrawal.py --fresh" # fig_v44_mitogen_withdrawal -- sudden/gradual mitogen withdrawal x depth x +/-feedback, post-withdrawal divisions; ~2.5 h (cached)
   "simulations/sim_vismo_withdrawal.py --fresh"   # fig_v44_vismo_withdrawal -- MB+vismodegib (partial-withdrawal analog) x dose x +/-feedback; EZH2i rescue dose/heterogeneity-resolved; ~2.5 h (cached)
   "simulations/fig_v44_ezh2i_rescue_kinetics.py --fresh" # fig_v44_ezh2i_rescue_kinetics -- H3K27me3-MEMORY model: EZH2i fast-tracks CyclinD1 de-repression -> rescues vismo-arrested MB (timed dosing); ~15 min (cached)

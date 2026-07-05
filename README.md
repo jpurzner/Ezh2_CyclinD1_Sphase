@@ -97,6 +97,7 @@ src/
 docs/
   model_writeup.pdf / .md                  # full detailed walkthrough (equations + all figures)
   h3k27me3_repression_model_state.md       # current state, the 3 repression variants, outstanding items
+  DATA_PROVENANCE.md                       # audit trail: data → parameter → status (measured/inherited/soft/free)
   v44_recalibration_and_search_results.md  # the parameter bake + wide-search results
   FIGURES.md                               # which script generates each figure
 simulations/
