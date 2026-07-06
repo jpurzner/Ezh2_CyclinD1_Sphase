@@ -77,6 +77,23 @@ Data sources used to parameterize the model: `docs/PARAMETERIZATION.md`.
 
 ---
 
+## Distribution model (population-of-models; single-cell-data-grounded)
+
+Virtual-cell populations where each cell draws a small set of DECISIVE parameters from log-normal
+distributions. **Only the distribution SHAPE and its CV (variance/mean) are used — never the absolute
+means** (fluorescence a.u. are arbitrary); draws are median-1 multipliers, so the mean floats on the
+model's own scale. CyclinD1-setpoint spread is grounded on measured single-cell CyclinD1 (G0/1 CV 0.70);
+p27 and EZH2 axes are placeholders pending the cleaned p27 fit and the mCherry-Ezh2/TMP series.
+
+| Output PDF | Generating script | What it shows |
+|---|---|---|
+| `sim_distribution_rescue.pdf` | `sim_distribution_rescue.py` | **Fractional EZH2i rescue.** Cells draw CyclinD1 setpoint (`cd_scale` LogNormal σ=0.633 — **DATA: measured CyclinD1 G0/1 CV 0.70**), birth p27, EZH2 responsiveness (placeholders), run through the MB engine ± vismodegib ± EZH2i. **Fractional rescue emerges** (EZH2i re-starts a subset of vismo-arrested cells), CyclinD1-setpoint-dependent. (A) model CyclinD1 dist. vs the measured log-normal; (B) rescue phase diagram in (CyclinD1 × p27) coloured by outcome — boundary = the CyclinD1:p27 ratio threshold; (C) rescued fraction. Pilot N=24. |
+| `sim_cyclind1_variance_buffering.pdf` | `sim_cyclind1_variance_buffering.py` | **EZH2 buffers cell-to-cell CyclinD1 variance (scale-free, CV only).** Heterogeneous CyclinD1 setpoint; steady CyclinD1 measured WITH vs WITHOUT EZH2 repression (EZH2i). (A) distributions ÷mean compress under repression; (B) per-cell — EZH2 pulls high-setpoint cells down more (nonlinear high-end cap → variance shrinks); (C) CV comparison. **Prediction: EZH2i broadens the single-cell CyclinD1 CV, mainly the high tail.** |
+| `sim_cyclind1_variance_calibrate.pdf` | `sim_cyclind1_variance_calibrate.py` | **Calibrated variance-buffering prediction.** Precomputes the setpoint→CyclinD1 transfer function (EZH2 on/off) once, then computes CV_on/CV_off for any input spread. Solves for σ* where the model's *with-EZH2* CV reproduces the measured **0.70** (σ*=0.73 ≈ measured G2 sdlog 0.738), and reads off the predicted *without-EZH2* CV (~**0.82**) and buffering factor (~**1.18×**). Scale-free (only the measured CV). |
+| `sim_p27_bimodality.pdf` | `sim_p27_bimodality.py` | **Bimodal G0 p27 emerges from the transient-G0 / immediate-re-entry commitment switch.** UNIMODAL birth-p27 input → the Skp2–p27–E2f switch splits 2N (G0/G1) p27 into two modes (high uncommitted / low committed), **~4.7× apart, matching the measured ~4× G0 two-component separation**. Modest IF floor (observable offset, not a dynamics change). Open test: model high-component CV 0.44 vs data G0-high 1.29 — the excess data breadth predicts the **arrested/poised contamination the cleaned G0 fit should remove**. |
+
+---
+
 ## Calibration / diagnostic scripts (no figure)
 
 | Script | Purpose |

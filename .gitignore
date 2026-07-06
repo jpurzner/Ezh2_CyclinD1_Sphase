@@ -38,6 +38,11 @@ Thumbs.db
 !simulations/fig_ezh2_data_constrained.pdf
 # v44 model figures (paper + exploratory) — vector PDFs tracked for the manuscript
 !simulations/fig_v44_*.pdf
+# distribution model (population-of-models) — vector PDFs tracked
+!simulations/sim_distribution_rescue.pdf
+!simulations/sim_cyclind1_variance_buffering.pdf
+!simulations/sim_cyclind1_variance_calibrate.pdf
+!simulations/sim_p27_bimodality.pdf
 # v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
 !archive/v45/*.pdf
 
