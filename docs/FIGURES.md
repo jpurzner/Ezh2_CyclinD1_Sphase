@@ -27,6 +27,7 @@ counter, the phase (p27) classifier, and the experimental-target checks that the
 |---|---|---|---|
 | **Fig. 5A–C** — Ptch+/− MB / +HHi (arrest) / +HHi+Ezh2i (rescue), Cyclin B traces | `fig_v44_fig5_rescue.pdf` | `fig_v44_fig5_rescue.py` | |
 | **Supp. Fig. 7A** — model architecture / wiring diagram | `fig_v44_wiring.pdf` | `fig_v44_wiring.py` | pure schematic (no simulation) |
+| **push/pull summary schematic** — what drives EZH2 & CyclinD1 up/down + the H3K27me3 feedback | `fig_v44_pushpull_schematic.svg` | hand-authored SVG (no simulation) | Balance-sheet capstone for the EZH2↔CyclinD1 thread: green = drives up, red = pushes down; EZH2→H3K27me3⊣CyclinD1 leaky-rheostat feedback; three emergent-behavior callouts (progressive repression/buffering; proliferation-rate sets the brake via dilution ∝1/period; **G0 reversible/monostable, not a bistable lock**). Vector; converts to PDF for the manuscript (rsvg-convert/Inkscape). |
 | **Supp. Fig. 7B–M** — validation grid (Cyclin B traces; CyclinD1/Mycn/Gli1 model‑vs‑data; EZH2; division counts; time courses) | `fig_v44_validation.pdf` | `fig_v44_validation.py` | |
 | **Supp. Fig. 8A–H** — EZH2→CyclinD1 feedback (±feedback: Cyclin B, CyclinD1 mRNA, EZH2 protein, phase relationship) | `fig_v44_feedback.pdf` | `fig_v44_feedback.py` | feedback OFF = `f0_mk = 1.0` (AUM mark cannot repress) |
 | **Supp. Fig. 8I,J** — MB+CDK4/6i and MB+CDK4/6i+Ezh2i (no rescue) | `fig_v44_cdk46i_norescue.pdf` | `fig_v44_fig5_rescue.py` | emitted alongside Fig. 5 |
