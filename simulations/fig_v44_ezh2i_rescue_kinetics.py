@@ -1,14 +1,20 @@
 """EZH2i fast-tracks CyclinD1 de-repression and rescues the vismodegib-arrested MB cell (calibrated
-H3K27me3-MEMORY model). Vismo lowers Gli-driven CyclinD1 but the MYCN floor remains; sustained high
-EZH2 holds H3K27me3 at the CyclinD1 locus -> stable, EZH2-maintained arrest. EZH2i blocks H3K27me3
-deposition -> the mark decays (active demethylation + replication-dilution) -> CyclinD1 de-represses
-over ~24-48h -> cycle re-entry, AT WHATEVER TIME the inhibitor is given.
+H3K27me3-MEMORY model). Vismo lowers Gli-driven CyclinD1 but the MYCN floor keeps it near threshold;
+residual H3K27me3 at the CyclinD1 locus holds it just below, and EZH2i clears the mark to re-tip it.
+EZH2i blocks H3K27me3 deposition -> the mark decays (active demethylation + replication-dilution) ->
+CyclinD1 de-represses over ~24-48h -> cycle re-entry, AT WHATEVER TIME the inhibitor is given.
 
 (A) CyclinD1 +/- EZH2i; (B) the H3K27me3 mark (the mechanism); (C) timed dosing @0/24/48h -> de-
 represses whenever added (the fast-track); (D) rescue outcome (de-repression + divisions) vs dosing time.
 
-(Mitogen-withdrawn GNPs are NOT shown: there EZH2 falls with cycle exit so the mark self-clears and
-the arrest is not EZH2-maintained -- the rescue is specific to the high-EZH2 MB/vismo state. Text only.)
+NOTE (2026-07): the earlier "stable, EZH2-maintained lock-in" framing is SUPERSEDED. EZH2 is cell-cycle-
+gated (Skp2/E2f), so it is not MYCN-sustained in a non-cycling cell; and the mark does NOT make G0
+bistable -- a two-initial-condition test (fig_v44_g0_bistability_confirm) shows arrested G0 is MONOSTABLE
+and reversible ("sticky"/metastable, not latched). The rescue result is unchanged: EZH2i de-represses the
+MYCN-floored, mark-repressed borderline CyclinD1 and re-tips it into cycle.
+
+(Mitogen-withdrawn GNPs are NOT shown: there EZH2 falls with cycle exit so the mark self-clears -- but by
+the same cell-cycle-gating this now applies to the MB/vismo arrest too; EZH2i just accelerates it.)
 
 Cache: fig_v44_ezh2i_rescue_kinetics_cache.npz  (--fresh). ~15 min fresh.
 """
