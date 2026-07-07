@@ -54,6 +54,8 @@ Thumbs.db
 !simulations/sim_ramp_hysteresis_trace.pdf
 !simulations/sim_ramp_hysteresis_trace_control.pdf
 !simulations/sim_ramp_hysteresis_phaseplot.pdf
+!simulations/sim_hh_entry_threshold.pdf
+!simulations/sim_hh_withdrawal_threshold.pdf
 # v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
 !archive/v45/*.pdf
 
