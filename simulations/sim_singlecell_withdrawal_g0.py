@@ -31,11 +31,14 @@ from src.build_model_v44_heldt import build_model_v44
 
 PILOT = '--pilot' in sys.argv
 FRESH = '--fresh' in sys.argv
+SHALLOW = '--shallow' in sys.argv                                 # 0.50 (just above repressed exit thr ~0.48) vs 0.35
 N = 6 if PILOT else 28
-CACHE = 'simulations/sim_singlecell_withdrawal_g0_cache.npz'
-SHH_HI, SHH_LO = 1.0, 0.35                                        # partial withdrawal (effect maximal here)
+SUFFIX = '_shallow' if SHALLOW else ''
+CACHE = f'simulations/sim_singlecell_withdrawal_g0_cache{SUFFIX}.npz'
+OUT = f'simulations/sim_singlecell_withdrawal_g0{SUFFIX}'
+SHH_HI, SHH_LO = 1.0, (0.50 if SHALLOW else 0.35)
 SETTLE, D_WD, HOLD, CHUNK, NP = 6000.0, 6000.0, 12000.0, 120.0, 11
-DWELL_CUT, P27_HI = 2.0, 0.1
+DWELL_CUT, P27_HI, MAXK = 2.0, 0.1, 10
 SEL = ['time', 'SHH', 'MPF', 'P21', 'aRc', 'Dna', 'Cd']
 
 rng = np.random.default_rng(11)
@@ -113,6 +116,7 @@ if FRESH or not os.path.exists(CACHE):
     for cond, f0 in [('W', 0.233), ('N', 1.0)]:
         state_rows = np.full((N, L), 2, np.int8)                 # default = arrested (covers cells that die at settle)
         cd_rows = np.full((N, L), np.nan); p21_rows = np.full((N, L), np.nan)
+        ivk = np.full((N, MAXK), np.nan)                         # per-cell interval SEQUENCE (1st,2nd,... post-withdrawal)
         inters = []; mids = []; arrest = np.full(N, np.nan); ndiv = np.zeros(N, int)
         dft = []; dfc = []
         for i in range(N):
@@ -122,10 +126,12 @@ if FRESH or not os.path.exists(CACHE):
             pt, inter, mid, state, at = analyze(r['time'], r['MPF'], r['P21'], r['aRc'], r['Dna'])
             state_rows[i] = np.clip(np.round(np.interp(T_REF, r['time'], state)), 0, 2).astype(np.int8)  # interp holds endpoints
             cd_rows[i] = np.interp(T_REF, r['time'], r['Cd']); p21_rows[i] = np.interp(T_REF, r['time'], r['P21'])
+            ivk[i, :min(len(inter), MAXK)] = inter[:MAXK]
             inters.append(inter); mids.append(mid); arrest[i] = at; ndiv[i] = len(pt)
             dft.append(pt); dfc.append(np.full(len(pt), i))
             print(f'  {cond} cell {i+1}/{N}  arrest_t={(at/60 if np.isfinite(at) else float("nan")):.0f}h  ndiv={len(pt)}', flush=True)
         store[f'{cond}_state'] = state_rows; store[f'{cond}_cd'] = cd_rows; store[f'{cond}_p21'] = p21_rows
+        store[f'{cond}_ivk'] = ivk
         store[f'{cond}_inter'] = cat(inters); store[f'{cond}_mids'] = cat(mids)
         store[f'{cond}_arrest'] = arrest; store[f'{cond}_ndiv'] = ndiv
         store[f'{cond}_divflat_t'] = cat(dft); store[f'{cond}_divflat_cell'] = cat(dfc)
@@ -170,19 +176,21 @@ axE.axvline(D_WD / 60, color='k', ls=':', lw=1); axE.set_xlim(0, 200)
 axE.set_title('(B) Example cells (WITH mark): CyclinD1 oscillations slow & shrink;\np27 (dotted) rises into G0 as Hh withdraws', fontweight='bold', fontsize=11)
 axE.legend(fontsize=8, loc='upper right')
 
-# (C) inter-division interval vs time — WITH vs WITHOUT
-def binned(mids, inter, edges):
-    idx = np.digitize(mids, edges); m = np.array([np.median(inter[idx == k]) if (idx == k).any() else np.nan for k in range(1, len(edges))])
-    return 0.5 * (edges[:-1] + edges[1:]), m
-edges = np.linspace(0, T.max(), 11)
-for cond, col, lab in [('W', '#8b1a1a', 'WITH mark'), ('N', '#666', 'WITHOUT mark')]:
-    mid = z[f'{cond}_mids'] / 60.0; iv = z[f'{cond}_inter']
-    axI.plot(mid, iv, '.', color=col, ms=3, alpha=0.28)
-    bx, bm = binned(mid, iv, edges); axI.plot(bx, bm, '-o', color=col, lw=2.4, ms=5, label=lab)
-axI.axvline(D_WD / 60, color='k', ls=':', lw=1)
-axI.set_xlabel('time since withdrawal start (h)'); axI.set_ylabel('inter-division interval (h)')
-axI.set_title('(C) Cell-cycle period LENGTHENS through withdrawal\n(median per time-bin; points = individual cycles)', fontweight='bold', fontsize=11)
-axI.legend(fontsize=9); axI.grid(alpha=0.15)
+# (C) inter-division interval BY DIVISION NUMBER — survivorship-controlled (each cell gives its own sequence)
+MK = z['W_ivk'].shape[1]
+for cond, col, lab in [('W', '#8b1a1a', 'WITH mark'), ('N', '#4a4a4a', 'WITHOUT mark')]:
+    ivk = z[f'{cond}_ivk']; ks = np.arange(1, MK + 1)
+    nk = np.sum(~np.isnan(ivk), 0); valid = nk >= 3
+    med = np.nanmedian(ivk, 0); q1 = np.nanpercentile(ivk, 25, 0); q3 = np.nanpercentile(ivk, 75, 0)
+    for i in range(ivk.shape[0]):
+        axI.plot(ks, ivk[i], '-', color=col, lw=0.5, alpha=0.16)
+    axI.plot(ks[valid], med[valid], '-o', color=col, lw=2.6, ms=6, label=lab)
+    axI.fill_between(ks[valid], q1[valid], q3[valid], color=col, alpha=0.14)
+    for k in ks[valid]:
+        axI.annotate(f'n={nk[k-1]}', (k, med[k-1]), textcoords='offset points', xytext=(0, 9), fontsize=6.5, color=col, ha='center')
+axI.set_xlabel('post-withdrawal division number (1st, 2nd, …)'); axI.set_ylabel('inter-division interval (h)')
+axI.set_title('(C) Period lengthening BY division number (survivorship-controlled)\neach cell contributes its own sequence; median ± IQR', fontweight='bold', fontsize=11)
+axI.set_xticks(np.arange(1, MK + 1)); axI.legend(fontsize=9); axI.grid(alpha=0.15)
 
 # (D) fraction of cells transient-G0 and arrested vs time — WITH vs WITHOUT
 for cond, col, lab in [('W', '#8b1a1a', 'WITH mark'), ('N', '#666', 'WITHOUT mark')]:
@@ -195,12 +203,12 @@ axF.set_xlabel('time since withdrawal start (h)'); axF.set_ylabel('fraction of c
 axF.set_title('(D) G0 & arrest through withdrawal — WITH vs WITHOUT mark', fontweight='bold', fontsize=11)
 axF.legend(fontsize=8.5, loc='center right'); axF.grid(alpha=0.15); axF.set_ylim(0, 1)
 
-fig.suptitle(f'Single-cell ensemble (N={Nc}, heterogeneous temporal properties) through Hh withdrawal — transient G0 & period lengthening',
+fig.suptitle(f'Single-cell ensemble (N={Nc}, heterogeneous temporal properties) through Hh withdrawal to SHH={float(z["SHH_LO"]):.2f} — transient G0 & period lengthening',
              fontsize=13.5, fontweight='bold', y=1.0)
 plt.tight_layout()
-plt.savefig('simulations/sim_singlecell_withdrawal_g0.png', dpi=150, bbox_inches='tight')
-plt.savefig('simulations/sim_singlecell_withdrawal_g0.pdf', bbox_inches='tight')
+plt.savefig(f'{OUT}.png', dpi=150, bbox_inches='tight')
+plt.savefig(f'{OUT}.pdf', bbox_inches='tight')
 plt.close()
 print('WITH   median ndiv=%.1f  arrested@end=%.0f%%' % (np.median(z['W_ndiv']), 100 * (z['W_state'][:, -1] == 2).mean()))
 print('WITHOUT median ndiv=%.1f  arrested@end=%.0f%%' % (np.median(z['N_ndiv']), 100 * (z['N_state'][:, -1] == 2).mean()))
-print('Saved sim_singlecell_withdrawal_g0.png')
+print(f'Saved {OUT}.png')
