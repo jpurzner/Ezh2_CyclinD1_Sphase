@@ -5,6 +5,7 @@ __pycache__/
 
 # cached parameter sweeps (regeneratable)
 simulations/*_cache.npz
+simulations/*_cache_*.npz
 simulations/*_mini.npz
 *.egg-info/
 
