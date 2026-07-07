@@ -51,6 +51,7 @@ Thumbs.db
 !simulations/sim_ramp_timing_exploration.pdf
 !simulations/sim_ramp_hysteresis_area.pdf
 !simulations/sim_ramp_hysteresis_mark_control.pdf
+!simulations/sim_ramp_hysteresis_trace.pdf
 # v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
 !archive/v45/*.pdf
 
