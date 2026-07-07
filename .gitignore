@@ -48,6 +48,7 @@ Thumbs.db
 !simulations/sim_population_mitogen_ramp.pdf
 !simulations/sim_ramp_parameter_exploration.pdf
 !simulations/sim_ramp_traces_diagnostic.pdf
+!simulations/sim_ramp_timing_exploration.pdf
 # v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
 !archive/v45/*.pdf
 
