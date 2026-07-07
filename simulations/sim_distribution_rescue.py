@@ -34,12 +34,14 @@ import tellurium as te
 from scipy.signal import find_peaks
 from src.build_model_v44_heldt import build_model_v44
 
-PILOT = '--pilot' in sys.argv or True   # default to pilot for now
-FRESH = '--fresh' in sys.argv
-N = 24 if PILOT else 200
+FULL = '--full' in sys.argv             # --full = large population (default = quick pilot)
+FRESH = '--fresh' in sys.argv or FULL
+N = 400 if FULL else 24
 CACHE = 'simulations/sim_distribution_rescue_cache.npz'
-KTL0, KEZ0 = 0.801, 0.022
-CD_SDLOG_DATA = 0.633                    # measured CyclinD1 G0/1 sdlog (CV 0.70)
+KTL0 = 0.801; KTLEZ0 = 0.004             # k_Cd_translation and kTlEZ (EZH2 translation = abundance knob) defaults
+CD_SDLOG = 0.633     # DATA: CyclinD1 G0/1 CV 0.70
+P27_SDLOG = 0.32     # DATA: p27 G1 CV 0.33 (birth p27 UNIMODAL; G0 bimodality emerges from the commitment switch)
+EZ_SDLOG = 0.51      # DATA: EZH2 abundance CV ~0.55 (G1/S) — the third measured-variation axis
 T_END, SETTLE = 12000, 6000
 
 M = build_model_v44(with_ezh2=True, with_hh=True)
@@ -49,11 +51,11 @@ try: _R.integrator.setValue('maximum_num_steps', 300000)
 except Exception: pass
 
 
-def cell(ktl, p21d, kez, hhi, ezh2i):
+def cell(ktl, p21d, ktlez, hhi, ezh2i):
     _R.reset()
     for k, v in MB.items(): _R[k] = v
     _R['HHi'] = hhi; _R['EZH2i'] = ezh2i
-    _R['k_Cd_translation'] = float(ktl); _R['P21_div'] = float(p21d); _R['kEZE2f'] = float(kez)
+    _R['k_Cd_translation'] = float(ktl); _R['P21_div'] = float(p21d); _R['kTlEZ'] = float(ktlez)
     for atol in (1e-9, 1e-8, 1e-7, 1e-6):
         try:
             _R.integrator.setValue('absolute_tolerance', atol)
@@ -70,26 +72,26 @@ def cell(ktl, p21d, kez, hhi, ezh2i):
 
 if FRESH or not os.path.exists(CACHE):
     rng = np.random.default_rng(7)
-    cd_scale = np.clip(np.exp(rng.normal(0.0, CD_SDLOG_DATA, N)), 0.2, 6.0)     # DATA
-    p21_div = np.clip(np.exp(rng.normal(np.log(0.85), 0.30, N)), 0.4, 2.5)       # placeholder
-    kez_scale = np.clip(np.exp(rng.normal(0.0, 0.30, N)), 0.3, 3.0)              # placeholder
+    cd_scale = np.clip(np.exp(rng.normal(0.0, CD_SDLOG, N)), 0.2, 6.0)          # DATA: CyclinD1 CV 0.70
+    p21_div = np.clip(np.exp(rng.normal(np.log(0.85), P27_SDLOG, N)), 0.4, 2.5)  # DATA: p27 G1 CV 0.33
+    ez_scale = np.clip(np.exp(rng.normal(0.0, EZ_SDLOG, N)), 0.25, 4.0)          # DATA: EZH2 abundance CV ~0.55
     rows = []
     for i in range(N):
-        ktl, kez = KTL0 * cd_scale[i], KEZ0 * kez_scale[i]
-        cyc = cell(ktl, p21_div[i], kez, hhi=0.0, ezh2i=0)     # baseline, no vismo
-        arr = cell(ktl, p21_div[i], kez, hhi=0.9, ezh2i=0)     # + vismo
-        res = cell(ktl, p21_div[i], kez, hhi=0.9, ezh2i=1)     # + vismo + EZH2i
+        ktl, ktlez = KTL0 * cd_scale[i], KTLEZ0 * ez_scale[i]
+        cyc = cell(ktl, p21_div[i], ktlez, hhi=0.0, ezh2i=0)     # baseline, no vismo
+        arr = cell(ktl, p21_div[i], ktlez, hhi=0.9, ezh2i=0)     # + vismo
+        res = cell(ktl, p21_div[i], ktlez, hhi=0.9, ezh2i=1)     # + vismo + EZH2i
         rescued = (not arr['cyc']) and res['cyc']
-        rows.append((cd_scale[i], p21_div[i], kez_scale[i], cyc['cyc'], cyc['cd'], cyc['ez'],
+        rows.append((cd_scale[i], p21_div[i], ez_scale[i], cyc['cyc'], cyc['cd'], cyc['ez'],
                      arr['cyc'], res['cyc'], rescued))
         print(f"  cell {i+1:2d}/{N}  cd_scale {cd_scale[i]:.2f} p27 {p21_div[i]:.2f}  base-cyc {cyc['cyc']}  vismo-arr {not arr['cyc']}  +EZH2i-cyc {res['cyc']}  {'RESCUED' if rescued else ''}", flush=True)
     A = np.array(rows, float)
-    np.savez(CACHE, A=A, cd_sdlog=CD_SDLOG_DATA, N=N)
+    np.savez(CACHE, A=A, cd_sdlog=CD_SDLOG, N=N)
     print('cached ->', CACHE, flush=True)
 
 z = np.load(CACHE)
 A = z['A']
-cd_scale, p21_div, kez_scale = A[:, 0], A[:, 1], A[:, 2]
+cd_scale, p21_div, ez_scale = A[:, 0], A[:, 1], A[:, 2]
 base_cyc, base_cd, base_ez = A[:, 3].astype(bool), A[:, 4], A[:, 5]
 arr_cyc, res_cyc, rescued = A[:, 6].astype(bool), A[:, 7].astype(bool), A[:, 8].astype(bool)
 arrested = ~arr_cyc
@@ -109,14 +111,15 @@ ax[0].plot(xx, pdf, color='#c0392b', lw=2.3, label='measured G0/1\nLN σ=0.633 (
 ax[0].set_xlabel('CyclinD1 setpoint (÷ median)'); ax[0].set_ylabel('density')
 ax[0].set_title('(A) CyclinD1 distribution:\nmodel vs measured (CV check)', fontweight='bold'); ax[0].legend(fontsize=8)
 
-# (B) rescue phase diagram in (CyclinD1 setpoint × birth p27) — mutually-exclusive vismo outcomes
+# (B) rescue phase diagram in (CyclinD1 abundance × EZH2 abundance) — both axes carry MEASURED variation;
+#     maps directly onto the coming mCherry-Ezh2 × CyclinD1 single-cell scatter.
 for mask, c, lab, mk in [(arr_cyc, '#2ecc71', 'cycles despite vismo', 'o'),
                          (arrested & res_cyc, '#e67e22', 'rescued by EZH2i', 's'),
                          (arrested & ~res_cyc, '#b03a2e', 'stays arrested', 'X')]:
     if mask.any():
-        ax[1].scatter(cd_scale[mask], p21_div[mask], c=c, label=lab, s=60, marker=mk, edgecolor='k', linewidth=0.6)
-ax[1].set_xlabel('CyclinD1 setpoint  (cd_scale; DATA CV 0.70)'); ax[1].set_ylabel('birth p27  (P21_div)')
-ax[1].set_title('(B) Who gets rescued?\nCyclinD1 × p27 plane', fontweight='bold'); ax[1].legend(fontsize=8, loc='upper right'); ax[1].grid(alpha=0.15)
+        ax[1].scatter(cd_scale[mask], ez_scale[mask], c=c, label=lab, s=60, marker=mk, edgecolor='k', linewidth=0.6)
+ax[1].set_xlabel('CyclinD1 abundance  (CV 0.70, DATA)'); ax[1].set_ylabel('EZH2 abundance  (CV ~0.55, DATA)')
+ax[1].set_title('(B) Who gets rescued?\nCyclinD1 × EZH2 abundance (measured variation)', fontweight='bold'); ax[1].legend(fontsize=8, loc='upper right'); ax[1].grid(alpha=0.15)
 
 # (C) rescued-fraction summary
 ax[2].bar(['cycles\n(vismo-resistant)', 'rescued\nby EZH2i', 'stays\narrested'],
@@ -126,7 +129,7 @@ ax[2].set_ylabel('# cells'); ax[2].set_title(f'(C) Outcomes (N={len(A)})\nrescue
 for i, v in enumerate([base_cyc.sum(), n_res, (arrested & ~rescued).sum()]):
     ax[2].text(i, v + 0.2, str(int(v)), ha='center', fontsize=10)
 
-fig.suptitle(f'Distribution model (PILOT, N={len(A)}) — fractional EZH2i rescue of vismo-arrested MB; CyclinD1 axis data-grounded (σ=0.633)',
+fig.suptitle(f'Distribution model (N={len(A)}) — fractional EZH2i rescue of vismo-arrested MB; three measured-variation axes (CyclinD1 CV 0.70, p27 0.33, EZH2 ~0.55)',
              fontsize=12.5, fontweight='bold', y=1.0)
 plt.tight_layout()
 plt.savefig('simulations/sim_distribution_rescue.png', dpi=150, bbox_inches='tight')
