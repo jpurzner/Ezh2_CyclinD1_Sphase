@@ -56,6 +56,7 @@ Thumbs.db
 !simulations/sim_ramp_hysteresis_phaseplot.pdf
 !simulations/sim_hh_entry_threshold.pdf
 !simulations/sim_hh_withdrawal_threshold.pdf
+!simulations/sim_singlecell_withdrawal_g0.pdf
 # v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
 !archive/v45/*.pdf
 
