@@ -1,16 +1,24 @@
-"""Whole GNP developmental division period — a ramp-UP → sustain → ramp-DOWN Hh trajectory giving ~8-12
-divisions, comparing WITH vs WITHOUT the H3K27me3 mark at MATCHED PROLIFERATIVE OUTPUT.
+"""Whole GNP developmental division period — a ramp-UP → sustain → ramp-DOWN Hh trajectory giving a
+target MEAN of ~8 divisions, comparing WITH vs WITHOUT the H3K27me3 mark at MATCHED PROLIFERATIVE OUTPUT.
 
 Rationale (JP): comparing WITH/WITHOUT at the same Hh is confounded — the mark represses CyclinD1, so a
 marked cell needs a HIGHER Hh to divide at all. The fair comparison matches OUTPUT (division count): give
-each condition the Hh plateau that yields ~8-12 divisions over the developmental window, then compare how
+each condition the Hh plateau that yields the target mean over the developmental window, then compare how
 they get there (entry/exit timing, transient G0, CyclinD1).
 
+Two levers, both matter (2-D Hh × window sweep, JP): the Hh plateau LEVEL sets the mean/entry-floor, and
+the plateau DURATION (window) caps the fast-cycler TAIL — the 25-division tail of the earlier 140h window
+was the high-mu/low-p27 cells cycling ~10h for the full window. A 100h window caps the tail at p95~14 /
+max~18 while the doses (WITH 0.75, WITHOUT 0.22) hold both means at ~8. Short 24h tail so the count is the
+Hh-ON developmental period, not post-withdrawal coasting (unmarked cells coast/divide at Hh=0.05; marked
+cells arrest — the panel-C exit asymmetry). NB the mark leaves an irreducible ~13% never-divide fraction
+at ANY Hh (the repressed low-CyclinD1 tail); the unmarked condition can be pushed to frac-zero 0.
+
 Trajectory: settle arrested at SHH=0.05 → ramp up to plateau over T_UP → plateau T_PLAT → ramp down to
-0.05 over T_DOWN → tail. Ensemble (calibrated abundance + mu + partition). Division = Dna 1→0 reset;
+0.05 over T_DOWN → short tail. Ensemble (calibrated abundance + mu + partition). Division = Dna 1→0 reset;
 per-time state = cycling / transient-G0 / arrest.
 
---calib: sweep the plateau level for each condition and report MEDIAN divisions (to pick PLAT_W / PLAT_N).
+--calib: sweep the plateau level for each condition and report MEAN (median)[IQR] divisions (pick PLAT_W/N).
 main:    run at PLAT_W (mark on) and PLAT_N (mark off) and make the developmental figure.
 
 Run:  ./venv/bin/python simulations/sim_gnp_developmental.py --calib   (find the two Hh levels)
@@ -29,13 +37,13 @@ from src.build_model_v44_heldt import build_model_v44
 SEL = ['time', 'SHH', 'Dna', 'P21', 'aRc', 'Cd']
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, EZH2i=0)
 HH_FLOOR = 0.05
-T_UP, T_PLAT, T_DOWN, TAIL = 48 * 60.0, 140 * 60.0, 48 * 60.0, 60 * 60.0
+T_UP, T_PLAT, T_DOWN, TAIL = 48 * 60.0, 100 * 60.0, 48 * 60.0, 24 * 60.0  # short tail: count the Hh-ON developmental period, not post-withdrawal coasting
 SETTLE, CHUNK, NP = 3000.0, 60.0, 9
 DT = CHUNK / (NP - 1)
 DWELL_CUT, P27_HI, PART = 2.0, 0.1, 0.30
 KTL0, KTLEZ0, P21_MED, MU0 = 0.801, 0.004, 0.42, 0.0005
 CD_SDLOG, P27_SDLOG, EZ_SDLOG, MU_SDLOG = 0.633, 0.32, 0.51, 0.22
-PLAT_W, PLAT_N = 0.85, 0.40                              # matched-output Hh plateaus (from --calib: ~11 vs ~12 div)
+PLAT_W, PLAT_N = 0.75, 0.22                              # matched mean~8 Hh plateaus on the 100h window (2-D Hh×window sweep; tail capped p95~14/max~18)
 T_TRACE = np.arange(0.0, T_UP + T_PLAT + T_DOWN + TAIL + 1e-6, 12.0)
 
 _RR = None
@@ -119,18 +127,18 @@ if __name__ == '__main__':
     mu = np.clip(MU0 * np.exp(rng.normal(0, MU_SDLOG, N)), 0.00028, 0.00085)
 
     if CALIB:
-        PLATS = [0.25, 0.35, 0.45, 0.6, 0.75, 0.9, 1.05]
+        PLATS = [0.18, 0.22, 0.26, 0.30, 0.36, 0.45, 0.55, 0.70, 0.85]
         tasks = [(i, pl, f0, ktl[i], p21[i], ktz[i], mu[i], False) for f0 in (0.233, 1.0) for pl in PLATS for i in range(N)]
-        print(f'CALIB: {len(tasks)} cells on {WORKERS} workers ...', flush=True)
+        print(f'CALIB: {len(tasks)} cells on {WORKERS} workers ... (target MEAN divisions = 8)', flush=True)
         with mp.get_context('spawn').Pool(WORKERS, initializer=_init_worker, initargs=(None,)) as pool:
             res = list(pool.imap_unordered(_work, tasks, chunksize=6))
-        print('plateau   WITHOUT median div [IQR]        WITH median div [IQR]')
+        print('plateau   WITHOUT mean (median)[IQR]        WITH mean (median)[IQR]')
         for pl in PLATS:
             row = []
             for f0 in (1.0, 0.233):
                 nd = np.array([r[2] for r in res if abs(r[0] - pl) < 1e-6 and r[1] == f0])
-                row.append(f'{np.median(nd):.0f}  [{np.percentile(nd,25):.0f}-{np.percentile(nd,75):.0f}]')
-            print(f'  {pl:.2f}      {row[0]:22s}   {row[1]}')
+                row.append(f'{nd.mean():.1f} ({np.median(nd):.0f})[{np.percentile(nd,25):.0f}-{np.percentile(nd,75):.0f}]')
+            print(f'  {pl:.2f}      {row[0]:26s}   {row[1]}')
         sys.exit(0)
 
     CACHE = 'simulations/sim_gnp_developmental_cache.npz'
@@ -168,10 +176,10 @@ if __name__ == '__main__':
     # (B) division-count distributions (should both be ~8-12)
     a = ax[0, 1]
     bins = np.arange(-0.5, max(z['W_ndiv'].max(), z['N_ndiv'].max()) + 1.5)
-    a.hist(z['N_ndiv'], bins=bins, alpha=0.6, color='#3b7bbf', label=f'WITHOUT (median {np.median(z["N_ndiv"]):.0f})')
-    a.hist(z['W_ndiv'], bins=bins, alpha=0.6, color='#8b1a1a', label=f'WITH (median {np.median(z["W_ndiv"]):.0f})')
+    a.hist(z['N_ndiv'], bins=bins, alpha=0.6, color='#3b7bbf', label=f'WITHOUT (mean {z["N_ndiv"].mean():.1f}, p95 {np.percentile(z["N_ndiv"],95):.0f})')
+    a.hist(z['W_ndiv'], bins=bins, alpha=0.6, color='#8b1a1a', label=f'WITH (mean {z["W_ndiv"].mean():.1f}, p95 {np.percentile(z["W_ndiv"],95):.0f})')
     a.set_xlabel('divisions over the developmental period'); a.set_ylabel('cells')
-    a.set_title('(B) Division-count distribution — MATCHED at ~8-12 by construction', fontweight='bold', fontsize=11); a.legend(fontsize=9); a.grid(alpha=0.15)
+    a.set_title('(B) Division-count distribution — MATCHED at mean~8, tail CAPPED by the 100h window', fontweight='bold', fontsize=11); a.legend(fontsize=9); a.grid(alpha=0.15)
     # (C) population dynamics: fraction cycling / transient-G0 / arrest over the period
     a = ax[1, 0]
     for tag, col, nm in [('W', '#8b1a1a', 'WITH'), ('N', '#3b7bbf', 'WITHOUT')]:
@@ -185,14 +193,16 @@ if __name__ == '__main__':
     for tag, col, nm in [('W', '#8b1a1a', 'WITH'), ('N', '#3b7bbf', 'WITHOUT')]:
         a.plot(T, z[f'{tag}_cd'], '-', color=col, lw=2.4, label=f'{nm} — mean CyclinD1')
     a.set_xlabel('developmental time (h)'); a.set_ylabel('CyclinD1 (population mean)')
-    a.set_title('(D) CyclinD1 over the period — WITH mark actually HIGHER\n(2× Hh over-compensates the repression; same divisions at higher CyclinD1)', fontweight='bold', fontsize=11); a.legend(fontsize=9); a.grid(alpha=0.15)
+    a.set_title(f'(D) CyclinD1 over the period — WITH mark actually HIGHER\n(~{PW/PN:.1f}× Hh over-compensates the repression; same divisions at higher CyclinD1)', fontweight='bold', fontsize=11); a.legend(fontsize=9); a.grid(alpha=0.15)
 
-    fig.suptitle(f'Whole GNP developmental period — WITH vs WITHOUT H3K27me3 at MATCHED proliferative output (~{np.median(z["W_ndiv"]):.0f} divisions), N={Nc}/cond',
+    fig.suptitle(f'Whole GNP developmental period — WITH vs WITHOUT H3K27me3 at MATCHED output '
+                 f'(mean {z["W_ndiv"].mean():.1f} vs {z["N_ndiv"].mean():.1f} div; Hh {PW:.2f} vs {PN:.2f}; 100h window caps the tail), N={Nc}/cond',
                  fontsize=12, fontweight='bold', y=1.0)
     plt.tight_layout()
     plt.savefig('simulations/sim_gnp_developmental.png', dpi=150, bbox_inches='tight')
     plt.savefig('simulations/sim_gnp_developmental.pdf', bbox_inches='tight')
     plt.close()
-    print(f'WITH   median divisions = {np.median(z["W_ndiv"]):.1f}  (IQR {np.percentile(z["W_ndiv"],25):.0f}-{np.percentile(z["W_ndiv"],75):.0f})')
-    print(f'WITHOUT median divisions = {np.median(z["N_ndiv"]):.1f}  (IQR {np.percentile(z["N_ndiv"],25):.0f}-{np.percentile(z["N_ndiv"],75):.0f})')
+    for tag, nm in [('W', 'WITH   '), ('N', 'WITHOUT')]:
+        nd = z[f'{tag}_ndiv']
+        print(f'{nm} mean {nd.mean():.1f}  median {np.median(nd):.0f}  IQR {np.percentile(nd,25):.0f}-{np.percentile(nd,75):.0f}  p95 {np.percentile(nd,95):.0f}  max {nd.max():.0f}  frac0 {np.mean(nd==0):.2f}')
     print('Saved sim_gnp_developmental.png')
