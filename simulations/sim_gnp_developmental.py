@@ -34,7 +34,7 @@ import tellurium as te
 import multiprocessing as mp
 from src.build_model_v44_heldt import build_model_v44
 
-SEL = ['time', 'SHH', 'Dna', 'P21', 'aRc', 'Cd']
+SEL = ['time', 'SHH', 'Dna', 'P21', 'aRc', 'Cd', 'EZH2']
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, EZH2i=0)
 HH_FLOOR = 0.05
 T_UP, T_PLAT, T_DOWN, TAIL = 48 * 60.0, 100 * 60.0, 48 * 60.0, 24 * 60.0  # short tail: count the Hh-ON developmental period, not post-withdrawal coasting
@@ -72,14 +72,14 @@ def _work(task):
     for k, v in GNP.items(): _RR[k] = v
     _RR['k_Cd_translation'] = float(ktl); _RR['kTlEZ'] = float(ktlez); _RR['mu'] = float(mu); _RR['f0_mk'] = f0; _RR['P21_div'] = float(p21d)
     draw = lambda: float(p21d * np.exp(rng.normal(-PART * PART / 2.0, PART)))
-    NULL = (plat, f0, 0, None, None, None)
+    NULL = (plat, f0, 0, None, None, None, None)
     tm = 0.0
     while tm < SETTLE:
         _RR['P21_div'] = draw()
         try: _RR.simulate(tm, tm + CHUNK, 2, selections=['time'])
         except Exception: return NULL
         tm += CHUNK
-    T, SH, DNA, P21, ARC, CD = [], [], [], [], [], []
+    T, SH, DNA, P21, ARC, CD, EZ = [], [], [], [], [], [], []
     t = 0.0; TEND = T_UP + T_PLAT + T_DOWN + TAIL
     while t < TEND:
         _RR['P21_div'] = draw(); _RR['SHH'] = float(shh_of(t, plat)); r = None
@@ -89,15 +89,15 @@ def _work(task):
                 r = _RR.simulate(tm, tm + CHUNK, NP, selections=SEL); break
             except Exception: r = None
         if r is None: break
-        T.append(r['time'][1:] - tm + t); SH.append(r['SHH'][1:]); DNA.append(r['Dna'][1:]); P21.append(r['P21'][1:]); ARC.append(r['aRc'][1:]); CD.append(r['Cd'][1:])
+        T.append(r['time'][1:] - tm + t); SH.append(r['SHH'][1:]); DNA.append(r['Dna'][1:]); P21.append(r['P21'][1:]); ARC.append(r['aRc'][1:]); CD.append(r['Cd'][1:]); EZ.append(r['EZH2'][1:])
         t += CHUNK; tm += CHUNK
     if not T:
         return NULL
-    T = np.concatenate(T); DNA = np.concatenate(DNA); P21 = np.concatenate(P21); ARC = np.concatenate(ARC); CD = np.concatenate(CD)
+    T = np.concatenate(T); DNA = np.concatenate(DNA); P21 = np.concatenate(P21); ARC = np.concatenate(ARC); CD = np.concatenate(CD); EZ = np.concatenate(EZ)
     div = np.where((DNA[:-1] > 0.9) & (DNA[1:] < 0.1))[0]
     ndiv = len(div)
     if not wt:
-        return (plat, f0, ndiv, None, None, None)
+        return (plat, f0, ndiv, None, None, None, None)
     inS = (ARC > 0.05) & (DNA < 0.98); inG2 = DNA >= 0.98; g0inst = (~inS & ~inG2) & (P21 > 0.1)
     state = np.zeros(len(T), np.int8)
     dd = np.diff(np.concatenate([[0], g0inst.astype(np.int8), [0]]))
@@ -108,7 +108,8 @@ def _work(task):
         else: state[s:] = 2; break
     st = np.clip(np.round(np.interp(T_TRACE, T, state)), 0, 2).astype(np.int8)
     cd = np.interp(T_TRACE, T, CD).astype(np.float32)
-    return (plat, f0, ndiv, st, cd, T[div].astype(np.float32))
+    ez = np.interp(T_TRACE, T, EZ).astype(np.float32)
+    return (plat, f0, ndiv, st, cd, T[div].astype(np.float32), ez)
 
 
 def _arg(flag, d):
@@ -152,10 +153,10 @@ if __name__ == '__main__':
         for f0, tag in [(0.233, 'W'), (1.0, 'N')]:
             sub = [r for r in res if r[1] == f0 and r[3] is not None]
             nd = np.array([r[2] for r in sub])
-            sts = np.array([r[3] for r in sub]); cds = np.array([r[4] for r in sub])
+            sts = np.array([r[3] for r in sub]); cds = np.array([r[4] for r in sub]); ezs = np.array([r[6] for r in sub])
             store[f'{tag}_ndiv'] = nd
             store[f'{tag}_cyc'] = (sts == 0).mean(0); store[f'{tag}_tg0'] = (sts == 1).mean(0); store[f'{tag}_arr'] = (sts == 2).mean(0)
-            store[f'{tag}_cd'] = np.nanmean(cds, 0)
+            store[f'{tag}_cd'] = np.nanmean(cds, 0); store[f'{tag}_ez'] = np.nanmean(ezs, 0)
             ex = np.argsort(nd)[len(nd) // 2]                # median-count example cell trace
             store[f'{tag}_ex_cd'] = cds[ex]; store[f'{tag}_ex_dt'] = np.array([r[5] for r in sub], dtype=object)[ex]
         shh_W = np.array([shh_of(tt, PLAT_W) for tt in T_TRACE]); shh_N = np.array([shh_of(tt, PLAT_N) for tt in T_TRACE])  # T_TRACE in minutes
@@ -202,6 +203,37 @@ if __name__ == '__main__':
     plt.savefig('simulations/sim_gnp_developmental.png', dpi=150, bbox_inches='tight')
     plt.savefig('simulations/sim_gnp_developmental.pdf', bbox_inches='tight')
     plt.close()
+
+    # ---- companion figure: EZH2 abundance over the developmental period ----
+    fig2, ax2 = plt.subplots(1, 2, figsize=(15, 5.5))
+    a = ax2[0]
+    for tag, col, nm, pl in [('W', '#8b1a1a', 'WITH', PW), ('N', '#3b7bbf', 'WITHOUT', PN)]:
+        a.plot(T, z[f'{tag}_ez'], '-', color=col, lw=2.6, label=f'{nm} — mean EZH2 (Hh {pl:.2f})')
+    a.set_xlabel('developmental time (h)'); a.set_ylabel('EZH2 (population mean)')
+    a.set_title('(A) EZH2 over the developmental period — tracks the cycle/mitogen\nAt MATCHED output the arms CONVERGE (steady EZH2 ≈1.0 both, despite 3.4× Hh)', fontweight='bold', fontsize=11)
+    a.legend(fontsize=9, loc='upper right'); a.grid(alpha=0.15)
+    a2 = a.twinx()
+    a2.plot(T, [shh_of(t * 60, PW) for t in T], ':', color='#8b1a1a', lw=1.3, alpha=0.5)
+    a2.plot(T, [shh_of(t * 60, PN) for t in T], ':', color='#3b7bbf', lw=1.3, alpha=0.5)
+    a2.set_ylabel('Hh (SHH) — dotted', color='grey'); a2.set_ylim(0, 1.0)
+    # (B) EZH2 (solid) vs CyclinD1 (dashed) — the negative feedback in the same cells
+    a = ax2[1]
+    for tag, col, nm in [('W', '#8b1a1a', 'WITH'), ('N', '#3b7bbf', 'WITHOUT')]:
+        a.plot(T, z[f'{tag}_ez'], '-', color=col, lw=2.4, label=f'{nm} — EZH2')
+    a.set_xlabel('developmental time (h)'); a.set_ylabel('EZH2 (solid)')
+    ab = a.twinx()
+    for tag, col in [('W', '#8b1a1a'), ('N', '#3b7bbf')]:
+        ab.plot(T, z[f'{tag}_cd'], '--', color=col, lw=1.8, alpha=0.8)
+    ab.set_ylabel('CyclinD1 (dashed)')
+    a.set_title('(B) EZH2 (solid) vs CyclinD1 (dashed) in the same cells\nthe EZH2 ⊣ CyclinD1 feedback; within a ramp both rise (cycle-driven)', fontweight='bold', fontsize=11)
+    a.legend(fontsize=9, loc='upper right'); a.grid(alpha=0.15)
+    fig2.suptitle(f'EZH2 abundance over the GNP developmental period — WITH vs WITHOUT H3K27me3 at matched output '
+                  f'(Hh {PW:.2f} vs {PN:.2f}), N={Nc}/cond', fontsize=12, fontweight='bold', y=1.02)
+    plt.tight_layout()
+    plt.savefig('simulations/sim_gnp_developmental_ezh2.png', dpi=150, bbox_inches='tight')
+    plt.savefig('simulations/sim_gnp_developmental_ezh2.pdf', bbox_inches='tight')
+    plt.close()
+
     for tag, nm in [('W', 'WITH   '), ('N', 'WITHOUT')]:
         nd = z[f'{tag}_ndiv']
         print(f'{nm} mean {nd.mean():.1f}  median {np.median(nd):.0f}  IQR {np.percentile(nd,25):.0f}-{np.percentile(nd,75):.0f}  p95 {np.percentile(nd,95):.0f}  max {nd.max():.0f}  frac0 {np.mean(nd==0):.2f}')
