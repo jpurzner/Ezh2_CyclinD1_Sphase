@@ -36,8 +36,8 @@ STEADY_LEVELS = [0.20, 0.35, 0.50, 0.65, 0.80, 1.00]
 SETTLE, D_RAMP, HOLD, CHUNK, NP = 5000.0, 6000.0, 5000.0, 60.0, 9
 RECORD = D_RAMP + HOLD
 DWELL_CUT, P27_HI, PART = 2.0, 0.1, 0.30
-KTL0, KTLEZ0, P21_MED = 0.801, 0.004, 0.42
-CD_SDLOG, P27_SDLOG, EZ_SDLOG = 0.633, 0.32, 0.51
+KTL0, KTLEZ0, P21_MED, MU0 = 0.801, 0.004, 0.42, 0.0005
+CD_SDLOG, P27_SDLOG, EZ_SDLOG = 0.633, 0.32, 0.51   # MU_SDLOG (growth-time / cell-cycle-duration) via --sdmu
 NDS = 150                                                          # downsample points per cell
 SHH_BINS = np.linspace(0.12, 1.03, 17)          # 16 Hh bins (coarse enough for stable ramp division-rate)
 
@@ -59,12 +59,12 @@ def shh_of(t, proto, level):
 
 
 def _work(task):
-    i, proto, level, f0, ktl, p21d, ktlez = task
+    i, proto, level, f0, ktl, p21d, ktlez, mu = task
     rng = np.random.default_rng((hash((i, proto, level, f0)) & 0xFFFFFFFF))
     settle_shh = {'up': SHH_LO, 'down': SHH_HI, 'steady': level}[proto]
     _RR.reset(); _RR['SHH'] = settle_shh
     for k, v in GNP.items(): _RR[k] = v
-    _RR['k_Cd_translation'] = float(ktl); _RR['kTlEZ'] = float(ktlez); _RR['f0_mk'] = f0; _RR['P21_div'] = float(p21d)
+    _RR['k_Cd_translation'] = float(ktl); _RR['kTlEZ'] = float(ktlez); _RR['mu'] = float(mu); _RR['f0_mk'] = f0; _RR['P21_div'] = float(p21d)
     draw = lambda: float(p21d * np.exp(rng.normal(-PART * PART / 2.0, PART)))
     # settle with partition noise + RANDOM extra phase (desynchronize lineages so ramp divisions don't
     # alias into Hh bins as synchronized waves); track model time tm across settle+record.
@@ -123,20 +123,24 @@ def _arg(flag, d):
 if __name__ == '__main__':
     FRESH = '--fresh' in sys.argv
     N = int(_arg('--n', 200)); WORKERS = int(_arg('--workers', max(1, mp.cpu_count() - 1)))
-    CACHE = 'simulations/sim_mark_lifecycle_hysteresis_cache.npz'
+    SDMU = float(_arg('--sdmu', 0.0))                             # growth-time (cell-cycle-duration) spread; 0 = fixed
+    SUF = '' if SDMU == 0 else f'_mu{SDMU:.2f}'
+    CACHE = f'simulations/sim_mark_lifecycle_hysteresis_cache{SUF}.npz'
+    OUT = f'simulations/sim_mark_lifecycle_hysteresis{SUF}'
 
     if FRESH or not os.path.exists(CACHE):
         rng = np.random.default_rng(11)
         ktl_i = np.clip(KTL0 * np.exp(rng.normal(0, CD_SDLOG, N)), 0.15, 5.0)
         p21d_i = np.clip(P21_MED * np.exp(rng.normal(0, P27_SDLOG, N)), 0.15, 2.5)
         ktlez_i = np.clip(KTLEZ0 * np.exp(rng.normal(0, EZ_SDLOG, N)), 0.0008, 0.02)
+        mu_i = np.clip(MU0 * np.exp(rng.normal(0, SDMU, N)), 0.00028, 0.00085) if SDMU > 0 else np.full(N, MU0)
         tasks = []
         for f0 in (0.233, 1.0):
             for i in range(N):
-                tasks.append((i, 'up', 0.0, f0, ktl_i[i], p21d_i[i], ktlez_i[i]))
-                tasks.append((i, 'down', 0.0, f0, ktl_i[i], p21d_i[i], ktlez_i[i]))
+                tasks.append((i, 'up', 0.0, f0, ktl_i[i], p21d_i[i], ktlez_i[i], mu_i[i]))
+                tasks.append((i, 'down', 0.0, f0, ktl_i[i], p21d_i[i], ktlez_i[i], mu_i[i]))
                 for L in STEADY_LEVELS:
-                    tasks.append((i, 'steady', L, f0, ktl_i[i], p21d_i[i], ktlez_i[i]))
+                    tasks.append((i, 'steady', L, f0, ktl_i[i], p21d_i[i], ktlez_i[i], mu_i[i]))
         print(f'running {len(tasks)} cell-runs on {WORKERS} workers ...', flush=True)
         with mp.get_context('spawn').Pool(WORKERS, initializer=_init_worker, initargs=(None,)) as pool:
             results = []
@@ -185,6 +189,16 @@ if __name__ == '__main__':
         a.set_title(f'({lab}) {ttl} — proliferation vs Hh', fontweight='bold', fontsize=12)
         a.set_ylim(-0.03, rmax); a.grid(alpha=0.15); a.legend(fontsize=9, loc='upper left')
 
+    # overlay ARREST occupancy (dotted, right axis) on the ramps: with a growth-time spread the mark's
+    # withdrawal effect is invisible in the RATE (fast low-mark cyclers, below the ~16h dilution crossover,
+    # dominate divisions & coast) but clear in arrest occupancy (the slow high-mark cells).
+    for a, proto in [(ax[0, 0], 'up'), (ax[1, 0], 'down')]:
+        a2 = a.twinx()
+        for tag, col in [('W', '#8b1a1a'), ('N', '#3b7bbf')]:
+            a2.plot(xc, z[f'{proto}_{tag}_arr'], ':', color=col, lw=2.2, alpha=0.8)
+        a2.set_ylim(0, 0.6); a2.set_ylabel('arrest occupancy (dotted)', color='#555', fontsize=9); a2.tick_params(labelsize=8, colors='#555')
+    ax[1, 0].set_title('(C) RAMP-DOWN — division rate is FLAT (fast low-mark cyclers coast & dominate divisions),\nbut ARREST occupancy (dotted) shows the mark still arrests the slow cells', fontweight='bold', fontsize=10.5)
+
     # (D) hysteresis synthesis: division rate vs Hh — ramps smoothed lines, steady as points; WITH solid / WITHOUT faded
     a = ax[1, 1]
     for proto, ttl, col in PROT:
@@ -198,13 +212,14 @@ if __name__ == '__main__':
     a.set_title('(D) Hysteresis: at low Hh, entry (green, lags LOW) < steady (pts) < withdrawal (red, coasts HIGH)\nWITH mark (solid) opens the wider loop', fontweight='bold', fontsize=11)
     a.set_ylim(-0.03, rmax); a.grid(alpha=0.15); a.legend(fontsize=7.5, loc='upper left')
 
+    mutxt = f'+ growth-time dist (mu CV {SDMU:.2f})' if SDMU > 0 else 'fixed growth time'
     fig.suptitle(f'Ramp-up / steady-state / ramp-down — WITH vs WITHOUT H3K27me3 repression of CyclinD1  '
-                 f'(calibrated distributions + partition noise, N={Nc}/condition)', fontsize=13, fontweight='bold', y=1.0)
+                 f'(calibrated distributions + partition noise, {mutxt}, N={Nc}/condition)', fontsize=12.5, fontweight='bold', y=1.0)
     plt.tight_layout()
-    plt.savefig('simulations/sim_mark_lifecycle_hysteresis.png', dpi=150, bbox_inches='tight')
-    plt.savefig('simulations/sim_mark_lifecycle_hysteresis.pdf', bbox_inches='tight')
+    plt.savefig(f'{OUT}.png', dpi=150, bbox_inches='tight')
+    plt.savefig(f'{OUT}.pdf', bbox_inches='tight')
     plt.close()
     for proto, ttl, _c in PROT:
         print(f'{ttl:26s} div-rate/day @Hh (WITH) = {np.round(z[f"{proto}_W_rate"],2)}')
         print(f'{"":26s} div-rate/day @Hh (NO)   = {np.round(z[f"{proto}_N_rate"],2)}')
-    print('Saved sim_mark_lifecycle_hysteresis.png')
+    print(f'Saved {OUT}.png')
