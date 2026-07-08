@@ -73,6 +73,7 @@ Thumbs.db
 !simulations/sim_gnp_developmental_ezh2.pdf
 !simulations/sim_ezh2_kdeez_sweep.pdf
 !simulations/sim_ezh2_phase_fit.pdf
+!simulations/sim_ezh2_dmso_hu_fit.pdf
 # v45 stochastic-commitment model figures (ARCHIVED) — vector PDFs tracked
 !archive/v45/*.pdf
 
@@ -139,3 +140,6 @@ simulations/*.png
 # H3K27me3 dilution calibration search outputs (regenerable)
 simulations/h3k27_dilution_search_*.jsonl
 simulations/h3k27_dilution_search_*_best.json
+
+# EZH2 rate-fit pickle caches (regenerable)
+simulations/*_cache.pkl
