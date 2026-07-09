@@ -146,3 +146,7 @@ simulations/h3k27_dilution_search_*_best.json
 
 # EZH2 rate-fit pickle caches (regenerable)
 simulations/*_cache.pkl
+
+# overnight wide-search outputs (regenerable)
+simulations/overnight_search_best.json
+simulations/overnight_search.jsonl

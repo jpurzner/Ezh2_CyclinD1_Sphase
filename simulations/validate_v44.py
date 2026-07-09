@@ -27,7 +27,7 @@ from src.build_model_v44_heldt import build_model_v44
 # ---------------------------------------------------------------------------
 # Calibration parameter set (edit here; empty {} = builder defaults).
 # ---------------------------------------------------------------------------
-PARAMS = {}        # stable baseline; the de-saturated HH fit (above target) crashes the rescue
+PARAMS = json.loads(os.environ.get('VALIDATE_PARAMS', '') or '{}')  # param overrides (wide-search driver); {} = builder defaults
                     # conditions in the full model -> needs the saturating CyclinD1->Rb drive fix.
 
 P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
@@ -320,7 +320,8 @@ def main():
                phase_dmso_count=f0, phase_dmso_duration=f0_dur, phase_hu_count=f1,
                checks=[{'name': n, 'actual': float(a), 'target': t, 'pass': bool(o)}
                        for o, n, a, t, u in rows])
-    with open(os.path.join(os.path.dirname(__file__), 'validation_v44_results.json'), 'w') as fh:
+    _rp = os.environ.get('VALIDATE_RESULTS') or os.path.join(os.path.dirname(__file__), 'validation_v44_results.json')
+    with open(_rp, 'w') as fh:
         json.dump(out, fh, indent=2, default=float)
     return out
 
