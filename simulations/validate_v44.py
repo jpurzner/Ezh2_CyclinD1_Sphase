@@ -315,8 +315,12 @@ def main():
     print(f"  flow targets G0/G1/S/G2 = 24.8/43.4/15.7/16.1 (G0/G1 unresolvable -> 2N=68.2; G2/M 4N soft, direct ~2.5h)")
     print(f"\n{'=' * 92}\nVALIDATION SUMMARY: {passed[0]}/{total[0]} targets passed\n{'=' * 92}")
 
+    try:
+        marks = {c: float(mean_settled(sims[c], 'Mk')) for c in sims}
+    except Exception:
+        marks = {}
     out = dict(model='v44_heldt', params=PARAMS, passed=passed[0], total=total[0],
-               divisions=div, pRb_thr=float(pRb_thr),
+               divisions=div, pRb_thr=float(pRb_thr), marks=marks,
                phase_dmso_count=f0, phase_dmso_duration=f0_dur, phase_hu_count=f1,
                checks=[{'name': n, 'actual': float(a), 'target': t, 'pass': bool(o)}
                        for o, n, a, t, u in rows])

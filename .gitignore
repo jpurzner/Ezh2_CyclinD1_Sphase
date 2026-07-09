@@ -156,3 +156,7 @@ simulations/overnight_search.jsonl
 simulations/overnight_search.log
 
 !simulations/sim_mark_memory_chromatin_sweep.pdf
+simulations/_*.log
+simulations/sim_mark_memory_cooptimize_log.jsonl
+simulations/sim_mark_memory_cooptimize_best.json
+simulations/sim_mark_memory_chromatin_sweep_cache.npz
