@@ -48,7 +48,11 @@ def _init_worker(_):
     global _RR
     _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
     _RR.integrator.setValue('absolute_tolerance', 1e-9); _RR.integrator.setValue('relative_tolerance', 1e-6)
-    try: _RR.integrator.setValue('maximum_num_steps', 300000)
+    try: _RR.integrator.setValue('maximum_num_steps', 1000000)
+    except Exception: pass
+    # cap the internal step: the faster EZH2 turnover (kDeEZ t1/2 ~10h, 2026-07 recal) makes withdrawal
+    # arrests stiff -> CV_CONV_FAILURE without a step cap. 20 min << CHUNK so cycling is unaffected.
+    try: _RR.integrator.setValue('maximum_time_step', 20.0)
     except Exception: pass
 
 
@@ -135,7 +139,7 @@ if __name__ == '__main__':
         ktlez_i = np.clip(KTLEZ0 * np.exp(rng.normal(0, EZ_SDLOG, N)), 0.0008, 0.02)
         mu_i = np.clip(MU0 * np.exp(rng.normal(0, SDMU, N)), 0.00028, 0.00085) if SDMU > 0 else np.full(N, MU0)
         tasks = []
-        for f0 in (0.233, 1.0):
+        for f0 in (0.145, 1.0):     # WITH = calibrated repression floor (2026-07 recal, was 0.233) / WITHOUT = mark neutralized
             for i in range(N):
                 tasks.append((i, 'up', 0.0, f0, ktl_i[i], p21d_i[i], ktlez_i[i], mu_i[i]))
                 tasks.append((i, 'down', 0.0, f0, ktl_i[i], p21d_i[i], ktlez_i[i], mu_i[i]))
@@ -151,7 +155,7 @@ if __name__ == '__main__':
         store = {}
         nb = len(SHH_BINS) - 1
         for proto in ('up', 'steady', 'down'):
-            for f0, tag in [(0.233, 'W'), (1.0, 'N')]:
+            for f0, tag in [(0.145, 'W'), (1.0, 'N')]:
                 subs = [r for r in results if r[0] == proto and r[1] == f0]
                 if not subs:
                     for k in ('rate', 'tg0', 'arr'): store[f'{proto}_{tag}_{k}'] = np.full(nb, np.nan)
