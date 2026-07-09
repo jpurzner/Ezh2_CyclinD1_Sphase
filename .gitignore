@@ -163,3 +163,5 @@ simulations/sim_mark_memory_chromatin_sweep_cache.npz
 !simulations/sim_memory_population_fold.pdf
 simulations/sim_memory_population_fold_cache.npz
 simulations/_popfold.log
+!simulations/sim_h3k27_dilution_race.pdf
+simulations/sim_h3k27_dilution_race_cache.npz
