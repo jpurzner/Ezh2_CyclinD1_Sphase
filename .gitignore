@@ -154,3 +154,5 @@ simulations/*_cache.pkl
 simulations/overnight_search_best.json
 simulations/overnight_search.jsonl
 simulations/overnight_search.log
+
+!simulations/sim_mark_memory_chromatin_sweep.pdf
