@@ -168,13 +168,13 @@ EZH2_CORE_BLOCK = """
   species EZH2m in Cell, EZH2 in Cell;
   EZH2m = 0.1; EZH2 = 0.5;
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
-  kEZbas = 0.00041; kEZE2f = 0.0059; K_E2f_EZ = 0.3; Kez_cd = 2.94;   // EZH2-stability re-fit (was 0.00027/0.022): co-fit with faster kDeEZ against all 9 EZH2-coupled validation targets
-  kEZbas_Cd = 0.0014;      // mitogen-dose-scaled but CYCLE-FLAT baseline transcription: carries the MB/GNP dose
+  kEZbas = 0.0005171937705282363; kEZE2f = 0.0061952167838410024; K_E2f_EZ = 0.3; Kez_cd = 5.60548748586353;   // EZH2-stability re-fit (was 0.00027/0.022): co-fit with faster kDeEZ against all 9 EZH2-coupled validation targets
+  kEZbas_Cd = 0.0015250320995178015;      // mitogen-dose-scaled but CYCLE-FLAT baseline transcription: carries the MB/GNP dose
                           // WITHOUT a within-cycle swing -> decouples EZH2 mRNA phase gradient (transcript S/G0)
                           // from the mitogen-dose ratio. Repression is via the H3K27me3 mark (integrates EZH2),
                           // so raising the flat baseline does not over-repress CyclinD1.
   K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.582;       // CycE(S-onset)/CycA(S-G2) gate weights (wCe baked)
-  kDeEZm = 0.0098; kTlEZ = 0.0083; kDeEZ = 0.00084;  // EZH2 t1/2 ~14h (was 0.00015=77h, under-constrained): pinned by HU-arrest in-S boost + G0-withdrawal IF; kTlEZ co-tuned to hold EZH2 level (EZi-fold/MB-GNP)
+  kDeEZm = 0.0098; kTlEZ = 0.015098862630302894; kDeEZ = 0.0011685177801161655;  // EZH2 t1/2 ~14h (was 0.00015=77h, under-constrained): pinned by HU-arrest in-S boost + G0-withdrawal IF; kTlEZ co-tuned to hold EZH2 level (EZi-fold/MB-GNP)
   // EZH2 is a Rb-E2f target driven by CyclinD1-CDK4/6: synthesis is cycle-gated (E2f x CycE/CycA, peaks S/G2)
   // AND MITOGEN-DOSE dependent (the *Cd/(Kez_cd+Cd) factor). The Cd term reproduces the dose-dependent EZH2
   // increase over a WIDE rShh range (Fig 4H) and the MB/GNP=2.05x (Fig 4J), while SATURATING (Kez_cd=2) so the
@@ -251,7 +251,7 @@ HH_MYCN_BLOCK = """
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
   k_Cd_tx_MYCN = 21.66; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;   // wide-search baked (was 35.22)
-  K_EZH2_repression = 0.539;   // wide-search baked (was 0.75)
+  K_EZH2_repression = 0.5253977546699078;   // wide-search baked (was 0.75)
   k_Cd_translation = 0.801; k_Cd_deg = 1.0;   // wide-search baked (was 0.75). Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
   // MB_HHi dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
@@ -531,9 +531,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # calibration). Default OFF; not for use together with with_h3k27_memory.
         mk = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  k_w_mk = 0.00160; k0_mk = 0.000258; del_mk = 0.00070;   // read-write, de-novo floor, demeth/turnover (de-repression t1/2~16h, lit-review tau_restore band)"
-            "\n  g_mk = 0.30; K_tx_mk = 5.0; p_tx_mk = 2.0;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
-            "\n  K_mk = 0.305; n_mk = 4.15; f0_mk = 0.233;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
+            "\n  k_w_mk = 0.004498873096749711; k0_mk = 0.0005405131204753427; del_mk = 0.003283528882263035;   // read-write, de-novo floor, demeth/turnover (de-repression t1/2~16h, lit-review tau_restore band)"
+            "\n  g_mk = 0.10554130769871532; K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
+            "\n  K_mk = 0.30268710283935474; n_mk = 1.6755490118385767; f0_mk = 0.14497007804615436;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
             "\n  // transcription at full mark -- H3K27me3 impedes initiation/burst freq but Pol II stays, so it"
             "\n  // DAMPENS, does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
             "\n  Mk_methylation: => Mk; Cell*EZH2*(1 - EZH2i)*(k_w_mk*Mk + k0_mk)*(1 - Mk)*(1 - g_mk*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
