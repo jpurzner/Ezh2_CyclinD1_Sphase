@@ -14,12 +14,14 @@ MB = dict(SHH=0.5, Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18
 CONDS = {'GNP': (GNP, {}), 'GNP_HHi': (GNP, {'HHi': 1.0}), 'GNP_EZH2i': (GNP, {'EZH2i': 1.0}),
          'GNP_SS': (GNP, {'k_Cd_translation': 0.0}), 'MB': (MB, {}), 'MB_HHi': (MB, {'HHi': 1.0}), 'MB_HU': (MB, {'HU': 1.0})}
 SEL = ['time', 'Cd_mRNA', 'EZH2', 'EZH2m', 'MPF', 'P21', 'aRc', 'Dna', 'vfork']
-FREE = ['kEZbas', 'kEZE2f', 'kDeEZ', 'kTlEZ', 'kDeEZm']
-BOX = {'kEZbas': (0.0003, 0.004), 'kEZE2f': (0.01, 0.06), 'kDeEZ': (0.0002, 0.0012), 'kTlEZ': (0.002, 0.02), 'kDeEZm': (0.002, 0.02)}
+FREE = ['kEZbas', 'kEZbas_Cd', 'kEZE2f', 'kDeEZ', 'kTlEZ', 'kDeEZm', 'K_mk']
+BOX = {'kEZbas': (0.0002, 0.003), 'kEZbas_Cd': (0.0005, 0.012), 'kEZE2f': (0.005, 0.05),
+       'kDeEZ': (0.0002, 0.0012), 'kTlEZ': (0.002, 0.02), 'kDeEZm': (0.002, 0.02), 'K_mk': (0.15, 0.55)}
 # target: (value, tol); some depend on cross-condition ratios computed below
 TGT = {'Cd_GNPHHi': (0.157, .30), 'Cd_MBHHi': (0.144, .30), 'Cd_MBGNP': (5.07, .35),
        'EZ_MBGNP': (2.05, .25), 'EZi_fold': (2.2, .30), 'EZ_G0cyc': (0.6, .30),
-       'EZ_protG2G0': (1.48, .35), 'EZ_transSG0': (2.0, .30), 'HU_boost': (1.31, .25)}
+       'EZ_protG2G0': (1.48, .35), 'EZ_transSG0': (2.0, .30), 'HU_boost': (1.31, .25),
+       'Period_GNP': (22.0, .20), 'Period_MB': (23.0, .20)}   # EZH2->CyclinD1 must not perturb the cycle period
 _RR = None
 _DEF = {}
 
@@ -72,11 +74,16 @@ def _eval(pars):
         r[nm] = _sim(ctx, drug, pars)
         if r[nm] is None: return None
     cd = lambda c: settled(r[c], 'Cd_mRNA'); ez = lambda c: settled(r[c], 'EZH2')
+    def period(res, s=3000):
+        t = res['time']; mpf = res['MPF']; m = t >= s; tt = t[m]; dt = tt[1] - tt[0]
+        pk, _ = find_peaks(mpf[m], prominence=0.15, distance=int(200 / dt)); pks = tt[pk] / 60.0
+        return float(np.mean(np.diff(pks))) if len(pks) > 1 else np.nan
     pg2, boost0, trans = phase_ez(r['MB']); _, boost1, _ = phase_ez(r['MB_HU'])
     out = {'Cd_GNPHHi': cd('GNP_HHi') / cd('GNP'), 'Cd_MBHHi': cd('MB_HHi') / cd('MB'), 'Cd_MBGNP': cd('MB') / cd('GNP'),
            'EZ_MBGNP': ez('MB') / ez('GNP'), 'EZi_fold': cd('GNP_EZH2i') / cd('GNP'),
            'EZ_G0cyc': ez('GNP_SS') / ez('GNP'), 'EZ_protG2G0': pg2, 'EZ_transSG0': trans,
-           'HU_boost': boost1 / boost0 if boost0 else np.nan}
+           'HU_boost': boost1 / boost0 if boost0 else np.nan,
+           'Period_GNP': period(r['GNP']), 'Period_MB': period(r['MB'])}
     return out
 
 
@@ -106,7 +113,7 @@ def sample(box, n, rng, center=None, frac=1.0):
 
 if __name__ == '__main__':
     rng = np.random.default_rng(3)
-    S1 = sample(BOX, 120, rng)
+    S1 = sample(BOX, 180, rng)
     allp, allo = [], []
     print(f'stage 1: {len(S1)} param sets x 7 conditions ...', flush=True)
     with mp.get_context('spawn').Pool(9, initializer=_init, initargs=(None,)) as pool:
@@ -116,7 +123,7 @@ if __name__ == '__main__':
     print(f'  stage1 best {sc[bi][0]}/9 at {[f"{k}={allp[bi][k]:.4g}" for k in FREE]}', flush=True)
     order = sorted(range(len(allo)), key=lambda i: sc[i][0]*100 + sc[i][1], reverse=True)[:5]
     cen = {k: float(np.exp(np.mean([np.log(allp[j][k]) for j in order]))) for k in FREE}
-    S2 = sample(BOX, 90, rng, center=cen, frac=0.35)
+    S2 = sample(BOX, 120, rng, center=cen, frac=0.35)
     print(f'stage 2: refine around {[f"{k}={cen[k]:.4g}" for k in FREE]} ...', flush=True)
     with mp.get_context('spawn').Pool(9, initializer=_init, initargs=(None,)) as pool:
         for idx, o, pars in pool.imap_unordered(_work, list(enumerate(S2)), chunksize=2):
