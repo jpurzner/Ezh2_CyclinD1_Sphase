@@ -87,6 +87,13 @@ HU_BLOCK = """
   KmHU_fork = 0.2;        // HU IC50 (wide-search baked, was 0.35)
   hHU_fork = 3;           // Hill coefficient
   vfork := vmin_fork + (1 - vmin_fork)*KmHU_fork^hHU_fork/(KmHU_fork^hHU_fork + HU^hHU_fork);
+  // HU also blocks S-ENTRY (origin firing): the ATR-CHK1 replication-stress checkpoint suppresses
+  // new origin firing under dNTP depletion, so HU-arrested cells hold at 2N/G1 (few enter S, G2
+  // depletes) while cells already in S crawl on (fork slowdown -> long S, EZH2 accumulates).
+  // fire_gate_HU = 1 EXACTLY at HU=0 -> every HU=0 result is unchanged.
+  KmHU_fire = 0.25;       // HU IC50 for the origin-firing (S-entry) block (calibrated to MB55 HU phase folds)
+  hHU_fire = 2;           // Hill coefficient
+  fire_gate_HU := KmHU_fire^hHU_fire/(KmHU_fire^hHU_fire + HU^hHU_fire);
 """
 
 _DNA_RXN_OLD = "Synthesis_of_DNA: aRc => aRc + Dna; Cell*kSyDna*aRc;"
@@ -129,7 +136,7 @@ GROWTH_BLOCK = """
 _FIRE_OLD = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
              "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*Rc);")
 _FIRE_NEW = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
-             "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*size_gate*Rc);")
+             "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*size_gate*fire_gate_HU*Rc);")
 
 # ---- Structural redesign #3: Skp2-p27 feedforward restriction-point switch ----
 # Heldt's Skp2 is constant; here it becomes a dynamic E2F target degraded by APC/C-Cdh1 (C1).
@@ -161,9 +168,9 @@ EZH2_CORE_BLOCK = """
   species EZH2m in Cell, EZH2 in Cell;
   EZH2m = 0.1; EZH2 = 0.5;
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
-  kEZbas = 0.00027; kEZE2f = 0.022; K_E2f_EZ = 0.3; Kez_cd = 2.94;   // wide-search baked (EZH2 mitogen-dose term)
+  kEZbas = 0.00066; kEZE2f = 0.0159; K_E2f_EZ = 0.3; Kez_cd = 2.94;   // EZH2-stability re-fit (was 0.00027/0.022): co-fit with faster kDeEZ against all 9 EZH2-coupled validation targets
   K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.582;       // CycE(S-onset)/CycA(S-G2) gate weights (wCe baked)
-  kDeEZm = 0.02; kTlEZ = 0.004; kDeEZ = 0.00015;   // stable EZH2 -> integrates S-duration (kDeEZ baked)
+  kDeEZm = 0.02; kTlEZ = 0.0078; kDeEZ = 0.00074;  // EZH2 t1/2 ~16h (was 0.00015=77h, under-constrained): pinned by HU-arrest in-S boost + G0-withdrawal IF; kTlEZ co-tuned to hold EZH2 level (EZi-fold/MB-GNP)
   // EZH2 is a Rb-E2f target driven by CyclinD1-CDK4/6: synthesis is cycle-gated (E2f x CycE/CycA, peaks S/G2)
   // AND MITOGEN-DOSE dependent (the *Cd/(Kez_cd+Cd) factor). The Cd term reproduces the dose-dependent EZH2
   // increase over a WIDE rShh range (Fig 4H) and the MB/GNP=2.05x (Fig 4J), while SATURATING (Kez_cd=2) so the

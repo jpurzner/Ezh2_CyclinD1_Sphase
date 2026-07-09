@@ -43,7 +43,7 @@ KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment thresho
                          # up) overcomes the COMPETITIVE INK4 brake -> rescue. CDK4/6i (kPhRbCd=0, Vmax) NOT rescuable.
 
 SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
-       "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass"]
+       "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass", "vfork"]
 
 # Build once; reset + set runtime inputs per condition (fast).
 # H3K27_DILUTION=1 env var swaps in the replicative-dilution (leaky H3K27me3) repression module.
@@ -64,12 +64,15 @@ def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
     last = None
-    # tolerance + horizon retry: high-CyclinD1 MB conditions (esp. MB+HHi+EZH2i) can be stiff
-    for te_end, te_pts in ((t_end, n_pts), (8000, 32000), (6000, 24000)):
+    # tolerance + horizon + max-step retry: high-CyclinD1 MB conditions (esp. MB+HHi+EZH2i) and the
+    # faster-EZH2 (kDeEZ) arrests can be stiff; capping the internal step cures CV_CONV/ILL_INPUT.
+    for maxstep in (1e9, 20.0, 5.0):
+      for te_end, te_pts in ((t_end, n_pts), (8000, 32000), (6000, 24000)):
         for atol in (1e-9, 1e-8, 1e-7, 1e-6, 1e-5):
             rr.reset()
             try:
-                rr.integrator.setValue("maximum_num_steps", 300000)
+                rr.integrator.setValue("maximum_num_steps", 1000000)
+                rr.integrator.setValue("maximum_time_step", maxstep)
             except Exception:
                 pass
             rr['SHH'] = shh
@@ -132,7 +135,13 @@ def classify(res, pRb_thr, settle=4000):
     cells not captured by this single-cycle classifier (a separate growth-fraction term, not modeled)."""
     t = res['time']; m = t >= settle; tt = t[m]; dt = tt[1] - tt[0]
     P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]; MPF = res['MPF'][m]
-    in_S = (aRc > 0.05) & (Dna < 0.98)
+    # S-phase = ACTIVE DNA SYNTHESIS (BrdU/EdU analog: the synthesis flux vfork*aRc above a threshold),
+    # NOT mere aRc presence. Under HU (slow forks) vfork ~ 0.1 so aRc-high but synthesis-low cells are
+    # BrdU-NEGATIVE (the data measures BrdU) and belong in 2N/G1, not S. At HU=0 vfork=1 EXACTLY, so
+    # vfork*aRc = aRc and DMSO is identical to the old aRc>0.05 gate (SYN_THR ~ that scale).
+    SYN_THR = 0.02
+    syn = res['vfork'][m] * aRc
+    in_S = (syn > SYN_THR) & (Dna < 0.98)
     in_G2 = (Dna >= 0.98)
     preS = ~in_S & ~in_G2
     G0 = preS & (P21 > P27_THR); G1 = preS & (P21 <= P27_THR)
