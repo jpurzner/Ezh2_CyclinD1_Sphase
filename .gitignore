@@ -166,3 +166,6 @@ simulations/_popfold.log
 !simulations/sim_h3k27_dilution_race.pdf
 simulations/sim_h3k27_dilution_race_cache.npz
 !simulations/fig_v44_mitogen_ramp_onoff.pdf
+!simulations/fig_v44_mitogen_ramp_onoff_population.pdf
+simulations/fig_v44_mitogen_ramp_onoff_population_cache.npz
+simulations/_popramp.log
