@@ -532,7 +532,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # Shared H3K27me3 (Mk) dynamics: basal turnover + Gli->Jmjd3/Kdm6b active eraser + replicative dilution.
         shared = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  del_mk = 0.0031382913415423453; k_jmjd3_gli = 0.07234802664137897;   // basal H3K27me3 turnover + Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014 ncomms6425): WRITER=EZH2(cycle) vs ERASER=Gli(mitogen) race"
+            "\n  del_mk = 0.005152457326926283; k_jmjd3_gli = 0.09837275745533813;   // basal H3K27me3 turnover + Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014 ncomms6425): WRITER=EZH2(cycle) vs ERASER=Gli(mitogen) race (optimize_prc2 2026-07-10)"
             "\n  K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // nascent-transcription -> PRC2 eviction Hill on Cd_mRNA"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
             "\n  Mk_demeth_jmjd3: Mk => ; Cell*k_jmjd3_gli*Gli1*Mk;   // MB (high Gli) actively strips the mark -> ChIP MB<GNP"
@@ -546,8 +546,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # EZH2 OE/i (paper) because ALL repression is EZH2/PRC2-mediated; (iii) MB keeps occupancy via high EZH2
             # (5.07 dose fold) while Gli/Jmjd3 keeps the MARK low (ChIP). Replaces the phenomenological w_ezdir blend.
             mk = shared + (
-                "\n  a0_prc2 = 0.0008; a_rw_prc2 = 0.003; g_prc2 = 0.11;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction"
-                "\n  K_prc2 = 0.0015; n_prc2 = 2.5; f0_prc2 = 0.15;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
+                "\n  a0_prc2 = 0.0008996325250918827; a_rw_prc2 = 0.0014571423159524817; g_prc2 = 0.23664588553222207;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction (optimize_prc2 2026-07-10)"
+                "\n  K_prc2 = 0.0008678206440029061; n_prc2 = 3.144278711505799; f0_prc2 = 0.23022734963544875;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
                 "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // formal PRC2 complex occupancy at Ccnd1"
                 "\n  Mk_methylation: => Mk; Cell*PRC2*(1 - Mk);   // PRC2 writes H3K27me3 on unmethylated substrate"
             )
