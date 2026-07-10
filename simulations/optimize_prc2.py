@@ -33,9 +33,16 @@ SPACE = [
     ('n_prc2',      1.50,   4.00,  False),
     ('f0_prc2',     0.05,   0.30,  False),
     ('del_mk',      0.0015, 0.006, True),
+    # Feature B: EZH2 transcription -- shift toward more E2f-gating (writer OFF in arrest, Palbo drop ~56%)
+    ('kEZbas',      0.0001, 0.0015, True),
+    ('kEZbas_Cd',   0.0002, 0.0025, True),
+    ('kEZE2f',      0.004,  0.025,  True),
+    ('Kez_cd',      2.0,    10.0,   True),
+    ('K_E2f_EZ',    0.15,   0.50,   False),
 ]
-ANCHOR = {'k_jmjd3_gli': 0.0723, 'a0_prc2': 0.0008, 'a_rw_prc2': 0.003, 'g_prc2': 0.11,
-          'K_prc2': 0.0015, 'n_prc2': 2.5, 'f0_prc2': 0.15, 'del_mk': 0.00314}
+ANCHOR = {'k_jmjd3_gli': 0.0984, 'a0_prc2': 0.000900, 'a_rw_prc2': 0.001457, 'g_prc2': 0.2366,
+          'K_prc2': 0.000868, 'n_prc2': 3.144, 'f0_prc2': 0.2302, 'del_mk': 0.005152,
+          'kEZbas': 0.000517, 'kEZbas_Cd': 0.001525, 'kEZE2f': 0.006195, 'Kez_cd': 5.605, 'K_E2f_EZ': 0.3}
 _ctr = [0]
 
 
@@ -72,11 +79,13 @@ def evaluate(params):
     chip = mb_mk / gnp_mk
     cd = float(checks['CyclinD1 MB/GNP']['actual'])
     ezi = float(checks.get('EZH2i CycD1 fold (GNP)', {}).get('actual', 0))
+    palbo = float(checks.get('EZH2 Palbo mRNA drop (~0.44)', {}).get('actual', 0.44))
     n_hardfail = sum(1 for n, c in checks.items() if n not in EXCLUDE and not c['pass'])
-    loss = 10.0 * n_hardfail + 6.0 * abs(chip - CHIP_TARGET) + 2.0 * abs(cd - 5.07) / 5.07 + 2.0 * abs(ezi - 2.2) / 2.2
+    loss = (10.0 * n_hardfail + 6.0 * abs(chip - CHIP_TARGET) + 2.0 * abs(cd - 5.07) / 5.07
+            + 2.0 * abs(ezi - 2.2) / 2.2 + 1.5 * abs(palbo - 0.44) / 0.44)
     good = (n_hardfail == 0 and 0.40 <= chip <= 0.60)
     return dict(params=params, loss=float(loss), n_hardfail=int(n_hardfail), chip=float(chip), good=bool(good),
-                passed=int(out.get('passed', 0)), mbgnp_cd=cd, ezi=ezi,
+                passed=int(out.get('passed', 0)), mbgnp_cd=cd, ezi=ezi, palbo=float(palbo),
                 transcript=float(checks.get('EZH2 transcript S/G0 (1.8-2.5)', {}).get('actual', 0)),
                 gnp_mk=gnp_mk, mb_mk=mb_mk)
 
@@ -128,6 +137,6 @@ if __name__ == '__main__':
     b = allr[0]
     print('\n=== BEST (min loss) ===')
     print(f"  loss {b['loss']:.3f} | n_hardfail {b['n_hardfail']} | passed {b['passed']}/27 | good={b['good']}")
-    print(f"  ChIP MB/GNP mark {b['chip']:.3f} | CyclinD1 MB/GNP {b['mbgnp_cd']:.2f} (5.07) | EZH2i {b['ezi']:.2f} (2.2) | transcript {b['transcript']:.2f}")
+    print(f"  ChIP MB/GNP mark {b['chip']:.3f} | CyclinD1 MB/GNP {b['mbgnp_cd']:.2f} (5.07) | EZH2i {b['ezi']:.2f} (2.2) | transcript {b['transcript']:.2f} | Palbo drop {b['palbo']:.2f} (0.44)")
     print(f"  params = {json.dumps(b['params'])}")
     print(f"  -> {BEST}")

@@ -175,3 +175,4 @@ simulations/_jmjd3opt.log
 simulations/optimize_prc2_log.jsonl
 simulations/optimize_prc2_best.json
 simulations/_prc2opt.log
+simulations/_prc2optB.log

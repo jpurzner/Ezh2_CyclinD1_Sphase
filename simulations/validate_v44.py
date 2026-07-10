@@ -171,6 +171,7 @@ def classify(res, pRb_thr, settle=4000):
 # ---------------------------------------------------------------------------
 CONDITIONS = {
     'GNP + SHH':         dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0),
+    'GNP + CDK4/6i':     dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, cdk46i=True),
     'GNP - SHH':         dict(shh=0.0, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0),
     'GNP + HHi':         dict(shh=0.5, ptch1_cn=1.0, hhi=1.0, ezh2i=0.0, mycn_amp=1.0),
     'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=1.0, mycn_amp=1.0),
@@ -233,6 +234,7 @@ def main():
     my = lambda c: mean_settled(sims[c], 'MYCN')
     gl = lambda c: mean_settled(sims[c], 'Gli1')
     ez = lambda c: mean_settled(sims[c], 'EZH2')
+    ezm = lambda c: mean_settled(sims[c], 'EZH2m')
 
     # Section A — between-condition ratios
     check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.30)
@@ -299,6 +301,7 @@ def main():
     # EZH2 within-cycle gradient + HU boost (MB)
     check("EZH2 transcript S/G0 (1.8-2.5)", classify_grad(mb, pRb_thr, 'EZH2m')['S'], 2.0, 0.30)
     check("EZH2 protein G2/G0 (1.48)", ez0['G2']/ez0['G0'] if ez0['G0'] else 0, 1.48, 0.35)
+    check("EZH2 Palbo mRNA drop (~0.44)", ezm('GNP + CDK4/6i')/ezm('GNP + SHH'), 0.44, 0.30)   # Fig 4: CDK4/6i drops EZH2 mRNA 56% (E2f-gated); tests the writer is cycle-gated (Point 2)
     check("HU EZH2-in-S boost (1.31)", ez1['S']/ez0['S'] if ez0['S'] else 0, 1.31, 0.25)
 
     # ---- print results ----
