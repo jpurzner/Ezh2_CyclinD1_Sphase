@@ -92,10 +92,14 @@ def evaluate(params):
     rw_frac = arwv * gnp_mk / (a0v + arwv * gnp_mk) if (a0v + arwv * gnp_mk) > 0 else 0.0
     mbs = float(checks.get('MB S count% (flow; BrdU Ts~3h)', {}).get('actual', 0))
     n_hardfail = sum(1 for n, c in checks.items() if n not in EXCLUDE and not c['pass'])
-    loss = (10.0 * n_hardfail + 6.0 * abs(chip - CHIP_TARGET) + 2.0 * abs(cd - 5.07) / 5.07
-            + 2.0 * abs(ezi - 2.2) / 2.2 + 2.0 * abs(palbo - 0.44) / 0.44
-            + 1.5 * abs(transcript - 2.0) / 2.0 + 4.0 * max(0.0, 0.55 - rw_frac)
-            + 1.5 * abs(mbs - 15.7) / 15.7)
+    # BAND penalties (JP: data is noisy -> don't exact-match): zero cost within the noise band, linear
+    # only for meaningful deviations. n_hardfail (loosened validate tolerances) is the primary term.
+    bnd = lambda x, t, b: max(0.0, abs(x - t) / t - b)
+    loss = (10.0 * n_hardfail
+            + 3.0 * bnd(chip, CHIP_TARGET, 0.15) + 1.5 * bnd(cd, 5.07, 0.15)
+            + 1.5 * bnd(ezi, 2.2, 0.20) + 1.5 * bnd(palbo, 0.44, 0.25)
+            + 1.0 * bnd(transcript, 2.0, 0.25) + 1.0 * bnd(mbs, 15.7, 0.30)
+            + 5.0 * max(0.0, 0.55 - rw_frac))
     good = (n_hardfail == 0 and 0.40 <= chip <= 0.60 and rw_frac >= 0.45)
     return dict(params=params, loss=float(loss), n_hardfail=int(n_hardfail), chip=float(chip), good=bool(good),
                 passed=int(out.get('passed', 0)), mbgnp_cd=cd, ezi=ezi, palbo=palbo, transcript=transcript,

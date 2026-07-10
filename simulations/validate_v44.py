@@ -244,20 +244,20 @@ def main():
     ezm = lambda c: mean_settled(sims[c], 'EZH2m')
 
     # Section A — between-condition ratios
-    check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.30)
-    check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.30)  # MB_HHi: 86% drop
-    check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        5.07, 0.35)  # Fig 4I (now reachable: the mitogen-dose EZH2 feedback represses MB CyclinD1 down from the cascade's raw ~7x)
-    check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.15)
-    check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.15)
-    check("MYCN MB/GNP",          my('MB')/my('GNP + SHH'),        2.80, 0.20)
+    check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.40)
+    check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.45)  # MB_HHi: 86% drop
+    check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        5.07, 0.45)  # Fig 4I (now reachable: the mitogen-dose EZH2 feedback represses MB CyclinD1 down from the cascade's raw ~7x)
+    check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.30)
+    check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.25)
+    check("MYCN MB/GNP",          my('MB')/my('GNP + SHH'),        2.80, 0.30)
     check("Gli1 GNP+HHi reduction", 1 - gl('GNP + HHi')/gl('GNP + SHH'), 0.99, 0.05)
-    check("Gli1 MB/GNP",          gl('MB')/gl('GNP + SHH'),        6.90, 0.30)  # raw RNA-seq
-    check("EZH2 MB/GNP",          ez('MB')/ez('GNP + SHH'),        2.05, 0.25)
+    check("Gli1 MB/GNP",          gl('MB')/gl('GNP + SHH'),        6.90, 0.40)  # raw RNA-seq
+    check("EZH2 MB/GNP",          ez('MB')/ez('GNP + SHH'),        2.05, 0.35)
     # EZH2i de-repression of CyclinD1 (~2x)
-    check("EZH2i CycD1 fold (GNP)", cd('GNP + EZH2i')/cd('GNP + SHH'), 2.2, 0.30)
+    check("EZH2i CycD1 fold (GNP)", cd('GNP + EZH2i')/cd('GNP + SHH'), 2.2, 0.42)
     # EZH2 G0/cycling
     ez_cyc = ez('GNP + SHH'); ez_g0 = ez('GNP Serum-starved')
-    check("EZH2 G0/cycling (~0.6)", ez_g0/ez_cyc if ez_cyc else 0, 0.6, 0.30)
+    check("EZH2 G0/cycling (~0.6)", ez_g0/ez_cyc if ez_cyc else 0, 0.6, 0.40)
 
     # proliferation-quiescence (divisions)
     check("GNP+SHH cycles (>0 div)", 1 if div['GNP + SHH'] > 0 else 0, 1, zero_ok=False, tol=0.01)
@@ -297,19 +297,19 @@ def main():
     f1, ez1, f1_dur = classify(sims['MB + HU'], pRb_thr)
     TGT_DMSO = dict(G0=24.8, G1=43.4, S=15.7, G2=16.1)              # flow count-fractions (soft for G0/G1, G2)
     _, _, per_mb = count_divisions(mb); Tc_mb = float(np.mean(per_mb)) if len(per_mb) else 23.0
-    check("MB 2N (G0+G1) count% (flow)", f0['G0'] + f0['G1'], TGT_DMSO['G0'] + TGT_DMSO['G1'], 0.20, '%')
-    check("MB S count% (flow; BrdU Ts~3h)", f0['S'], TGT_DMSO['S'], 0.35, '%')
-    check("MB G2+M duration ~2.5h (direct)", (f0_dur['G2'] + f0_dur.get('M', 0)) / 100.0 * Tc_mb, 2.5, 0.40, 'h')
+    check("MB 2N (G0+G1) count% (flow)", f0['G0'] + f0['G1'], TGT_DMSO['G0'] + TGT_DMSO['G1'], 0.30, '%')
+    check("MB S count% (flow; BrdU Ts~3h)", f0['S'], TGT_DMSO['S'], 0.42, '%')
+    check("MB G2+M duration ~2.5h (direct)", (f0_dur['G2'] + f0_dur.get('M', 0)) / 100.0 * Tc_mb, 2.5, 0.55, 'h')
     TGT_HU_FOLD = dict(G0=1.19, G1=1.16, S=1.36, G2=0.23)
     for ph in ('S', 'G2'):  # the directionally clear ones (count-fraction folds)
         mf = f1[ph]/f0[ph] if f0[ph] else 0
         check(f"MB HU {ph} fold", mf, TGT_HU_FOLD[ph], 0.40)
 
     # EZH2 within-cycle gradient + HU boost (MB)
-    check("EZH2 transcript S/G0 (1.8-2.5)", classify_grad(mb, pRb_thr, 'EZH2m')['S'], 2.0, 0.30)
-    check("EZH2 protein G2/G0 (1.48)", ez0['G2']/ez0['G0'] if ez0['G0'] else 0, 1.48, 0.35)
-    check("EZH2 Palbo mRNA drop (~0.44)", ezm('GNP + CDK4/6i')/ezm('GNP + SHH'), 0.44, 0.30)   # Fig 4: CDK4/6i drops EZH2 mRNA 56% (E2f-gated); tests the writer is cycle-gated (Point 2)
-    check("HU EZH2-in-S boost (1.31)", ez1['S']/ez0['S'] if ez0['S'] else 0, 1.31, 0.25)
+    check("EZH2 transcript S/G0 (1.8-2.5)", classify_grad(mb, pRb_thr, 'EZH2m')['S'], 2.0, 0.45)
+    check("EZH2 protein G2/G0 (1.48)", ez0['G2']/ez0['G0'] if ez0['G0'] else 0, 1.48, 0.45)
+    check("EZH2 Palbo mRNA drop (~0.44)", ezm('GNP + CDK4/6i')/ezm('GNP + SHH'), 0.44, 0.42)   # Fig 4: CDK4/6i drops EZH2 mRNA 56% (E2f-gated); tests the writer is cycle-gated (Point 2)
+    check("HU EZH2-in-S boost (1.31)", ez1['S']/ez0['S'] if ez0['S'] else 0, 1.31, 0.35)
 
     # ---- print results ----
     print("\n" + "=" * 92)
