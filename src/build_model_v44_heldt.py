@@ -76,7 +76,7 @@ MITOSIS_BLOCK = """
   // Daughter is born with HIGH p27 (P21_div) + low Skp2 -> transient G0 (p27-positive / phospho-Rb-
   // negative) until the Skp2-p27-E2F feedforward commits it. (G0 = phospho-Rb(Ser807/811)- OR p27+.)
   Ca_div = 0.30; Ce_div = 0.10; MPF_div = 0.5; P21_div = 0.6;   // Ca_div=0.30 keeps GNP & MB cycling
-  f_commit_carry = 0.7414158415241969;   // Feature C (Spencer carryover): fraction of commitment state (phospho-Rb, CyclinE, low-p27) inherited across division. 0 = legacy hard-reset (every G1 crashes E2f -> looks like arrest); >0 lets a committed daughter keep E2f in G1 (immediate re-entry) while uncommitted daughters still reset toward G0.
+  f_commit_carry = 0.5672456517307928;   // Feature C (Spencer carryover): fraction of commitment state (phospho-Rb, CyclinE, low-p27) inherited across division. 0 = legacy hard-reset (every G1 crashes E2f -> looks like arrest); >0 lets a committed daughter keep E2f in G1 (immediate re-entry) while uncommitted daughters still reset toward G0.
   E_div: at (MPF > MPF_div): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + (1 - f_commit_carry)*pRb, pRb = f_commit_carry*pRb, P21 = P21_div - f_commit_carry*(P21_div - P21), CeP21 = 0, CaP21 = 0, Skp2 = 0.05, Ce = Ce_div + f_commit_carry*Ce, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
 """
 
@@ -127,7 +127,7 @@ GROWTH_BLOCK = """
   mass = 1.0;
   mu = 0.0005;            // specific growth rate (1/min); ~ ln2/period for size homeostasis (~22h)
   M_size = 2.5;           // critical cell size for S-entry (origin firing)
-  M_commit = 1.5;        // critical cell size for COMMITMENT (G0->G1; Skp2-p27 feedforward fires) ->
+  M_commit = 1.2843242130809425;        // critical cell size for COMMITMENT (G0->G1; Skp2-p27 feedforward fires) ->
                           // transient G0 ~20% (MB); cell grows in G0 (p27 high) until mass>=M_commit
   n_size = 6;             // steepness of the size gates
   size_gate := mass^n_size/(M_size^n_size + mass^n_size);
@@ -169,8 +169,8 @@ EZH2_CORE_BLOCK = """
   species EZH2m in Cell, EZH2 in Cell;
   EZH2m = 0.1; EZH2 = 0.5;
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
-  kEZbas = 0.0005397588397503304; kEZE2f = 0.020146200985504986; K_E2f_EZ = 0.4762363914011789; Kez_cd = 8.595130636760091;   // EZH2-stability re-fit (was 0.00027/0.022): co-fit with faster kDeEZ against all 9 EZH2-coupled validation targets
-  kEZbas_Cd = 0.001206259754778472;      // mitogen-dose-scaled but CYCLE-FLAT baseline transcription: carries the MB/GNP dose
+  kEZbas = 0.00043040856433872047; kEZE2f = 0.021216027072906932; K_E2f_EZ = 0.5; Kez_cd = 7.830608487520997;   // EZH2-stability re-fit (was 0.00027/0.022): co-fit with faster kDeEZ against all 9 EZH2-coupled validation targets
+  kEZbas_Cd = 0.0013508978696408793;      // mitogen-dose-scaled but CYCLE-FLAT baseline transcription: carries the MB/GNP dose
                           // WITHOUT a within-cycle swing -> decouples EZH2 mRNA phase gradient (transcript S/G0)
                           // from the mitogen-dose ratio. Repression is via the H3K27me3 mark (integrates EZH2),
                           // so raising the flat baseline does not over-repress CyclinD1.
@@ -392,7 +392,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
     m = m.replace(_DNA_RXN_OLD, _DNA_RXN_NEW)
     # 1b. faster replication fork: S-phase ~3.5h (Heldt default 0.0093 gave ~10h, unrealistically long;
     #     ~5x brings S to the data DMSO S proportion ~15.7% of the cycle). G1/G0 fills the rest.
-    m = m.replace("kSyDna = 0.0093;", "kSyDna = 0.04223855142910248;")
+    m = m.replace("kSyDna = 0.0093;", "kSyDna = 0.04265121846938828;")
     # 2. inject mitotic switch + HU blocks
     blocks = MITOSIS_BLOCK + HU_BLOCK
 
@@ -533,7 +533,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # Shared H3K27me3 (Mk) dynamics: basal turnover + Gli->Jmjd3/Kdm6b active eraser + replicative dilution.
         shared = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  del_mk = 0.001853621384553496; k_jmjd3_gli = 0.05043458278509962;   // basal H3K27me3 turnover + Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014 ncomms6425): WRITER=EZH2(cycle) vs ERASER=Gli(mitogen) race (optimize_prc2 2026-07-10)"
+            "\n  del_mk = 0.0015; k_jmjd3_gli = 0.047832059241740936;   // basal H3K27me3 turnover + Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014 ncomms6425): WRITER=EZH2(cycle) vs ERASER=Gli(mitogen) race (optimize_prc2 2026-07-10)"
             "\n  K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // nascent-transcription -> PRC2 eviction Hill on Cd_mRNA"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
             "\n  Mk_demeth_jmjd3: Mk => ; Cell*k_jmjd3_gli*Gli1*Mk;   // MB (high Gli) actively strips the mark -> ChIP MB<GNP"
@@ -547,8 +547,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # EZH2 OE/i (paper) because ALL repression is EZH2/PRC2-mediated; (iii) MB keeps occupancy via high EZH2
             # (5.07 dose fold) while Gli/Jmjd3 keeps the MARK low (ChIP). Replaces the phenomenological w_ezdir blend.
             mk = shared + (
-                "\n  a0_prc2 = 0.0003257721787539598; a_rw_prc2 = 0.004657990802911562; g_prc2 = 0.04295852022974148;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction (optimize_prc2 2026-07-10)"
-                "\n  K_prc2 = 0.0034587551494603083; n_prc2 = 3.3462638197481556; f0_prc2 = 0.06015625757630461;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
+                "\n  a0_prc2 = 0.00037763461927116913; a_rw_prc2 = 0.004297010112265872; g_prc2 = 0.04244445931486211;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction (optimize_prc2 2026-07-10)"
+                "\n  K_prc2 = 0.0034813553293576824; n_prc2 = 3.385026804758643; f0_prc2 = 0.05054636367014487;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
                 "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // formal PRC2 complex occupancy at Ccnd1"
                 "\n  Mk_methylation: => Mk; Cell*PRC2*(1 - Mk);   // PRC2 writes H3K27me3 on unmethylated substrate"
             )
