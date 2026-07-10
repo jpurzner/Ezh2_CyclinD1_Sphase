@@ -532,18 +532,22 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         mk = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
             "\n  k_w_mk = 0.004498873096749711; k0_mk = 0.0005405131204753427; del_mk = 0.003283528882263035;   // read-write, de-novo floor, demeth/turnover (de-repression t1/2~16h, lit-review tau_restore band)"
+            "\n  k_jmjd3_gli = 0.0; w_ezdir = 0.0;   // (A) Gli->Jmjd3/Kdm6b ACTIVE eraser rate (Shi 2014, ncomms6425) + (B) weight of EZH2-DIRECT vs mark-Hill CyclinD1 repression. BOTH default 0 = validation-preserving."
             "\n  g_mk = 0.10554130769871532; K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
             "\n  K_mk = 0.30268710283935474; n_mk = 1.6755490118385767; f0_mk = 0.14497007804615436;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
             "\n  // transcription at full mark -- H3K27me3 impedes initiation/burst freq but Pol II stays, so it"
             "\n  // DAMPENS, does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
             "\n  Mk_methylation: => Mk; Cell*EZH2*(1 - EZH2i)*(k_w_mk*Mk + k0_mk)*(1 - Mk)*(1 - g_mk*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
+            "\n  Mk_demeth_jmjd3: Mk => ; Cell*k_jmjd3_gli*Gli1*Mk;   // (A) Gli-recruited Jmjd3/Kdm6b eraser: WRITER=EZH2(cycle-gated) vs ERASER=Gli(mitogen-gated) race; MB (high Gli, arrested-low-EZH2) strips the mark"
             "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
         )
         m = m.replace("\nend", mk + "\nend")
-        # leaky repression: R = f0 + (1-f0)/(1+(Mk/K)^n) -> R=1 at Mk=0, saturates at residual f0 (no lockout)
+        # leaky repression: R = f0 + (1-f0)/(1+(Mk/K)^n) -> R=1 at Mk=0, saturates at residual f0 (no lockout).
+        # (B) blended with EZH2-DIRECT dose repression (w_ezdir): lets the 5.07 MB/GNP fold come from EZH2 dose
+        # (2x in MB) rather than the promoter mark, so the mark can be LOW in MB (ChIP) without breaking the fold.
         m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
-                      "(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk))")
+                      "((1 - w_ezdir)*(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk)) + w_ezdir*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i))))")
 
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")

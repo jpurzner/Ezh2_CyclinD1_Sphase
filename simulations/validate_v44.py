@@ -43,7 +43,7 @@ KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment thresho
                          # up) overcomes the COMPETITIVE INK4 brake -> rescue. CDK4/6i (kPhRbCd=0, Vmax) NOT rescuable.
 
 SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
-       "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass", "vfork"]
+       "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass", "vfork", "Mk"]
 
 # Build once; reset + set runtime inputs per condition (fast).
 # H3K27_DILUTION=1 env var swaps in the replicative-dilution (leaky H3K27me3) repression module.

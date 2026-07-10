@@ -169,3 +169,6 @@ simulations/sim_h3k27_dilution_race_cache.npz
 !simulations/fig_v44_mitogen_ramp_onoff_population.pdf
 simulations/fig_v44_mitogen_ramp_onoff_population_cache.npz
 simulations/_popramp.log
+simulations/optimize_jmjd3_chip_log.jsonl
+simulations/optimize_jmjd3_chip_best.json
+simulations/_jmjd3opt.log
