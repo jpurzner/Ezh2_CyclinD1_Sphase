@@ -76,7 +76,8 @@ MITOSIS_BLOCK = """
   // Daughter is born with HIGH p27 (P21_div) + low Skp2 -> transient G0 (p27-positive / phospho-Rb-
   // negative) until the Skp2-p27-E2F feedforward commits it. (G0 = phospho-Rb(Ser807/811)- OR p27+.)
   Ca_div = 0.30; Ce_div = 0.10; MPF_div = 0.5; P21_div = 0.6;   // Ca_div=0.30 keeps GNP & MB cycling
-  E_div: at (MPF > MPF_div): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + pRb, pRb = 0, P21 = P21_div, CeP21 = 0, CaP21 = 0, Skp2 = 0.05, Ce = Ce_div, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
+  f_commit_carry = 0.0;   // Feature C (Spencer carryover): fraction of commitment state (phospho-Rb, CyclinE, low-p27) inherited across division. 0 = legacy hard-reset (every G1 crashes E2f -> looks like arrest); >0 lets a committed daughter keep E2f in G1 (immediate re-entry) while uncommitted daughters still reset toward G0.
+  E_div: at (MPF > MPF_div): Dna = 0, Rc = 1, pRc = 0, aRc = 0, iRc = 0, Rb = Rb + (1 - f_commit_carry)*pRb, pRb = f_commit_carry*pRb, P21 = P21_div - f_commit_carry*(P21_div - P21), CeP21 = 0, CaP21 = 0, Skp2 = 0.05, Ce = Ce_div + f_commit_carry*Ce, Ca = Ca_div, E1 = E1/2, MPF = 0, preMPF = 0, Cdc20 = 0 ;
 """
 
 # ---- HU -> replication fork speed (dNTP depletion slows forks) ----
