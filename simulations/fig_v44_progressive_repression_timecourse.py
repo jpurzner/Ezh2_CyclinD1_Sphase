@@ -24,7 +24,7 @@ FRESH = '--fresh' in sys.argv
 CACHE = 'simulations/fig_v44_progressive_repression_timecourse_cache.npz'
 M = build_model_v44(with_ezh2=True, with_hh=True)
 _rr = te.loada(M)
-F0, KMK, NMK = _rr['f0_mk'], _rr['K_mk'], _rr['n_mk']
+F0, KMK, NMK = _rr['f0_prc2'], _rr['K_prc2'], _rr['n_prc2']
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=0)
 SEL = ['time', 'Cd_mRNA', 'Mk', 'EZH2', 'Gli_act', 'Gli1', 'SHH']
 

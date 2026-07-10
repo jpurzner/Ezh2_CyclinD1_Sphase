@@ -4,7 +4,7 @@ Ramps SHH slowly from 0.6 -> 0 (staircase of short segments) in a cycling GNP an
 EZH2, divisions (MPF), p27 along the falling mitogen. Tests JP's reading: as mitogen falls, EZH2
 falls, which de-represses CyclinD1 and sustains division for a while before the cell-cycle collapse.
 
-Also compares WITH feedback (real model) vs WITHOUT (f0_mk=1.0, mark cannot repress): if the feedback buffers
+Also compares WITH feedback (real model) vs WITHOUT (f0_prc2=1.0, mark cannot repress): if the feedback buffers
 the exit, the cell should keep dividing to a LOWER mitogen level with feedback.
 
 Run:  ./venv/bin/python simulations/fig_v44_mitogen_rampdown.py
@@ -57,7 +57,7 @@ def last_division(d):
 
 
 A = rampdown(build_model_v44())                                   # with feedback (real model)
-B = rampdown(build_model_v44(params={"f0_mk": 1.0}))             # without feedback (mark cannot repress)
+B = rampdown(build_model_v44(params={"f0_prc2": 1.0}))             # without feedback (mark cannot repress)
 
 for name, d in (("WITH feedback", A), ("WITHOUT feedback", B)):
     tlast, shhlast = last_division(d)

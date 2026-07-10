@@ -4,7 +4,7 @@ repressed, and a threshold amount of Hh is required to initiate proliferation. "
 the brake."
 
 For each Hh (SHH) level, steady state in the GNP context: Gli1 (Hh activity), EZH2, H3K27me3 mark Mk,
-CyclinD1 transcript (Cd_mRNA), and the division rate WITH vs WITHOUT EZH2 repression (f0_mk=1). The
+CyclinD1 transcript (Cd_mRNA), and the division rate WITH vs WITHOUT EZH2 repression (f0_prc2=1). The
 un-repressed drive is recovered self-consistently as Cd_mRNA / R(Mk), R = f0 + (1-f0)/(1+(Mk/K)^n).
 
 Panels:
@@ -25,7 +25,7 @@ from src.build_model_v44_heldt import build_model_v44
 
 M = build_model_v44(with_ezh2=True, with_hh=True)
 _rr = te.loada(M)
-F0, KMK, NMK = _rr['f0_mk'], _rr['K_mk'], _rr['n_mk']
+F0, KMK, NMK = _rr['f0_prc2'], _rr['K_prc2'], _rr['n_prc2']
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=0)
 SEL = ['time', 'Cd_mRNA', 'Mk', 'EZH2', 'Gli_act', 'Gli1', 'MPF']
 
@@ -36,7 +36,7 @@ def run(shh, ezh2=True, settle=6000):
         rr[k] = v
     rr['SHH'] = shh
     if not ezh2:
-        rr['f0_mk'] = 1.0
+        rr['f0_prc2'] = 1.0
     for atol in (1e-9, 1e-8, 1e-7):
         try:
             rr.integrator.setValue('absolute_tolerance', atol)

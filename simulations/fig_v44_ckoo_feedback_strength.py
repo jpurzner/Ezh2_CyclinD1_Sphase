@@ -10,7 +10,7 @@ Two reasons the measured bulk fold UNDER-estimates the true per-cell feedback (J
       also incomplete. Both make even the per-cell fold a LOWER BOUND.
 
 Panel (a): per-cell fold vs Math1-Cre efficiency (AUM model default marked).
-Panel (b): model feedback strength (f0_mk leaky floor; smaller = stronger repression) -> measured
+Panel (b): model feedback strength (f0_prc2 leaky floor; smaller = stronger repression) -> measured
            de-repression fold + baseline CyclinD1, so we can see what feedback strength the data imply.
 
 Run:  ./venv/bin/python simulations/fig_v44_ckoo_feedback_strength.py
@@ -30,11 +30,11 @@ print("Per-cell CyclinD1 de-repression implied by the bulk cKO (2.46x):")
 for ff in (1.0, 0.9, 0.8, 0.7, 0.6):
     print(f"  Math1-Cre efficiency {ff:.0%}: per-cell fold = {(2.46-(1-ff))/ff:.2f}x")
 
-# ---- (2) model feedback strength sweep (AUM: f0_mk leaky floor; smaller = stronger repression) ----
+# ---- (2) model feedback strength sweep (AUM: f0_prc2 leaky floor; smaller = stronger repression) ----
 F0_DEFAULT = 0.233         # calibrated AUM default leaky floor
 def run(F0, shh=0.5, ezh2i=0):
     for atol in (1e-9, 1e-8, 1e-7):
-        rr = te.loada(build_model_v44(params={"f0_mk": F0}))
+        rr = te.loada(build_model_v44(params={"f0_prc2": F0}))
         rr.integrator.setValue("absolute_tolerance", atol); rr.integrator.setValue("relative_tolerance", 1e-6)
         rr['SHH'] = shh; rr['MYCN_amplification'] = 1.0; rr['Ptch1_copy_number'] = 1.0; rr['EZH2i'] = ezh2i
         try:
@@ -49,7 +49,7 @@ for F0 in F0s:
     on = run(F0, ezh2i=0); off = run(F0, ezh2i=1)   # ezh2i=1 removes repression -> the cKO/inhibitor readout
     cd_on = mean_settled(on, 'Cd_mRNA'); cd_off = mean_settled(off, 'Cd_mRNA')
     fold_m.append(cd_off / cd_on); base_m.append(cd_on)
-    print(f"  f0_mk={F0:.3f}: CyclinD1 baseline={cd_on:.2f}, de-repression fold={cd_off/cd_on:.2f}x")
+    print(f"  f0_prc2={F0:.3f}: CyclinD1 baseline={cd_on:.2f}, de-repression fold={cd_off/cd_on:.2f}x")
 FOLD_DEFAULT = float(np.interp(F0_DEFAULT, F0s, fold_m))   # model de-repression fold at the calibrated default
 
 fig, ax = plt.subplots(1, 2, figsize=(13, 5))
@@ -69,7 +69,7 @@ ax2.plot(F0s, fold_m, '#2c3e50', lw=2.4, marker='o', label='de-repression fold (
 ax2b.plot(F0s, base_m, '#1b9e77', lw=2.0, marker='s', ls='--', label='baseline CyclinD1')
 ax2.axhspan(2.2, 3.1, color='#fdebd0', alpha=0.5)
 ax2.axvline(F0_DEFAULT, color='#c0392b', ls=':', lw=1.5); ax2.text(F0_DEFAULT, ax2.get_ylim()[1], ' default', color='#c0392b', fontsize=7, va='top')
-ax2.set_xlabel('f0_mk  (leaky floor; smaller = STRONGER repression)'); ax2.set_ylabel('de-repression fold', color='#2c3e50')
+ax2.set_xlabel('f0_prc2  (leaky floor; smaller = STRONGER repression)'); ax2.set_ylabel('de-repression fold', color='#2c3e50')
 ax2b.set_ylabel('baseline CyclinD1', color='#1b9e77')
 ax2.set_title('(b) Model feedback strength sets the measurable fold\n(stronger feedback = bigger fold, lower baseline)', fontweight='bold', fontsize=11)
 ax2.invert_xaxis(); ax2.legend(fontsize=8, loc='upper left'); ax2b.legend(fontsize=8, loc='lower left'); ax2.grid(alpha=0.2)

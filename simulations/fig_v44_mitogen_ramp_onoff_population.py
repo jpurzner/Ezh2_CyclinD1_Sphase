@@ -45,7 +45,7 @@ _RR = None
 def _init(mark):
     global _RR
     _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True) if mark
-                   else build_model_v44(with_ezh2=True, with_hh=True, params={'f0_mk': 1.0}))
+                   else build_model_v44(with_ezh2=True, with_hh=True, params={'f0_prc2': 1.0}))
     _RR.integrator.setValue('relative_tolerance', 1e-6)
     try:
         _RR.integrator.setValue('maximum_num_steps', 1000000); _RR.integrator.setValue('maximum_time_step', 20.0)
@@ -152,7 +152,7 @@ if __name__ == '__main__':
         ax.set_title(f'{title}   (n={nc} cells; CyclinD1 CV0.70 / p27 CV0.33 / EZH2 CV0.55)', fontweight='bold', fontsize=10.5)
         ax.legend(fontsize=8, ncol=3, loc='upper left'); ax.grid(alpha=0.15)
     trace_panel(0, 'with', 'WITH H3K27me3 repression (real model, 25/27)')
-    trace_panel(1, 'without', 'WITHOUT H3K27me3 repression (f0_mk=1.0)')
+    trace_panel(1, 'without', 'WITHOUT H3K27me3 repression (f0_prc2=1.0)')
 
     def dist_panel(col, key, title, xlab):
         ax = fig.add_subplot(gs[2, col])

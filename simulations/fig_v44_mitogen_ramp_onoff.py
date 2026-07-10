@@ -1,5 +1,5 @@
 """GNP mitogen ramp-ON (entry) -> sustain -> ramp-OFF (exit): EZH2, CyclinD1, and cell division,
-WITH vs WITHOUT the H3K27me3-mediated repression of CyclinD1 (f0_mk=1.0 removes it). Current 25/27
+WITH vs WITHOUT the H3K27me3-mediated repression of CyclinD1 (f0_prc2=1.0 removes it). Current 25/27
 parameters. Single deterministic GNP cell; SHH staircased up from arrest, held, then down to arrest.
 
 Shows: (i) entry -- the mark raises the Hh needed to start dividing; (ii) exit -- how EZH2/CyclinD1 fall
@@ -55,12 +55,12 @@ def divisions(d):
 
 
 A = ramp(build_model_v44())                              # WITH mark (real model, 25/27)
-B = ramp(build_model_v44(params={"f0_mk": 1.0}))         # WITHOUT mark repression
+B = ramp(build_model_v44(params={"f0_prc2": 1.0}))         # WITHOUT mark repression
 
 fig, ax = plt.subplots(2, 1, figsize=(13, 8.5), sharex=True)
 for row, (name, d, col_note) in enumerate([
         ('WITH H3K27me3 repression (real model, 25/27)', A, 'the mark raises the entry Hh and buffers CyclinD1'),
-        ('WITHOUT H3K27me3 repression (f0_mk=1.0)', B, 'no mark: CyclinD1 tracks mitogen directly')]):
+        ('WITHOUT H3K27me3 repression (f0_prc2=1.0)', B, 'no mark: CyclinD1 tracks mitogen directly')]):
     a = ax[row]
     m = d['time'] >= SETTLE                                   # drop the pre-ramp settle transient
     th = (d['time'][m] - SETTLE) / 60.0
