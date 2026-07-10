@@ -27,7 +27,7 @@ CHIP_TARGET = 0.5
 
 SPACE = [
     ('f_commit_carry', 0.30, 0.80, False),   # Feature C: commitment carryover (ENGAGED)
-    ('kSyDna',   0.020, 0.080, True),        # S-phase duration (restore MB S% with carryover on)
+    ('kSyDna',   0.042, 0.095, True),        # S-phase duration FLOORED higher (BrdU Ts~3h): low kSyDna lengthens S -> inflates MB S count%
     ('M_commit', 0.80,  1.50,  False),       # G0/G1 commitment size threshold
     ('kEZbas',   0.0001, 0.0015, True),      # EZH2 transcription: shift toward E2f-gating for the Palbo drop
     ('kEZbas_Cd', 0.0002, 0.0025, True),
@@ -43,7 +43,7 @@ SPACE = [
     ('f0_prc2',  0.05,   0.30,   False),
     ('del_mk',   0.0015, 0.006,  True),
 ]
-ANCHOR = {'f_commit_carry': 0.372, 'kSyDna': 0.0380, 'M_commit': 1.117,
+ANCHOR = {'f_commit_carry': 0.372, 'kSyDna': 0.052, 'M_commit': 1.117,
           'kEZbas': 0.000402, 'kEZbas_Cd': 0.000382, 'kEZE2f': 0.00575, 'Kez_cd': 3.535, 'K_E2f_EZ': 0.283,
           'k_jmjd3_gli': 0.1094, 'a0_prc2': 0.0004, 'a_rw_prc2': 0.007, 'g_prc2': 0.0919,
           'K_prc2': 0.001060, 'n_prc2': 1.643, 'f0_prc2': 0.1935, 'del_mk': 0.002063}
@@ -90,15 +90,16 @@ def evaluate(params):
     # (sharper gain, raises the entry threshold), not a passive readout. Reward rw_frac -> >=0.55.
     a0v = float(params['a0_prc2']); arwv = float(params['a_rw_prc2'])
     rw_frac = arwv * gnp_mk / (a0v + arwv * gnp_mk) if (a0v + arwv * gnp_mk) > 0 else 0.0
+    mbs = float(checks.get('MB S count% (flow; BrdU Ts~3h)', {}).get('actual', 0))
     n_hardfail = sum(1 for n, c in checks.items() if n not in EXCLUDE and not c['pass'])
     loss = (10.0 * n_hardfail + 6.0 * abs(chip - CHIP_TARGET) + 2.0 * abs(cd - 5.07) / 5.07
             + 2.0 * abs(ezi - 2.2) / 2.2 + 2.0 * abs(palbo - 0.44) / 0.44
-            + 1.5 * abs(transcript - 2.0) / 2.0 + 4.0 * max(0.0, 0.55 - rw_frac))
+            + 1.5 * abs(transcript - 2.0) / 2.0 + 4.0 * max(0.0, 0.55 - rw_frac)
+            + 1.5 * abs(mbs - 15.7) / 15.7)
     good = (n_hardfail == 0 and 0.40 <= chip <= 0.60 and rw_frac >= 0.45)
     return dict(params=params, loss=float(loss), n_hardfail=int(n_hardfail), chip=float(chip), good=bool(good),
                 passed=int(out.get('passed', 0)), mbgnp_cd=cd, ezi=ezi, palbo=palbo, transcript=transcript,
-                rw_frac=float(rw_frac),
-                mbs=float(checks.get('MB S count% (flow; BrdU Ts~3h)', {}).get('actual', 0)),
+                rw_frac=float(rw_frac), mbs=mbs,
                 gnp_mk=gnp_mk, mb_mk=mb_mk)
 
 
