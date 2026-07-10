@@ -369,7 +369,7 @@ def _apply_overrides(model, overrides):
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
-                    with_h3k27_memory=False, with_h3k27_dilution=True, params=None):
+                    with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -529,25 +529,42 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # leaky firing; lit-review S3.1/S3.8) -- it DAMPENS, never locks out. NOTE: reformulates the
         # repression term, so the MB/GNP fold is re-derived via EZH2/transcription -> M_ss (separate
         # calibration). Default OFF; not for use together with with_h3k27_memory.
-        mk = (
+        # Shared H3K27me3 (Mk) dynamics: basal turnover + Gli->Jmjd3/Kdm6b active eraser + replicative dilution.
+        shared = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  k_w_mk = 0.003105363657385844; k0_mk = 0.0007839663325000536; del_mk = 0.0031382913415423453;   // read-write, de-novo floor, demeth/turnover (re-optimized with the Gli eraser, optimize_jmjd3_chip 2026-07-10)"
-            "\n  k_jmjd3_gli = 0.07234802664137897; w_ezdir = 0.9006939037085142;   // (A) Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014) makes MB mark ~HALF GNP (ChIP); (B) 0.90 => CyclinD1 5.07 fold is ~90%% EZH2-DIRECT dose, mark ~10%% functional (the data force the mark to be mostly a READOUT). Set both 0 for the legacy mark-only model."
-            "\n  g_mk = 0.11134937424607448; K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
-            "\n  K_mk = 0.17832905051073167; n_mk = 2.8959220031025135; f0_mk = 0.22565611687374498;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
-            "\n  // transcription at full mark -- H3K27me3 impedes initiation/burst freq but Pol II stays, so it"
-            "\n  // DAMPENS, does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
-            "\n  Mk_methylation: => Mk; Cell*EZH2*(1 - EZH2i)*(k_w_mk*Mk + k0_mk)*(1 - Mk)*(1 - g_mk*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
+            "\n  del_mk = 0.0031382913415423453; k_jmjd3_gli = 0.07234802664137897;   // basal H3K27me3 turnover + Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014 ncomms6425): WRITER=EZH2(cycle) vs ERASER=Gli(mitogen) race"
+            "\n  K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // nascent-transcription -> PRC2 eviction Hill on Cd_mRNA"
             "\n  Mk_turnover: Mk => ; Cell*del_mk*Mk;"
-            "\n  Mk_demeth_jmjd3: Mk => ; Cell*k_jmjd3_gli*Gli1*Mk;   // (A) Gli-recruited Jmjd3/Kdm6b eraser: WRITER=EZH2(cycle-gated) vs ERASER=Gli(mitogen-gated) race; MB (high Gli, arrested-low-EZH2) strips the mark"
+            "\n  Mk_demeth_jmjd3: Mk => ; Cell*k_jmjd3_gli*Gli1*Mk;   // MB (high Gli) actively strips the mark -> ChIP MB<GNP"
             "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
         )
-        m = m.replace("\nend", mk + "\nend")
-        # leaky repression: R = f0 + (1-f0)/(1+(Mk/K)^n) -> R=1 at Mk=0, saturates at residual f0 (no lockout).
-        # (B) blended with EZH2-DIRECT dose repression (w_ezdir): lets the 5.07 MB/GNP fold come from EZH2 dose
-        # (2x in MB) rather than the promoter mark, so the mark can be LOW in MB (ChIP) without breaking the fold.
-        m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
-                      "((1 - w_ezdir)*(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk)) + w_ezdir*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i))))")
+        if with_prc2:
+            # FORMAL PRC2 COMPLEX (JP 2026-07-10): CyclinD1 repression is carried by PRC2 OCCUPANCY at the locus,
+            # NOT the mark level. PRC2 = EZH2 complex abundance x (accessory recruitment a0 + EED read-write a_rw*Mk),
+            # minus nascent-transcription eviction. The SAME PRC2 both WRITES H3K27me3 and REPRESSES CyclinD1, so
+            # (i) the mark is a read-write AMPLIFIER not an independent repressor; (ii) CyclinD1 stays responsive to
+            # EZH2 OE/i (paper) because ALL repression is EZH2/PRC2-mediated; (iii) MB keeps occupancy via high EZH2
+            # (5.07 dose fold) while Gli/Jmjd3 keeps the MARK low (ChIP). Replaces the phenomenological w_ezdir blend.
+            mk = shared + (
+                "\n  a0_prc2 = 0.0008; a_rw_prc2 = 0.003; g_prc2 = 0.11;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction"
+                "\n  K_prc2 = 0.0015; n_prc2 = 2.5; f0_prc2 = 0.15;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
+                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // formal PRC2 complex occupancy at Ccnd1"
+                "\n  Mk_methylation: => Mk; Cell*PRC2*(1 - Mk);   // PRC2 writes H3K27me3 on unmethylated substrate"
+            )
+            m = m.replace("\nend", mk + "\nend")
+            m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
+                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2/K_prc2)^n_prc2))")
+        else:
+            # LEGACY (baked 9fbc99c): w_ezdir blend of a mark-Hill and EZH2-direct dose repression.
+            mk = shared + (
+                "\n  k_w_mk = 0.003105363657385844; k0_mk = 0.0007839663325000536;   // read-write, de-novo floor"
+                "\n  g_mk = 0.11134937424607448; w_ezdir = 0.9006939037085142;   // eviction + weight of EZH2-DIRECT vs mark-Hill repression"
+                "\n  K_mk = 0.17832905051073167; n_mk = 2.8959220031025135; f0_mk = 0.22565611687374498;   // Ccnd1 repression Hill + leaky floor"
+                "\n  Mk_methylation: => Mk; Cell*EZH2*(1 - EZH2i)*(k_w_mk*Mk + k0_mk)*(1 - Mk)*(1 - g_mk*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
+            )
+            m = m.replace("\nend", mk + "\nend")
+            m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
+                          "((1 - w_ezdir)*(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk)) + w_ezdir*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i))))")
 
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
