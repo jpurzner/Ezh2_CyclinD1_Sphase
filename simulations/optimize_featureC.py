@@ -35,18 +35,18 @@ SPACE = [
     ('Kez_cd',   2.0,    10.0,   True),
     ('K_E2f_EZ', 0.15,   0.50,   False),
     ('k_jmjd3_gli', 0.02,  0.15,  True),     # PRC2 / eraser
-    ('a0_prc2',  0.0002, 0.004,  True),
-    ('a_rw_prc2', 0.001, 0.012,  True),
+    ('a0_prc2',  0.0001, 0.0025, True),      # accessory recruitment (mark-INDEPENDENT) -- push DOWN
+    ('a_rw_prc2', 0.002, 0.018,  True),      # EED READ-WRITE amplification -- push UP (mark carries the repression)
     ('g_prc2',   0.02,   0.40,   True),
-    ('K_prc2',   0.0005, 0.006,  True),
+    ('K_prc2',   0.0003, 0.006,  True),
     ('n_prc2',   1.50,   4.00,   False),
     ('f0_prc2',  0.05,   0.30,   False),
     ('del_mk',   0.0015, 0.006,  True),
 ]
-ANCHOR = {'f_commit_carry': 0.5, 'kSyDna': 0.044, 'M_commit': 1.05,
-          'kEZbas': 0.000517, 'kEZbas_Cd': 0.001525, 'kEZE2f': 0.010, 'Kez_cd': 5.605, 'K_E2f_EZ': 0.3,
-          'k_jmjd3_gli': 0.0984, 'a0_prc2': 0.000900, 'a_rw_prc2': 0.001457, 'g_prc2': 0.2366,
-          'K_prc2': 0.000868, 'n_prc2': 3.144, 'f0_prc2': 0.2302, 'del_mk': 0.005152}
+ANCHOR = {'f_commit_carry': 0.372, 'kSyDna': 0.0380, 'M_commit': 1.117,
+          'kEZbas': 0.000402, 'kEZbas_Cd': 0.000382, 'kEZE2f': 0.00575, 'Kez_cd': 3.535, 'K_E2f_EZ': 0.283,
+          'k_jmjd3_gli': 0.1094, 'a0_prc2': 0.0004, 'a_rw_prc2': 0.007, 'g_prc2': 0.0919,
+          'K_prc2': 0.001060, 'n_prc2': 1.643, 'f0_prc2': 0.1935, 'del_mk': 0.002063}
 _ctr = [0]
 
 
@@ -85,13 +85,19 @@ def evaluate(params):
     ezi = float(checks.get('EZH2i CycD1 fold (GNP)', {}).get('actual', 0))
     palbo = float(checks.get('EZH2 Palbo mRNA drop (~0.44)', {}).get('actual', 0.44))
     transcript = float(checks.get('EZH2 transcript S/G0 (1.8-2.5)', {}).get('actual', 0) or 0)
+    # read-write DOMINANCE: fraction of GNP PRC2 occupancy carried by the read-write (a_rw*Mk) vs
+    # accessory (a0) arm. High rw_frac = the H3K27me3 mark is a functional AMPLIFIER of EZH2->CyclinD1
+    # (sharper gain, raises the entry threshold), not a passive readout. Reward rw_frac -> >=0.55.
+    a0v = float(params['a0_prc2']); arwv = float(params['a_rw_prc2'])
+    rw_frac = arwv * gnp_mk / (a0v + arwv * gnp_mk) if (a0v + arwv * gnp_mk) > 0 else 0.0
     n_hardfail = sum(1 for n, c in checks.items() if n not in EXCLUDE and not c['pass'])
     loss = (10.0 * n_hardfail + 6.0 * abs(chip - CHIP_TARGET) + 2.0 * abs(cd - 5.07) / 5.07
             + 2.0 * abs(ezi - 2.2) / 2.2 + 2.0 * abs(palbo - 0.44) / 0.44
-            + 1.5 * abs(transcript - 2.0) / 2.0)
-    good = (n_hardfail == 0 and 0.40 <= chip <= 0.60)
+            + 1.5 * abs(transcript - 2.0) / 2.0 + 4.0 * max(0.0, 0.55 - rw_frac))
+    good = (n_hardfail == 0 and 0.40 <= chip <= 0.60 and rw_frac >= 0.45)
     return dict(params=params, loss=float(loss), n_hardfail=int(n_hardfail), chip=float(chip), good=bool(good),
                 passed=int(out.get('passed', 0)), mbgnp_cd=cd, ezi=ezi, palbo=palbo, transcript=transcript,
+                rw_frac=float(rw_frac),
                 mbs=float(checks.get('MB S count% (flow; BrdU Ts~3h)', {}).get('actual', 0)),
                 gnp_mk=gnp_mk, mb_mk=mb_mk)
 
@@ -111,7 +117,7 @@ def batch(cands, pool, logfh, tag):
         r = fut.result(); done += 1
         if r is None:
             continue
-        logfh.write(json.dumps({'tag': tag, **{k: r[k] for k in ('loss', 'n_hardfail', 'chip', 'good', 'passed', 'mbgnp_cd', 'ezi', 'palbo', 'transcript', 'mbs', 'params')}}) + '\n'); logfh.flush()
+        logfh.write(json.dumps({'tag': tag, **{k: r[k] for k in ('loss', 'n_hardfail', 'chip', 'good', 'passed', 'mbgnp_cd', 'ezi', 'palbo', 'transcript', 'rw_frac', 'mbs', 'params')}}) + '\n'); logfh.flush()
         res.append(r)
         if done % 30 == 0:
             print(f"  [{tag}] {done}/{len(cands)} eval, {sum(1 for x in res if x['good'])} GOOD, best loss {min((x['loss'] for x in res), default=99):.3f}", flush=True)
@@ -144,5 +150,6 @@ if __name__ == '__main__':
     print('\n=== BEST (min loss) ===')
     print(f"  loss {b['loss']:.3f} | n_hardfail {b['n_hardfail']} | passed {b['passed']}/28 | good={b['good']}")
     print(f"  ChIP {b['chip']:.3f} | CyclinD1 {b['mbgnp_cd']:.2f} | EZH2i {b['ezi']:.2f} | Palbo {b['palbo']:.2f} | transcript {b['transcript']:.2f} | MB S% {b['mbs']:.1f} | f_commit_carry {b['params']['f_commit_carry']:.2f}")
+    print(f"  read-write fraction {b['rw_frac']:.2f} (mark's share of PRC2 occupancy; >0.5 = mark amplifies EZH2's impact) | a0 {b['params']['a0_prc2']:.5f} a_rw {b['params']['a_rw_prc2']:.5f}")
     print(f"  params = {json.dumps(b['params'])}")
     print(f"  -> {BEST}")
