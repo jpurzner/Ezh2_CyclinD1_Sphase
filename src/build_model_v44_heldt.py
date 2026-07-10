@@ -251,7 +251,7 @@ HH_MYCN_BLOCK = """
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
   k_Cd_tx_MYCN = 21.66; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;   // wide-search baked (was 35.22)
-  K_EZH2_repression = 0.5253977546699078;   // wide-search baked (was 0.75)
+  K_EZH2_repression = 0.4846191484325215;   // EZH2-DIRECT CyclinD1 repression (now blended in at w_ezdir=0.90); re-optimized optimize_jmjd3_chip 2026-07-10
   k_Cd_translation = 0.801; k_Cd_deg = 1.0;   // wide-search baked (was 0.75). Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
   // MB_HHi dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
@@ -531,10 +531,10 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # calibration). Default OFF; not for use together with with_h3k27_memory.
         mk = (
             "\n  species Mk in Cell; Mk = 0.20;   // H3K27me3 occupancy at Ccnd1 domain [0,1] (init derepressed)"
-            "\n  k_w_mk = 0.004498873096749711; k0_mk = 0.0005405131204753427; del_mk = 0.003283528882263035;   // read-write, de-novo floor, demeth/turnover (de-repression t1/2~16h, lit-review tau_restore band)"
-            "\n  k_jmjd3_gli = 0.0; w_ezdir = 0.0;   // (A) Gli->Jmjd3/Kdm6b ACTIVE eraser rate (Shi 2014, ncomms6425) + (B) weight of EZH2-DIRECT vs mark-Hill CyclinD1 repression. BOTH default 0 = validation-preserving."
-            "\n  g_mk = 0.10554130769871532; K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
-            "\n  K_mk = 0.30268710283935474; n_mk = 1.6755490118385767; f0_mk = 0.14497007804615436;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
+            "\n  k_w_mk = 0.003105363657385844; k0_mk = 0.0007839663325000536; del_mk = 0.0031382913415423453;   // read-write, de-novo floor, demeth/turnover (re-optimized with the Gli eraser, optimize_jmjd3_chip 2026-07-10)"
+            "\n  k_jmjd3_gli = 0.07234802664137897; w_ezdir = 0.9006939037085142;   // (A) Gli->Jmjd3/Kdm6b ACTIVE eraser (Shi 2014) makes MB mark ~HALF GNP (ChIP); (B) 0.90 => CyclinD1 5.07 fold is ~90%% EZH2-DIRECT dose, mark ~10%% functional (the data force the mark to be mostly a READOUT). Set both 0 for the legacy mark-only model."
+            "\n  g_mk = 0.11134937424607448; K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // transcription->PRC2 eviction arm (g_mk=0 => read-write-only; weak regime, calibrated)"
+            "\n  K_mk = 0.17832905051073167; n_mk = 2.8959220031025135; f0_mk = 0.22565611687374498;   // Ccnd1 repression Hill + LEAKY floor f0_mk (residual"
             "\n  // transcription at full mark -- H3K27me3 impedes initiation/burst freq but Pol II stays, so it"
             "\n  // DAMPENS, does not lock out; the floor scales with the Gli/MYCN drive it multiplies)."
             "\n  Mk_methylation: => Mk; Cell*EZH2*(1 - EZH2i)*(k_w_mk*Mk + k0_mk)*(1 - Mk)*(1 - g_mk*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
