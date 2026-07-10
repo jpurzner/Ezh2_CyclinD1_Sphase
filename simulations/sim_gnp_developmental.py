@@ -53,7 +53,9 @@ def _init_worker(_):
     global _RR
     _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
     _RR.integrator.setValue('absolute_tolerance', 1e-9); _RR.integrator.setValue('relative_tolerance', 1e-6)
-    try: _RR.integrator.setValue('maximum_num_steps', 300000)
+    try: _RR.integrator.setValue('maximum_num_steps', 1000000)
+    except Exception: pass
+    try: _RR.integrator.setValue('maximum_time_step', 20.0)   # faster kDeEZ (2026-07 recal) -> stiff ramp-down arrests
     except Exception: pass
 
 
@@ -70,7 +72,7 @@ def _work(task):
     rng = np.random.default_rng((hash((i, round(plat, 3), f0)) & 0xFFFFFFFF))
     _RR.reset(); _RR['SHH'] = HH_FLOOR
     for k, v in GNP.items(): _RR[k] = v
-    _RR['k_Cd_translation'] = float(ktl); _RR['kTlEZ'] = float(ktlez); _RR['mu'] = float(mu); _RR['f0_mk'] = f0; _RR['P21_div'] = float(p21d)
+    _RR['k_Cd_translation'] = float(ktl); _RR['kTlEZ'] = float(ktlez); _RR['mu'] = float(mu); _RR['f0_prc2'] = f0; _RR['P21_div'] = float(p21d)
     draw = lambda: float(p21d * np.exp(rng.normal(-PART * PART / 2.0, PART)))
     NULL = (plat, f0, 0, None, None, None, None)
     tm = 0.0
@@ -129,14 +131,14 @@ if __name__ == '__main__':
 
     if CALIB:
         PLATS = [0.18, 0.22, 0.26, 0.30, 0.36, 0.45, 0.55, 0.70, 0.85]
-        tasks = [(i, pl, f0, ktl[i], p21[i], ktz[i], mu[i], False) for f0 in (0.233, 1.0) for pl in PLATS for i in range(N)]
+        tasks = [(i, pl, f0, ktl[i], p21[i], ktz[i], mu[i], False) for f0 in (0.05054636367014487, 1.0) for pl in PLATS for i in range(N)]
         print(f'CALIB: {len(tasks)} cells on {WORKERS} workers ... (target MEAN divisions = 8)', flush=True)
         with mp.get_context('spawn').Pool(WORKERS, initializer=_init_worker, initargs=(None,)) as pool:
             res = list(pool.imap_unordered(_work, tasks, chunksize=6))
         print('plateau   WITHOUT mean (median)[IQR]        WITH mean (median)[IQR]')
         for pl in PLATS:
             row = []
-            for f0 in (1.0, 0.233):
+            for f0 in (1.0, 0.05054636367014487):
                 nd = np.array([r[2] for r in res if abs(r[0] - pl) < 1e-6 and r[1] == f0])
                 row.append(f'{nd.mean():.1f} ({np.median(nd):.0f})[{np.percentile(nd,25):.0f}-{np.percentile(nd,75):.0f}]')
             print(f'  {pl:.2f}      {row[0]:26s}   {row[1]}')
@@ -144,13 +146,13 @@ if __name__ == '__main__':
 
     CACHE = 'simulations/sim_gnp_developmental_cache.npz'
     if FRESH or not os.path.exists(CACHE):
-        tasks = ([(i, PLAT_W, 0.233, ktl[i], p21[i], ktz[i], mu[i], True) for i in range(N)] +
+        tasks = ([(i, PLAT_W, 0.05054636367014487, ktl[i], p21[i], ktz[i], mu[i], True) for i in range(N)] +
                  [(i, PLAT_N, 1.0, ktl[i], p21[i], ktz[i], mu[i], True) for i in range(N)])
         print(f'MAIN: {len(tasks)} cells on {WORKERS} workers (PLAT_W={PLAT_W}, PLAT_N={PLAT_N}) ...', flush=True)
         with mp.get_context('spawn').Pool(WORKERS, initializer=_init_worker, initargs=(None,)) as pool:
             res = list(pool.imap_unordered(_work, tasks, chunksize=6))
         store = {}
-        for f0, tag in [(0.233, 'W'), (1.0, 'N')]:
+        for f0, tag in [(0.05054636367014487, 'W'), (1.0, 'N')]:
             sub = [r for r in res if r[1] == f0 and r[3] is not None]
             nd = np.array([r[2] for r in sub])
             sts = np.array([r[3] for r in sub]); cds = np.array([r[4] for r in sub]); ezs = np.array([r[6] for r in sub])
