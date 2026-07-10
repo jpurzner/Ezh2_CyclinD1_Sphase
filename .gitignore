@@ -176,3 +176,6 @@ simulations/optimize_prc2_log.jsonl
 simulations/optimize_prc2_best.json
 simulations/_prc2opt.log
 simulations/_prc2optB.log
+simulations/optimize_featureC_log.jsonl
+simulations/optimize_featureC_best.json
+simulations/_featCopt.log

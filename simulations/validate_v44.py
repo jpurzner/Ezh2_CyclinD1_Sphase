@@ -162,7 +162,14 @@ def classify(res, pRb_thr, settle=4000):
     else:
         cnt = dict(dur)                                              # not cycling -> no correction
     ez = res['EZH2'][m]
-    ezph = {ph: (float(ez[sel].mean()) if sel.any() else np.nan) for ph, sel in sels.items()}
+    def _phase_ez(ph, sel):
+        if sel.any():
+            return float(ez[sel].mean())
+        if ph == 'G0':                       # commitment carryover: no distinct G0 -> pre-S EZH2 trough
+            ref = ez[preS] if preS.any() else ez
+            return float(np.mean(np.sort(ref)[:max(1, len(ref) // 4)])) if len(ref) else np.nan
+        return np.nan
+    ezph = {ph: _phase_ez(ph, sel) for ph, sel in sels.items()}
     return cnt, ezph, dur
 
 
@@ -338,7 +345,14 @@ def classify_grad(res, pRb_thr, var, settle=4000):
     P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]; v = res[var][m]
     in_S = (aRc > 0.05) & (Dna < 0.98); in_G2 = (Dna >= 0.98); preS = ~in_S & ~in_G2
     G0 = preS & (P21 > P27_THR)
-    g0v = v[G0].mean() if G0.any() else np.nan
+    # G0 reference = the low-EZH2 quiescent phase (high-p27 pre-S). With commitment carryover
+    # (f_commit_carry>0) committed cells lack a distinct high-p27 G0 -> fall back to the pre-S TROUGH
+    # (lowest quartile of pre-S), which is the G0-equivalent low point. f_commit_carry=0 keeps v[G0].mean().
+    if G0.sum() >= max(3, int(0.02 * len(v))):
+        g0v = v[G0].mean()
+    else:
+        ref = v[preS] if preS.any() else v
+        g0v = float(np.mean(np.sort(ref)[:max(1, len(ref) // 4)])) if len(ref) else np.nan
     e = lambda sel: (float(v[sel].mean())/g0v if sel.any() and g0v else np.nan)
     return dict(G1=e(preS & (P21 <= P27_THR)), S=e(in_S), G2=e(in_G2))
 
