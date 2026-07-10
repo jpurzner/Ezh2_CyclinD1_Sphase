@@ -43,10 +43,12 @@ SPACE = [
     ('f0_prc2',  0.05,   0.30,   False),
     ('del_mk',   0.0015, 0.006,  True),
 ]
-ANCHOR = {'f_commit_carry': 0.372, 'kSyDna': 0.052, 'M_commit': 1.117,
-          'kEZbas': 0.000402, 'kEZbas_Cd': 0.000382, 'kEZE2f': 0.00575, 'Kez_cd': 3.535, 'K_E2f_EZ': 0.283,
-          'k_jmjd3_gli': 0.1094, 'a0_prc2': 0.0004, 'a_rw_prc2': 0.007, 'g_prc2': 0.0919,
-          'K_prc2': 0.001060, 'n_prc2': 1.643, 'f0_prc2': 0.1935, 'del_mk': 0.002063}
+ANCHOR = {'f_commit_carry': 0.7414158415241969, 'kSyDna': 0.04223855142910248, 'M_commit': 1.5,
+          'kEZbas': 0.0005397588397503304, 'kEZbas_Cd': 0.001206259754778472, 'kEZE2f': 0.020146200985504986,
+          'Kez_cd': 8.595130636760091, 'K_E2f_EZ': 0.4762363914011789, 'k_jmjd3_gli': 0.05043458278509962,
+          'a0_prc2': 0.0003257721787539598, 'a_rw_prc2': 0.004657990802911562, 'g_prc2': 0.04295852022974148,
+          'K_prc2': 0.0034587551494603083, 'n_prc2': 3.3462638197481556, 'f0_prc2': 0.06015625757630461,
+          'del_mk': 0.001853621384553496}   # = baked read-write best (resume/refine around it)
 _ctr = [0]
 
 
@@ -131,7 +133,7 @@ def batch(cands, pool, logfh, tag):
 
 if __name__ == '__main__':
     N = _arg('--rand', 500); WORKERS = _arg('--workers', 8); CLIMB = _arg('--climb', 6)
-    rng = np.random.default_rng(20260710)
+    rng = np.random.default_rng(20260712)
     print(f'Feature C joint optimizer: {N} random + {CLIMB} climb, {WORKERS} workers ({len(SPACE)} params)', flush=True)
     logfh = open(LOG, 'w')
     allr = []
