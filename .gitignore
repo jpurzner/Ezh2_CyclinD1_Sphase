@@ -181,3 +181,5 @@ simulations/optimize_featureC_best.json
 simulations/_featCopt.log
 simulations/_featCrw3.log
 simulations/_featCrw4.log
+
+simulations/fig_v44_mk_parameter_atlas_cache.pkl
