@@ -32,7 +32,7 @@ from src.build_model_v44_heldt import build_model_v44
 FRESH = '--fresh' in sys.argv
 CACHE = 'simulations/fig_v44_ezh2_phaseplane_cache.npz'
 
-rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
+rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True, with_prc2=False, with_h3k27_chain=False))  # legacy w_ezdir mark-Hill model (f0_mk/K_mk/n_mk); this analysis predates the PRC2/chain repression
 rr.integrator.setValue("absolute_tolerance", 1e-9)
 rr.integrator.setValue("relative_tolerance", 1e-6)
 
