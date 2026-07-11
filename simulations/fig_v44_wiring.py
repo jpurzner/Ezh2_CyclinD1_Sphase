@@ -1,7 +1,16 @@
-"""Figure: v44 model wiring diagram — modules, cell-cycle flow, and key feedback loops.
+"""Figure: v44.1 model wiring diagram — modules, cell-cycle flow, and key feedback loops.
 
-CyclinD1 is its own module (the convergence node): the Hedgehog/MYCN drive and the EZH2/H3K27me3
+CyclinD1 is the convergence node: the Hedgehog/MYCN mitogenic drive and the EZH2/PRC2 epigenetic
 brake both act on it, and it hands off to the cell-cycle engine's restriction point.
+
+v44.1 mechanism (this diagram reflects the baked, 28/28 read-write model):
+  * Repression flows through a FORMAL PRC2 COMPLEX occupancy at Ccnd1, NOT the mark level directly.
+    PRC2 = EZH2(1-EZH2i) x (accessory a0 + read-write a_rw*Mk) x (1 - nascent-Ccnd1 eviction).
+  * H3K27me3 (Mk) is a READ-WRITE AMPLIFIER: the same PRC2 writes Mk and Mk recruits more PRC2.
+  * Writer (EZH2/PRC2) is cycle-gated (E2F); eraser (Gli->Jmjd3/Kdm6b) is mitogen-gated ->
+    high-Gli MB strips the mark (ChIP MB<GNP) while high EZH2 keeps occupancy (5.07 dose fold).
+  * Feature C: commitment carryover across division (f_commit_carry) — committed daughters inherit
+    phospho-Rb / CyclinE / low-p27 and re-enter G1 instead of resetting to deep G0.
 
 Generates simulations/fig_v44_wiring.{png,pdf}. Pure schematic (no simulation).
 Run:  ./venv/bin/python simulations/fig_v44_wiring.py
@@ -15,20 +24,20 @@ from matplotlib.lines import Line2D
 
 # ---------------- palette ----------------
 C = dict(
-    hh="#d4edda", hh_b="#28a745",          # Hedgehog (green)
+    hh="#d4edda", hh_b="#28a745",          # Hedgehog / Gli (green)
     mycn="#fff3cd", mycn_b="#e67e22",       # MYCN (orange)
     cd="#fdfefe", cd_b="#117a65",           # CyclinD1 module (green-teal)
     cc="#d6eaf8", cc_b="#2980b9",           # cell-cycle engine (blue)
     rep="#d1f2eb", rep_b="#17a2b8",         # DNA replication (teal)
-    ezh2="#e8daef", ezh2_b="#8e44ad",       # EZH2 / H3K27me3 (purple)
+    ezh2="#e8daef", ezh2_b="#8e44ad",       # EZH2 / PRC2 / H3K27me3 (purple)
     growth="#eceff1", growth_b="#607d8b",   # growth (slate)
     chk="#fdebd0", chk_b="#e67e22",         # checkpoint (amber)
     node="#ffffff",
-    act="#27ae60", inh="#c0392b", fb="#8e44ad", drug="#e74c3c",
+    act="#27ae60", inh="#c0392b", fb="#8e44ad", drug="#e74c3c", erase="#1f8a70",
 )
 
-fig, ax = plt.subplots(figsize=(17, 10.5))
-ax.set_xlim(0, 17); ax.set_ylim(0, 10.5); ax.set_aspect("equal"); ax.axis("off")
+fig, ax = plt.subplots(figsize=(18, 10.6))
+ax.set_xlim(0, 17.8); ax.set_ylim(0, 10.6); ax.set_aspect("equal"); ax.axis("off")
 
 
 def region(x, y, w, h, fc, ec, label, lx=None, ly=None):
@@ -59,10 +68,10 @@ def inhibit(p1, p2, color=C["inh"], lw=1.8, rad=0.0, z=2, shrink=8):
                                  connectionstyle=f"arc3,rad={rad}", zorder=z))
 
 
-ax.text(8.5, 10.25, "v44 cell-cycle model — module wiring", fontsize=15, fontweight="bold", ha="center")
-ax.text(8.5, 9.9, "Heldt 2018 core + explicit replication + mitotic switch + growth-gated R-point + Skp2–p27 feedforward"
-        "  ·  CyclinD1 = convergence node  ·  EZH2/H3K27me3 epigenetic brake",
-        fontsize=9, ha="center", color="#555")
+ax.text(8.6, 10.32, "v44.1 cell-cycle model — module wiring", fontsize=15, fontweight="bold", ha="center")
+ax.text(8.6, 9.82, "Heldt 2018 core + explicit replication + mitotic switch + growth-gated R-point + Skp2–p27 feedforward"
+        "  ·  CyclinD1 = convergence node  ·  PRC2/H3K27me3 read-write brake  ·  Gli→Jmjd3 eraser",
+        fontsize=8.8, ha="center", color="#555")
 
 # ===================== module regions =====================
 region(0.2, 6.7, 4.5, 2.7, C["hh"], C["hh_b"], "Hedgehog / MYCN  (mitogenic drive)")
@@ -71,8 +80,8 @@ region(0.2, 0.4, 4.5, 3.9, C["growth"], C["growth_b"], "")
 ax.text(0.35, 3.9, "Cell growth & size control", fontsize=10.5, fontweight="bold", color=C["growth_b"])
 region(4.9, 3.0, 8.2, 6.2, C["cc"], C["cc_b"], "Cell-cycle engine", lx=8.25)
 region(4.9, 0.4, 8.2, 2.3, C["rep"], C["rep_b"], "Explicit DNA replication  (fork speed kSyDna)")
-region(13.3, 4.1, 3.5, 5.1, C["ezh2"], C["ezh2_b"], "EZH2 / H3K27me3 layer")
-region(13.3, 0.4, 3.5, 3.4, C["chk"], C["chk_b"], "Mitotic switch + intra-S checkpoint")
+region(13.05, 3.7, 4.55, 5.55, C["ezh2"], C["ezh2_b"], "EZH2 / PRC2 layer")
+region(13.3, 1.5, 3.5, 2.3, C["chk"], C["chk_b"], "Mitotic switch + intra-S checkpoint")
 
 # ===================== Hedgehog / MYCN  (with Gli→Ptch1 negative feedback) =====================
 shh = node(0.85, 8.45, "SHH", w=0.95, fc="#fef9e7", fs=8.5)
@@ -97,7 +106,7 @@ arrow((cdm[0]+0.55, cdm[1]), (cd[0]-0.55, cd[1]), C["act"])
 # drive in: Smo→GliA and MYCN drive Ccnd1 transcription
 arrow((smo[0]-0.2, smo[1]-0.32), (cdm[0]+0.15, cdm[1]+0.35), C["act"], rad=0.18)   # GliA → Ccnd1 tx
 arrow((mycn[0], mycn[1]-0.32), (cd[0]+0.1, cd[1]+0.38), C["mycn_b"], rad=-0.12)    # MYCN → Ccnd1 tx
-ax.text(0.55, 4.62, "Cd ≈ (basal + Gli + MYCN drive) × R(mark)", fontsize=6.5, color=C["cd_b"], ha="left", style="italic")
+ax.text(0.55, 4.62, "Cd ≈ (basal + Gli + MYCN drive) × R(PRC2 occupancy)", fontsize=6.5, color=C["cd_b"], ha="left", style="italic")
 
 # ===================== growth =====================
 mass = node(2.4, 3.2, "cell mass\n(grows, ÷2 at division)", w=2.6, h=0.7, fc="#ffffff", ec=C["growth_b"], fs=8)
@@ -147,58 +156,78 @@ inhibit((hu[0]+0.45, hu[1]), (dna[0]-1.0, dna[1]), C["drug"], shrink=3)
 ax.text(6.5, 1.02, "↓ fork speed → S lengthens", fontsize=7.5, color=C["drug"], ha="center", style="italic")
 
 # mitotic switch + checkpoint
-mpf = node(14.9, 2.6, "CyclinB/CDK1\n(MPF)\nCdc25 / Wee1", w=2.4, h=1.0, fc="#ffffff", ec=C["chk_b"], fs=8, bold=True)
-chk = node(14.4, 1.1, "CHK1\n(unfinished S)", w=1.7, h=0.62, fc="#fdebd0", ec=C["chk_b"], fs=7.5)
+mpf = node(14.9, 2.95, "CyclinB/CDK1\n(MPF)\nCdc25 / Wee1", w=2.4, h=1.0, fc="#ffffff", ec=C["chk_b"], fs=8, bold=True)
+chk = node(14.4, 1.9, "CHK1\n(unfinished S)", w=1.7, h=0.55, fc="#fdebd0", ec=C["chk_b"], fs=7.5)
 arrow((dna[0]+1.0, dna[1]+0.2), (mpf[0]-1.2, mpf[1]-0.2), C["act"], rad=-0.15)  # Dna done → MPF (G2)
 inhibit((chk[0]+0.55, chk[1]+0.25), (mpf[0]-0.7, mpf[1]-0.45), C["inh"], shrink=3)  # CHK1 ⊣ MPF
 arrow((dna[0]+1.0, dna[1]-0.1), (chk[0]-0.85, chk[1]), C["act"], rad=0.15, lw=1.3)  # forks → CHK1
-# mitosis → division → back to G0
+# mitosis → division → back to G0/G1 (Feature C carryover)
 arrow((mpf[0], mpf[1]+0.55), (8.0, 8.9), C["cc_b"], rad=0.35, lw=2.2)
-ax.text(11.4, 9.05, "mitosis → division (÷2)", fontsize=8.5, color=C["cc_b"], ha="center", fontweight="bold")
-arrow((8.0, 8.9), (p27[0], p27[1]+0.35), C["cc_b"], rad=0.15, lw=2.2)  # back to G0 (p27 high)
+ax.text(11.4, 9.15, "mitosis → division (÷2)", fontsize=8.5, color=C["cc_b"], ha="center", fontweight="bold")
+arrow((8.0, 8.9), (p27[0], p27[1]+0.35), C["cc_b"], rad=0.15, lw=2.2)  # back toward G0/G1
+ax.text(9.55, 8.62, "Feature C: commitment carryover (f_commit_carry≈0.57) —\ncommitted daughters keep pRb / CyclinE / low-p27 → re-enter G1, not deep G0",
+        fontsize=6.3, color=C["cc_b"], ha="center", style="italic", zorder=6)
 
-# ===================== EZH2 / H3K27me3 layer =====================
-ezi = node(15.0, 8.95, "EZH2i (taz)", w=1.6, h=0.5, fc="#fdedeb", ec=C["drug"], fs=7.5, bold=True)
-ezh2m = node(15.0, 8.15, "EZH2 mRNA\n(E2F target)", w=2.4, h=0.62, fc="#ffffff", ec=C["ezh2_b"], fs=8)
-ezh2 = node(15.0, 6.95, "EZH2 protein\n(integrates S)", w=2.4, h=0.75, fc="#f4ecf7", ec=C["ezh2_b"], fs=8.5, bold=True)
-mark = node(15.0, 5.55, "H3K27me3\nat Ccnd1 (Mk)", w=2.4, h=0.78, fc="#e8daef", ec=C["ezh2_b"], fs=8.5, bold=True)
-arrow((ezh2m[0], ezh2m[1]-0.32), (ezh2[0], ezh2[1]+0.4), C["act"])
-arrow((ezh2[0], ezh2[1]-0.4), (mark[0], mark[1]+0.4), C["ezh2_b"], lw=1.8)            # EZH2 methylates Mk
-ax.text(15.05, 6.25, "methylate (read-write)", fontsize=6.3, color=C["ezh2_b"], ha="center", style="italic")
-inhibit((ezi[0]+0.55, ezi[1]-0.1), (15.85, 6.3), C["drug"], rad=-0.25, shrink=3)      # EZH2i ⊣ methylation
-# E2F target: E2F → EZH2 mRNA
-arrow((e2f[0]+0.4, e2f[1]+0.2), (ezh2m[0]-1.25, ezh2m[1]-0.05), C["ezh2_b"], rad=-0.32, lw=1.6)
-ax.text(11.55, 8.55, "E2F target", fontsize=7.5, color=C["ezh2_b"], ha="center", style="italic")
-ax.text(13.1, 7.55, "(S-window\ngated by CDK2)", fontsize=6.3, color="#888", ha="center", style="italic")
-# replicative dilution of the mark (÷2 at S)
-arrow((mark[0]+1.05, mark[1]+0.28), (mark[0]+1.05, mark[1]-0.28), C["rep_b"], rad=-1.6, lw=1.4, shrink=2)
-ax.text(16.78, 5.55, "÷2\neach S\n(dilution)", fontsize=6.0, color=C["rep_b"], ha="left", va="center", style="italic")
-# reciprocal eviction arm: nascent Ccnd1 RNA ⊣ PRC2 (local annotation)
-inhibit((13.35, 4.85), (mark[0]-0.7, mark[1]-0.3), C["cd_b"], rad=0.25, shrink=3)
-ax.text(13.0, 4.55, "nascent Ccnd1 RNA ⊣ PRC2 (eviction)", fontsize=6.0, color=C["cd_b"], ha="left", style="italic")
+# ===================== EZH2 / PRC2 / H3K27me3 layer =====================
+ezi = node(16.5, 9.0, "EZH2i (taz)", w=1.5, h=0.48, fc="#fdedeb", ec=C["drug"], fs=7.5, bold=True)
+ezh2m = node(14.35, 8.38, "EZH2 mRNA\n(E2F target)", w=2.15, h=0.6, fc="#ffffff", ec=C["ezh2_b"], fs=7.8)
+ezh2 = node(14.05, 7.28, "EZH2 protein", w=1.95, h=0.62, fc="#f4ecf7", ec=C["ezh2_b"], fs=8.2, bold=True)
+prc2 = node(14.05, 5.95, "PRC2 complex\n(occupancy @ Ccnd1)", w=2.15, h=0.92, fc="#d7bde2", ec=C["ezh2_b"], fs=8, bold=True)
+mark = node(16.45, 5.95, "H3K27me3\n(Mk)", w=1.6, h=0.92, fc="#e8daef", ec=C["ezh2_b"], fs=8.4, bold=True)
+jmjd3 = node(16.45, 7.35, "Jmjd3 / Kdm6b\n(Gli1-induced)", w=1.6, h=0.72, fc="#d5f5e3", ec=C["erase"], fs=7.2, bold=True)
 
-# ===================== central feedback: EZH2 → H3K27me3 ⊣ CyclinD1 =====================
-inhibit((mark[0]-1.25, mark[1]+0.2), (cd[0]+0.2, cd[1]+0.42), C["fb"], rad=0.58, lw=2.4, shrink=4)
-ax.text(8.6, 9.55, "EZH2 → H3K27me3 ⊣ CyclinD1   (S-phase-coupled epigenetic brake; mark diluted by replication)",
-        fontsize=8.5, color=C["fb"], ha="center", fontweight="bold")
+# writer chain: mRNA → protein → PRC2 (catalytic core)
+arrow((ezh2m[0], ezh2m[1]-0.32), (ezh2[0]+0.1, ezh2[1]+0.34), C["act"])
+arrow((ezh2[0], ezh2[1]-0.34), (prc2[0], prc2[1]+0.48), C["ezh2_b"], lw=1.8)
+ax.text(13.0, 6.62, "catalytic\ncore", fontsize=6.2, color=C["ezh2_b"], ha="center", style="italic")
+# EZH2 mRNA drivers: E2F (cycle) + mitogen-dose basal floor
+ax.text(14.35, 8.82, "+ basal floor ∝ mitogen (kEZbas_Cd·Cd)", fontsize=5.9, color=C["ezh2_b"], ha="center", style="italic")
+# EZH2i ⊣ PRC2 activity
+inhibit((ezi[0]-0.3, ezi[1]-0.24), (prc2[0]+0.75, prc2[1]+0.42), C["drug"], rad=0.28, shrink=3)
+# --- READ-WRITE LOOP: PRC2 writes Mk, Mk recruits PRC2 (amplifier) ---
+arrow((prc2[0]+1.02, prc2[1]+0.14), (mark[0]-0.78, mark[1]+0.14), C["ezh2_b"], lw=1.9)   # write
+ax.text(15.55, 6.34, "methylate (write)", fontsize=6.2, color=C["ezh2_b"], ha="center", style="italic")
+arrow((mark[0]-0.78, mark[1]-0.16), (prc2[0]+1.02, prc2[1]-0.16), C["ezh2_b"], lw=1.9, ls=(0,(4,2)))  # read-write recruit
+ax.text(15.55, 5.5, "read-write recruit\n(a_rw·Mk)", fontsize=6.2, color=C["ezh2_b"], ha="center", style="italic")
+# eraser: Jmjd3 ⊣ Mk
+inhibit((jmjd3[0], jmjd3[1]-0.36), (mark[0], mark[1]+0.48), C["erase"], shrink=3)
+ax.text(17.25, 6.66, "erase", fontsize=6.4, color=C["erase"], ha="left", style="italic")
+# Gli1 → Jmjd3 (long, mitogen-gated eraser arm)
+arrow((smo[0]+0.35, smo[1]+0.28), (jmjd3[0]-0.6, jmjd3[1]+0.36), C["erase"], rad=-0.20, lw=1.5, ls=(0,(5,2)))
+ax.text(8.7, 9.36, "Gli1 → Jmjd3/Kdm6b : mitogen-gated eraser (strips the Ccnd1 mark; high in MB → ChIP MB<GNP)",
+        fontsize=7.2, color=C["erase"], ha="center", fontweight="bold")
+# Mk turnover + replicative dilution
+arrow((mark[0]+0.78, mark[1]+0.22), (mark[0]+0.78, mark[1]-0.22), C["rep_b"], rad=-1.6, lw=1.3, shrink=2)
+ax.text(17.32, 5.95, "÷2 at\nearly S\n+ turnover", fontsize=5.8, color=C["rep_b"], ha="left", va="center", style="italic")
+# nascent Ccnd1 RNA ⊣ PRC2 (g_prc2 eviction; double-negative)
+inhibit((13.1, 4.95), (prc2[0]-0.5, prc2[1]-0.42), C["cd_b"], rad=0.22, shrink=3)
+ax.text(13.0, 4.62, "nascent Ccnd1 RNA ⊣ PRC2 (g_prc2 eviction)", fontsize=6.0, color=C["cd_b"], ha="left", style="italic")
+
+# ===================== central feedback: PRC2 occupancy ⊣ CyclinD1 =====================
+inhibit((prc2[0]-1.02, prc2[1]+0.15), (cd[0]+0.2, cd[1]+0.42), C["fb"], rad=0.52, lw=2.4, shrink=4)
+ax.text(8.6, 4.28, "PRC2 occupancy ⊣ Ccnd1 transcription  (Hill on PRC2, leaky floor f0_prc2;  H3K27me3 amplifies occupancy, not a standalone repressor)",
+        fontsize=8.0, color=C["fb"], ha="center", fontweight="bold")
 
 # ===================== phase bar (top-right) =====================
 pm = [("G0", "#fbeee6", "#b9770e"), ("G1", "#eaf2f8", C["cc_b"]),
       ("S", "#d1f2eb", C["rep_b"]), ("G2/M", "#fdebd0", C["chk_b"])]
-bx = 11.85
+bx = 12.0
 for i, (name, col, ec) in enumerate(pm):
-    ax.add_patch(FancyBboxPatch((bx + i*1.22, 9.98), 1.18, 0.32, boxstyle="round,pad=0.01",
+    ax.add_patch(FancyBboxPatch((bx + i*1.22, 10.02), 1.18, 0.32, boxstyle="round,pad=0.01",
                                 fc=col, ec=ec, lw=1.2, zorder=5))
-    ax.text(bx + i*1.22 + 0.59, 10.14, name, ha="center", va="center", fontsize=8.5, fontweight="bold", zorder=6)
-ax.text(bx - 0.15, 10.14, "phases:", ha="right", va="center", fontsize=8.5, fontstyle="italic", color="#555")
+    ax.text(bx + i*1.22 + 0.59, 10.18, name, ha="center", va="center", fontsize=8.5, fontweight="bold", zorder=6)
+ax.text(bx - 0.15, 10.18, "phases:", ha="right", va="center", fontsize=8.5, fontstyle="italic", color="#555")
 # legend
 leg = [Line2D([0],[0], color=C["act"], lw=2, label="activation"),
        Line2D([0],[0], color=C["inh"], lw=2, label="inhibition (⊣)"),
-       Line2D([0],[0], color=C["fb"], lw=2.4, label="EZH2/H3K27me3 → CyclinD1 feedback"),
-       Line2D([0],[0], color=C["cd_b"], lw=2.0, label="CyclinD1 hand-off / eviction"),
+       Line2D([0],[0], color=C["fb"], lw=2.4, label="PRC2 occupancy ⊣ CyclinD1 (epigenetic brake)"),
+       Line2D([0],[0], color=C["ezh2_b"], lw=1.9, ls=(0,(4,2)), label="H3K27me3 read-write amplifier loop"),
+       Line2D([0],[0], color=C["erase"], lw=1.6, ls=(0,(5,2)), label="Gli→Jmjd3 mark eraser (mitogen-gated)"),
+       Line2D([0],[0], color=C["cd_b"], lw=2.0, label="CyclinD1 hand-off / PRC2 eviction"),
        Line2D([0],[0], color=C["growth_b"], lw=1.6, ls=":", label="size gate"),
        Line2D([0],[0], color=C["drug"], lw=2, label="drug / input")]
-ax.legend(handles=leg, loc="lower right", fontsize=8.5, framealpha=0.9, ncol=1).set_zorder(10)
+ax.legend(handles=leg, loc="lower right", fontsize=7.8, framealpha=0.92, ncol=2,
+          columnspacing=1.1, handlelength=1.8).set_zorder(10)
 
 plt.tight_layout()
 out = os.path.join(os.path.dirname(__file__), "fig_v44_wiring")
