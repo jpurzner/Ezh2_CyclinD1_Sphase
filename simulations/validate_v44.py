@@ -49,7 +49,7 @@ SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
 # H3K27_DILUTION=1 env var swaps in the replicative-dilution (leaky H3K27me3) repression module.
 _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_h3k27_dilution=(os.environ.get('H3K27_DILUTION', '1') == '1'),
-                         with_h3k27_chain=(os.environ.get('H3K27_CHAIN', '0') == '1'),
+                         with_h3k27_chain=(os.environ.get('H3K27_CHAIN', '1') == '1'),
                          params=PARAMS or None)
 
 
