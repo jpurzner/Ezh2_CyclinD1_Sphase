@@ -38,7 +38,7 @@ _BASE = None
 def _init(_):
     global _RR, _BASE
     import tellurium as te
-    _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
+    _RR = te.loada(build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_chain=False))
     _RR.integrator.setValue('absolute_tolerance', 1e-8)
     _RR.integrator.setValue('relative_tolerance', 1e-6)
     try:
@@ -140,7 +140,7 @@ def main():
             plot(pickle.load(f))
         return
     import tellurium as te
-    r0 = te.loada(build_model_v44(with_ezh2=True, with_hh=True))
+    r0 = te.loada(build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_chain=False))
     base = {n: r0[n] for n in SWEPT}
     # build absolute sweep values + plot-x per parameter
     sweeps = []

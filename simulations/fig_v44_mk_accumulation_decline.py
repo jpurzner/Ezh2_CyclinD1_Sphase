@@ -39,7 +39,7 @@ SEL = ['time', 'Mk', 'Dna', 'MPF', 'EZH2', 'Gli1']
 _RR = None
 def _init(_):
     global _RR
-    _RR = build_model_v44(with_ezh2=True, with_hh=True)
+    _RR = build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_chain=False)
     import tellurium as te
     _RR = te.loada(_RR)
     _RR.integrator.setValue('absolute_tolerance', 1e-8)
