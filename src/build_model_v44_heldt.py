@@ -370,7 +370,8 @@ def _apply_overrides(model, overrides):
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
-                    with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True, params=None):
+                    with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
+                    with_h3k27_chain=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -539,7 +540,39 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             "\n  Mk_demeth_jmjd3: Mk => ; Cell*k_jmjd3_gli*Gli1*Mk;   // MB (high Gli) actively strips the mark -> ChIP MB<GNP"
             "\n  Mk_replicative_dilution: at (Dna > 0.05): Mk = 0.5*Mk;"
         )
-        if with_prc2:
+        if with_prc2 and with_h3k27_chain:
+            # SERIAL METHYLATION CHAIN (JP 2026-07-11): resolve the lumped Mk into me0->me1->me2->me3.
+            # PRC2 catalyses all three forward steps; me0->me1 and me1->me2 are FAST, me2->me3 (=> Mk) is
+            # the SLOW rate-limiting step (biochemistry: the final transition is ~an order slower). This
+            # gives me3 an accumulation LAG and makes it a division-timing readout (fast cycling dilutes it
+            # out before the slow step finishes) -- the mechanistic origin of the "persistence" behaviour.
+            # Mk STILL denotes me3 (the repressive, heritable state) so PRC2 read-write (a_rw*Mk) and the
+            # CyclinD1 Hill are unchanged. m0 = 1 - m1_me - m2_me - Mk (implicit unmethylated pool). Eraser
+            # (Gli->Jmjd3/Kdm6b) demethylates stepwise me3->me2->me1 so high-Gli MB strips me3 (ChIP MB<GNP).
+            # Replication halves ALL modified fractions (new histones = me0). Default OFF (validation-preserving).
+            mk = (
+                "\n  species m1_me in Cell; m1_me = 0.05;   // H3K27me1 fraction"
+                "\n  species m2_me in Cell; m2_me = 0.15;   // H3K27me2 fraction"
+                "\n  species Mk in Cell; Mk = 0.15;   // H3K27me3 (= me3): repressive/heritable state at Ccnd1"
+                "\n  del_mk = 0.0015; k_jmjd3_gli = 0.047832059241740936;   // passive turnover + Gli->Jmjd3/Kdm6b eraser"
+                "\n  K_tx_mk = 5.119476334025431; p_tx_mk = 3.2652610235558535;   // nascent-tx -> PRC2 eviction Hill"
+                "\n  a0_prc2 = 0.00037763461927116913; a_rw_prc2 = 0.004297010112265872; g_prc2 = 0.04244445931486211;"
+                "\n  K_prc2 = 0.0034813553293576824; n_prc2 = 3.385026804758643; f0_prc2 = 0.05054636367014487;"
+                "\n  kme1 = 10.0; kme2 = 10.0; kme3 = 2.5;   // serial rates x PRC2: FAST me0->me1,me1->me2; SLOW me2->me3 (rate-limiting)"
+                "\n  d_me = 0.0015;   // precursor (me1,me2) passive turnover"
+                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
+                "\n  me0_to_me1: => m1_me; Cell*PRC2*kme1*(1 - m1_me - m2_me - Mk);   // FAST"
+                "\n  me1_to_me2: m1_me => m2_me; Cell*PRC2*kme2*m1_me;                // FAST"
+                "\n  me2_to_me3: m2_me => Mk; Cell*PRC2*kme3*m2_me;                    // SLOW (rate-limiting)"
+                "\n  me3_demeth: Mk => m2_me; Cell*(del_mk + k_jmjd3_gli*Gli1)*Mk;    // eraser strips me3->me2"
+                "\n  me2_demeth: m2_me => m1_me; Cell*(d_me + k_jmjd3_gli*Gli1)*m2_me;"
+                "\n  me1_turnover: m1_me => ; Cell*d_me*m1_me;                         // -> me0 (implicit)"
+                "\n  Mk_replicative_dilution: at (Dna > 0.05): m1_me = 0.5*m1_me, m2_me = 0.5*m2_me, Mk = 0.5*Mk;"
+            )
+            m = m.replace("\nend", mk + "\nend")
+            m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
+                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2/K_prc2)^n_prc2))")
+        elif with_prc2:
             # FORMAL PRC2 COMPLEX (JP 2026-07-10): CyclinD1 repression is carried by PRC2 OCCUPANCY at the locus,
             # NOT the mark level. PRC2 = EZH2 complex abundance x (accessory recruitment a0 + EED read-write a_rw*Mk),
             # minus nascent-transcription eviction. The SAME PRC2 both WRITES H3K27me3 and REPRESSES CyclinD1, so
