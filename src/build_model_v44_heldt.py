@@ -312,8 +312,13 @@ def _apply_two_step_rb(m, with_growth):
     # The cell-size gate sits on the CyclinD->p27 clearance (below); the mono-phosphorylation step is
     # left ungated (gating it stalls commitment and the cell over-grows). The transient G0 is the
     # short p27-high window after division before the Skp2-p27 feedforward fires.
-    cdk_d = "kPhRbCd*Cd"
-    p27_clear = "kDeP21Cd*Cd*commit_gate" if with_growth else "kDeP21Cd*Cd"
+    # CyclinD-CDK4/6 kinase, competitively braked by INK4 (p16/p18) + p27 (saturating, bounded Vmax) --
+    # same brake as the single-step with_cd_sat path, but applied to the mono-phosphorylation step (Rb=>Rbm)
+    # and the p27-clearance (both are CDK4/6-driven). p27's self-clearance term omits w_p27*P21 to avoid a
+    # self-referential p27->p27 feedback in the denominator.
+    cdk_d = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
+    _clear_brake = "/(K_CdRb*(1 + p16 + p18) + Cd)"
+    p27_clear = f"kDeP21Cd*Cd{_clear_brake}*commit_gate" if with_growth else f"kDeP21Cd*Cd{_clear_brake}"
     m = m.replace(
         "species Rb in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, E1 in Cell;",
         "species Rb in Cell, Rbm in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, RbmE2f in Cell, E1 in Cell;")
@@ -351,7 +356,8 @@ def _apply_two_step_rb(m, with_growth):
     m = m.replace("kDeP21 + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc",
                   f"kDeP21 + {p27_clear} + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc")
     m = m.replace("\n  kDpRb = 0.05;",
-                  "\n  kDpRb = 0.05;\n  kDeP21Cd = 0.15;\n  kDsRbmE2f = 1.5;")
+                  "\n  kDpRb = 0.05;\n  kDeP21Cd = 0.15;\n  kDsRbmE2f = 1.5;"
+                  "\n  K_CdRb = 0.319;\n  p16 = 0.0;\n  p18 = 0.464;\n  w_p27 = 1.0;")
     return m
 
 
@@ -465,17 +471,21 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         blocks += SKP2_BLOCK
 
     if with_two_step_rb:
-        # division reset: dephosphorylate all Rb states back to hypo (the daughter is born
-        # phospho-Rb-negative / E2f re-sequestered), replacing the single-pRb reset.
+        # division reset WITH Spencer carryover (f_commit_carry): the daughter INHERITS a fraction of the
+        # mono (Rbm) + hyper (pRb) Rb states -- committed daughters exit mitosis phospho-Rb-high (Moser
+        # 2018: CDK2inc daughters are pRb-high right after anaphase), uncommitted daughters reset toward
+        # hypo Rb (G0). NOT a full dephosphorylation. Conserves tRb and tE2f. Operates on `m` (the E_div
+        # event lives in the model header, not `blocks` -- the old blocks.replace silently no-op'd once
+        # f_commit_carry rewrote the reset). NB the CKI carried at birth (P21 = p27 pool) is the DOMINANT
+        # CIP/KIP in GNP/MB (p27, not p21). The E_div event lives in blocks (MITOSIS_BLOCK).
         blocks = blocks.replace(
-            "Rb = Rb + pRb, pRb = 0",
-            "Rb = Rb + Rbm + pRb, Rbm = 0, pRb = 0, RbE2f = RbE2f + RbmE2f, RbmE2f = 0")
+            "Rb = Rb + (1 - f_commit_carry)*pRb, pRb = f_commit_carry*pRb",
+            "Rb = Rb + (1 - f_commit_carry)*(pRb + Rbm), pRb = f_commit_carry*pRb, Rbm = f_commit_carry*Rbm, "
+            "RbE2f = RbE2f + (1 - f_commit_carry)*RbmE2f, RbmE2f = f_commit_carry*RbmE2f")
         # two-step-Rb defaults: M_commit slightly > birth mass gives a short growth-timed p27-high G0
-        # while keeping REGULAR (size-homeostatic) GNP cycling -- M_commit>=2.6 makes low-CyclinD1 GNP
-        # cycle irregularly (period-2 size oscillation), so 2.2 trades G0 length for cycle regularity.
-        blocks = blocks.replace("M_commit = 1.3;", "M_commit = 2.2;")
-        blocks = blocks.replace("a25 = 0.02;", "a25 = 0.05;")
-        blocks = blocks.replace("KG2 = 0.85;", "KG2 = 0.9;")
+        # while keeping REGULAR (size-homeostatic) GNP cycling. (Was a no-op: target string is now the
+        # baked single-step M_commit; STARTING value -- the two-step needs its own re-optimization.)
+        blocks = blocks.replace("M_commit = 1.2843242130809425;", "M_commit = 2.2;")
 
     m = m.replace("\nend", blocks + "\nend")
 

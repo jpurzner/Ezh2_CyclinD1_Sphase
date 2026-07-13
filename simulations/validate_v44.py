@@ -50,6 +50,7 @@ SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
 _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_h3k27_dilution=(os.environ.get('H3K27_DILUTION', '1') == '1'),
                          with_h3k27_chain=(os.environ.get('H3K27_CHAIN', '1') == '1'),
+                         with_two_step_rb=(os.environ.get('TWO_STEP_RB', '0') == '1'),
                          params=PARAMS or None)
 
 
