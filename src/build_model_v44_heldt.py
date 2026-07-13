@@ -378,7 +378,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=True, with_cd_sat=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=True,
-                    params=None):
+                    with_mitogen_tracker=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -522,6 +522,33 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             "P21 = P21_div - f_commit_carry*(P21_div - P21)",
             "P21 = (P21_div + g_moth*Sg2) - f_commit_carry*((P21_div + g_moth*Sg2) - P21)")
         blocks = blocks.replace("preMPF = 0, Cdc20 = 0", "preMPF = 0, Cdc20 = 0, Sg2 = 0")
+
+    if with_mitogen_tracker:
+        # PHASE 1 of the daughter-transfer plan (docs/daughter_transfer_plan.md). The daughter's birth p27 is
+        # SET (not the fixed P21_div, and NOT added to it -- that was the mother_g2 FLOOR trap) by a low-pass
+        # tracker Mtr of the mother's mitogen DEFICIT. Mtr is a relaxation LEVEL-tracker (steady state = the
+        # signal -> frequency-clean, fixing the mother_g2 confound) and is NOT reset at division -> both sisters
+        # inherit it (Spencer ~98% concordance). P27set is a LOW-floored INCREASING function of the deficit Mtr:
+        # high deficit = low mitogen -> high Mtr -> high birth p27 -> transient G0; high mitogen -> low Mtr ->
+        # birth p27 ~ P21_lo -> immediate/CDK2inc. fc_p27 (small, DECOUPLED from the pRb-marker f_commit_carry)
+        # keeps the effective floor ~ P21_lo so high-mitogen daughters actually reach the immediate basin.
+        # Driver = Cd (protein) [open question]; the Str/p21 stress arm is Phase 3 (not here). Params are the
+        # plan's STARTING points -- a single-lineage re-pin (GNP settled P27set ~ 0.6 through the loop) comes
+        # after we see the Phase-1 interaction. Default OFF.
+        mtr = (
+            "\n  species Mtr in Cell; Mtr = 0.5;   // mitogen-DEFICIT low-pass tracker (NOT reset at division)"
+            "\n  k_M = 0.0025; K_m = 2.5; n_m = 3;   // 1/k_M ~ 6.7h ~ mother R-window; K_m centers GNP (settled"
+            "\n  //                                     Cd ~ 1.9, NOT the 0.70 init) on the sigmoid shoulder -> P27set ~ 0.6"
+            "\n  mdef := K_m^n_m/(K_m^n_m + Cd^n_m);   // deficit: HIGH at low Cd (low mitogen)"
+            "\n  Mtr_track: => Mtr; Cell*k_M*mdef;"
+            "\n  Mtr_relax: Mtr => ; Cell*k_M*Mtr;   // net dMtr/dt = k_M*(mdef - Mtr)"
+            "\n  P21_lo = 0.06; P21_hi = 1.10; K_S = 0.60; h_S = 4; fc_p27 = 0.10;"
+            "\n  P27set := P21_lo + (P21_hi - P21_lo)*Mtr^h_S/(K_S^h_S + Mtr^h_S);   // INCREASING in deficit Mtr"
+        )
+        blocks += mtr
+        blocks = blocks.replace(
+            "P21 = P21_div - f_commit_carry*(P21_div - P21)",
+            "P21 = (1 - fc_p27)*P27set + fc_p27*P21")
 
     m = m.replace("\nend", blocks + "\nend")
 

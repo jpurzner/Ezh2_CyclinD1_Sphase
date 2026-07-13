@@ -210,8 +210,13 @@ constant. Plan:
    **PROMOTED to default (JP 2026-07-13):** `with_ezh2_conc=True` is now the builder default and the validator's
    default; `with_ezh2_conc=False` recovers the legacy halving (27/28). The lost target is accepted as a noisy HHi
    fold per the loosen-noisy-targets policy. Figure suite regenerated on the new default.
-1. **`with_mitogen_tracker`** (OFF) — add `Mtr` + reactions + `P27set` + `fc_p27`, swap the `E_div` P21 line;
-   single-lineage fixed-point re-pin; verify 27/28 + the four arrest targets.
+1. **`with_mitogen_tracker`** — ✅ **BUILT (opt-in, default OFF).** `Mtr` deficit tracker + `P27set` (corrected
+   INCREASING-in-`Mtr` sign) + `fc_p27=0.10`; `E_div` P21 line swapped to `(1−fc_p27)·P27set + fc_p27·P21`.
+   Key finding: GNP's *settled* Cd is ~1.9 (not the 0.70 init the plan assumed), so `K_m` was re-placed 0.90→**2.5**
+   to center GNP on the sigmoid shoulder. Result: **GNP P27set≈0.6** (transient-G0) vs **MB=0.06** (proliferative) —
+   the mitogen-dependent birth-p27 mechanism works, GNP > MB by construction, both cycling. **Validation holds 26/28**
+   and the stubborn CyclinD1 GNP+HHi/GNP fold *improved* 0.29→0.242 (Phase 1 helps, doesn't hurt). Stays opt-in
+   until the Phase-2 ensemble validates Overton + Spencer. Env hook `MITOGEN_TRACKER`.
 2. **Ensemble enablement** — wire `s_mit` into `sim_g0_bifurcation.py`; validate the graded curve + per-daughter
    32%/19% + sister concordance ≥98%.
 3. **`with_stress_p21`** (OFF) — add `Str` + reactions + `w21·Str`; verify `Dam=0` leaves all non-HU targets
