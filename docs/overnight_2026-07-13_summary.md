@@ -64,3 +64,37 @@ concordance needs the heterogeneity ensemble. That's the natural next step.
 - Two-step model: `build_model_v44(with_two_step_rb=True)` or validate with `TWO_STEP_RB=1`.
 - Mother-G2 integrator: `build_model_v44(with_mother_g2=True)`.
 - Both are opt-in; default `build_model_v44()` is the single-step chain (28/28), unchanged.
+
+---
+
+## MORNING UPDATE — you said "proceed with all 3"; here is what actually happened
+
+**1. Two-step Rb PROMOTED to default (done).** `build_model_v44()` is now the two-step model (27/28).
+Single-step is opt-in via `with_two_step_rb=False` (still 28/28). The daughter inherits mono/hyper Rb
+through `f_commit_carry`. Branch-specific two-step calibration is baked (`_ts_bake`), applied tolerantly
+so every flag combination still builds. **Whole `fig_v44_*` suite (41 figures) audited and regenerated on
+the two-step default** — 3 promotion-induced breakages fixed (bake tolerance for missing params;
+`g0_mechanism` period-cap + tight-bbox canvas blow-up; `differentiation_collapse` CVODE stiffness at the
+abrupt mid-cycle withdrawal → smaller step + coarser output), 4 lumped-mark studies pinned to single-step.
+
+**2. MB HU S fold — chased to the structural ceiling (27/28 is the two-step max).** The two HU folds
+(MB HU-S ↑ and MB HU-G2 ↓) trade off against each other in the two-step checkpoint; the joint optimizer
+(`optimize_twostep.py`, band penalties on both) could not clear both simultaneously across two rounds.
+I baked the calibration where the **central phenotype (MB HU-S fold, 1.34 vs target 1.36) passes** and the
+MB HU-G2 fold is the one documented miss. Treat 27/28 as the two-step's ceiling, not a tuning gap.
+
+**3. Mother-G2 ensemble — NEGATIVE result (honest).** Built the heterogeneity ensemble
+(`fig_v44_mother_g2_ensemble.py`, N=60 cells, SHH sweep) on the two-step base. It does **NOT** reproduce
+the Overton graded→binary bifurcation. With the integrator ON the quiescent fraction **saturates ≈1.0 at
+all mitogen levels** (and is slightly inverted); OFF it is 0. Two design flaws the ensemble exposed:
+  - **Birth-p27 floor:** `birth p27 = P21_div + g_moth·Sg2` can only *raise* p27 above the `P21_div=0.6`
+    floor, so high-mitogen daughters can never fall into the immediate/CDK2-inc basin — there is no
+    low-quiescent tail to make a graded curve.
+  - **Frequency confound:** `Sg2` integrates over G2 and is confounded by cycle frequency, competing with
+    the mitogen-deficit signal.
+  - **Fix for a future session** (identified, not implemented): birth p27 should be *set by* (not added to)
+    a **low-pass mitogen tracker** with a *low* floor — `dSg2/dt = k·(deficit − Sg2)`, birth p27 spanning
+    immediate↔quiescent as mitogen varies. The ensemble scaffold + diagnostic figure are kept for that work.
+
+**Net:** #1 landed as a real structural improvement; #2 hit a documented structural ceiling; #3 is a clean
+negative result that tells us exactly what to redesign. Everything is committed locally (no push, per your call).

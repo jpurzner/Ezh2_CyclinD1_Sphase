@@ -1,4 +1,16 @@
-"""Figure: mother-G2 p27 integrator -> the Overton graded->binary fate bifurcation (ensemble, v44).
+"""Figure/DIAGNOSTIC: mother-G2 p27 integrator ensemble across mitogen (two-step base, v44).
+
+RESULT (2026-07-13): this ensemble is a NEGATIVE result -- the prototype does NOT reproduce the Overton
+graded->binary bifurcation. With the integrator ON the quiescent fraction saturates near 1.0 (and is
+slightly INVERTED with mitogen); OFF it is 0. Two design flaws exposed:
+  (1) BIRTH-P27 FLOOR: birth p27 = P21_div + g_moth*Sg2 can only RAISE p27 above the P21_div=0.6 floor,
+      so high-mitogen cells can never drop into the immediate/CDK2inc basin -> no low-quiescent tail.
+  (2) FREQUENCY CONFOUND: Sg2 integrates over G2 and is confounded by cycle frequency (fast cycling ->
+      more G2 events), competing with the mitogen-deficit signal.
+FIX (for a future session): birth p27 should be SET by (not added to) a low-pass mitogen tracker with a
+LOW floor (so high mitogen -> immediate, low mitogen -> quiescent), and Sg2 made a level-tracker
+(dSg2/dt = k*(deficit - Sg2)) rather than a reset integral. Kept as the diagnostic + ensemble scaffold.
+
 
 Exploratory. Builds on the TWO-STEP Rb base (CyclinD1/p27-ratio commitment), where the inherited birth
 p27 is the fate-setter -- the mother-G2 integrator is directionally correct there (low mother-G2 mitogen
@@ -102,11 +114,11 @@ def _frac(cls_list, kinds):
 def plot(fates, dwell, KTL):
     fig = plt.figure(figsize=(16, 5.5))
     gs = GridSpec(1, 3, figure=fig, wspace=0.3, left=0.06, right=0.975, top=0.82, bottom=0.14)
-    fig.suptitle("Mother-G2 p27 integrator → graded fate bifurcation across mitogen (ensemble, two-step base)",
-                 fontsize=13.5, fontweight="bold", y=0.97)
-    fig.text(0.5, 0.885, f"N={N_CELLS} cells heterogeneous in mitogen response (k_Cd_translation, lognormal). "
-             "Quiescent = arrest + transient-G0 (CDK2low); cycling = immediate (CDK2inc). Exploratory / first calibration.",
-             ha="center", fontsize=9, color="#555", style="italic")
+    fig.suptitle("Mother-G2 p27 integrator ensemble — NEGATIVE result: prototype does NOT reproduce the Overton bifurcation",
+                 fontsize=12.5, fontweight="bold", y=0.97)
+    fig.text(0.5, 0.885, f"N={N_CELLS} cells heterogeneous in mitogen (k_Cd_translation, lognormal). With the integrator ON the "
+             "quiescent fraction SATURATES ≈1 (birth-p27 floor: p27=P21_div+g·Sg2 can only raise p27); OFF it is 0. Needs redesign (see docstring).",
+             ha="center", fontsize=8.5, color="#a93226", style="italic")
 
     # A: quiescent fraction vs mitogen, mother-G2 ON vs OFF
     axA = fig.add_subplot(gs[0, 0])
@@ -115,8 +127,8 @@ def plot(fates, dwell, KTL):
         axA.plot(SHH_SWEEP, q, '-o', color=c, lw=2, ms=5, label=lab)
     axA.set_xlabel("SHH (mitogen dose)"); axA.set_ylabel("quiescent fraction (CDK2low)")
     axA.set_ylim(-0.03, 1.03); axA.grid(alpha=0.25); axA.legend(fontsize=8.5)
-    axA.set_title("A. Graded bifurcation: quiescent fraction ↓ with mitogen", fontsize=10, fontweight='bold')
-    axA.axvspan(0.4, 0.7, color='#f9e79f', alpha=0.4); axA.text(0.55, 0.05, 'physiological\n(bistable) window', fontsize=7, ha='center', color='#7d6608')
+    axA.set_title("A. SATURATED, not graded: ON≈1 at all mitogen (want ↓ with mitogen)", fontsize=9.5, fontweight='bold')
+    axA.axvspan(0.4, 0.7, color='#f9e79f', alpha=0.4); axA.text(0.55, 0.5, 'physiological\nwindow', fontsize=7, ha='center', color='#7d6608')
 
     # B: stacked fate fractions vs mitogen (mother-G2 ON)
     axB = fig.add_subplot(gs[0, 1])
