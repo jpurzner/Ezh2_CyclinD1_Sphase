@@ -24,10 +24,25 @@ t0 = 6000
 
 def two_phase(perturb):
     rr = te.loada(_M); rr.integrator.setValue("absolute_tolerance", 1e-9); rr.integrator.setValue("relative_tolerance", 1e-6)
+    try:
+        rr.integrator.setValue("maximum_num_steps", 2000000); rr.integrator.setValue("maximum_time_step", 5.0)
+    except Exception:
+        pass
     rr['SHH'] = 0.5
-    r1 = rr.simulate(0, t0, 12000, selections=SEL)
+    def _sim(a, b, n):   # small maxstep from a CLEAN state -- the two-step is stiff at the abrupt
+        for atol in (1e-8, 1e-7, 1e-6):        # mid-cycle withdrawal discontinuity (maxstep 20 corrupts the CVODE state)
+            for ms in (5.0, 2.0, 1.0):
+                try:
+                    rr.integrator.setValue("absolute_tolerance", atol)
+                    rr.integrator.setValue("maximum_time_step", ms)
+                    return rr.simulate(a, b, n, selections=SEL)
+                except Exception:
+                    continue
+        return rr.simulate(a, b, n, selections=SEL)
+    r1 = _sim(0, t0, 4000)
     perturb(rr)                                   # apply the perturbation at t0
-    r2 = rr.simulate(t0, 18000, 24000, selections=SEL)
+    r2 = _sim(t0, 18000, 8000)                    # coarser output: dense sampling near the two-step
+                                                  # withdrawal discontinuity trips CVODE convergence
     out = {}
     for k in ('time', 'Cd_mRNA', 'Cd', 'EZH2', 'MPF', 'P21', 'E2f'):
         out[k] = np.concatenate([r1[k], r2[k]])

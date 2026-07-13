@@ -639,7 +639,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # single-step params (28/28). User `params` (below) still override. The two-step makes pRb(hyper)
         # a valid G0 marker (Moser 2018) + fixes the R-point logic (Narasimha/Sanidas); p27 (P21 pool) is
         # the dominant CIP/KIP in GNP/MB.
-        m = _apply_overrides(m, {
+        _ts_bake = {
             'M_commit': 2.476412980954672, 'kPhRbCd': 0.24815677888709098, 'kDeP21Cd': 0.17494227606057466,
             'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.4017818215702697, 'f_commit_carry': 0.37450197206637914,
             'kSyDna': 0.052396984632460376, 'M_size': 3.140622748974385, 'kEZbas': 0.0007543918814347321,
@@ -647,7 +647,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.1688799159383659, 'a0_prc2': 0.001668362805856568,
             'a_rw_prc2': 0.0035829919666240597, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.007780214612503378,
             'n_prc2': 3.7153545331585414, 'f0_prc2': 0.13617057617939168, 'del_mk': 0.0025633704879052376,
-            'KmHU_fire': 1.5959645843204027})
+            'KmHU_fire': 1.5959645843204027}
+        # tolerate flag combos where some params are absent (e.g. with_h3k27_memory has no chain params)
+        m = _apply_overrides(m, {k: v for k, v in _ts_bake.items() if (k + ' = ') in m})
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
     if params:

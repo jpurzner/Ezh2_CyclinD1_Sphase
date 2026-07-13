@@ -33,9 +33,9 @@ def metrics(res):
     P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]
     in_S = (aRc > 0.05) & (Dna < 0.98); in_G2 = Dna >= 0.98; preS = ~in_S & ~in_G2
     G0 = preS & (P21 > P27); G1 = preS & (P21 <= P27)
-    if len(pk) < 2:
+    period = float(np.mean(np.diff(tt[pk])))/60.0 if len(pk) >= 2 else np.inf
+    if len(pk) < 2 or period > 200:   # <2 peaks, or spurious far-apart peaks in a near-arrest two-step lineage
         return dict(cd=cd, arrest=True, period=np.nan, G0=np.nan, G1=np.nan, S=np.nan, G2=np.nan)
-    period = float(np.mean(np.diff(tt[pk])))/60.0
     fr = {k: v.mean() for k, v in dict(G0=G0, G1=G1, S=in_S, G2=in_G2).items()}
     s = sum(fr.values()) or 1.0
     return dict(cd=cd, arrest=False, period=period, **{k: period*v/s for k, v in fr.items()})
@@ -122,8 +122,10 @@ ax[1, 1].set_title('(d) EZH2 inhibition de-represses CyclinD1\nand collapses the
 ax[1, 1].grid(alpha=0.2, axis='y')
 
 plt.tight_layout()
-plt.savefig('simulations/fig_v44_g0_mechanism.png', dpi=170, bbox_inches='tight')
-plt.savefig('simulations/fig_v44_g0_mechanism.pdf', bbox_inches='tight')
+# NB: fixed figsize, no bbox_inches='tight' -- a near-arrest two-step lineage can place an off-axis
+# artist at a large coord; tight-bbox would then expand the canvas to absurd pixel dimensions.
+plt.savefig('simulations/fig_v44_g0_mechanism.png', dpi=170)
+plt.savefig('simulations/fig_v44_g0_mechanism.pdf')
 plt.close()
 print("Saved: fig_v44_g0_mechanism.png")
 print(f"GNP G0={gnp['G0']:.1f}h ({gnp['G0']/gnp['period']*100:.0f}%)  +EZH2i={gnp_e['G0']:.1f}h  | "

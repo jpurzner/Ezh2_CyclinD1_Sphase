@@ -35,7 +35,7 @@ _RR = None
 def _init(_):
     global _RR
     import tellurium as te
-    m = build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_chain=False)
+    m = build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_chain=False, with_two_step_rb=False)
     m = m.replace("Mk_methylation: => Mk; Cell*PRC2*(1 - Mk);",
                   "k_meth = 1.0;\n  Mk_methylation: => Mk; Cell*k_meth*PRC2*(1 - Mk);")
     _RR = te.loada(m)
