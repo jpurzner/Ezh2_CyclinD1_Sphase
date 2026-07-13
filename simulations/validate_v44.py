@@ -36,6 +36,13 @@ PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.
 P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
 P18_MB = 1.553           #   dominant INK4 (GNP 0.464 -> MB 1.553 = 3.35x ~ data 3.7x); p16 the MB-specific small one.
 KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment threshold kPhRbCd=0.35 to preserve the rescue.)
+P21_DIV_MB = 1.8         # MB-specific BIRTH p27 (vs GNP 0.6) -- restores MB p27-high/pRb-low/G0-rich (~16%), lost when the
+                         #   two-step Rb promotion (747d989) added the mitogen-driven p27 clearance kDeP21Cd*Cd that strips
+                         #   MB's committed p27. Born-high p27 latches the Skp2-p27 toggle LOW -> a growth-timed G0 window.
+                         #   Chosen as the FOLD-SAFE lever: raising kSyP21 breaks the 5.07 CyclinD1 fold (whole-cycle EZH2),
+                         #   birth-p27 does not (fold 7.26, edge 7.35). NB the model needs ~3x here vs the ~1.33x abundance-
+                         #   weighted p27+p21 transcript pool fold -- birth-p27 is an effective (protein-level) parameter.
+                         #   Ceiling ~16% fold-safe; 30-40% needs slowing MB commitment which breaks the fold (EZH2->Cd).
                          #   p27 (CIP/KIP) also brakes CDK4/6 via w_p27=1 (model default).
                          #   CIP/KIP = p21/p27 (kSyP21 2x the GNP baseline 0.002).
                          # GNP: p16=0, p18=0.4 (builder default), p21 baseline. Together they raise the
@@ -63,7 +70,7 @@ def _new_rr():
     return rr
 
 
-def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, ksyp21=None,
+def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, ksyp21=None, p21div=None,
         hu=0.0, cdk46i=False, serum_starve=False, t_end=12000, n_pts=48000):
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
@@ -89,6 +96,8 @@ def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
                 rr['p18'] = p18          # INK4 (Cdkn2c): constitutive (GNP default 0.4), ~3x in MB
             if ksyp21 is not None:
                 rr['kSyP21'] = ksyp21    # p21/p27 (CDK2 inhibitor) synthesis; elevated in MB
+            if p21div is not None:
+                rr['P21_div'] = p21div   # MB-specific BIRTH p27 (fold-safe G0 lever; see P21_DIV_MB)
             rr['HU'] = hu
             if cdk46i:
                 rr['kPhRbCd'] = 0.0          # block CycD-CDK4/6-mediated Rb phosphorylation
@@ -188,13 +197,13 @@ CONDITIONS = {
     'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP + HHi + EZH2i': dict(shh=0.5, ptch1_cn=1.0, hhi=1.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP Serum-starved': dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, serum_starve=True),
-    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB),
-    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
-    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, cdk46i=True),
-    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, hu=1.0),
+    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
+    'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
+    'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
+    'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
+    'MB + CDK4/6i':      dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB, cdk46i=True),
+    'MB + CDK4/6i+EZH2i':dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB, cdk46i=True),
+    'MB + HU':           dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB, hu=1.0),
 }
 
 
