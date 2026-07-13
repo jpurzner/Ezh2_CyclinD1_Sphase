@@ -207,7 +207,9 @@ constant. Plan:
    the **CyclinD1 GNP+HHi/GNP** fold (0.29 vs a noisy 0.16 target) — it sat at its passing edge (0.22) even *with*
    the halving, and trades off against EZH2 G0/cycling in `(kTlEZ,kDeEZ)` (2-param structural ceiling). E1/Emi1
    halving KEPT (reclassified as real SCF-βTrCP mitotic destruction, not partitioning). Harness: `refit_ezh2_conc.py`.
-   **Promotion to default pending JP's call** (accept the one noisy-target cost, revisit that target, or hold).
+   **PROMOTED to default (JP 2026-07-13):** `with_ezh2_conc=True` is now the builder default and the validator's
+   default; `with_ezh2_conc=False` recovers the legacy halving (27/28). The lost target is accepted as a noisy HHi
+   fold per the loosen-noisy-targets policy. Figure suite regenerated on the new default.
 1. **`with_mitogen_tracker`** (OFF) — add `Mtr` + reactions + `P27set` + `fc_p27`, swap the `E_div` P21 line;
    single-lineage fixed-point re-pin; verify 27/28 + the four arrest targets.
 2. **Ensemble enablement** — wire `s_mit` into `sim_g0_bifurcation.py`; validate the graded curve + per-daughter

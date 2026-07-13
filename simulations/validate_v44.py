@@ -51,7 +51,7 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_h3k27_dilution=(os.environ.get('H3K27_DILUTION', '1') == '1'),
                          with_h3k27_chain=(os.environ.get('H3K27_CHAIN', '1') == '1'),
                          with_two_step_rb=(os.environ.get('TWO_STEP_RB', '1') == '1'),
-                         with_ezh2_conc=(os.environ.get('EZH2_CONC', '0') == '1'),
+                         with_ezh2_conc=(os.environ.get('EZH2_CONC', '1') == '1'),
                          params=PARAMS or None)
 
 

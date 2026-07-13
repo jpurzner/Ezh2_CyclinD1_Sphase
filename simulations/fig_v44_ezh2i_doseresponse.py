@@ -95,7 +95,7 @@ for c in CONTEXTS:
         if i % 2:  # print every other for brevity
             continue
         print(f"  {d:>6.2f} {data[c]['cdm'][i]:>10.3f} {data[c]['cdm'][i]/base:>6.2f} "
-              f"{data[c]['cd'][i]:>10.3f} {data[c]['ndiv'][i]:>9d} {data[c]['g0'][i]:>6.1f}")
+              f"{data[c]['cd'][i]:>10.3f} {data[c]['ndiv'][i]:>9.0f} {data[c]['g0'][i]:>6.1f}")
     th = threshold(c)
     print(f"  -> cycling threshold: EZH2i = {th}" if th is not None and data[c]['ndiv'][0] == 0
           else ("  -> cycles at all doses" if data[c]['ndiv'][0] > 0 else "  -> never cycles (no rescue)"))

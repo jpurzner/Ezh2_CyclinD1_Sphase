@@ -377,7 +377,7 @@ def _apply_overrides(model, overrides):
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=True, with_cd_sat=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
-                    with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
+                    with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=True,
                     params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
@@ -412,12 +412,11 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         m = m.replace("\n  Cd = 0.65;", "")   # drop Heldt's constant Cd init
         blocks += EZH2_CORE_BLOCK
         blocks += HH_MYCN_BLOCK if with_hh else CD_PLACEHOLDER_BLOCK
-        # EZH2/EZH2m dilution at division. Phase-0b concentration convention (with_ezh2_conc=True):
-        # EZH2 is a CONCENTRATION -> preserved at symmetric division (½N over ½V); its reset comes from
-        # its own ~10h turnover (kDeEZ), NOT a discrete halving. The discrete /2 (default, legacy) treats
-        # EZH2 like an AMOUNT but reads it like a concentration (fixed-K Hills, no /mass) -> an inconsistency;
-        # it is the ONLY soluble protein so treated. See docs/daughter_transfer_plan.md. Dropping it needs a
-        # kDeEZ/kTlEZ re-fit (co-fit WITH the halving), applied via _ezconc_bake below.
+        # EZH2/EZH2m dilution at division. Concentration convention (with_ezh2_conc=True, DEFAULT since
+        # 2026-07-13): EZH2 is a CONCENTRATION -> preserved at symmetric division (½N over ½V); its reset comes
+        # from its own ~10h turnover (kDeEZ), NOT a discrete halving. The legacy discrete /2 (with_ezh2_conc=False)
+        # treats EZH2 like an AMOUNT but reads it like a concentration (fixed-K Hills, no /mass) -> an
+        # inconsistency; it was the ONLY soluble protein so treated. See docs/daughter_transfer_plan.md.
         if not with_ezh2_conc:
             blocks = blocks.replace("MPF = 0, preMPF = 0, Cdc20 = 0 ;",
                                     "MPF = 0, preMPF = 0, Cdc20 = 0, EZH2 = EZH2/2, EZH2m = EZH2m/2 ;")
@@ -426,7 +425,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # EZH2 level ~47% -> restore it with kTlEZ x0.78 (kDeEZ unchanged). Reaches 26/28. The one new miss is
             # the CyclinD1 GNP+HHi/GNP fold (0.29 vs noisy target 0.16) -- it sat at its passing EDGE (0.22) even
             # WITH the halving, and trades off against EZH2 G0/cycling within (kTlEZ,kDeEZ) (2-param structural
-            # ceiling). All EZH2 phase ratios + levels hold. Opt-in (default False) pending JP's promotion call.
+            # ceiling). All EZH2 phase ratios + levels hold. PROMOTED to default (JP 2026-07-13); the lost target
+            # is a noisy HHi fold accepted per the loosen-noisy-targets policy. with_ezh2_conc=False = legacy 27/28.
             blocks = blocks.replace("kTlEZ = 0.015098862630302894", "kTlEZ = 0.011771")
 
     if with_two_step_rb:

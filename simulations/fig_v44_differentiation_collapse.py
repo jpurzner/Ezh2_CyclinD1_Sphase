@@ -22,53 +22,54 @@ _M = build_model_v44()
 t0 = 6000
 
 
+# Perturb by RESTART with a runtime set (rr['SHH']=0 faithfully drops the Hh->CyclinD1 transcript; NB an
+# in-model event on the $SHH boundary species HARD-CRASHES roadrunner, and k_Cd_translation=0 kills only the
+# protein while the transcript RISES -> wrong for this figure). The only snag is CVODE ILL_INPUT when the
+# phase-2 restart lands exactly on a division event root; dodge it by trying t0 candidates until one integrates.
+T0_CANDIDATES = (6000, 6300, 5700, 6600, 5400, 7000)
+
 def two_phase(perturb):
-    rr = te.loada(_M); rr.integrator.setValue("absolute_tolerance", 1e-9); rr.integrator.setValue("relative_tolerance", 1e-6)
-    try:
-        rr.integrator.setValue("maximum_num_steps", 2000000); rr.integrator.setValue("maximum_time_step", 5.0)
-    except Exception:
-        pass
-    rr['SHH'] = 0.5
-    def _sim(a, b, n):   # small maxstep from a CLEAN state -- the two-step is stiff at the abrupt
-        for atol in (1e-8, 1e-7, 1e-6):        # mid-cycle withdrawal discontinuity (maxstep 20 corrupts the CVODE state)
-            for ms in (5.0, 2.0, 1.0):
-                try:
-                    rr.integrator.setValue("absolute_tolerance", atol)
-                    rr.integrator.setValue("maximum_time_step", ms)
-                    return rr.simulate(a, b, n, selections=SEL)
-                except Exception:
-                    continue
-        return rr.simulate(a, b, n, selections=SEL)
-    r1 = _sim(0, t0, 4000)
-    perturb(rr)                                   # apply the perturbation at t0
-    r2 = _sim(t0, 18000, 8000)                    # coarser output: dense sampling near the two-step
-                                                  # withdrawal discontinuity trips CVODE convergence
-    out = {}
-    for k in ('time', 'Cd_mRNA', 'Cd', 'EZH2', 'MPF', 'P21', 'E2f'):
-        out[k] = np.concatenate([r1[k], r2[k]])
-    return out
+    for t0 in T0_CANDIDATES:
+        rr = te.loada(_M)
+        rr.integrator.setValue("absolute_tolerance", 1e-8); rr.integrator.setValue("relative_tolerance", 1e-6)
+        try:
+            rr.integrator.setValue("maximum_num_steps", 2000000); rr.integrator.setValue("maximum_time_step", 5.0)
+        except Exception:
+            pass
+        rr['SHH'] = 0.5
+        try:
+            r1 = rr.simulate(0, t0, int(t0 / 1.5), selections=SEL)
+            perturb(rr)
+            r2 = rr.simulate(t0, 18000, 8000, selections=SEL)
+        except Exception:
+            continue
+        out = {k: np.concatenate([r1[k], r2[k]]) for k in ('time', 'Cd_mRNA', 'Cd', 'EZH2', 'MPF', 'P21', 'E2f', 'Dna')}
+        return out, t0
+    raise RuntimeError("all t0 candidates failed to integrate")
 
 
-A = two_phase(lambda rr: rr.__setitem__('SHH', 0.0))           # (A) mitogen withdrawal
-B = two_phase(lambda rr: rr.__setitem__('kTlEZ', 0.004 * 0.1)) # (B) EZH2 knockdown alone
+A, t0A = two_phase(lambda rr: rr.__setitem__('SHH', 0.0))            # (A) mitogen withdrawal
+B, t0B = two_phase(lambda rr: rr.__setitem__('kTlEZ', 0.004 * 0.1))  # (B) EZH2 knockdown alone
 
-def summ(d, name):
+def summ(d, name, t0):
     t = d['time']; pre = (t >= 3000) & (t < t0); post = t >= (t0 + 4000)
-    div_pre = int(np.sum((d['MPF'][:-1] > 0.3) & (d['MPF'][1:] < 0.1) & (t[:-1] >= 3000) & (t[:-1] < t0)))
-    div_post = int(np.sum((d['MPF'][:-1] > 0.3) & (d['MPF'][1:] < 0.1) & (t[:-1] >= t0)))
+    dna = d['Dna']                                              # divisions = Dna 1->0 resets (robust; the MPF
+    div = (dna[:-1] > 0.9) & (dna[1:] < 0.5)                     # peak is reset the instant it crosses MPF_div)
+    div_pre = int(np.sum(div & (t[:-1] >= 3000) & (t[:-1] < t0)))
+    div_post = int(np.sum(div & (t[:-1] >= t0)))
     print(f"{name}: CyclinD1 {d['Cd_mRNA'][pre].mean():.2f}->{d['Cd_mRNA'][post].mean():.2f}  "
           f"EZH2 {d['EZH2'][pre].mean():.2f}->{d['EZH2'][post].mean():.2f}  "
           f"p27 {d['P21'][pre].mean():.2f}->{d['P21'][post].mean():.2f}  divisions {div_pre}(pre)->{div_post}(post)")
 
 print("=" * 78)
-summ(A, "(A) mitogen withdrawal ")
-summ(B, "(B) EZH2 knockdown only")
+summ(A, "(A) mitogen withdrawal ", t0A)
+summ(B, "(B) EZH2 knockdown only", t0B)
 
 fig, ax = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
-for axi, d, title in [(ax[0], A, '(A) Mitogen withdrawal (SHH->0): cell COLLAPSES to G0'),
-                      (ax[1], B, '(B) EZH2 knockdown only (mitogen intact): CyclinD1 UP, NO collapse')]:
+for axi, d, t0p, title in [(ax[0], A, t0A, '(A) Mitogen withdrawal (SHH->0): cell COLLAPSES to G0'),
+                           (ax[1], B, t0B, '(B) EZH2 knockdown only (mitogen intact): CyclinD1 UP, NO collapse')]:
     th = d['time'] / 60.0
-    axi.axvline(t0/60.0, color='k', ls='--', alpha=0.6)
+    axi.axvline(t0p/60.0, color='k', ls='--', alpha=0.6)
     axi.plot(th, d['Cd_mRNA'], color='#117a65', lw=1.6, label='CyclinD1 transcript')
     axi.plot(th, d['EZH2'], color='#8e44ad', lw=1.6, label='EZH2 protein')
     axi.plot(th, d['P21'], color='#b9770e', lw=1.4, label='p27')
