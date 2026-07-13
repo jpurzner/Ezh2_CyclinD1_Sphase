@@ -377,7 +377,7 @@ def _apply_overrides(model, overrides):
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
-                    with_h3k27_chain=True, params=None):
+                    with_h3k27_chain=True, with_mother_g2=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -486,6 +486,28 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # while keeping REGULAR (size-homeostatic) GNP cycling. (Was a no-op: target string is now the
         # baked single-step M_commit; STARTING value -- the two-step needs its own re-optimization.)
         blocks = blocks.replace("M_commit = 1.2843242130809425;", "M_commit = 2.2;")
+
+    if with_mother_g2:
+        # PROTOTYPE (exploratory, opt-in, NOT promoted): the daughter's birth p27 is set by the MOTHER's
+        # G2 mitogen history (Spencer 2013 R1 window; Min 2020 CyclinD-translation integrator) instead of
+        # being the fixed parameter P21_div. Sg2 integrates a p27-inducing signal during the mother's G2
+        # (Dna~1, pre-mitosis), proportional to the mitogen DEFICIT (low Cd -> more accumulation). At
+        # division the daughter's effective birth p27 = P21_div + g_moth*Sg2, and Sg2 resets to 0 for the
+        # daughter's own G2. -> low mother-G2 mitogen -> high birth p27 -> daughter goes transient-G0 /
+        # CDK2low; the fate is a threshold on an INHERITED condition, not a within-cycle race. p27 (P21
+        # pool) is the dominant CIP/KIP in GNP/MB. Sanity-check only; needs calibration + an ensemble to
+        # reproduce the Overton graded->binary bifurcation.
+        mg2 = (
+            "\n  species Sg2 in Cell; Sg2 = 0;   // mother-G2 p27 integrator (inherited birth-p27 signal)"
+            "\n  k_sg2 = 0.003; K_mit_g2 = 0.35; g_moth = 1.2; k_sg2_dec = 0.0004; n_g2 = 8;"
+            "\n  Sg2_accumulate: => Sg2; Cell*k_sg2*(Dna^n_g2/(0.9^n_g2 + Dna^n_g2))*(K_mit_g2/(K_mit_g2 + Cd));"
+            "\n  Sg2_decay: Sg2 => ; Cell*k_sg2_dec*Sg2;"
+        )
+        blocks += mg2
+        blocks = blocks.replace(
+            "P21 = P21_div - f_commit_carry*(P21_div - P21)",
+            "P21 = (P21_div + g_moth*Sg2) - f_commit_carry*((P21_div + g_moth*Sg2) - P21)")
+        blocks = blocks.replace("preMPF = 0, Cdc20 = 0", "preMPF = 0, Cdc20 = 0, Sg2 = 0")
 
     m = m.replace("\nend", blocks + "\nend")
 
