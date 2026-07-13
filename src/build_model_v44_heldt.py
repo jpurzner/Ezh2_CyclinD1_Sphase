@@ -375,7 +375,7 @@ def _apply_overrides(model, overrides):
 
 
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
-                    with_skp2=True, with_two_step_rb=False, with_cd_sat=True,
+                    with_skp2=True, with_two_step_rb=True, with_cd_sat=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
                     with_h3k27_chain=True, with_mother_g2=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
@@ -633,18 +633,21 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                           "((1 - w_ezdir)*(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk)) + w_ezdir*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i))))")
 
     if with_two_step_rb and with_ezh2:
-        # Baked two-step-Rb calibration (optimize_twostep 2026-07-13, 27/28; only MB HU S fold fails).
-        # Applied BRANCH-SPECIFICALLY so the single-step default (28/28) is untouched -- this is the ready
-        # opt-in the two-step becomes. User `params` (below) still override. The two-step makes pRb(hyper)
-        # a valid G0 marker (Moser 2018); p27 (P21 pool) is the dominant CIP/KIP in GNP/MB.
+        # Baked two-step-Rb calibration (optimize_twostep 2026-07-13 round 2 w/ KmHU_fire, 27/28; only
+        # MB HU G2 fold fails -- the two HU folds trade off, a structural ceiling of the two-step S/G2
+        # dynamics under slow forks). Applied BRANCH-SPECIFICALLY: with_two_step_rb=False uses the baked
+        # single-step params (28/28). User `params` (below) still override. The two-step makes pRb(hyper)
+        # a valid G0 marker (Moser 2018) + fixes the R-point logic (Narasimha/Sanidas); p27 (P21 pool) is
+        # the dominant CIP/KIP in GNP/MB.
         m = _apply_overrides(m, {
-            'M_commit': 2.2216805744010055, 'kPhRbCd': 0.37330814649086935, 'kDeP21Cd': 0.19419604355636372,
-            'kDsRbmE2f': 0.9675588868676486, 'K_CdRb': 0.5302014946780688, 'f_commit_carry': 0.418691371268915,
-            'kSyDna': 0.04968160344954559, 'M_size': 3.1030530836491295, 'kEZbas': 0.0010135919800509476,
-            'kEZbas_Cd': 0.0007315949899746619, 'kEZE2f': 0.008773028962093593, 'Kez_cd': 2.031534855010374,
-            'K_E2f_EZ': 0.330974024100784, 'k_jmjd3_gli': 0.1451682452024597, 'a0_prc2': 0.001228494869070803,
-            'a_rw_prc2': 0.002495005811421019, 'g_prc2': 0.06240324937673879, 'K_prc2': 0.00663414581030409,
-            'n_prc2': 3.524975675949681, 'f0_prc2': 0.17213346316494396, 'del_mk': 0.0026697882980663596})
+            'M_commit': 2.476412980954672, 'kPhRbCd': 0.24815677888709098, 'kDeP21Cd': 0.17494227606057466,
+            'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.4017818215702697, 'f_commit_carry': 0.37450197206637914,
+            'kSyDna': 0.052396984632460376, 'M_size': 3.140622748974385, 'kEZbas': 0.0007543918814347321,
+            'kEZbas_Cd': 0.0005631369622096472, 'kEZE2f': 0.009237501359571453, 'Kez_cd': 3.192639006221304,
+            'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.1688799159383659, 'a0_prc2': 0.001668362805856568,
+            'a_rw_prc2': 0.0035829919666240597, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.007780214612503378,
+            'n_prc2': 3.7153545331585414, 'f0_prc2': 0.13617057617939168, 'del_mk': 0.0025633704879052376,
+            'KmHU_fire': 1.5959645843204027})
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
     if params:

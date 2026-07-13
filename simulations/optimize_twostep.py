@@ -46,15 +46,17 @@ SPACE = [
     ('n_prc2',   1.50,   4.00,   False),
     ('f0_prc2',  0.05,   0.30,   False),
     ('del_mk',   0.0015, 0.006,  True),
+    ('KmHU_fire', 0.25,  3.0,    True),   # HU origin-firing block: co-tunes MB HU S fold vs G2 fold
 ]
-# anchor = current baked chain params + two-step defaults (= the 23/28 untuned starting point)
-ANCHOR = {'M_commit': 2.2, 'kPhRbCd': 0.35, 'kDeP21Cd': 0.15, 'kDsRbmE2f': 1.5, 'K_CdRb': 0.319,
-          'f_commit_carry': 0.5672456517307928, 'kSyDna': 0.04265121846938828, 'M_size': 2.5,
-          'kEZbas': 0.00043040856433872047, 'kEZbas_Cd': 0.0013508978696408793, 'kEZE2f': 0.021216027072906932,
-          'Kez_cd': 7.830608497, 'K_E2f_EZ': 0.5, 'k_jmjd3_gli': 0.108,
-          'a0_prc2': 0.0005319329066695013, 'a_rw_prc2': 0.003731831639056823, 'g_prc2': 0.030623647714812362,
-          'K_prc2': 0.0028684066713754613, 'n_prc2': 3.982266551808909, 'f0_prc2': 0.18030409984207782,
-          'del_mk': 0.0016134242382228271}
+# anchor = the 27/28 two-step best (optimize_twostep round 1) + KmHU_fire seed; refine to fix the HU folds
+ANCHOR = {'M_commit': 2.2216805744010055, 'kPhRbCd': 0.37330814649086935, 'kDeP21Cd': 0.19419604355636372,
+          'kDsRbmE2f': 0.9675588868676486, 'K_CdRb': 0.5302014946780688, 'f_commit_carry': 0.418691371268915,
+          'kSyDna': 0.04968160344954559, 'M_size': 3.1030530836491295, 'kEZbas': 0.0010135919800509476,
+          'kEZbas_Cd': 0.0007315949899746619, 'kEZE2f': 0.008773028962093593, 'Kez_cd': 2.031534855010374,
+          'K_E2f_EZ': 0.330974024100784, 'k_jmjd3_gli': 0.1451682452024597, 'a0_prc2': 0.001228494869070803,
+          'a_rw_prc2': 0.002495005811421019, 'g_prc2': 0.06240324937673879, 'K_prc2': 0.00663414581030409,
+          'n_prc2': 3.524975675949681, 'f0_prc2': 0.17213346316494396, 'del_mk': 0.0026697882980663596,
+          'KmHU_fire': 1.0}
 _ctr = [0]
 
 
@@ -97,12 +99,15 @@ def evaluate(params):
     a0v = float(params['a0_prc2']); arwv = float(params['a_rw_prc2'])
     rw_frac = arwv * gnp_mk / (a0v + arwv * gnp_mk) if (a0v + arwv * gnp_mk) > 0 else 0.0
     mbs = float(checks.get('MB S count% (flow; BrdU Ts~3h)', {}).get('actual', 0))
+    hu_s = float(checks.get('MB HU S fold', {}).get('actual', 1.36))
+    hu_g2 = float(checks.get('MB HU G2 fold', {}).get('actual', 0.23))
     n_hardfail = sum(1 for n, c in checks.items() if n not in EXCLUDE and not c['pass'])
     bnd = lambda x, t, b: max(0.0, abs(x - t) / t - b)
     loss = (10.0 * n_hardfail
             + 3.0 * bnd(chip, CHIP_TARGET, 0.15) + 1.5 * bnd(cd, 5.07, 0.15)
             + 1.5 * bnd(ezi, 2.2, 0.20) + 1.5 * bnd(palbo, 0.44, 0.25)
             + 1.0 * bnd(transcript, 2.0, 0.25) + 1.0 * bnd(mbs, 15.7, 0.30)
+            + 2.0 * bnd(hu_s, 1.36, 0.30) + 2.0 * bnd(hu_g2, 0.23, 0.40)
             + 5.0 * max(0.0, 0.55 - rw_frac))
     good = (n_hardfail == 0 and 0.40 <= chip <= 0.60 and rw_frac >= 0.45)
     return dict(params=params, loss=float(loss), n_hardfail=int(n_hardfail), chip=float(chip), good=bool(good),
