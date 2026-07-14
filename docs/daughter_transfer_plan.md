@@ -4,6 +4,15 @@
 adversarial scoring → synthesis), then hand-audited. Builds directly on the mother-G2 negative
 result ([memory: v44-mother-g2-negative-result]).*
 
+> **STATUS UPDATE 2026-07-14 (post critical-review).** Two corrections to this plan:
+> 1. **The mitogen-inverse birth-p27 tracker (`with_mitogen_tracker`) is a DEAD END — do not build it.** It
+>    forces MB (high mitogen) to be born p27-LOW, the opposite of the data (MB p27 HIGHER). The working model
+>    commits to a per-type IDENTITY birth-p27 (`P21_DIV_MB`, now **1.39**). The tracker branch is gravestoned.
+> 2. **The G0-vs-CyclinD1-fold tension is RESOLVED** (not data-blocked): the joint re-opt (`optimize_twostep_g0.py`,
+>    28/28) landed the fold at 5.6 AND a real ~12% MB G0 together, via a mutual-antagonism p27-toggle +
+>    mitogen-dose EZH2 (Kez_cd 3.2→9.2). See [memory: v44-joint-reopt-28of28]. NB `f_commit_carry` = **0.3745**
+>    in the shipped two-step bake (this doc's earlier ~0.375 reasoning is correct; ignore any 0.567 mention).
+
 ## Why
 
 Today every species is transferred at division by its own ad-hoc rule (p27 resets toward 0.6 with a

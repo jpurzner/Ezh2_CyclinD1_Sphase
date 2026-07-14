@@ -36,13 +36,15 @@ PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.
 P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
 P18_MB = 1.553           #   dominant INK4 (GNP 0.464 -> MB 1.553 = 3.35x ~ data 3.7x); p16 the MB-specific small one.
 KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment threshold kPhRbCd=0.35 to preserve the rescue.)
-P21_DIV_MB = 1.8         # MB-specific BIRTH p27 (vs GNP 0.6) -- restores MB p27-high/pRb-low/G0-rich (~16%), lost when the
-                         #   two-step Rb promotion (747d989) added the mitogen-driven p27 clearance kDeP21Cd*Cd that strips
-                         #   MB's committed p27. Born-high p27 latches the Skp2-p27 toggle LOW -> a growth-timed G0 window.
-                         #   Chosen as the FOLD-SAFE lever: raising kSyP21 breaks the 5.07 CyclinD1 fold (whole-cycle EZH2),
-                         #   birth-p27 does not (fold 7.26, edge 7.35). NB the model needs ~3x here vs the ~1.33x abundance-
-                         #   weighted p27+p21 transcript pool fold -- birth-p27 is an effective (protein-level) parameter.
-                         #   Ceiling ~16% fold-safe; 30-40% needs slowing MB commitment which breaks the fold (EZH2->Cd).
+P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '1.39'))   # env-overridable (joint re-optimizer optimize_twostep_g0)
+                         # MB-specific BIRTH p27 (vs GNP 0.6) -- gives MB a real p27-high/pRb-low G0 dwell (~12%).
+                         #   1.39 (2.3x GNP) after the 2026-07-14 joint re-opt; DOWN from the earlier 1.8 (3x) "crutch"
+                         #   that had been needed because the two-step p27 clearance was a SATURATED switch stripping MB
+                         #   p27. The structural fix (clearance re-gated by effective CDK4/6 activity, w_p27*P21 self-brake
+                         #   -> mutual antagonism) + the mitogen-dose EZH2 re-fit let 1.39 hold ~12% G0 WHILE the fold
+                         #   lands at 5.6 (not 7.1). Still ~2.3x vs the ~1.33x abundance-weighted p27+p21 transcript pool
+                         #   fold -- an effective (protein-level) parameter, but far less inflated than 1.8.
+                         #   Higher G0 (30-40%) still needs slowing MB commitment, which re-inflates the fold (EZH2->Cd).
                          #   p27 (CIP/KIP) also brakes CDK4/6 via w_p27=1 (model default).
                          #   CIP/KIP = p21/p27 (kSyP21 2x the GNP baseline 0.002).
                          # GNP: p16=0, p18=0.4 (builder default), p21 baseline. Together they raise the
@@ -259,7 +261,7 @@ def main():
     # Section A — between-condition ratios
     check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.40)
     check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.45)  # MB_HHi: 86% drop
-    check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        5.07, 0.45)  # Fig 4I (now reachable: the mitogen-dose EZH2 feedback represses MB CyclinD1 down from the cascade's raw ~7x)
+    check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        5.07, 0.20)  # Fig 4I. Model 5.6 (11% high), TIGHT band -- the 2026-07-14 joint re-opt genuinely lands this (was 7.1 passing only on a wide 0.45 band; the old 7.1 was the inflated birth-p27=1.8 crutch, since removed)
     check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.30)
     check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.25)
     check("MYCN MB/GNP",          my('MB')/my('GNP + SHH'),        2.80, 0.30)

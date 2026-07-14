@@ -252,7 +252,7 @@ HH_MYCN_BLOCK = """
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
   k_Cd_tx_MYCN = 21.66; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;   // wide-search baked (was 35.22)
-  K_EZH2_repression = 0.4846191484325215;   // EZH2-DIRECT CyclinD1 repression (now blended in at w_ezdir=0.90); re-optimized optimize_jmjd3_chip 2026-07-10
+  K_EZH2_repression = 0.4846191484325215;   // EZH2-DIRECT CyclinD1 repression. NB: DEAD in the with_h3k27_chain DEFAULT (repression there is the PRC2-occupancy Hill f0_prc2+(1-f0)/(1+(PRC2/K_prc2)^n); tune EZH2i via K_prc2/a_rw_prc2). Only LIVE in the legacy w_ezdir (memory/lumped-mark) branches.
   k_Cd_translation = 0.801; k_Cd_deg = 1.0;   // wide-search baked (was 0.75). Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
   // the data) must CLEANLY clear the cycling threshold. The desaturated Gli->Cd recalibration to
   // MB_HHi dropped GNP Cd toward the bistable knife-edge (0.4 hysteretic, 0.5/0.65 left MB+HHi
@@ -313,11 +313,16 @@ def _apply_two_step_rb(m, with_growth):
     # left ungated (gating it stalls commitment and the cell over-grows). The transient G0 is the
     # short p27-high window after division before the Skp2-p27 feedforward fires.
     # CyclinD-CDK4/6 kinase, competitively braked by INK4 (p16/p18) + p27 (saturating, bounded Vmax) --
-    # same brake as the single-step with_cd_sat path, but applied to the mono-phosphorylation step (Rb=>Rbm)
-    # and the p27-clearance (both are CDK4/6-driven). p27's self-clearance term omits w_p27*P21 to avoid a
-    # self-referential p27->p27 feedback in the denominator.
+    # same brake as the single-step with_cd_sat path, applied to the mono-phosphorylation step (Rb=>Rbm)
+    # AND the p27-clearance (both are CDK4/6-driven). The clearance NOW carries the same w_p27*P21 self-brake
+    # as the Rb step: p27 is cleared by *effective* CDK4/6 activity, which p27 itself inhibits. This
+    # self-referential p27->p27 term is deliberate -- it makes clearance zero-order at high p27 (Goldbeter-
+    # Koshland ultrasensitivity) so p27/G0 becomes a bistable FIXED POINT (mutual CDK4/6<->p27 antagonism)
+    # rather than the earlier saturated on/off switch where deterministic p27 collapsed to ~0 and G0 survived
+    # only as a decaying birth pulse. In MB (high INK4 + p27) effective activity is low -> p27 persists -> a
+    # real p27-high G0 window, without leaning on an inflated birth-p27. (Re-optimized 2026-07 joint fit.)
     cdk_d = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
-    _clear_brake = "/(K_CdRb*(1 + p16 + p18) + Cd)"
+    _clear_brake = "/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
     p27_clear = f"kDeP21Cd*Cd{_clear_brake}*commit_gate" if with_growth else f"kDeP21Cd*Cd{_clear_brake}"
     m = m.replace(
         "species Rb in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, E1 in Cell;",
@@ -353,7 +358,9 @@ def _apply_two_step_rb(m, with_growth):
     # Rb, CyclinD no longer releases E2f directly, so without this it can't escape the p27-CDK2 block
     # and the cell dead-locks in G0. This makes commitment fire when the cyclin D1/p27 ratio crosses
     # threshold (Fan-Meyer 2021) -- pRb(hyper) stays low until CyclinE/CDK2 is freed and fires it.
-    m = m.replace("kDeP21 + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc",
+    _p27_target = "kDeP21 + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc"
+    assert m.count(_p27_target) >= 1, "two-step p27-clearance splice: target string not found (silent no-op)"
+    m = m.replace(_p27_target,
                   f"kDeP21 + {p27_clear} + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc")
     m = m.replace("\n  kDpRb = 0.05;",
                   "\n  kDpRb = 0.05;\n  kDeP21Cd = 0.15;\n  kDsRbmE2f = 1.5;"
@@ -502,6 +509,10 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         blocks = blocks.replace("M_commit = 1.2843242130809425;", "M_commit = 2.2;")
 
     if with_mother_g2:
+        # ⚰️ GRAVESTONE -- SETTLED NEGATIVE RESULT (2026-07, do not revive; git preserves it). This mother-G2
+        # p27 integrator does NOT reproduce the Overton bifurcation: the birth-p27 floor P21_div + g*Sg2 can
+        # only RAISE p27, so it saturates ~1 (+ a frequency confound). See memory v44-mother-g2-negative-result.
+        # Kept default-off and unused; the working model uses a per-type IDENTITY birth-p27 (P21_DIV_MB).
         # PROTOTYPE (exploratory, opt-in, NOT promoted): the daughter's birth p27 is set by the MOTHER's
         # G2 mitogen history (Spencer 2013 R1 window; Min 2020 CyclinD-translation integrator) instead of
         # being the fixed parameter P21_div. Sg2 integrates a p27-inducing signal during the mother's G2
@@ -524,6 +535,11 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         blocks = blocks.replace("preMPF = 0, Cdc20 = 0", "preMPF = 0, Cdc20 = 0, Sg2 = 0")
 
     if with_mitogen_tracker:
+        # ⚰️ GRAVESTONE -- SHELVED, WRONG SIGN FOR MB (2026-07, do not revive; git preserves it). A mitogen-
+        # DEFICIT tracker forces MB (high mitogen: Cd ~12 vs GNP ~1.7) to be born p27-LOW, i.e. ~10-30x BELOW
+        # GNP -- the OPPOSITE of the data (MB p27 transcript HIGHER). MB p27 is MYCN/INK4/identity-driven, not a
+        # mitogen deficit, so routing inherited fate through Mtr is the wrong causal model for the paper's cell
+        # type. The working model uses the per-type IDENTITY constant P21_DIV_MB (=1.39). Kept default-off/unused.
         # PHASE 1 of the daughter-transfer plan (docs/daughter_transfer_plan.md). The daughter's birth p27 is
         # SET (not the fixed P21_div, and NOT added to it -- that was the mother_g2 FLOOR trap) by a low-pass
         # tracker Mtr of the mother's mitogen DEFICIT. Mtr is a relaxation LEVEL-tracker (steady state = the
@@ -674,21 +690,27 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                           "((1 - w_ezdir)*(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk)) + w_ezdir*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i))))")
 
     if with_two_step_rb and with_ezh2:
-        # Baked two-step-Rb calibration (optimize_twostep 2026-07-13 round 2 w/ KmHU_fire, 27/28; only
-        # MB HU G2 fold fails -- the two HU folds trade off, a structural ceiling of the two-step S/G2
-        # dynamics under slow forks). Applied BRANCH-SPECIFICALLY: with_two_step_rb=False uses the baked
-        # single-step params (28/28). User `params` (below) still override. The two-step makes pRb(hyper)
-        # a valid G0 marker (Moser 2018) + fixes the R-point logic (Narasimha/Sanidas); p27 (P21 pool) is
-        # the dominant CIP/KIP in GNP/MB.
+        # Baked two-step-Rb calibration (optimize_twostep_g0 2026-07-14 JOINT G0+EZH2 re-opt, 28/28 -- the
+        # critical-review root-cause fix). This round genuinely LANDS the CyclinD1 MB/GNP fold at 5.6 (was
+        # 7.1, passing only on the wide band) and RECOVERS a real MB p27-high G0 dwell (~12%) at birth-p27
+        # 1.39 (was the inflated 1.8 crutch), while FIXING both standing failures (GNP+HHi de-repression;
+        # MB HU G2). Mechanism: (i) p27 clearance re-gated by *effective* CDK4/6 activity (w_p27*P21 self-
+        # brake -> mutual antagonism, not a saturated switch); (ii) EZH2 synthesis weighted toward the
+        # MITOGEN-DOSE term (Kez_cd 3.2->9.2) so EZH2 stays high through the G0 dwell -> decouples the
+        # fold-vs-G0 tension. TRADE (data-forced): EZH2i de-repression is 1.80 (was 2.47) -- strong EZH2i
+        # (>=2.2) is EXCLUDED by the fold+GNP+HHi+ChIP (proven by sweep), consistent with the weak-feedback
+        # regime the 5.07 fold already pins. Applied BRANCH-SPECIFICALLY (with_two_step_rb=False keeps the
+        # single-step bake). User `params` still override. pRb(hyper) = G0 marker (Moser 2018); R-point
+        # logic (Narasimha/Sanidas); p27 (P21 pool) the dominant CIP/KIP in GNP/MB.
         _ts_bake = {
             'M_commit': 2.476412980954672, 'kPhRbCd': 0.24815677888709098, 'kDeP21Cd': 0.17494227606057466,
             'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.4017818215702697, 'f_commit_carry': 0.37450197206637914,
-            'kSyDna': 0.052396984632460376, 'M_size': 3.140622748974385, 'kEZbas': 0.0007543918814347321,
-            'kEZbas_Cd': 0.0005631369622096472, 'kEZE2f': 0.009237501359571453, 'Kez_cd': 3.192639006221304,
-            'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.1688799159383659, 'a0_prc2': 0.001668362805856568,
-            'a_rw_prc2': 0.0035829919666240597, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.007780214612503378,
-            'n_prc2': 3.7153545331585414, 'f0_prc2': 0.13617057617939168, 'del_mk': 0.0025633704879052376,
-            'KmHU_fire': 1.5959645843204027}
+            'kSyDna': 0.04267565031343159, 'M_size': 3.140622748974385, 'kEZbas': 0.0006988044688820413,
+            'kEZbas_Cd': 0.00032921999678280794, 'kEZE2f': 0.011236248759074184, 'Kez_cd': 9.228028038563886,
+            'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.15687771918001908, 'a0_prc2': 0.001714578794136824,
+            'a_rw_prc2': 0.0037974505240802726, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.007283353965561711,
+            'n_prc2': 3.6319634333250166, 'f0_prc2': 0.14028139543883467, 'del_mk': 0.002664690624790556,
+            'KmHU_fire': 0.3}
         # tolerate flag combos where some params are absent (e.g. with_h3k27_memory has no chain params)
         m = _apply_overrides(m, {k: v for k, v in _ts_bake.items() if (k + ' = ') in m})
     if hu is not None:
@@ -702,7 +724,7 @@ if __name__ == "__main__":
     m = build_model_v44()
     print("v44 model built:", len(m), "chars")
     for tok in ["MPF", "Chk1 := aRc", "Cdc25a", "Wee1a", "vfork :=", "kSyDna*vfork*aRc",
-                "E_div: at (MPF > MPF_div)", "size_gate :=", "*size_gate*Rc", "mass = mass/2", "Skp2_synthesis:", "P21 = P21_div"]:
+                "E_div: at (MPF > MPF_div)", "size_gate :=", "*commit_gate", "mass = mass/2", "Skp2_synthesis:", "P21 = P21_div"]:
         assert tok in m, f"missing {tok}"
     print("mitotic switch + HU fork coupling present.")
     import tellurium as te

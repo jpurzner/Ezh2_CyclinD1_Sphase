@@ -1,5 +1,26 @@
 # Model figures — which code generates each
 
+> **Model changelog (2026-07-14) — critical-review root-cause fix, now 28/28.** A joint re-optimization
+> (`simulations/optimize_twostep_g0.py`, baked into `_ts_bake`) resolved the issues an adversarial review of the
+> prior default surfaced. The two-step-Rb default now **passes 28/28** (was 26/28): it **genuinely lands** the
+> CyclinD1 MB/GNP fold at **5.6** (band tightened 0.45→**0.20**; the old 7.1 was the inflated birth-p27 crutch,
+> passing only on the wide band), **recovers a real MB G0 dwell ~12%** at **birth-p27 1.39** (down from the 1.8
+> "crutch"; ~2.3× vs the 1.33× transcript grounding), and **fixes both standing failures** (GNP+HHi de-repression
+> 0.216; MB HU G2 0.316). Mechanism: (i) p27 clearance re-gated by *effective* CDK4/6 activity (`+w_p27*P21` self-
+> brake → mutual antagonism, not a saturated switch); (ii) EZH2 synthesis weighted toward the mitogen-dose term
+> (`Kez_cd` 3.2→9.2) so EZH2 stays high through the G0 dwell → decouples the fold-vs-G0 tension. **Data-forced
+> trade:** EZH2i de-repression is now **1.80** (was 2.47) — strong EZH2i (≥2.2) is EXCLUDED by the fold+GNP+HHi+ChIP
+> (proven by sweep), consistent with the weak-EZH2-feedback regime the 5.07 fold already pins. Honesty fixes:
+> corrected the misleading fold comment; `sim_population_g0.py` relabeled "Overton graded split"→**"quiescence-onset
+> vs mitogen"** (SHH does not set the per-type identity birth-p27, so it is NOT the Overton mother→daughter map) and
+> its `cdk2low` no longer lumps permanent `arrest`; `with_mother_g2` / `with_mitogen_tracker` gravestoned (settled
+> dead-ends). **⚠ `fig_v44_population_g0` output is NOT regenerated in this commit — pending a metric fix:** at
+> birth-p27 1.39 its *per-lineage "ever-paused"* CDK2low metric over-reports (~57%) vs the flow-comparable snapshot
+> fraction (~12–22%, which `validate_v44` gives and IS Moser-consistent), and the median-near-threshold draw breaks
+> Spencer concordance (51% vs ~98%). Report the snapshot count-fraction and re-tune the population median (separate task). NB the very-slow withdrawal figures (`sim_mitogen_withdrawal`, `sim_vismo_withdrawal`,
+> `fig_v44_ezh2i_rescue_kinetics`, `sim_ezh2_phaseplane`, the dilution-tension set) are ~2.5 h each and are
+> **pending regeneration** on this calibration — run `simulations/regenerate_figures.sh` (SLOW tier) overnight.
+>
 > **Model changelog (2026-07-13).** The calibrated default is no longer single-step. Current
 > `build_model_v44()` default = **two-step Rb** switch (mono-P by CyclinD-CDK4/6 → hyper-P by CyclinE/A-CDK2;
 > 26/28 validation; single-step is opt-in `with_two_step_rb=False`, 28/28) + **EZH2 concentration convention**

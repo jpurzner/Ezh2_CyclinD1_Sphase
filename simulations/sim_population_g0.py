@@ -1,4 +1,4 @@
-"""Population layer: GNP vs MB transient-G0 fractions + the Overton graded->binary split + Spencer sister
+"""Population layer: GNP vs MB transient-G0 fractions + a quiescence-onset-vs-mitogen curve + Spencer sister
 concordance, from the DATA-GROUNDED distribution machinery (not a placeholder, not the shelved mitogen tracker).
 
 Reuses the sim_inheritance_partition engine (per-lineage sim, Dna-reset division detection, per-cycle G0 dwell)
@@ -6,11 +6,18 @@ but runs it for BOTH cell types with the calibrated per-lineage draws (scale-fre
     k_Cd_translation = KTL0 * LogN(0, 0.633)   (CyclinD1 abundance CV 0.70, data)
     kTlEZ            = KTLEZ0 * LogN(0, 0.51)   (EZH2 abundance CV ~0.55, data)
     P21_div (birth p27) = MED[cond] * LogN(0, 0.32)  (CV 0.33, data), redrawn each division = partition noise
-GNP birth-p27 median 0.6, MB 1.8 (P21_DIV_MB, the fold-safe G0 restore). MB adds its INK4/mitogen identity.
+GNP birth-p27 median 0.6, MB 1.39 (P21_DIV_MB after the 2026-07-14 joint re-opt). MB adds its INK4/mitogen identity.
+
+NB birth-p27 is a per-TYPE IDENTITY constant -- SHH (mitogen) does NOT set it. So panel B is a
+quiescence-ONSET curve (arrest/pause fraction vs mitogen at a fixed birth-p27), NOT Overton's mother-mitogen-
+history -> birth-p21 -> daughter-fate map. The GNP<MB contrast follows from the hand-set medians + shared
+lognormal draws, i.e. population heterogeneity around an identity constant -- do not present it as an emergent
+mitogen-graded Overton split (that would need a data-correct mitogen->birth-p27 link, which does not yet exist;
+the mitogen tracker was backwards for MB and is shelved).
 
 Three readouts:
   (A) population transient-G0 fraction, GNP vs MB (frac of lineage-cycles with G0 dwell >= DWELL_CUT).
-  (B) Overton: G0 fraction vs mitogen (SHH) -- graded across the population, binarized per-cell by the Skp2 toggle.
+  (B) quiescence-onset: CDK2low (transient-pause) fraction vs mitogen (SHH), at fixed per-type birth-p27.
   (C) Spencer: sister concordance -- two daughters of one mother share the lineage draws + inherited state, differ
       only by an independent partition redraw; fraction that land in the SAME fate.
 
@@ -31,7 +38,7 @@ SETTLE, MEAS, CHUNK, NP = 5000.0, 12000.0, 60.0, 9
 DWELL_CUT, P27_HI = 2.0, 0.1                          # transient if mean G0 dwell >= 2h; G0 = pre-S & p27>0.1
 # cell-type identities (per-condition params) + birth-p27 median
 GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=0.6)
-MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=1.8)
+MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=1.39)
 
 _RR = None
 def _init(_):
@@ -112,7 +119,10 @@ def main():
     def cell(tag, shh, rep):   # -> list of rows for a condition
         return [r for r in res if r[2] == tag and abs(r[1] - shh) < 1e-6 and r[3] == rep]
     frac = lambda rows: np.mean([r[5] for r in rows]) if rows else np.nan          # cycle-level transient fraction
-    cdk2low = lambda rows: np.mean([r[4] in ('transient', 'arrest') for r in rows]) if rows else np.nan  # per-lineage CDK2low
+    # CDK2low = transient-G0 pausers ONLY (they re-enter the cycle, per Moser 2018) -- NOT permanent arrest.
+    # Lumping arrest into CDK2low is a category error (an arrested cell is not a transiently-CDK2low cell).
+    cdk2low = lambda rows: np.mean([r[4] == 'transient' for r in rows]) if rows else np.nan  # per-lineage CDK2low (re-entering)
+    arrestf = lambda rows: np.mean([r[4] == 'arrest' for r in rows]) if rows else np.nan     # permanent arrest (reported separately)
 
     print("\n(A) POPULATION TRANSIENT-G0 (SHH=0.5):")
     for tag in ('GNP', 'MB'):
@@ -121,7 +131,7 @@ def main():
         print(f"  {tag}: transient-G0 cycle-level {frac(rows)*100:.0f}% | CDK2low(lineage) {cdk2low(rows)*100:.0f}% | "
               f"immediate {comp['immediate']*100:.0f}% / transient {comp['transient']*100:.0f}% / arrest {comp['arrest']*100:.0f}%")
 
-    print("\n(B) OVERTON graded split -- CDK2low(lineage) fraction vs mitogen (SHH):")
+    print("\n(B) QUIESCENCE-ONSET -- CDK2low(transient-pause) fraction vs mitogen (SHH), fixed per-type birth-p27:")
     print(f"  {'SHH':>5} | " + ' '.join(f'{s:>5}' for s in SHH_SWEEP))
     for tag in ('GNP', 'MB'):
         print(f"  {tag:>5} | " + ' '.join(f'{cdk2low(cell(tag,s,0))*100:4.0f}%' for s in SHH_SWEEP))
@@ -137,7 +147,7 @@ def main():
     # ---- figure: fig_v44_population_g0 (paper) ----
     import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
     fig, ax = plt.subplots(1, 3, figsize=(15, 4.6))
-    fig.suptitle("Population layer: GNP vs medulloblastoma transient-G0 -- Overton graded split + Spencer sister concordance",
+    fig.suptitle("Population layer: GNP vs medulloblastoma transient-G0 -- quiescence-onset vs mitogen + Spencer sister concordance",
                  fontsize=13, fontweight='bold', y=1.0)
     fig.text(0.5, 0.90, f"N={N} lineages/type, data-grounded abundance draws (CyclinD1 CV 0.70, birth-p27 CV 0.33, EZH2 CV 0.55) "
              "+ partition-noise redraw; MB uses the fold-safe MB-specific birth-p27.",
@@ -155,7 +165,7 @@ def main():
         y = [cdk2low(cell(tag, s, 0)) * 100 for s in SHH_SWEEP]
         ax[1].plot(SHH_SWEEP, y, '-o', color=COL[tag], lw=2, ms=5, label=tag)
     ax[1].set_xlabel('mitogen (SHH)'); ax[1].set_ylabel('CDK2low / transient-G0 (%)'); ax[1].set_ylim(-3, 103)
-    ax[1].set_title('(B) Overton: graded G0 vs mitogen', fontsize=10.5, fontweight='bold'); ax[1].legend(fontsize=9); ax[1].grid(alpha=0.25)
+    ax[1].set_title('(B) Quiescence onset vs mitogen (SHH)', fontsize=10.5, fontweight='bold'); ax[1].legend(fontsize=9); ax[1].grid(alpha=0.25)
     for j, tag in enumerate(('GNP', 'MB')):                                 # (C) Spencer sister concordance
         ax[2].bar(j, conc[tag] * 100, color=COL[tag], edgecolor='k')
         ax[2].text(j, conc[tag] * 100 + 1, f'{conc[tag]*100:.0f}%', ha='center', fontsize=10, fontweight='bold')
