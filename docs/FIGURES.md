@@ -1,7 +1,17 @@
 # Model figures — which code generates each
 
-All scripts live in `simulations/` and run against the calibrated **v44 single-step default**
-(`src/build_model_v44_heldt.py`). Each writes a `.png` (preview) and a `.pdf` (vector, for the paper)
+> **Model changelog (2026-07-13).** The calibrated default is no longer single-step. Current
+> `build_model_v44()` default = **two-step Rb** switch (mono-P by CyclinD-CDK4/6 → hyper-P by CyclinE/A-CDK2;
+> 26/28 validation; single-step is opt-in `with_two_step_rb=False`, 28/28) + **EZH2 concentration convention**
+> (`with_ezh2_conc=True`; the EZH2 division-halving is dropped, `kTlEZ` re-fit; legacy halving via
+> `with_ezh2_conc=False`) + **serial me1/me2/me3 H3K27 chain** (`with_h3k27_chain=True`). MB is now
+> **p27-high/G0-rich** again via an MB-specific birth-p27 (`P21_DIV_MB` in `validate_v44.py`, ~16%, fold-safe).
+> The `with_mitogen_tracker` prototype (mitogen-inverse birth-p27) is **shelved** (opt-in, off). New non-figure
+> deliverables this cycle: `sim_population_g0.py` (GNP-vs-MB population G0 + Overton + Spencer readouts) and the
+> interactive `dashboard.html` scrubber (`gen_dashboard_data.py`). See `docs/daughter_transfer_plan.md`.
+
+All scripts live in `simulations/` and run against the calibrated **v44 default** (two-step Rb + EZH2-concentration;
+`src/build_model_v44_heldt.py`). Each writes a `.png` (preview) and a `.pdf` (vector, for the paper)
 into `simulations/`. Regenerate any single figure with, e.g.:
 
 ```bash
