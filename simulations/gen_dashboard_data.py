@@ -14,7 +14,7 @@ from src.build_model_v44_heldt import build_model_v44
 
 KTL0 = 0.801
 T_END, N_PTS = 8400, 1400            # ~140 h, ~6 min/point
-SEL = ['time', 'Cd', 'EZH2', 'P21', 'Skp2', 'pRb', 'E2f', 'Ce', 'Ca', 'MPF', 'Dna', 'mass', 'aRc']
+SEL = ['time', 'Cd', 'EZH2', 'P21', 'Skp2', 'Rb', 'Rbm', 'pRb', 'E2f', 'Ce', 'Ca', 'MPF', 'Dna', 'mass', 'aRc']
 
 # display metadata: model name -> (label, color, group, short description)
 SPECIES = [
@@ -22,8 +22,10 @@ SPECIES = [
     ('EZH2', 'EZH2',           '#9333ea', 'mitogen',    'PRC2 methyltransferase; represses CyclinD1.'),
     ('P21',  'p27',            '#d97706', 'commit',     'CDK inhibitor. HIGH = quiescent/G0; the fate marker.'),
     ('Skp2', 'Skp2',           '#dc2626', 'commit',     'Degrades p27. Rises at commitment (the R-point switch).'),
-    ('pRb',  'phospho-Rb',     '#be123c', 'commit',     'Hyper-phosphorylated Rb = past the restriction point.'),
-    ('E2f',  'E2F',            '#1d4ed8', 'commit',     'Proliferation transcription factor; released by pRb.'),
+    ('Rb',   'Rb (unphos)',    '#fb7185', 'commit',     'Unphosphorylated Rb - the active brake; holds E2F off.'),
+    ('Rbm',  'Rb (mono-P)',    '#e11d48', 'commit',     'Mono-phosphorylated by CyclinD-CDK4/6 (mitogen priming step).'),
+    ('pRb',  'Rb (hyper-P)',   '#9f1239', 'commit',     'Hyper-phosphorylated by CyclinE/A-CDK2; releases E2F past the R-point.'),
+    ('E2f',  'E2F',            '#1d4ed8', 'commit',     'Proliferation transcription factor; released by hyper-P Rb.'),
     ('Ce',   'CyclinE',        '#0d9488', 'cyclin',     'CDK2 partner; fires S-phase entry.'),
     ('Ca',   'CyclinA',        '#2563eb', 'cyclin',     'CDK2 partner through S/G2.'),
     ('MPF',  'CyclinB-CDK1',   '#ea580c', 'cyclin',     'Mitotic trigger (MPF). Spikes at mitosis -> division.'),
