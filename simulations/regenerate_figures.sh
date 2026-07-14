@@ -20,6 +20,7 @@ PY=./venv/bin/python
 # against the changed model (without it they would silently reuse a stale .npz cache).
 SLOW=(
   "simulations/sim_g0_bifurcation.py"            # fig_v44_g0_bifurcation -- cyclin D1 / birth-p27 bifurcation (immediate vs transient-G0); ~10 min, N=140
+  "simulations/sim_population_g0.py --n=100"     # fig_v44_population_g0 -- GNP-vs-MB population transient-G0 + Overton graded split + Spencer sister concordance; ~12 min, N=100
   "simulations/sim_ezh2_phaseplane.py --fresh"   # fig_v44_ezh2_phaseplane -- EZH2-CyclinD1 nullcline portrait + bifurcation diagrams; ~35 min (cached)
   "simulations/sim_ezh2_dilution_tension.py --fresh" # fig_v44_dilution_tension -- EZH2-methylation vs replicative-dilution tension (mitogen x S-phase) -> CyclinD1 transcript; ~10 min (cached)
   "simulations/sim_ezh2_dilution_tension_variants.py --fresh" # fig_v44_dilution_tension_variants -- HU-axis (replication stress) + MB/vismo variants of the tension surface; ~13 min (cached)

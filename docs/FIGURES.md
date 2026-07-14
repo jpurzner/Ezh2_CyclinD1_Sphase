@@ -9,6 +9,19 @@
 > The `with_mitogen_tracker` prototype (mitogen-inverse birth-p27) is **shelved** (opt-in, off). New non-figure
 > deliverables this cycle: `sim_population_g0.py` (GNP-vs-MB population G0 + Overton + Spencer readouts) and the
 > interactive `dashboard.html` scrubber (`gen_dashboard_data.py`). See `docs/daughter_transfer_plan.md`.
+>
+> **Figure curation (2026-07-13).** REMOVED 3 (git-preserved): `fig_v44_g0_hysteresis` (self-declared SUPERSEDED;
+> false-positive hysteresis contradicting the monostable-G0 model — use `fig_v44_g0_bistability_confirm`),
+> `fig_v44_param_exploration` (coarse, superseded by the high-res `sweep_param_exploration` outputs),
+> `fig_v44_mitogen_rampdown` (duplicates `fig_v44_cellcycle_exit` + the ramp-down leg of `fig_v44_mitogen_ramp_onoff`).
+> ADDED 4 for the recent work: **`fig_v44_two_step_rpoint`** (two-step Rb R-point hand-off — mono-P Rbm → hyper-P pRb;
+> restores hyper-P Rb as a faithful G0 marker vs single-step which saturates ~17 min post-anaphase),
+> **`fig_v44_population_g0`** (GNP-vs-MB population transient-G0 + Overton graded split + Spencer ~95-98% sister
+> concordance; from `sim_population_g0.py`), **`fig_v44_mb_g0_birthp27`** (MB p27-high/G0-rich via the MB-specific
+> birth-p27 — GNP 0% vs MB ~21% G0 — fold-safe: birth-p27 keeps MB/GNP CyclinD1 in-band 7.18× whereas the kSyP21
+> route breaks it to 8.8×), **`fig_v44_ezh2_concentration`** (EZH2 concentration convention: smooth turnover-reset
+> carryover vs the legacy amount-halving sawtooth; division-neutral). NB: `two_step_rpoint`/`mb_g0_birthp27` use a
+> transient-G0 birth-p27 exemplar (the born-committed GNP setpoint has no G0 window) — labeled in-figure.
 
 All scripts live in `simulations/` and run against the calibrated **v44 default** (two-step Rb + EZH2-concentration;
 `src/build_model_v44_heldt.py`). Each writes a `.png` (preview) and a `.pdf` (vector, for the paper)

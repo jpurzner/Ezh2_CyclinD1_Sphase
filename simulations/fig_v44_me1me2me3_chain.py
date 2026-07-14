@@ -1,4 +1,4 @@
-"""Exploratory extension (NOT baked): explicit serial H3K27 methylation me0->me1->me2->me3 vs the
+"""Serial H3K27 methylation chain (PROMOTED to DEFAULT, with_h3k27_chain=True): explicit me0->me1->me2->me3 vs the
 lumped single-Mk mark. Shows how the slow, rate-limiting me2->me3 step changes the KINETICS of me3
 accumulation: a lag, and a strong dependence on cell-cycle period that the lumped mark does not have.
 
@@ -80,7 +80,7 @@ gs = GridSpec(2, 2, figure=fig, hspace=0.32, wspace=0.24, left=0.06, right=0.975
 fig.suptitle("Serial H3K27 methylation (me1→me2→me3) vs a lumped mark — how the slow last step changes me3 kinetics",
              fontsize=14.5, fontweight="bold", y=0.965)
 fig.text(0.5, 0.925, "me0→me1→me2→me3 with FAST me1/me2 and a SLOW, rate-limiting me2→me3. Every division halves the modified fractions (new histones = me0). "
-         "Exploratory module (not baked).", ha="center", fontsize=9.5, color="#555", style="italic")
+         "Serial me1/me2/me3 chain (now the default).", ha="center", fontsize=9.5, color="#555", style="italic")
 
 # ---- A: scheme ----
 axA = fig.add_subplot(gs[0, 0]); axA.axis("off"); axA.set_xlim(0, 10); axA.set_ylim(0, 10)

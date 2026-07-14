@@ -127,11 +127,45 @@ def main():
         print(f"  {tag:>5} | " + ' '.join(f'{cdk2low(cell(tag,s,0))*100:4.0f}%' for s in SHH_SWEEP))
 
     print("\n(C) SPENCER sister concordance (same lineage draws + inherited identity, independent partition noise):")
+    conc = {}
     for tag in ('GNP', 'MB'):
         a = {r[0]: r[4] for r in cell(tag, 0.5, 0)}; b = {r[0]: r[4] for r in cell(tag, 0.5, 1)}
         both = [i for i in a if i in b]
-        conc = np.mean([a[i] == b[i] for i in both]) if both else np.nan
-        print(f"  {tag}: {conc*100:.0f}% same-fate sisters (n={len(both)} pairs; target ~98%)")
+        conc[tag] = float(np.mean([a[i] == b[i] for i in both])) if both else np.nan
+        print(f"  {tag}: {conc[tag]*100:.0f}% same-fate sisters (n={len(both)} pairs; target ~98%)")
+
+    # ---- figure: fig_v44_population_g0 (paper) ----
+    import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(1, 3, figsize=(15, 4.6))
+    fig.suptitle("Population layer: GNP vs medulloblastoma transient-G0 -- Overton graded split + Spencer sister concordance",
+                 fontsize=13, fontweight='bold', y=1.0)
+    fig.text(0.5, 0.90, f"N={N} lineages/type, data-grounded abundance draws (CyclinD1 CV 0.70, birth-p27 CV 0.33, EZH2 CV 0.55) "
+             "+ partition-noise redraw; MB uses the fold-safe MB-specific birth-p27.",
+             ha='center', fontsize=8.5, color='#555', style='italic')
+    COL = {'GNP': '#1b9e77', 'MB': '#762A83'}
+    comp_order = ['immediate', 'transient', 'arrest']; ccol = ['#7dcea0', '#f5b041', '#e74c3c']
+    for j, tag in enumerate(('GNP', 'MB')):                                  # (A) composition at SHH=0.5
+        rows = cell(tag, 0.5, 0); bot = 0
+        for c, col in zip(comp_order, ccol):
+            v = float(np.mean([r[4] == c for r in rows]))
+            ax[0].bar(j, v, bottom=bot, color=col, edgecolor='k', label=(c if j == 0 else None)); bot += v
+    ax[0].set_xticks([0, 1]); ax[0].set_xticklabels(['GNP', 'MB']); ax[0].set_ylim(0, 1); ax[0].set_ylabel('population fraction')
+    ax[0].set_title('(A) Fate composition (SHH=0.5)\nMB is transient-G0-rich', fontsize=10.5, fontweight='bold'); ax[0].legend(fontsize=8, loc='center right')
+    for tag in ('GNP', 'MB'):                                               # (B) Overton graded split vs mitogen
+        y = [cdk2low(cell(tag, s, 0)) * 100 for s in SHH_SWEEP]
+        ax[1].plot(SHH_SWEEP, y, '-o', color=COL[tag], lw=2, ms=5, label=tag)
+    ax[1].set_xlabel('mitogen (SHH)'); ax[1].set_ylabel('CDK2low / transient-G0 (%)'); ax[1].set_ylim(-3, 103)
+    ax[1].set_title('(B) Overton: graded G0 vs mitogen', fontsize=10.5, fontweight='bold'); ax[1].legend(fontsize=9); ax[1].grid(alpha=0.25)
+    for j, tag in enumerate(('GNP', 'MB')):                                 # (C) Spencer sister concordance
+        ax[2].bar(j, conc[tag] * 100, color=COL[tag], edgecolor='k')
+        ax[2].text(j, conc[tag] * 100 + 1, f'{conc[tag]*100:.0f}%', ha='center', fontsize=10, fontweight='bold')
+    ax[2].axhline(98, color='k', ls='--', alpha=0.5); ax[2].text(1.45, 98, 'Spencer ~98%', fontsize=8, va='bottom', ha='right')
+    ax[2].set_xticks([0, 1]); ax[2].set_xticklabels(['GNP', 'MB']); ax[2].set_ylim(0, 105); ax[2].set_ylabel('same-fate sisters (%)')
+    ax[2].set_title('(C) Spencer sister concordance', fontsize=10.5, fontweight='bold')
+    plt.tight_layout()
+    out = os.path.join(os.path.dirname(__file__), 'fig_v44_population_g0')
+    plt.savefig(out + '.png', dpi=170); plt.savefig(out + '.pdf'); plt.close()
+    print("\nSaved: fig_v44_population_g0.png / .pdf")
 
 
 if __name__ == '__main__':
