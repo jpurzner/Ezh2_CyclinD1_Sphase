@@ -138,9 +138,9 @@ inhibit((jmjd3[0]+0.2, jmjd3[1]-0.35), (mark[0]+0.2, mark[1]+0.55), C["erase"], 
 ax.text(5.85, 3.5, "erase", fontsize=6.5, color=C["erase"], ha="left", style="italic")
 arrow((smo[0]+0.9, smo[1]-0.2), (jmjd3[0]+0.2, jmjd3[1]+0.36), C["erase"], rad=-0.28, lw=1.5, ls=(0,(5,2)))  # Gli→Jmjd3
 ax.text(6.0, 5.15, "Gli→Jmjd3: mitogen-gated eraser\n(high-Gli MB strips mark → ChIP MB<GNP)", fontsize=6.3, color=C["erase"], ha="left", fontweight="bold")
-# mark ÷2 at S + turnover
-arrow((mark[0]+1.45, mark[1]-0.2), (mark[0]+1.45, mark[1]-0.55), C["rep_b"], rad=-1.5, lw=1.2, shrink=2)
-ax.text(6.05, 2.15, "÷2 early-S\n+ turnover", fontsize=5.9, color=C["rep_b"], ha="left", va="center", style="italic")
+# H3K27me3 basal turnover loop (the S-phase ÷2 arrow from DNA replication is drawn later, once `dna` exists)
+arrow((mark[0]-1.5, mark[1]+0.15), (mark[0]-1.5, mark[1]-0.15), C["rep_b"], rad=-1.7, lw=1.3, shrink=2)   # + turnover loop
+ax.text(2.75, 2.55, "+ turnover", fontsize=5.8, color=C["rep_b"], ha="center", va="center", style="italic")
 
 # ===================== the epigenetic gate on the PROMOTER =====================
 inhibit((mark[0]-0.4, mark[1]+0.55), (prom[0]+0.0, prom[1]-0.52), C["fb"], rad=-0.15, lw=2.4, shrink=4)  # me3 ⊣ promoter
@@ -191,6 +191,10 @@ ori = node(16.7, 6.35, "origins fire\n(Rc→aRc)", w=1.55, h=0.66, fc="#ffffff",
 arrow((ce[0]+0.3, ce[1]-0.38), (ori[0]+0.1, ori[1]+0.35), C["act"], rad=-0.2)
 dna = node(14.3, 3.3, "DNA replication\nDna: 0 → 1", w=2.05, h=0.72, fc="#ffffff", ec=C["rep_b"], fs=8.2, bold=True)
 arrow(edge_pt(ori, "b"), (dna[0]+0.7, dna[1]+0.4), C["act"], rad=0.25)
+# DNA replication HALVES the H3K27me3 mark (replicative dilution at S)
+arrow((dna[0]-1.05, dna[1]-0.35), (mark[0]+1.5, mark[1]-0.32), C["rep_b"], rad=0.45, lw=1.6, ls=(0,(5,2)))
+ax.text(9.35, 1.72, "S-PHASE ÷2:  DNA replication halves H3K27me3\n(DNA doubles, new histones unmethylated → dilution)",
+        fontsize=6.3, color=C["rep_b"], ha="center", va="center", style="italic", fontweight="bold")
 hu = node(11.95, 3.3, "HU", w=0.85, h=0.5, fc="#fdedeb", ec=C["drug"], fs=8.2, bold=True)
 inhibit(edge_pt(hu, "r"), (dna[0]-1.05, dna[1]), C["drug"], shrink=3)
 ax.text(12.05, 2.7, "↓ fork speed → S↑", fontsize=6.6, color=C["drug"], ha="center", style="italic")
@@ -199,10 +203,15 @@ chk = node(15.9, 1.15, "CHK1\n(unfinished S)", w=1.7, h=0.55, fc="#fdebd0", ec=C
 arrow((dna[0]+1.0, dna[1]-0.1), (mpf[0]-1.3, mpf[1]+0.05), C["act"], rad=-0.12)   # Dna done → MPF
 inhibit((chk[0]+0.5, chk[1]+0.27), (mpf[0]-0.75, mpf[1]-0.42), C["inh"], shrink=3)
 arrow((dna[0]+0.6, dna[1]-0.38), (chk[0]-0.55, chk[1]+0.15), C["act"], rad=0.2, lw=1.2)  # forks → CHK1
-# mitosis → division → back to G0/G1 (Feature C)
-arrow((mpf[0]-0.2, mpf[1]+0.5), (cd[0]+1.0, cd[1]-0.5), C["cc_b"], rad=0.55, lw=2.2)
-ax.text(12.4, 4.25, "mitosis → division (÷2)\nFeature C: committed daughters keep pRb/CycE/low-p27 → re-enter G1",
-        fontsize=6.4, color=C["cc_b"], ha="center", style="italic", fontweight="bold")
+# ===================== MITOSIS / division event (E_div) =====================
+mit = node(12.35, 1.35, "MITOSIS ÷ division  (E_div)", w=2.85, h=0.6, fc="#f5b7b1", ec="#922b21", fs=8.0, bold=True, lw=1.9)
+arrow((mpf[0]-1.3, mpf[1]-0.3), (mit[0]+1.35, mit[1]+0.02), "#922b21", rad=0.2, lw=1.9)             # MPF crosses threshold → mitosis
+arrow((mit[0]+1.1, mit[1]+0.25), (dna[0]-0.15, dna[1]-0.38), "#922b21", rad=-0.15, lw=1.3, ls=(0,(3,2)))  # Dna → 0 (re-license)
+arrow((mit[0]-0.6, mit[1]+0.28), (cd[0]+0.85, cd[1]-0.56), C["cc_b"], rad=-0.28, lw=2.2)            # daughter restarts → CyclinD1 / G1
+ax.text(10.15, 4.05, "daughter\nre-enters G1", fontsize=6.3, color=C["cc_b"], ha="center", style="italic", fontweight="bold")
+ax.text(8.15, 0.5, "at division (E_div):  Dna→0 · mass÷2 · MPF/Cdc20→0 · cyclins→low · p27→BIRTH (P21_div; MB 1.8)\n"
+        "PRESERVED across ÷:  EZH2 = concentration (NOT halved) · Feature-C carryover (pRb / CycE / low-p27)",
+        fontsize=6.1, color="#922b21", ha="center", fontweight="bold")
 
 # ===================== growth / size gates =====================
 region(6.75, 0.35, 4.15, 3.15, C["growth"], C["growth_b"], "Cell growth & size", fs=9.5)
@@ -211,6 +220,7 @@ mcommit = node(7.75, 1.25, "M_commit\n(G0→G1)", w=1.55, h=0.6, fc="#ffffff", e
 msize = node(9.85, 1.25, "M_size\n(→ S-entry)", w=1.55, h=0.6, fc="#ffffff", ec=C["growth_b"], fs=7.2)
 arrow((mass[0]-0.5, mass[1]-0.3), edge_pt(mcommit, "t"), C["growth_b"], ls=":", lw=1.3, rad=0.15)
 arrow((mass[0]+0.5, mass[1]-0.3), edge_pt(msize, "t"), C["growth_b"], ls=":", lw=1.3, rad=-0.15)
+arrow((mit[0]-1.35, mit[1]+0.12), (mass[0]+0.55, mass[1]-0.34), "#922b21", rad=0.22, lw=1.3, ls=(0,(3,2)))  # mitosis: mass ÷2
 arrow((mcommit[0]+0.2, mcommit[1]+0.32), (10.9, 6.9), C["growth_b"], ls=":", lw=1.4, rad=-0.2)  # commit gate → R-point
 arrow(edge_pt(msize, "r"), (ori[0]-0.6, ori[1]-0.3), C["growth_b"], ls=":", lw=1.4, rad=-0.25)   # size gate → S entry
 
