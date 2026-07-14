@@ -1,0 +1,353 @@
+<title>Single-cell cycle scope &mdash; GNP vs medulloblastoma</title>
+<style>
+  :root{
+    --bg:#0b0f16; --panel:#121a25; --panel2:#0e1620; --raised:#1a2432; --line:#273241;
+    --ink:#dce5f0; --dim:#8a99ac; --faint:#5a6a7d; --accent:#22d3ee; --accent-ink:#062028;
+    --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 6px 20px rgba(0,0,0,.35);
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme:light){
+    :root{ --bg:#e9eef4; --panel:#ffffff; --panel2:#f2f6fa; --raised:#f7fafd; --line:#d3dde8;
+      --ink:#1c2734; --dim:#54637a; --faint:#8797ab; --accent:#0e8aa8; --accent-ink:#ffffff;
+      --shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 6px 18px rgba(30,50,80,.10); }
+  }
+  :root[data-theme="dark"]{ --bg:#0b0f16; --panel:#121a25; --panel2:#0e1620; --raised:#1a2432; --line:#273241;
+    --ink:#dce5f0; --dim:#8a99ac; --faint:#5a6a7d; --accent:#22d3ee; --accent-ink:#062028;
+    --shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 6px 20px rgba(0,0,0,.35); }
+  :root[data-theme="light"]{ --bg:#e9eef4; --panel:#ffffff; --panel2:#f2f6fa; --raised:#f7fafd; --line:#d3dde8;
+    --ink:#1c2734; --dim:#54637a; --faint:#8797ab; --accent:#0e8aa8; --accent-ink:#ffffff;
+    --shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 6px 18px rgba(30,50,80,.10); }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0;line-height:1.45;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px;}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+
+  /* ---- header ---- */
+  header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 24px;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px;}
+  h1{font-size:19px;font-weight:640;letter-spacing:-.01em;margin:2px 0 3px;text-wrap:balance;}
+  .sub{color:var(--dim);font-size:12.5px;max-width:52ch;}
+  .clock{text-align:right;}
+  .clock .t{font-family:var(--mono);font-size:30px;font-weight:600;letter-spacing:-.01em;color:var(--accent);line-height:1;}
+  .clock .lab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:5px;}
+
+  /* ---- transport / scrubber (the hero) ---- */
+  .transport{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+    padding:14px 16px 16px;margin-bottom:18px;}
+  .btnrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  button.ctl{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--raised);border:1px solid var(--line);
+    border-radius:7px;padding:6px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .12s,background .12s;}
+  button.ctl:hover{border-color:var(--accent);}
+  button.ctl:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  button.play{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;min-width:88px;justify-content:center;}
+  .spd{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--dim);font-size:11.5px;font-family:var(--mono);}
+  .spd input{accent-color:var(--accent);}
+  .scrub-shell{position:relative;padding-top:14px;}
+  .ticks{position:absolute;top:0;left:0;right:0;height:12px;pointer-events:none;}
+  .tick{position:absolute;top:2px;width:1.5px;height:8px;transform:translateX(-.75px);border-radius:1px;opacity:.85;}
+  #scrub{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;cursor:pointer;
+    background:linear-gradient(to right,var(--accent) 0%,var(--accent) 0%,var(--line) 0%,var(--line) 100%);}
+  #scrub::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);
+    border:2px solid var(--bg);box-shadow:0 0 0 1px var(--accent);cursor:grab;}
+  #scrub::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);cursor:grab;}
+  .axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px;}
+  .hint{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:8px;}
+  .hint b{color:var(--dim);font-weight:600;}
+
+  /* ---- phase legend ---- */
+  .phlegend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 14px;}
+  .phlegend .it{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--dim);}
+  .swatch{width:11px;height:11px;border-radius:3px;}
+
+  /* ---- cell grid ---- */
+  .rowlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    margin:6px 2px 8px;display:flex;align-items:center;gap:8px;}
+  .rowlabel::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+  @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+    padding:13px;cursor:pointer;transition:border-color .14s,transform .14s;position:relative;overflow:hidden;}
+  .card:hover{border-color:var(--dim);}
+  .card.sel{border-color:var(--accent);box-shadow:var(--shadow),0 0 0 1px var(--accent);}
+  .card:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .card .top{display:flex;align-items:center;gap:11px;margin-bottom:11px;}
+  .glyphbox{width:58px;height:58px;flex:none;position:relative;}
+  .card .name{font-weight:620;font-size:13px;letter-spacing:-.01em;}
+  .card .meta{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:2px;}
+  .pbadge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;
+    color:#0b0f16;letter-spacing:.03em;margin-top:5px;}
+
+  .bars{display:flex;flex-direction:column;gap:5px;}
+  .grouplab{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+    margin:5px 0 1px;}
+  .bar{display:grid;grid-template-columns:64px 1fr 42px;align-items:center;gap:7px;}
+  .bar .bl{font-family:var(--mono);font-size:9.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .track{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;}
+  .fill{height:100%;border-radius:4px;transition:width .08s linear;}
+  .bar .bv{font-family:var(--mono);font-size:9.5px;color:var(--ink);text-align:right;}
+
+  .ribbon{position:relative;height:13px;margin-top:11px;border-radius:4px;overflow:hidden;background:var(--panel2);}
+  .ribbon canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .rcursor{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--accent);transform:translateX(-1px);
+    box-shadow:0 0 6px var(--accent);pointer-events:none;}
+
+  /* ---- focused oscilloscope ---- */
+  .scope{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;}
+  .scope h2{font-size:14px;font-weight:620;margin:0 0 2px;letter-spacing:-.01em;}
+  .scope .subh{font-family:var(--mono);font-size:11px;color:var(--dim);margin-bottom:12px;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+  .chip{font-family:var(--mono);font-size:10.5px;padding:3px 9px 3px 8px;border-radius:20px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--dim);cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none;transition:color .12s,border-color .12s;}
+  .chip .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .chip.off{opacity:.4;}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .plot{position:relative;width:100%;height:300px;}
+  .plot canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .pcursor{position:absolute;top:0;bottom:22px;width:1.5px;background:var(--accent);transform:translateX(-.75px);
+    box-shadow:0 0 6px var(--accent);pointer-events:none;}
+  .readouts{display:flex;flex-wrap:wrap;gap:5px 16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
+  .ro{font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:6px;color:var(--dim);}
+  .ro .dot{width:8px;height:8px;border-radius:2px;}
+  .ro b{color:var(--ink);font-weight:600;}
+  .foot{color:var(--faint);font-size:11px;font-family:var(--mono);margin-top:22px;text-align:center;line-height:1.7;}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">v44 model &middot; single-cell trajectories</div>
+      <h1>Single-cell cycle scope &mdash; GNP vs medulloblastoma</h1>
+      <div class="sub">Six simulated lineages through repeated division. Scrub time to watch each cell's biomolecules
+        rise and fall; click a cell to trace it. Cells differ in CyclinD1 drive and birth-p27.</div>
+    </div>
+    <div class="clock"><div class="t mono" id="clock">0.0</div><div class="lab">hours</div></div>
+  </header>
+
+  <div class="transport">
+    <div class="btnrow">
+      <button class="ctl" id="back" title="Step back (&larr;)">&#9664; step</button>
+      <button class="ctl play" id="play" title="Play / pause (space)">&#9654; play</button>
+      <button class="ctl" id="fwd" title="Step forward (&rarr;)">step &#9654;</button>
+      <button class="ctl" id="prevdiv" title="Previous division">&#8634; division</button>
+      <button class="ctl" id="nextdiv" title="Next division">division &#8635;</button>
+      <div class="spd">speed <input type="range" id="speed" min="1" max="60" value="18" style="width:96px"><span id="spdv">18&times;</span></div>
+    </div>
+    <div class="scrub-shell">
+      <div class="ticks" id="ticks"></div>
+      <input type="range" id="scrub" min="0" max="100" value="0" step="1">
+      <div class="axis"><span>0 h</span><span id="axmid"></span><span id="axmax"></span></div>
+    </div>
+    <div class="hint"><b>drag</b> the bar &middot; <b>&#9664; &#9654; / arrows</b> step &middot; <b>space</b> play &middot; <b>division</b> jumps mitosis to mitosis</div>
+  </div>
+
+  <div class="phlegend" id="phlegend"></div>
+
+  <div class="rowlabel">GNP &middot; cerebellar granule progenitors</div>
+  <div class="grid" id="grid-GNP"></div>
+  <div class="rowlabel">SHH-medulloblastoma</div>
+  <div class="grid" id="grid-MB"></div>
+
+  <div class="scope">
+    <h2 id="scopeTitle">&mdash;</h2>
+    <div class="subh" id="scopeSub"></div>
+    <div class="chips" id="chips"></div>
+    <div class="plot" id="plotbox"><canvas id="plotcanvas"></canvas><div class="pcursor" id="pcursor"></div></div>
+    <div class="readouts" id="readouts"></div>
+  </div>
+
+  <div class="foot">Deterministic v44 lineages &middot; phase from DNA / replication / p27 / MPF &middot; divisions detected at the DNA 1&rarr;0 reset.<br>
+    Bars are scaled to each molecule's peak across all six cells, so heights compare across cells.</div>
+</div>
+
+<script>
+const DATA = __DATA__;
+const T = DATA.time, NT = T.length, TMAX = T[NT-1];
+const SP = DATA.species, SPI = {}; SP.forEach((s,i)=>SPI[s.key]=s);
+const PH = DATA.phases, PHC = DATA.phase_colors;
+const groupOrder = Object.keys(DATA.groups);
+let t = 0, playing = false, speed = 18, sel = DATA.cells[0].id, raf = null;
+const hidden = new Set();  // species keys hidden in the scope
+
+const $ = id => document.getElementById(id);
+const lerpIdx = () => t;                       // index-based time
+const cellById = id => DATA.cells.find(c=>c.id===id);
+
+/* ---------- build phase legend ---------- */
+$('phlegend').innerHTML = PH.map((p,i)=>`<span class="it"><span class="swatch" style="background:${PHC[i]}"></span>${p}${p==='G0'?' (quiescent)':''}</span>`).join('');
+
+/* ---------- build cell cards ---------- */
+function glyphSVG(){ return `<svg viewBox="0 0 58 58" width="58" height="58">
+  <circle class="g-mem" cx="29" cy="29" r="10" fill="none" stroke-width="2.4"/>
+  <circle class="g-cyto" cx="29" cy="29" r="9" fill="none" stroke-width="0"/>
+  <path class="g-dna" fill="none" stroke-width="3" stroke-linecap="round"/>
+  <circle class="g-nuc" cx="29" cy="29" r="4" />
+  <circle class="g-pulse" cx="29" cy="29" r="10" fill="none" stroke-width="2" opacity="0"/>
+</svg>`; }
+
+function makeCard(c){
+  const el = document.createElement('div');
+  el.className='card'; el.tabIndex=0; el.dataset.id=c.id;
+  const groups = groupOrder.map(g=>{
+    const rows = SP.filter(s=>s.group===g).map(s=>`
+      <div class="bar" data-k="${s.key}">
+        <span class="bl" title="${s.label}">${s.label}</span>
+        <div class="track"><div class="fill" style="background:${s.color}"></div></div>
+        <span class="bv">0</span>
+      </div>`).join('');
+    return `<div class="grouplab">${DATA.groups[g]}</div>${rows}`;
+  }).join('');
+  el.innerHTML = `
+    <div class="top">
+      <div class="glyphbox">${glyphSVG()}</div>
+      <div>
+        <div class="name">${c.id}</div>
+        <div class="meta">CyclinD1\u00d7${c.cd_mult} \u00b7 birth-p27 ${c.p21div}</div>
+        <span class="pbadge">\u2014</span>
+      </div>
+    </div>
+    <div class="bars">${groups}</div>
+    <div class="ribbon"><canvas></canvas><div class="rcursor"></div></div>`;
+  el.addEventListener('click', ()=>select(c.id));
+  el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();select(c.id);} });
+  $('grid-'+c.type).appendChild(el);
+  drawRibbon(c, el.querySelector('.ribbon canvas'));
+  return el;
+}
+DATA.cells.forEach(makeCard);
+
+/* ---------- ribbon (phase over time) ---------- */
+function drawRibbon(c, cv){
+  const w = cv.clientWidth||300, h = cv.clientHeight||13, dpr=devicePixelRatio||1;
+  cv.width=w*dpr; cv.height=h*dpr; const g=cv.getContext('2d'); g.scale(dpr,dpr);
+  for(let i=0;i<NT;i++){ g.fillStyle=PHC[c.phase[i]]; g.fillRect(i/NT*w,0,w/NT+1,h); }
+}
+
+/* ---------- glyph render ---------- */
+function renderGlyph(el, c){
+  const mass = c.traj.mass[t], dna = c.traj.Dna[t], ph = c.phase[t], p27 = c.traj.P21[t];
+  const r = 11 + 14*Math.sqrt(Math.min(mass,3.4)/3.4);   // area ~ mass
+  const svg = el.querySelector('svg');
+  const mem = svg.querySelector('.g-mem'), nuc=svg.querySelector('.g-nuc'), dnaArc=svg.querySelector('.g-dna'), pulse=svg.querySelector('.g-pulse');
+  const col = PHC[ph];
+  mem.setAttribute('r', r.toFixed(2)); mem.setAttribute('stroke', col);
+  // quiescence halo: p27 high -> soft amber ring weight
+  mem.setAttribute('stroke-width', (2.2 + 2.4*Math.min(p27/1.2,1)).toFixed(2));
+  // nucleus + DNA replication arc (0..1 of a ring)
+  const nr = r*0.42; nuc.setAttribute('r', nr.toFixed(2)); nuc.setAttribute('fill', col); nuc.setAttribute('opacity','.28');
+  const ar = r*0.62, frac = Math.max(0,Math.min(1,dna)), a0=-Math.PI/2, a1=a0+2*Math.PI*frac;
+  const x0=29+ar*Math.cos(a0), y0=29+ar*Math.sin(a0), x1=29+ar*Math.cos(a1), y1=29+ar*Math.sin(a1);
+  const large = frac>0.5?1:0;
+  dnaArc.setAttribute('d', frac<0.001?'':`M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${ar.toFixed(2)} ${ar.toFixed(2)} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`);
+  dnaArc.setAttribute('stroke', col);
+  // mitotic pulse
+  const mpf = c.traj.MPF[t]; pulse.setAttribute('r', (r+3).toFixed(2)); pulse.setAttribute('stroke', PHC[4]);
+  pulse.setAttribute('opacity', mpf>0.25 ? Math.min((mpf-0.25)*2.2,0.9).toFixed(2) : 0);
+}
+
+/* ---------- bars + badge render ---------- */
+function renderCard(el, c){
+  const ph=c.phase[t];
+  const badge=el.querySelector('.pbadge'); badge.textContent=PH[ph]+(ph===0?' \u00b7 quiescent':''); badge.style.background=PHC[ph];
+  el.querySelectorAll('.bar').forEach(b=>{
+    const k=b.dataset.k, v=c.traj[k][t], mx=DATA.smax[k]||1, frac=Math.max(0,Math.min(1,v/mx));
+    b.querySelector('.fill').style.width=(frac*100).toFixed(1)+'%';
+    b.querySelector('.bv').textContent = v>=10? v.toFixed(0) : v.toFixed(2);
+  });
+  renderGlyph(el, c);
+  el.querySelector('.rcursor').style.left = (t/(NT-1)*100)+'%';
+}
+
+/* ---------- focused oscilloscope ---------- */
+const plot=$('plotcanvas'); let PW=0,PH_=0;
+function sizePlot(){ const box=$('plotbox'); const dpr=devicePixelRatio||1; PW=box.clientWidth||900; PH_=box.clientHeight||300;
+  plot.width=PW*dpr; plot.height=PH_*dpr; plot.getContext('2d').setTransform(dpr,0,0,dpr,0,0); }
+function drawScope(){
+  const c=cellById(sel); const g=plot.getContext('2d'); g.clearRect(0,0,PW,PH_);
+  const padL=6,padR=6,padT=10,padB=22, w=PW-padL-padR, h=PH_-padT-padB;
+  // phase bands (very faint)
+  for(let i=0;i<NT;i++){ g.globalAlpha=0.10; g.fillStyle=PHC[c.phase[i]]; g.fillRect(padL+i/NT*w,padT,w/NT+1,h); }
+  g.globalAlpha=1;
+  // grid lines + division markers
+  g.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line'); g.lineWidth=1;
+  c.divisions.forEach(dt=>{ const x=padL+(dt/TMAX)*w; g.globalAlpha=.6; g.beginPath(); g.setLineDash([3,4]); g.moveTo(x,padT); g.lineTo(x,padT+h); g.stroke(); g.setLineDash([]);
+    g.globalAlpha=1; g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--faint'); g.font='9px ui-monospace,monospace'; });
+  // traces (normalized each to global peak)
+  SP.forEach(s=>{ if(hidden.has(s.key))return; const arr=c.traj[s.key], mx=DATA.smax[s.key]||1;
+    g.strokeStyle=s.color; g.lineWidth=(s.key==='P21'||s.key==='Cd'||s.key==='EZH2')?2.1:1.4; g.globalAlpha=.95; g.beginPath();
+    for(let i=0;i<NT;i++){ const x=padL+i/(NT-1)*w, y=padT+h-(Math.min(arr[i]/mx,1))*h; i?g.lineTo(x,y):g.moveTo(x,y); }
+    g.stroke(); });
+  g.globalAlpha=1;
+  // x axis ticks
+  g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--faint'); g.font='10px ui-monospace,monospace'; g.textAlign='center';
+  for(let hh=0; hh<=TMAX; hh+=24){ const x=padL+(hh/TMAX)*w; g.fillText(hh+'h', x, PH_-7); }
+}
+function buildChips(){
+  $('chips').innerHTML = SP.map(s=>`<span class="chip ${hidden.has(s.key)?'off':''}" data-k="${s.key}" tabindex="0">
+    <span class="dot" style="background:${s.color}"></span>${s.label}</span>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(ch=>{
+    const tog=()=>{ const k=ch.dataset.k; hidden.has(k)?hidden.delete(k):hidden.add(k); ch.classList.toggle('off'); drawScope(); renderReadouts(); };
+    ch.addEventListener('click',tog);
+    ch.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();tog();} });
+  });
+}
+function renderReadouts(){
+  const c=cellById(sel);
+  $('readouts').innerHTML = SP.filter(s=>!hidden.has(s.key)).map(s=>{
+    const v=c.traj[s.key][t]; return `<span class="ro"><span class="dot" style="background:${s.color}"></span>${s.label} <b>${v>=10?v.toFixed(1):v.toFixed(2)}</b></span>`;
+  }).join('');
+}
+function select(id){ sel=id; document.querySelectorAll('.card').forEach(el=>el.classList.toggle('sel',el.dataset.id===id));
+  const c=cellById(id); $('scopeTitle').textContent=c.id;
+  $('scopeSub').textContent=`${c.type} \u00b7 CyclinD1\u00d7${c.cd_mult} \u00b7 birth-p27 ${c.p21div} \u00b7 ${c.divisions.length} divisions \u00b7 click channels to toggle`;
+  sizePlot(); drawScope(); moveCursor(); renderReadouts(); }
+
+/* ---------- global time update ---------- */
+function moveCursor(){ $('pcursor').style.left=(6+t/(NT-1)*($('plotbox').clientWidth-12))+'px'; }
+function update(){
+  $('clock').textContent = T[t].toFixed(1);
+  $('scrub').value = t;
+  const pct=t/(NT-1)*100;
+  $('scrub').style.background=`linear-gradient(to right,var(--accent) ${pct}%,var(--line) ${pct}%)`;
+  document.querySelectorAll('.card').forEach(el=>renderCard(el, cellById(el.dataset.id)));
+  moveCursor(); renderReadouts();
+}
+
+/* ---------- controls ---------- */
+$('scrub').max=NT-1;
+$('scrub').addEventListener('input',e=>{ t=+e.target.value; update(); });
+$('back').onclick=()=>{ t=Math.max(0,t-1); update(); };
+$('fwd').onclick=()=>{ t=Math.min(NT-1,t+1); update(); };
+function jumpDiv(dir){ const c=cellById(sel); const ts=c.divisions.map(d=>d); const cur=T[t];
+  let target = dir>0 ? ts.find(x=>x>cur+0.05) : [...ts].reverse().find(x=>x<cur-0.05);
+  if(target==null) return; let bi=0,bd=1e9; T.forEach((x,i)=>{const d=Math.abs(x-target); if(d<bd){bd=d;bi=i;}}); t=bi; update(); }
+$('nextdiv').onclick=()=>jumpDiv(1); $('prevdiv').onclick=()=>jumpDiv(-1);
+$('speed').addEventListener('input',e=>{ speed=+e.target.value; $('spdv').textContent=speed+'\u00d7'; });
+function loop(){ if(!playing)return; t+=Math.max(1,Math.round(speed/12)); if(t>=NT-1){t=NT-1;stop();} update(); raf=requestAnimationFrame(loop); }
+function play(){ if(t>=NT-1)t=0; playing=true; $('play').innerHTML='\u275a\u275a pause'; raf=requestAnimationFrame(loop); }
+function stop(){ playing=false; $('play').innerHTML='\u25b6 play'; if(raf)cancelAnimationFrame(raf); }
+$('play').onclick=()=> playing?stop():play();
+document.addEventListener('keydown',e=>{ if(e.target.tagName==='INPUT'&&e.target.type==='range'&&e.key!==' ')return;
+  if(e.key==='ArrowRight'){e.preventDefault();stop();t=Math.min(NT-1,t+1);update();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();stop();t=Math.max(0,t-1);update();}
+  else if(e.key===' '){e.preventDefault();playing?stop():play();} });
+
+/* ---------- division ticks on the scrubber ---------- */
+const seen=new Set();
+DATA.cells.forEach(c=>c.divisions.forEach(d=>{ const k=d.toFixed(1); if(seen.has(k))return; seen.add(k);
+  const el=document.createElement('div'); el.className='tick'; el.style.left=(d/TMAX*100)+'%'; el.style.background=PHC[4]; el.style.opacity=.5; $('ticks').appendChild(el); }));
+$('axmid').textContent=(TMAX/2).toFixed(0)+' h'; $('axmax').textContent=TMAX.toFixed(0)+' h';
+
+/* ---------- init ---------- */
+function redrawCanvases(){ document.querySelectorAll('.ribbon canvas').forEach((cv,i)=>drawRibbon(DATA.cells[i],cv)); sizePlot(); drawScope(); moveCursor(); }
+buildChips(); select(sel); update();
+requestAnimationFrame(redrawCanvases);          // re-measure once layout settles (clientWidth ready)
+addEventListener('load', ()=>{ update(); redrawCanvases(); });
+let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(redrawCanvases,120); });
+</script>
