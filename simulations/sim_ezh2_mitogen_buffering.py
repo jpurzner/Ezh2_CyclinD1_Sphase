@@ -9,11 +9,11 @@ MEMORY so a committed cell completes its cycle through a short dip -> no forfeit
 GNP divisions make a spurious exit exponentially costly).
 
 Resolution matters: raw CyclinD1 is cell-cycle-oscillated, so the EZH2 relief is only visible after
-cycle-averaging and against the un-repressed drive (f0_mk=1) as a reference.
+cycle-averaging and against the un-repressed drive (f0_prc2=1) as a reference.
 
 Panels:
   A  EZH2 tracks mitogen & buffers CyclinD1 (fine steady sweep): EZH2(SHH) rises; CyclinD1 is flattened
-     vs the un-repressed drive (f0_mk=1).
+     vs the un-repressed drive (f0_prc2=1).
   B  Withdrawal dynamics (fine, cycle-averaged): SHH 0.9->0.3; EZH2 falls over ~1 day, relieving
      repression; cycle-averaged CyclinD1 drops far LESS than the un-repressed drive (buffered).
   C  Temporary decline that returns: a committed cell rides through (buffered CyclinD1 + divisions
@@ -41,7 +41,7 @@ def rr_(fb=True):
     for k, v in GNP.items():
         r[k] = v
     if not fb:
-        r['f0_mk'] = 1.0
+        r['f0_prc2'] = 1.0
     return r
 
 

@@ -2,12 +2,12 @@
 dilution (frequency = division rate) — and how it sets the CyclinD1 transcript.
 
 At steady cycling the Ccnd1 mark sits where DEPOSITION balances REMOVAL:
-  deposition  =  EZH2·(k_w_mk·Mk + k0_mk)·(1−Mk)·(eviction)       [EZH2 integrates S-phase & mitogen dose]
+  deposition  =  EZH2·(a_rw_prc2·Mk + k0_mk)·(1−Mk)·(eviction)       [EZH2 integrates S-phase & mitogen dose]
   removal     =  del_mk·Mk   +   ½·Mk once per cycle (dilution, frequency = 1/T_cc, set by mitogen)
 CyclinD1 transcript = drive · R(Mk),  R = f0 + (1−f0)/(1+(Mk/K)^n).  More mark → lower Cd_mRNA.
 
 Controlling parameters:
-  deposition ↑ (→ Cd_mRNA ↓): k_w_mk (read-write), kEZE2f (EZH2 production), kDeEZ ↓ (EZH2 stability =
+  deposition ↑ (→ Cd_mRNA ↓): a_rw_prc2 (read-write), kEZE2f (EZH2 production), kDeEZ ↓ (EZH2 stability =
                               how much EZH2 integrates S-phase duration)
   removal   ↑ (→ Cd_mRNA ↑): del_mk (turnover), replicative dilution (½ per cycle)
   mediators:                 SHH (mitogen → faster cycle = more dilution, but also more EZH2) and
@@ -17,7 +17,7 @@ Panels:
   A  Cd_mRNA over (mitogen SHH × S-phase duration) — the physiological tension surface.
   B  S-phase-duration sweep: EZH2 ↑ and Cd_mRNA ↓ as S lengthens ("EZH2 integrates S-phase duration").
   C  control-parameter sweeps (× default): which knobs push Cd_mRNA up (removal) vs down (deposition).
-  D  deposition vs dilution: k_w_mk sweep, Cd_mRNA with replicative dilution ON vs OFF (gap = dilution relief).
+  D  deposition vs dilution: a_rw_prc2 sweep, Cd_mRNA with replicative dilution ON vs OFF (gap = dilution relief).
 
 Run:  ./venv/bin/python simulations/sim_ezh2_dilution_tension.py [--fresh]
 """
@@ -40,7 +40,7 @@ def _rr(m):
 
 RR, RR_OFF = _rr(M_ON), _rr(M_OFF)
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=0)
-DEF = {p: RR[p] for p in ['k_w_mk', 'del_mk', 'kDeEZ', 'kEZE2f', 'kSyDna']}
+DEF = {p: RR[p] for p in ['a_rw_prc2', 'del_mk', 'kDeEZ', 'kEZE2f', 'kSyDna']}
 SEL = ['time', 'Mk', 'Cd_mRNA', 'EZH2', 'MPF', 'Dna']
 
 
@@ -101,27 +101,27 @@ if FRESH or not os.path.exists(CACHE):
 
     # ---- C: control-parameter sweeps (x default) -> Cd_mRNA ----
     FOLD = np.array([0.3, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0])
-    PARAMS_C = ['k_w_mk', 'kEZE2f', 'del_mk', 'kDeEZ']
+    PARAMS_C = ['a_rw_prc2', 'kEZE2f', 'del_mk', 'kDeEZ']
     ZC = {}
     for p in PARAMS_C:
         row = [measure(run(RR, shh=0.65, params={p: DEF[p] * f}))['cdm'] for f in FOLD]
         ZC[p] = np.array(row); print(f"  [C] {p} sweep done")
 
-    # ---- D: k_w_mk sweep, dilution ON vs OFF ----
-    KW = DEF['k_w_mk'] * FOLD
-    dON = np.array([measure(run(RR, shh=0.65, params={'k_w_mk': k}))['cdm'] for k in KW])
-    dOFF = np.array([measure(run(RR_OFF, shh=0.65, params={'k_w_mk': k}))['cdm'] for k in KW])
-    print("  [D] k_w_mk x dilution done")
+    # ---- D: a_rw_prc2 sweep, dilution ON vs OFF ----
+    KW = DEF['a_rw_prc2'] * FOLD
+    dON = np.array([measure(run(RR, shh=0.65, params={'a_rw_prc2': k}))['cdm'] for k in KW])
+    dOFF = np.array([measure(run(RR_OFF, shh=0.65, params={'a_rw_prc2': k}))['cdm'] for k in KW])
+    print("  [D] a_rw_prc2 x dilution done")
 
     np.savez(CACHE, SHH=SHH, KSY=KSY, ZA=ZA, SDUR=SDUR, KSY_B=KSY_B, bEZ=bEZ, bMK=bMK, bCD=bCD, bSD=bSD,
              FOLD=FOLD, **{f'C_{p}': ZC[p] for p in PARAMS_C}, KW=KW, dON=dON, dOFF=dOFF)
     print("  cached ->", CACHE)
 
 z = np.load(CACHE)
-PARAMS_C = ['k_w_mk', 'kEZE2f', 'del_mk', 'kDeEZ']
-LBL = {'k_w_mk': 'k_w (read-write methylation) ↓Cd', 'kEZE2f': 'kEZE2f (EZH2 production) ↓Cd',
+PARAMS_C = ['a_rw_prc2', 'kEZE2f', 'del_mk', 'kDeEZ']
+LBL = {'a_rw_prc2': 'k_w (read-write methylation) ↓Cd', 'kEZE2f': 'kEZE2f (EZH2 production) ↓Cd',
        'del_mk': 'del_mk (mark turnover) ↑Cd', 'kDeEZ': 'kDeEZ (EZH2 degradation) ↑Cd'}
-COL = {'k_w_mk': '#c0392b', 'kEZE2f': '#e67e22', 'del_mk': '#2471a3', 'kDeEZ': '#27ae60'}
+COL = {'a_rw_prc2': '#c0392b', 'kEZE2f': '#e67e22', 'del_mk': '#2471a3', 'kDeEZ': '#27ae60'}
 
 fig, ax = plt.subplots(2, 2, figsize=(14, 10.5))
 
@@ -164,8 +164,8 @@ d = ax[1, 1]
 d.plot(z['KW'], z['dOFF'], '-s', color='#7f8c8d', lw=2, label='dilution OFF')
 d.plot(z['KW'], z['dON'], '-o', color='#c0392b', lw=2, label='dilution ON (default)')
 d.fill_between(z['KW'], z['dON'], z['dOFF'], color='#f39c12', alpha=0.18, label='dilution relief')
-d.axvline(DEF['k_w_mk'], color='k', ls=':', alpha=0.4); d.text(DEF['k_w_mk'], d.get_ylim()[1], ' default', fontsize=7, va='top')
-d.set_xlabel('k_w_mk (read-write methylation strength)'); d.set_ylabel('CyclinD1 transcript (Cd_mRNA)')
+d.axvline(DEF['a_rw_prc2'], color='k', ls=':', alpha=0.4); d.text(DEF['a_rw_prc2'], d.get_ylim()[1], ' default', fontsize=7, va='top')
+d.set_xlabel('a_rw_prc2 (read-write methylation strength)'); d.set_ylabel('CyclinD1 transcript (Cd_mRNA)')
 d.set_title('(D) Deposition vs dilution\nstronger methylation ↓Cd, but dilution keeps clawing it back', fontweight='bold', fontsize=11)
 d.legend(fontsize=8, loc='best'); d.grid(alpha=0.15)
 
