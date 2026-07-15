@@ -649,7 +649,14 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 "\n  K_prc2 = 0.0028684066713754613; n_prc2 = 3.982266551808909; f0_prc2 = 0.18030409984207782;"
                 "\n  kme1 = 9.706031386488556; kme2 = 8.266881635062989; kme3 = 4.555295001018562;   // serial rates x PRC2: FAST me0->me1,me1->me2; SLOW me2->me3 (rate-limiting; optimize_chain 2026-07-11, me3 lag ~13h)"
                 "\n  d_me = 0.0014787645946766597;   // precursor (me1,me2) passive turnover"
-                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));"
+                # EZH2i is a SAM-competitive CATALYTIC inhibitor: it blocks the SET-domain methyltransferase
+                # but leaves the PRC2 complex BOUND and the existing H3K27me3 in place. So (1-EZH2i) acts ONLY on
+                # the writing activity (PRC2, below, drives the me-chain); the CyclinD1 repression is driven by
+                # PRC2 OCCUPANCY (PRC2_rep, NO EZH2i factor) -> after EZH2i, repression falls only as the mark
+                # decays (turnover + eraser + replicative dilution) = mark-decay-LIMITED, GRADUAL de-repression,
+                # not the old instant collapse. At EZH2i=0, PRC2 == PRC2_rep, so baseline is unchanged.
+                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"
+                "\n  PRC2_rep := EZH2*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // OCCUPANCY (represses CyclinD1): complex stays bound under EZH2i"
                 "\n  me0_to_me1: => m1_me; Cell*PRC2*kme1*(1 - m1_me - m2_me - Mk);   // FAST"
                 "\n  me1_to_me2: m1_me => m2_me; Cell*PRC2*kme2*m1_me;                // FAST"
                 "\n  me2_to_me3: m2_me => Mk; Cell*PRC2*kme3*m2_me;                    // SLOW (rate-limiting)"
@@ -660,7 +667,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             )
             m = m.replace("\nend", mk + "\nend")
             m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
-                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2/K_prc2)^n_prc2))")
+                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2_rep/K_prc2)^n_prc2))")
         elif with_prc2:
             # FORMAL PRC2 COMPLEX (JP 2026-07-10): CyclinD1 repression is carried by PRC2 OCCUPANCY at the locus,
             # NOT the mark level. PRC2 = EZH2 complex abundance x (accessory recruitment a0 + EED read-write a_rw*Mk),
@@ -671,12 +678,14 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             mk = shared + (
                 "\n  a0_prc2 = 0.00037763461927116913; a_rw_prc2 = 0.004297010112265872; g_prc2 = 0.04244445931486211;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction (optimize_prc2 2026-07-10)"
                 "\n  K_prc2 = 0.0034813553293576824; n_prc2 = 3.385026804758643; f0_prc2 = 0.05054636367014487;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
-                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // formal PRC2 complex occupancy at Ccnd1"
+                # EZH2i = catalytic inhibitor: (1-EZH2i) on the WRITING (PRC2) only; repression via PRC2_rep OCCUPANCY (no EZH2i)
+                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"
+                "\n  PRC2_rep := EZH2*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // OCCUPANCY (represses CyclinD1): complex stays bound under EZH2i"
                 "\n  Mk_methylation: => Mk; Cell*PRC2*(1 - Mk);   // PRC2 writes H3K27me3 on unmethylated substrate"
             )
             m = m.replace("\nend", mk + "\nend")
             m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
-                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2/K_prc2)^n_prc2))")
+                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2_rep/K_prc2)^n_prc2))")
         else:
             # LEGACY (baked 9fbc99c): w_ezdir blend of a mark-Hill and EZH2-direct dose repression.
             mk = shared + (
