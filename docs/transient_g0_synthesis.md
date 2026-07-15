@@ -85,3 +85,29 @@ the whole-tumour Ki67 to ~30%).
 - **GNP baseline G0 ≈ 0** and the **CDK4/6i-inducible fill** are the FIRM anchors — calibrate to these.
 - **MB baseline G0 ~20%** is a SOFT target (informed guess) — do not over-fit.
 - Human MB Ki67 ~30% (measured); differentiated fraction ~half; reversible G0 ~20% (guess).
+
+## 7. Two therapy-escape routes require heterogeneity *(2026-07-15, JP cell-culture data)*
+
+Two observations do **not** fall out of a single homogeneous MB population, and forcing them from one deterministic
+cell fails on direct test — each needs a distinct, grounded subpopulation:
+
+1. **MB carries ~20% reversible G0 at baseline.** A homogeneous MB does **not** sit in baseline G0: it is
+   **Hh-autonomous** (Ptch1-low + MYCN drive cyclinD), so raising INK4 (p18 up to 8×), lowering SHH, or lowering
+   MYCN all keep it cycling (verified sweeps — the mitogen route is a dead end). What **does** produce a reversible,
+   pRb-hypophospho, p27-high baseline G0 is a **high CDK-inhibitor tone** (kSyP21 ≈ 0.11). So the reserve is a
+   **high-CKI subpopulation** — the SOX2 / OLIG2 quiescent-reserve logic (survives antimitotics, re-enters).
+2. **~10–20% of MB cells keep DIVIDING under CDK4/6i** (JP, cell culture). A homogeneous MB fully arrests
+   (p27 0→1.38, pRb→0). What escapes is a **low total-Rb subpopulation** (Rb pool ≈ 0.5): with little Rb to hold
+   E2F, cells cross the restriction point **independent of cyclinD–CDK4/6** and keep dividing under the drug
+   (verified). This is the canonical **RB1-loss / low-Rb CDK4/6i-resistance** route.
+
+**GNP has neither** (no high-CKI reserve, full Rb) → it **arrests cleanly** under CDK4/6i (~2% baseline G0 = the
+small outer-EGL differentiating tail; ~0% escape). The MB−GNP gap is the **therapy-escape liability**: MB keeps a
+**~35% reservoir** under CDK4/6i (~20% reversible reserve that survives + re-enters, plus ~15% resistant that never
+stops). Implemented as a population mixture in `simulations/sim_cdk46i_escape.py` (MB ≈ 65% normal / 20% reserve /
+15% resistant; GNP 100% normal), each cell also carrying CyclinD1-abundance heterogeneity so the reported fractions
+are **simulated from the dynamics, not echoed**; figure `simulations/fig_cdk46i_escape.png`.
+
+**Falsifiable predictions:** reserve cells = p27-high / pRb-hypophospho / SOX2⁺ (or OLIG2⁺), Ki67⁻, re-enter on
+drug washout; resistant cells = Rb-low / RB1-loss, Ki67⁺ **during** CDK4/6i. These are distinct stains, so the two
+escape routes are separable experimentally.

@@ -1,0 +1,22 @@
+{
+  "GNP": {
+    "name": "GNP",
+    "n": 200,
+    "g0_base": 2.0,
+    "g0_cdki": 100.0,
+    "div_cdki": 0.0,
+    "esc_normal": 0,
+    "esc_resist": 0,
+    "esc_reserve": 0
+  },
+  "MB": {
+    "name": "MB",
+    "n": 200,
+    "g0_base": 20.0,
+    "g0_cdki": 85.0,
+    "div_cdki": 15.0,
+    "esc_normal": 0,
+    "esc_resist": 30,
+    "esc_reserve": 0
+  }
+}
