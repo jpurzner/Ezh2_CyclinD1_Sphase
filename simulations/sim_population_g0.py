@@ -37,7 +37,7 @@ import multiprocessing as mp
 import tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 
-SEL = ['time', 'MPF', 'P21', 'aRc', 'Dna', 'Cd']
+SEL = ['time', 'MPF', 'P21', 'aRc', 'Dna', 'Cd', 'pRb']
 KTL0, KTLEZ0 = 0.801, 0.004
 # CyclinD1 + p27 spreads are deliberately kept WIDE/flexible: their quantification is not trustworthy (EGL cell
 # packing is too tight to count p27-high cells accurately, and culture is confounded by high differentiation
@@ -62,8 +62,8 @@ DWELL_CUT, P27_HI = 2.0, 0.1                          # transient if mean G0 dwe
 # JP's call: "population figure only"). The medians sit near/above the ~1.35 per-cell G0 threshold, i.e. most cells
 # have a post-mitotic p27-high (CDK2-low) window each cycle -- GNP's shorter (~10% of the cycle), MB's longer
 # (~20%). Values are soft (p27/CyclinD1 quantification is untrustworthy -- EGL packing, culture differentiation).
-GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=1.3)
-MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=2.5)
+GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=0.6)
+MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=0.6)
 
 _RR = None
 def _init(_):
@@ -85,7 +85,7 @@ def _run_lineage(shh, params, ktl, ktlez, bp, part, seed):
     _RR['k_Cd_translation'] = float(ktl); _RR['kTlEZ'] = float(ktlez)
     _RR['P21_div'] = float(bp)
     draw = lambda: bp * np.exp(rng.normal(-part * part / 2.0, part)) if part > 0 else bp
-    T, P21, ARC, DNA = [], [], [], []
+    T, P21, ARC, DNA, PRB = [], [], [], [], []
     t = 0.0; TEND = SETTLE + MEAS
     while t < TEND:
         if part > 0: _RR['P21_div'] = float(draw())         # SMALL partition redraw around the inherited bp
@@ -98,16 +98,16 @@ def _run_lineage(shh, params, ktl, ktlez, bp, part, seed):
                 r = None
         if r is None: break
         if t + CHUNK > SETTLE:
-            for A, s in [(T, 'time'), (P21, 'P21'), (ARC, 'aRc'), (DNA, 'Dna')]:
+            for A, s in [(T, 'time'), (P21, 'P21'), (ARC, 'aRc'), (DNA, 'Dna'), (PRB, 'pRb')]:
                 A.append(r[s][1:])
         t += CHUNK
     if not T: return (np.array([]), np.nan)
-    T = np.concatenate(T); P21 = np.concatenate(P21); ARC = np.concatenate(ARC); DNA = np.concatenate(DNA)
+    T = np.concatenate(T); P21 = np.concatenate(P21); ARC = np.concatenate(ARC); DNA = np.concatenate(DNA); PRB = np.concatenate(PRB)
     dt = np.median(np.diff(T))
     div = np.where((DNA[:-1] > 0.9) & (DNA[1:] < 0.1))[0]   # canonical division = Dna reset
     if len(div) < 2: return (np.array([]), np.nan)
     inS = (ARC > 0.05) & (DNA < 0.98); inG2 = DNA >= 0.98; preS = ~inS & ~inG2
-    g0 = preS & (P21 > P27_HI)
+    g0 = preS & (PRB < 1.5)   # G0 = pRb-hypophospho (reframe marker; matches validate_v44 PRB_G0_THR)
     dwells = np.array([float(g0[a:b].sum() * dt / 60.0) for a, b in zip(div[:-1], div[1:])])
     # age-weighted SNAPSHOT count-fraction (flow-comparable; SAME convention as validate_v44.classify's count_frac,
     # so the population number is directly comparable to a flow-cytometry p27-high/pRb-low G0 gate). Weight each
