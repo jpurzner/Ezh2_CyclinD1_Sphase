@@ -14,10 +14,15 @@
 > corrected the misleading fold comment; `sim_population_g0.py` relabeled "Overton graded split"→**"quiescence-onset
 > vs mitogen"** (SHH does not set the per-type identity birth-p27, so it is NOT the Overton mother→daughter map) and
 > its `cdk2low` no longer lumps permanent `arrest`; `with_mother_g2` / `with_mitogen_tracker` gravestoned (settled
-> dead-ends). **⚠ `fig_v44_population_g0` output is NOT regenerated in this commit — pending a metric fix:** at
-> birth-p27 1.39 its *per-lineage "ever-paused"* CDK2low metric over-reports (~57%) vs the flow-comparable snapshot
-> fraction (~12–22%, which `validate_v44` gives and IS Moser-consistent), and the median-near-threshold draw breaks
-> Spencer concordance (51% vs ~98%). Report the snapshot count-fraction and re-tune the population median (separate task). NB the very-slow withdrawal figures (`sim_mitogen_withdrawal`, `sim_vismo_withdrawal`,
+> dead-ends).
+>
+> **`fig_v44_population_g0` metric FIXED (2026-07-15).** The headline is now the flow/live-imaging-comparable
+> **snapshot G0 time-fraction** (GNP **0%**, MB **8%** — Moser-consistent) instead of the per-lineage "ever-paused"
+> classification (which over-reported ~57%); and the birth-p27 cell heterogeneity (CV 0.33) is now **INHERITED**
+> (shared by sisters) with only small partition noise, restoring Spencer concordance (GNP **100%**, MB **95%**, was
+> 51%). NB the fold-constrained MB snapshot (8%) sits at Moser's LOW end and BELOW JP's ~30–40% flow estimate —
+> reaching 30–40% needs a higher birth-p27 that re-inflates the fold (the fold-vs-G0 tension, now quantified at the
+> population level: the honest 5.07 fold caps population MB G0 at ~8%). NB the very-slow withdrawal figures (`sim_mitogen_withdrawal`, `sim_vismo_withdrawal`,
 > `fig_v44_ezh2i_rescue_kinetics`, `sim_ezh2_phaseplane`, the dilution-tension set) are ~2.5 h each and are
 > **pending regeneration** on this calibration — run `simulations/regenerate_figures.sh` (SLOW tier) overnight.
 >
