@@ -41,22 +41,22 @@ SPACE = [
     ('n_prc2',      2.5,    4.2,    False),  # readout Hill steepness
     ('del_mk',      0.0015, 0.0050, True),   # H3K27 mark turnover (EZH2i de-repression speed)
     ('KmHU_fire',   0.30,   3.0,    True),   # HU origin-firing block (HU S vs G2 fold)
-    ('kSyDna',      0.042,  0.075,  True),   # S-phase duration
-    ('P21_div_MB',  1.20,   1.80,   False),  # MB birth-p27 (env; prefer lower -> grounding)
+    ('kSyDna',      0.042,  0.090,  True),   # S-phase duration
+    ('kDeP21Cd',    0.30,   1.50,   True),   # CDK4/6-ACTIVITY-gated p27 clearance (2026-07-15 reframe): sets G0/cycling balance + CDK4/6i fill
 ]
+# NB: the birth-p27 crutch (P21_div_MB) is RETIRED (transient-G0 reframe) -- fixed at the GNP baseline 0.6,
+# NOT searched. MB baseline G0 now emerges from the CDK4/6-INK4 balance (population tail); CDK4/6i fills it.
 # shipped chain/PRC2 defaults (extracted from the built model / _ts_bake)
-DEFAULTS = {'kEZbas': 0.000754391881434732, 'kEZbas_Cd': 0.000563136962209647,
-            'kEZE2f': 0.00923750135957145, 'Kez_cd': 3.1926390062213, 'k_jmjd3_gli': 0.168879915938366,
-            'K_prc2': 0.007780214612503378, 'a_rw_prc2': 0.0035829919666240597, 'a0_prc2': 0.00166836280585657,
-            'f0_prc2': 0.13617057617939168, 'n_prc2': 3.7153545331585414, 'del_mk': 0.0025633704879052376,
-            'KmHU_fire': 1.5959645843204, 'kSyDna': 0.0523969846324604}
-ANCHOR = {**DEFAULTS, 'P21_div_MB': 1.5}
-# SEED3 = round-1/2 28/28 basin (fold 5.5, G0 11%) extended with default PRC2 knobs (EZH2i weak there -> to fix)
-SEED3 = {**DEFAULTS, 'kEZbas': 0.0006806578467333423, 'kEZbas_Cd': 0.00032089035481197987,
-         'kEZE2f': 0.011971370020257544, 'Kez_cd': 9.677808253161935, 'k_jmjd3_gli': 0.1509247464667847,
-         'KmHU_fire': 0.3, 'kSyDna': 0.04255043711649113, 'P21_div_MB': 1.431347987970458}
-# SEED4 = SEED3 + deeper PRC2 repression (K_prc2 down, a_rw up) -> recover EZH2i toward 2.2 (probe feasibility)
-SEED2 = {**SEED3, 'K_prc2': 0.0055, 'a_rw_prc2': 0.0048}
+DEFAULTS = {'kEZbas': 0.0006988044688820413, 'kEZbas_Cd': 0.00032921999678280794,
+            'kEZE2f': 0.010236776694678679, 'Kez_cd': 9.353863909522834, 'k_jmjd3_gli': 0.15038550273688858,
+            'K_prc2': 0.007468156574911385, 'a_rw_prc2': 0.0038491897545513795, 'a0_prc2': 0.0017696627119243948,
+            'f0_prc2': 0.1335879266811463, 'n_prc2': 3.8097549179278962, 'del_mk': 0.0022862766051927256,
+            'KmHU_fire': 0.3, 'kSyDna': 0.04286412792304176, 'kDeP21Cd': 0.705}
+ANCHOR = {**DEFAULTS}
+# SEED3 = current 28/28-ish basin post transient-G0 reframe (activity-gated clearance, crutch retired, pRb marker)
+SEED3 = {**DEFAULTS, 'kSyDna': 0.062}
+# SEED2 = deeper S-phase / stronger clearance variant
+SEED2 = {**DEFAULTS, 'kSyDna': 0.068, 'kDeP21Cd': 0.9}
 _ctr = [0]
 
 
@@ -76,10 +76,8 @@ def perturb(p, rng, scale):
 def evaluate(params):
     i = _ctr[0]; _ctr[0] += 1
     rp = os.path.join(TMP, f'r_{i % 4096}.json')
-    p21mb = params['P21_div_MB']
-    mparams = {k: v for k, v in params.items() if k != 'P21_div_MB'}   # model params only
-    env = dict(os.environ, TWO_STEP_RB='1', H3K27_CHAIN='1', P21_DIV_MB=f'{p21mb:.6f}',
-               VALIDATE_PARAMS=json.dumps(mparams), VALIDATE_RESULTS=rp)
+    env = dict(os.environ, TWO_STEP_RB='1', H3K27_CHAIN='1',   # P21_DIV_MB stays at its default (0.6, crutch retired)
+               VALIDATE_PARAMS=json.dumps(dict(params)), VALIDATE_RESULTS=rp)
     try:
         subprocess.run([PY, VALIDATE], env=env, cwd=ROOT, capture_output=True, timeout=600)
         with open(rp) as fh:
@@ -105,23 +103,23 @@ def evaluate(params):
     mb_g0 = float(out.get('phase_dmso_duration', {}).get('G0', 0.0))   # % duration-fraction
     n_hardfail = sum(1 for n, c in checks.items() if n not in EXCLUDE and not c['pass'])
     bnd = lambda x, t, b: max(0.0, abs(x - t) / t - b)
+    kd21 = float(params.get('kDeP21Cd', 0.705))
     loss = (10.0 * n_hardfail
             + 2.5 * bnd(cd, 5.07, 0.12)          # *** fold: land it TIGHT ***
             + 2.0 * bnd(ezfold, 2.05, 0.18)      # EZH2 MB/GNP toward 2.05 (same knob as fold)
-            + 2.0 * bnd(hhi, 0.157, 0.30)        # GNP+HHi de-repression (standing fail)
-            + 2.0 * bnd(hu_g2, 0.23, 0.40)       # MB HU G2 fold (standing fail)
-            + 1.5 * bnd(mb_g0, 15.0, 0.30)       # keep a REAL G0 dwell (10.5-19.5%)
+            + 2.0 * bnd(hhi, 0.157, 0.30)        # GNP+HHi de-repression
+            + 2.0 * bnd(hu_g2, 0.23, 0.40)       # MB HU G2 fold
             + 3.0 * bnd(chip, CHIP_TARGET, 0.15)
-            + 2.5 * bnd(ezi, 2.2, 0.15)          # *** PROTECT EZH2i de-repression (paper centerpiece) ***
+            + 2.0 * bnd(ezi, 1.7, 0.25)          # EZH2i de-repression: catalytic-inhibitor ceiling ~1.7 (NOT 2.2)
             + 2.0 * bnd(mbs, 15.7, 0.20)         # *** PROTECT MB S% (don't inflate) ***
             + 1.0 * bnd(g2g0, 1.48, 0.30)        # EZH2 cycle-phase gradient (structurally hard; low weight)
             + 1.0 * bnd(hu_s, 1.36, 0.30)
-            + 0.5 * max(0.0, p21mb - 1.4))       # mild pull toward grounding (1.33x ~ 0.8, but G0 needs ~1.5)
-    good = (n_hardfail == 0 and abs(cd - 5.07) / 5.07 <= 0.15 and 10.0 <= mb_g0 <= 20.0
-            and abs(ezi - 2.2) / 2.2 <= 0.20 and abs(mbs - 15.7) / 15.7 <= 0.25)
+            + 1.0 * max(0.0, mb_g0 - 8.0))       # deterministic MB G0 should be ~0 (crutch retired; MB 20% is population-level)
+    good = (n_hardfail == 0 and abs(cd - 5.07) / 5.07 <= 0.15
+            and abs(mbs - 15.7) / 15.7 <= 0.25)
     return dict(params=params, loss=float(loss), n_hardfail=int(n_hardfail), chip=float(chip),
                 good=bool(good), passed=int(out.get('passed', 0)), mbgnp_cd=cd, ezfold=ezfold,
-                ezi=ezi, hhi=hhi, hu_g2=hu_g2, mb_g0=mb_g0, mbs=mbs, g2g0=g2g0, p21mb=p21mb)
+                ezi=ezi, hhi=hhi, hu_g2=hu_g2, mb_g0=mb_g0, mbs=mbs, g2g0=g2g0, p21mb=kd21)
 
 
 def _arg(f, d):

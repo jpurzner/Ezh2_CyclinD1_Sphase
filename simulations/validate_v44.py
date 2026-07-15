@@ -30,21 +30,20 @@ from src.build_model_v44_heldt import build_model_v44
 PARAMS = json.loads(os.environ.get('VALIDATE_PARAMS', '') or '{}')  # param overrides (wide-search driver); {} = builder defaults
                     # conditions in the full model -> needs the saturating CyclinD1->Rb drive fix.
 
-P27_THR = 0.1        # p27 (P21) marker threshold for the G0/G1 split (G0 = p27-high, pre-S)
+P27_THR = 0.1        # p27 (P21) marker threshold (legacy; the G0/G1 split now uses pRb, below)
+PRB_G0_THR = float(os.environ.get('PRB_G0_THR', '1.5'))   # G0 = pre-S cells with pRb(hyper) BELOW this = hypophospho/arrested
+                     # (2026-07-15 transient-G0 reframe: pRb-hypophospho is the functional arrest switch, not p27 level)
 MYCN_AMP_MB = 2.8
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
 P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
 P18_MB = 1.553           #   dominant INK4 (GNP 0.464 -> MB 1.553 = 3.35x ~ data 3.7x); p16 the MB-specific small one.
 KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment threshold kPhRbCd=0.35 to preserve the rescue.)
-P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '1.39'))   # env-overridable (joint re-optimizer optimize_twostep_g0)
-                         # MB-specific BIRTH p27 (vs GNP 0.6) -- gives MB a real p27-high/pRb-low G0 dwell (~12%).
-                         #   1.39 (2.3x GNP) after the 2026-07-14 joint re-opt; DOWN from the earlier 1.8 (3x) "crutch"
-                         #   that had been needed because the two-step p27 clearance was a SATURATED switch stripping MB
-                         #   p27. The structural fix (clearance re-gated by effective CDK4/6 activity, w_p27*P21 self-brake
-                         #   -> mutual antagonism) + the mitogen-dose EZH2 re-fit let 1.39 hold ~12% G0 WHILE the fold
-                         #   lands at 5.6 (not 7.1). Still ~2.3x vs the ~1.33x abundance-weighted p27+p21 transcript pool
-                         #   fold -- an effective (protein-level) parameter, but far less inflated than 1.8.
-                         #   Higher G0 (30-40%) still needs slowing MB commitment, which re-inflates the fold (EZH2->Cd).
+P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '0.6'))   # env-overridable. 2026-07-15 transient-G0 reframe: the
+                         # MB-specific BIRTH-p27 "crutch" is RETIRED (set to the GNP baseline 0.6). MB's baseline
+                         # reversible G0 must now EMERGE from real INK4 biology: the p27-clearance is gated on CDK4/6
+                         # ACTIVITY (kPhRbCd*Cd), and MB's high p16/p18 brakes that activity -> slower clearance ->
+                         # a modest baseline p27-high/pRb-low G0, GNP ~0. And CDK4/6i (kPhRbCd=0) fills the G0 in both.
+                         # (docs/transient_g0_synthesis.md). NB the INK4 brake needs the joint re-fit to reach MB ~20%.
                          #   p27 (CIP/KIP) also brakes CDK4/6 via w_p27=1 (model default).
                          #   CIP/KIP = p21/p27 (kSyP21 2x the GNP baseline 0.002).
                          # GNP: p16=0, p18=0.4 (builder default), p21 baseline. Together they raise the
@@ -144,12 +143,14 @@ def classify(res, pRb_thr, settle=4000):
     is re-weighted by n(age); the weighted phase fraction is the count-fraction (= Tpot=lam*Ts/LI
     kinetics literature).  dur_frac (the old time-fraction) is kept for reference/figures only.
 
-    G0 is the p27 marker (G0 = p27-positive); pRb_thr accepted for backward-compat but ignored.
-    NOTE: flow CANNOT resolve G0 from G1 (both 2N) -- the G0/G1 split here is a model-internal,
-    marker-based partition, and for MB (growth fraction < 1) the 2N pool also holds truly-quiescent
-    cells not captured by this single-cycle classifier (a separate growth-fraction term, not modeled)."""
+    G0 is now the pRb-HYPOPHOSPHORYLATION marker (2026-07-15 transient-G0 reframe): G0 = pre-S cells whose Rb is
+    NOT hyperphosphorylated (pRb < PRB_G0_THR) -- the genuinely arrested/quiescent pre-commitment pool. This is the
+    functional cycling/arrest switch (what CDK4/6i and the marker panel actually track), replacing the old
+    p27-level marker (p27 IHC reports total protein -> not disjoint from cycling; see docs/transient_g0_synthesis.md).
+    NOTE: flow CANNOT resolve G0 from G1 (both 2N) -- this G0/G1 split is a model-internal partition; the permanent
+    differentiation exit (the larger non-cycling fraction) is a SEPARATE compartment, not this reversible G0."""
     t = res['time']; m = t >= settle; tt = t[m]; dt = tt[1] - tt[0]
-    P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]; MPF = res['MPF'][m]
+    P21 = res['P21'][m]; aRc = res['aRc'][m]; Dna = res['Dna'][m]; MPF = res['MPF'][m]; pRbh = res['pRb'][m]
     # S-phase = ACTIVE DNA SYNTHESIS (BrdU/EdU analog: the synthesis flux vfork*aRc above a threshold),
     # NOT mere aRc presence. Under HU (slow forks) vfork ~ 0.1 so aRc-high but synthesis-low cells are
     # BrdU-NEGATIVE (the data measures BrdU) and belong in 2N/G1, not S. At HU=0 vfork=1 EXACTLY, so
@@ -159,7 +160,7 @@ def classify(res, pRb_thr, settle=4000):
     in_S = (syn > SYN_THR) & (Dna < 0.98)
     in_G2 = (Dna >= 0.98)
     preS = ~in_S & ~in_G2
-    G0 = preS & (P21 > P27_THR); G1 = preS & (P21 <= P27_THR)
+    G0 = preS & (pRbh < PRB_G0_THR); G1 = preS & (pRbh >= PRB_G0_THR)   # G0 = pRb-hypophospho (arrested/pre-commit)
     sels = {"G0": G0, "G1": G1, "S": in_S, "G2": in_G2}
     # duration-fraction (time-fraction = single-cell phase-duration share)
     dur = {k: float(v.mean()) for k, v in sels.items()}; sd = sum(dur.values()) or 1.0

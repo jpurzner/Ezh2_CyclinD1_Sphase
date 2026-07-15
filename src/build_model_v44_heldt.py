@@ -169,6 +169,13 @@ EZH2_CORE_BLOCK = """
   species EZH2m in Cell, EZH2 in Cell;
   EZH2m = 0.1; EZH2 = 0.5;
   EZH2i = 0;               // EZH2->CyclinD1 feedback toggle (1 = OFF)
+  // p27 SPLIT (2026-07-15 transient-G0 reframe, docs/transient_g0_synthesis.md): P21 is the FUNCTIONAL
+  // CDK-inhibitory NUCLEAR pool -- the only one that couples to the cycle (inhibits CDK2/CDK4/6, drives G0).
+  // P27_total is a widespread NON-functional readout (cytoplasmic/phospho/G1 p27 that rides along with cycling and
+  // Atoh1+ cells) for IHC comparison ONLY -- it drives NOTHING. This is why total-p27 IHC cannot measure the G0
+  // fraction (p27 is widespread even in cycling cells); the functional G0 marker is pRb-hypophosphorylation.
+  P27_wide = 0.30;                    // widespread non-functional p27 baseline (IHC-visible, CDK-inert)
+  P27_total := P21 + P27_wide;        // total p27 (IHC-comparable readout); NOT coupled to the cycle
   kEZbas = 0.00043040856433872047; kEZE2f = 0.021216027072906932; K_E2f_EZ = 0.5; Kez_cd = 7.830608487520997;   // EZH2-stability re-fit (was 0.00027/0.022): co-fit with faster kDeEZ against all 9 EZH2-coupled validation targets
   kEZbas_Cd = 0.0013508978696408793;      // mitogen-dose-scaled but CYCLE-FLAT baseline transcription: carries the MB/GNP dose
                           // WITHOUT a within-cycle swing -> decouples EZH2 mRNA phase gradient (transcript S/G0)
@@ -313,17 +320,18 @@ def _apply_two_step_rb(m, with_growth):
     # left ungated (gating it stalls commitment and the cell over-grows). The transient G0 is the
     # short p27-high window after division before the Skp2-p27 feedforward fires.
     # CyclinD-CDK4/6 kinase, competitively braked by INK4 (p16/p18) + p27 (saturating, bounded Vmax) --
-    # same brake as the single-step with_cd_sat path, applied to the mono-phosphorylation step (Rb=>Rbm)
-    # AND the p27-clearance (both are CDK4/6-driven). The clearance NOW carries the same w_p27*P21 self-brake
-    # as the Rb step: p27 is cleared by *effective* CDK4/6 activity, which p27 itself inhibits. This
-    # self-referential p27->p27 term is deliberate -- it makes clearance zero-order at high p27 (Goldbeter-
-    # Koshland ultrasensitivity) so p27/G0 becomes a bistable FIXED POINT (mutual CDK4/6<->p27 antagonism)
-    # rather than the earlier saturated on/off switch where deterministic p27 collapsed to ~0 and G0 survived
-    # only as a decaying birth pulse. In MB (high INK4 + p27) effective activity is low -> p27 persists -> a
-    # real p27-high G0 window, without leaning on an inflated birth-p27. (Re-optimized 2026-07 joint fit.)
+    # applied to the mono-phosphorylation step (Rb=>Rbm) AND the p27-clearance (both done by ACTIVE CDK4/6).
+    # 2026-07-15 (transient-G0 reframe, docs/transient_g0_synthesis.md): the p27-clearance is now gated on CDK4/6
+    # ACTIVITY (the numerator carries kPhRbCd, the same active-kinase rate that phosphorylates Rb), NOT merely on
+    # CyclinD LEVEL. Consequences, matching JP's CDK4/6i data: (i) CDK4/6i (kPhRbCd=0) stops p27 clearance -> p27
+    # ACCUMULATES onto CDK2 -> the reversible p27-high G0 FILLS (was: p27 stayed ~0 under CDK4/6i, wrong);
+    # (ii) baseline G0 EMERGES from the CDK4/6-INK4 balance -- GNP (high mitogen, no INK4) clears p27 fast -> G0~0;
+    # MB (high p16/p18 braking CDK4/6) clears slowly -> a modest baseline G0 -- so the MB G0 comes from real INK4
+    # biology, NOT an inflated birth-p27. The w_p27*P21 denominator self-brake (mutual CDK4/6<->p27 antagonism) is
+    # kept. G0 is now read off pRb-HYPOphosphorylation (the functional switch), p27 is the supporting readout.
     cdk_d = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
     _clear_brake = "/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
-    p27_clear = f"kDeP21Cd*Cd{_clear_brake}*commit_gate" if with_growth else f"kDeP21Cd*Cd{_clear_brake}"
+    p27_clear = f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}*commit_gate" if with_growth else f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}"
     m = m.replace(
         "species Rb in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, E1 in Cell;",
         "species Rb in Cell, Rbm in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, RbmE2f in Cell, E1 in Cell;")
@@ -712,13 +720,17 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # single-step bake). User `params` still override. pRb(hyper) = G0 marker (Moser 2018); R-point
         # logic (Narasimha/Sanidas); p27 (P21 pool) the dominant CIP/KIP in GNP/MB.
         _ts_bake = {
-            'M_commit': 2.476412980954672, 'kPhRbCd': 0.24815677888709098, 'kDeP21Cd': 0.17494227606057466,
+            # 2026-07-15 transient-G0 reframe re-fit (optimize_twostep_g0, crutch retired + CDK4/6-activity-gated
+            # clearance + pRb G0 marker): 27/28, the standing miss is MB HU G2 (0.356; the reframe's faster MB
+            # commitment shifted the replication-stress G2 redistribution). Reversible G0 anchors: GNP/MB baseline
+            # ~0 deterministic (population tail gives MB ~20%), CDK4/6i fills p27->G0 in both.
+            'M_commit': 2.476412980954672, 'kPhRbCd': 0.24815677888709098, 'kDeP21Cd': 0.41589702424892366,
             'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.4017818215702697, 'f_commit_carry': 0.37450197206637914,
-            'kSyDna': 0.04267565031343159, 'M_size': 3.140622748974385, 'kEZbas': 0.0006988044688820413,
-            'kEZbas_Cd': 0.00032921999678280794, 'kEZE2f': 0.011236248759074184, 'Kez_cd': 9.228028038563886,
-            'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.15687771918001908, 'a0_prc2': 0.001714578794136824,
-            'a_rw_prc2': 0.0037974505240802726, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.007283353965561711,
-            'n_prc2': 3.6319634333250166, 'f0_prc2': 0.14028139543883467, 'del_mk': 0.002664690624790556,
+            'kSyDna': 0.044127508144560235, 'M_size': 3.140622748974385, 'kEZbas': 0.0008644043464390895,
+            'kEZbas_Cd': 0.0003466979945158097, 'kEZE2f': 0.010651023620327642, 'Kez_cd': 6.608075636199197,
+            'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.2210703487046962, 'a0_prc2': 0.0020808091768527593,
+            'a_rw_prc2': 0.003469447252304735, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.01,
+            'n_prc2': 4.180192407776259, 'f0_prc2': 0.2, 'del_mk': 0.0023271809546474517,
             'KmHU_fire': 0.3}
         # tolerate flag combos where some params are absent (e.g. with_h3k27_memory has no chain params)
         m = _apply_overrides(m, {k: v for k, v in _ts_bake.items() if (k + ' = ') in m})
