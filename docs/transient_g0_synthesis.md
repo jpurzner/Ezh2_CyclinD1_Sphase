@@ -102,12 +102,27 @@ cell fails on direct test — each needs a distinct, grounded subpopulation:
    (verified). This is the canonical **RB1-loss / low-Rb CDK4/6i-resistance** route.
 
 **GNP has neither** (no high-CKI reserve, full Rb) → it **arrests cleanly** under CDK4/6i (~2% baseline G0 = the
-small outer-EGL differentiating tail; ~0% escape). The MB−GNP gap is the **therapy-escape liability**: MB keeps a
-**~35% reservoir** under CDK4/6i (~20% reversible reserve that survives + re-enters, plus ~15% resistant that never
-stops). Implemented as a population mixture in `simulations/sim_cdk46i_escape.py` (MB ≈ 65% normal / 20% reserve /
-15% resistant; GNP 100% normal), each cell also carrying CyclinD1-abundance heterogeneity so the reported fractions
-are **simulated from the dynamics, not echoed**; figure `simulations/fig_cdk46i_escape.png`.
+low-CyclinD1-abundance tail crossing the pRb threshold — *not* differentiation, which is out of scope; ~0% escape).
+The MB−GNP gap is the **therapy-escape liability**: under CDK4/6i **~35% of MB persist** — a ~20% quiescent reserve
+(arrested but reversible: survives the drug and re-enters when the quiescence signal is released) **plus** a ~15%
+resistant fraction that keeps dividing. **Only the ~15% actively proliferate during the drug**; the ~20% is a
+surviving regrowth reservoir, not active escape.
 
-**Falsifiable predictions:** reserve cells = p27-high / pRb-hypophospho / SOX2⁺ (or OLIG2⁺), Ki67⁻, re-enter on
-drug washout; resistant cells = Rb-low / RB1-loss, Ki67⁺ **during** CDK4/6i. These are distinct stains, so the two
-escape routes are separable experimentally.
+**What the model does vs does not claim (important — this is a MIXTURE model, not an emergent-fraction prediction).**
+`simulations/sim_cdk46i_escape.py` composes MB as 65% normal / 20% reserve / 15% resistant (GNP 100% normal).
+- **The subpopulation SIZES (20% / 15%) are hand-set — JP's culture ESTIMATES, a SOFT target (§3, §6), not a model
+  output.** The reported baseline-G0 and still-dividing percentages therefore **equal those inputs**; the per-cell
+  CyclinD1-abundance heterogeneity is included for realism but does **not** move the classification (the state
+  overrides dominate), so it does not make the magnitudes emergent. The GNP-vs-MB contrast is likewise an
+  **assumption** (GNP lacks both subpopulations — normal tissue, no RB1 loss, no tumour quiescent reserve), not a
+  derivation.
+- **What the model VERIFIES (genuine ODE outputs):** each mechanism produces its claimed phenotype — high-CKI →
+  reversible baseline G0; low-Rb → keeps dividing under CDK4/6i; normal → arrests under CDK4/6i; and **reversibility**
+  is confirmed by a clean arrest-then-release run (`--reversibility`): the reserve re-enters on CKI release and the
+  drug-arrested normal cell re-enters on washout, **both 0 divisions during arrest → 12 after release**. So the
+  model asserts these mechanisms **are sufficient**, at the assumed sizes, to reproduce the observed contrast.
+Figure `simulations/fig_cdk46i_escape.png`.
+
+**Falsifiable predictions** (these would make the fractions measurable rather than assumed): reserve cells =
+p27-high / pRb-hypophospho / SOX2⁺ (or OLIG2⁺), Ki67⁻, re-enter on release; resistant cells = Rb-low / RB1-loss,
+Ki67⁺ **during** CDK4/6i. Distinct stains → the two escape routes are separable experimentally.

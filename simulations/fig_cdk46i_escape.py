@@ -57,12 +57,14 @@ for ax, key in zip(axes, ('GNP', 'MB')):
     ax.set_title(key, fontsize=15, fontweight='bold', pad=8)
     for s in ('top', 'right'): ax.spines[s].set_visible(False)
 
-mb = R['MB']; esc = mb['div_cdki'] + mb['g0_base']
+mb = R['MB']; surv = mb['div_cdki'] + mb['g0_base']; div = mb['div_cdki']
 axes[0].set_ylabel('% of proliferation-competent pool', fontsize=12)
 fig.suptitle('CDK4/6 inhibition: GNP arrests cleanly, medulloblastoma escapes two ways',
              fontsize=15.5, fontweight='bold', x=0.39, y=0.965)
-fig.text(0.39, 0.895, f'MB keeps a ~{esc:.0f}% escape reservoir (20% reversible reserve + 15% resistant); GNP ~2%',
-         fontsize=10.5, color='#444', ha='center')
+fig.text(0.39, 0.895,
+         f'MB: ~{surv:.0f}% persist under CDK4/6i ({mb["g0_base"]:.0f}% quiescent reserve, survives + re-enters; '
+         f'{div:.0f}% still dividing) — only {div:.0f}% keep proliferating. GNP arrests.',
+         fontsize=10, color='#444', ha='center')
 
 legend = [Patch(fc=C_CYCLE, label='Cycling (proliferating)'),
           Patch(fc=C_RESERVE, label='Reversible G0 reserve\n(high-CKI, SOX2/OLIG2-like)'),
@@ -71,9 +73,11 @@ legend = [Patch(fc=C_CYCLE, label='Cycling (proliferating)'),
 fig.legend(handles=legend, loc='center left', bbox_to_anchor=(0.715, 0.52), fontsize=9.5,
            frameon=False, title='cell state', title_fontsize=11, alignment='left', labelspacing=1.1, handleheight=1.6)
 
-foot = ('Reversible G0 reserve = a high-CDK-inhibitor subpopulation (baseline G0, survives and re-enters). '
-        'Resistant fraction = low total Rb (proliferates independent of cyclinD-CDK4/6). GNP carries neither.')
-fig.text(0.075, 0.04, foot, fontsize=8.2, color='#555')
+foot = ('Mixture model — the 20%/15% subpopulation SIZES are culture estimates set as inputs (soft target); the ODE '
+        'verifies the MECHANISMS + reversibility (reserve re-enters on release, ndiv 0→12), not the fractions.\n'
+        'Reserve = high-CKI. Resistant = low total Rb (divides independent of cyclinD-CDK4/6). GNP lacks both by '
+        'assumption (normal tissue: no RB1 loss, no quiescent reserve).')
+fig.text(0.075, 0.045, foot, fontsize=7.8, color='#555', va='top', linespacing=1.5)
 
 out = os.path.join(HERE, 'fig_cdk46i_escape.png')
 fig.savefig(out, dpi=150)
