@@ -16,17 +16,22 @@
 > its `cdk2low` no longer lumps permanent `arrest`; `with_mother_g2` / `with_mitogen_tracker` gravestoned (settled
 > dead-ends).
 >
-> **`fig_v44_population_g0` metric FIXED + p27/CyclinD1 made flexible (2026-07-15).** (1) The headline is now the
-> flow/live-imaging-comparable **snapshot G0 time-fraction** (GNP **~2–3%**, MB **~8%** — Moser-consistent) instead of
-> the per-lineage "ever-paused" classification (which over-reported ~57%). (2) Birth-p27 cell heterogeneity is now
-> **INHERITED** (shared by sisters) with only small partition noise → Spencer concordance restored (GNP **97%**, MB
-> **97%**, was 51%; the `_work` seed was also made deterministic so the figure is now reproducible run-to-run). (3) Per JP, the p27 & CyclinD1 spreads are kept **wide/flexible** (their G0 quantification is
-> untrustworthy — EGL cell packing, culture differentiation) and the GNP birth-p27 median raised toward the (sharp
-> ~1.35) pause threshold so GNP keeps a **small p27-high/differentiating minority (~3%), NOT 0%** — fewer than MB,
-> as observed. The median GNP cell still cycles (<threshold) so GNP validation is unaffected. The absolute G0 scale
-> is intentionally soft; the load-bearing claim is qualitative (**GNP < MB, both nonzero**). NB the fold-constrained
-> MB snapshot (~8%) still sits at Moser's LOW end, BELOW JP's ~30–40% flow estimate — reaching 30–40% needs a higher
-> birth-p27 that re-inflates the CyclinD1 fold (the **fold-vs-G0 tension**, quantified at the population level). NB the very-slow withdrawal figures (`sim_mitogen_withdrawal`, `sim_vismo_withdrawal`,
+> **`fig_v44_population_g0` — metric fixed, flexible, calibrated to JP's flow G0 gate (2026-07-15).** Now lands
+> **GNP ~9% / MB ~18%** (JP flow: GNP ~10%, MB 20–30%), Spencer concordance **GNP 97% / MB 98%**. Three fixes:
+> (1) **Metric.** Headline is the **flow-comparable age-weighted count-fraction** (same convention as
+> `validate_v44.classify`, what a p27-high/pRb-low flow gate measures) — NOT the old per-lineage "ever-paused"
+> classification (over-reported ~57%) nor the duration-fraction (under-reported ~1.4×). (2) **Concordance.**
+> Birth-p27 cell heterogeneity is **INHERITED** (shared by sisters) + small partition noise → concordance restored
+> (was 51%); seed made deterministic so the figure is reproducible. (3) **Flexible + calibrated.** p27 & CyclinD1
+> spreads kept **wide** (EGL/culture G0 quantification is untrustworthy) and the POPULATION birth-p27 medians raised
+> (GNP 1.3 / MB 2.5) to match JP's flow fractions. These population medians are **DELIBERATELY DECOUPLED** from the
+> deterministic validation setpoints (0.6 / 1.39, untouched — JP's "population figure only" call), so 28/28 is
+> unaffected. **Two honest limits:** (a) the model's per-cell G0 dwell caps the MB snapshot near **~22%**, so MB
+> lands ~18% (JP's low end); **25–30% needs a slower Skp2–p27 commitment switch** (deferred). (b) GNP concordance
+> vs G0-fraction trade near its (sharp ~1.35) differentiation threshold — biologically GNP is at a fate decision
+> (labile) while MB is committed (100% concordant). NB the **fold-vs-G0 tension is now largely RESOLVED**: the
+> mitogen-EZH2 re-fit decoupled the fold from birth-p27 (fold ~5.6→5.9 across birth-p27 1.4→2.2, still 28/28), so
+> the G0 fractions could be hit WITHOUT re-inflating the CyclinD1 fold. NB the very-slow withdrawal figures (`sim_mitogen_withdrawal`, `sim_vismo_withdrawal`,
 > `fig_v44_ezh2i_rescue_kinetics`, `sim_ezh2_phaseplane`, the dilution-tension set) are ~2.5 h each and are
 > **pending regeneration** on this calibration — run `simulations/regenerate_figures.sh` (SLOW tier) overnight.
 >

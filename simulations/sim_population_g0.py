@@ -5,8 +5,9 @@ Reuses the sim_inheritance_partition engine (per-lineage sim, Dna-reset division
 but runs it for BOTH cell types with the calibrated per-lineage draws (scale-free, medians only):
     k_Cd_translation = KTL0 * LogN(0, 0.633)   (CyclinD1 abundance CV 0.70, data)
     kTlEZ            = KTLEZ0 * LogN(0, 0.51)   (EZH2 abundance CV ~0.55, data)
-    birth-p27 = MED[cond] * LogN(0, 0.32) INHERITED (CV 0.33, data; shared by sisters) * small partition noise
-GNP birth-p27 median 0.6, MB 1.39 (P21_DIV_MB after the 2026-07-14 joint re-opt). MB adds its INK4/mitogen identity.
+    birth-p27 = MED[cond] * LogN(0, ~0.42) INHERITED (wide/flexible spread; shared by sisters) * small partition noise
+POPULATION medians GNP 1.2 / MB 2.4 -- calibrated to JP's flow G0 gate (GNP ~10%, MB ~20%), DECOUPLED from the
+deterministic validation setpoints (0.6 / 1.39, untouched -- "population figure only"). MB adds its INK4/mitogen identity.
 The birth-p27 cell heterogeneity is INHERITED (drawn once per lineage, shared by sisters) with only small
 independent PARTITION noise per division -- this is what gives Spencer's ~98% sister concordance (see PART).
 
@@ -18,11 +19,11 @@ mitogen-graded Overton split (that would need a data-correct mitogen->birth-p27 
 the mitogen tracker was backwards for MB and is shelved).
 
 Three readouts:
-  (A) snapshot G0 time-fraction, GNP vs MB (mean over cycling cells of the fraction of time in transient G0 --
-      the flow/live-imaging-comparable metric, cf. Moser 2018 CDK2-reporter 1-31%). NOT the old per-lineage
-      "ever-paused" classification, which over-reported (~57% for MB) by counting a whole lineage as CDK2low
-      if ANY cycle dwelled.
-  (B) quiescence-onset: snapshot G0 fraction vs mitogen (SHH), at fixed per-type birth-p27.
+  (A) snapshot G0 count-fraction, GNP vs MB (age-weighted fraction of cells in p27-high/pre-S G0 at a random
+      moment -- the FLOW-comparable metric; SAME age-density convention as validate_v44.classify's count_frac).
+      Calibrated to JP's flow gate: MB ~20% (its per-cell G0 dwell caps the model near ~22%), GNP ~10%. NOT the
+      old per-lineage "ever-paused" classification, which over-reported (~57% for MB).
+  (B) quiescence-onset: snapshot G0 count-fraction vs mitogen (SHH), at fixed per-type birth-p27.
   (C) Spencer: sister concordance -- two daughters share the INHERITED birth-p27 + abundance draws, differ only
       by small independent partition noise; fraction that land in the SAME fate (~98% when the median is away
       from the fate threshold, which the inheritance now ensures).
@@ -55,12 +56,14 @@ PART = 0.08                                           # SMALL partition-asymmetr
 SETTLE, MEAS, CHUNK, NP = 5000.0, 12000.0, 60.0, 9
 DWELL_CUT, P27_HI = 2.0, 0.1                          # transient if mean G0 dwell >= 2h; G0 = pre-S & p27>0.1
 # cell-type identities (per-condition params) + birth-p27 median
-# Birth-p27 population medians. The DETERMINISTIC validation setpoints are 0.6 (GNP) / 1.39 (MB); here the GNP
-# median is raised toward the differentiating tail (still < the ~1.35 pause threshold, so the median GNP cell still
-# cycles -- GNP validation is unaffected) so the population shows the p27-high GNP minority JP observes. Exact values
-# are intentionally soft (see the CV note above); the load-bearing claim is qualitative: GNP < MB, both nonzero.
-GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=0.9)
-MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=1.39)
+# Birth-p27 population medians -- POPULATION-FIGURE-ONLY calibration to JP's flow G0 fractions (MB ~20-30%, GNP
+# ~10%; JP 2026-07-15). These are set to match the flow-comparable SNAPSHOT count-fraction (see _run_lineage) and
+# are DELIBERATELY DECOUPLED from the deterministic validation setpoints (0.6 GNP / 1.39 MB, which stay untouched --
+# JP's call: "population figure only"). The medians sit near/above the ~1.35 per-cell G0 threshold, i.e. most cells
+# have a post-mitotic p27-high (CDK2-low) window each cycle -- GNP's shorter (~10% of the cycle), MB's longer
+# (~20%). Values are soft (p27/CyclinD1 quantification is untrustworthy -- EGL packing, culture differentiation).
+GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=1.3)
+MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=2.5)
 
 _RR = None
 def _init(_):
@@ -72,10 +75,9 @@ def _init(_):
 
 
 def _run_lineage(shh, params, ktl, ktlez, bp, part, seed):
-    """One lineage. bp = the INHERITED birth-p27 setpoint (already carries the CV-0.33 cell heterogeneity,
-    shared by sisters). Returns (dwells_hours_per_cycle, g0_time_fraction): the per-cycle G0 dwell hours
-    AND the fraction of complete-cycle time spent in transient G0 (the flow/live-imaging-comparable snapshot
-    metric, cf. Moser 2018 CDK2-reporter). Arrest -> (empty, nan)."""
+    """One lineage. bp = the INHERITED birth-p27 setpoint (already carries the cell heterogeneity, shared by
+    sisters). Returns (dwells_hours_per_cycle, g0_count_fraction): the per-cycle G0 dwell hours AND the
+    age-weighted SNAPSHOT G0 count-fraction (flow-comparable, cf. validate_v44.classify). Arrest -> (empty, nan)."""
     rng = np.random.default_rng(seed)
     _RR.reset()
     _RR['SHH'] = shh
@@ -107,7 +109,19 @@ def _run_lineage(shh, params, ktl, ktlez, bp, part, seed):
     inS = (ARC > 0.05) & (DNA < 0.98); inG2 = DNA >= 0.98; preS = ~inS & ~inG2
     g0 = preS & (P21 > P27_HI)
     dwells = np.array([float(g0[a:b].sum() * dt / 60.0) for a, b in zip(div[:-1], div[1:])])
-    g0_frac = float(g0[div[0]:div[-1]].mean())             # fraction of complete-cycle TIME in G0 (snapshot)
+    # age-weighted SNAPSHOT count-fraction (flow-comparable; SAME convention as validate_v44.classify's count_frac,
+    # so the population number is directly comparable to a flow-cytometry p27-high/pRb-low G0 gate). Weight each
+    # timepoint by the exponential age density n(a)=2*lam*exp(-lam*a) (a = time since last division): just-divided
+    # cells are over-represented in an exponentially growing population, so the count-fraction runs ~1.4x above the
+    # raw time-fraction. This is what JP measures by flow (MB ~20-30%, GNP ~10%).
+    lo, hi = int(div[0]), int(div[-1])
+    Tc_h = (T[hi] - T[lo]) / 60.0 / (len(div) - 1)          # mean cycle duration (h)
+    lam = np.log(2.0) / Tc_h
+    pts = np.arange(lo, hi)
+    j = np.searchsorted(div, pts, side='right') - 1         # index of the last division at/before each point
+    ages = (T[pts] - T[div[j]]) / 60.0                      # hours since last division
+    w = 2.0 * lam * np.exp(-lam * ages)
+    g0_frac = float(np.sum(w * g0[lo:hi]) / np.sum(w))      # snapshot G0 count-fraction (flow-comparable)
     return (dwells, g0_frac)
 
 
@@ -186,8 +200,8 @@ def main():
     fig, ax = plt.subplots(1, 3, figsize=(15, 4.6))
     fig.suptitle("Population layer: GNP vs medulloblastoma transient-G0 -- quiescence-onset vs mitogen + Spencer sister concordance",
                  fontsize=13, fontweight='bold', y=1.0)
-    fig.text(0.5, 0.905, f"N={N}/type. p27 & CyclinD1 spreads kept wide (EGL/culture G0 quantification is untrustworthy) -> GNP keeps a small p27-high "
-             "minority, not 0%; birth-p27 heterogeneity inherited by sisters. Snapshot G0 fraction: absolute scale uncertain, GNP < MB is the claim.",
+    fig.text(0.5, 0.905, f"N={N}/type. Snapshot G0 = flow-comparable count-fraction, calibrated to JP's flow gate (GNP ~10%, MB ~20%). Spreads "
+             "kept wide (p27/CyclinD1 quantification untrustworthy); birth-p27 inherited by sisters. Model caps MB near ~22% (per-cell G0 ceiling).",
              ha='center', fontsize=8, color='#555', style='italic')
     COL = {'GNP': '#1b9e77', 'MB': '#762A83'}
     for j, tag in enumerate(('GNP', 'MB')):                                  # (A) snapshot G0 fraction at SHH=0.5
@@ -195,13 +209,13 @@ def main():
         ax[0].bar(j, v, color=COL[tag], edgecolor='k')
         ax[0].text(j, v + 0.6, f'{v:.0f}%', ha='center', fontsize=12, fontweight='bold')
     ax[0].axhspan(1, 31, color='#f5b041', alpha=0.12); ax[0].text(1.45, 31, 'Moser 1-31%', fontsize=7.5, va='bottom', ha='right', color='#a0680a')
-    ax[0].set_xticks([0, 1]); ax[0].set_xticklabels(['GNP', 'MB']); ax[0].set_ylim(0, 38); ax[0].set_ylabel('snapshot CDK2low G0 time-fraction (%)')
-    ax[0].set_title('(A) Snapshot G0 fraction (SHH=0.5)\nsmall in GNP, larger in MB (both quiescent minorities)', fontsize=10.5, fontweight='bold')
+    ax[0].set_xticks([0, 1]); ax[0].set_xticklabels(['GNP', 'MB']); ax[0].set_ylim(0, 38); ax[0].set_ylabel('snapshot CDK2low G0 fraction (%, flow-comparable)')
+    ax[0].set_title('(A) Snapshot G0 fraction (SHH=0.5, flow-comparable)\nGNP ~10% vs MB ~20% (JP flow gate)', fontsize=10.5, fontweight='bold')
     for tag in ('GNP', 'MB'):                                               # (B) quiescence onset vs mitogen
         y = [snap(cell(tag, s, 0)) * 100 for s in SHH_SWEEP]
         ax[1].plot(SHH_SWEEP, y, '-o', color=COL[tag], lw=2, ms=5, label=tag)
     ax[1].axhspan(1, 31, color='#f5b041', alpha=0.12); ax[1].text(SHH_SWEEP[-1], 31, 'Moser 1-31%', fontsize=7.5, va='bottom', ha='right', color='#a0680a')
-    ax[1].set_xlabel('mitogen (SHH)'); ax[1].set_ylabel('snapshot CDK2low G0 time-fraction (%)'); ax[1].set_ylim(-2, 45)
+    ax[1].set_xlabel('mitogen (SHH)'); ax[1].set_ylabel('snapshot CDK2low G0 fraction (%, flow-comparable)'); ax[1].set_ylim(-2, 45)
     ax[1].set_title('(B) Quiescence onset vs mitogen (SHH)', fontsize=10.5, fontweight='bold'); ax[1].legend(fontsize=9); ax[1].grid(alpha=0.25)
     for j, tag in enumerate(('GNP', 'MB')):                                 # (C) Spencer sister concordance
         ax[2].bar(j, conc[tag] * 100, color=COL[tag], edgecolor='k')
