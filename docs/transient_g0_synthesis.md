@@ -43,7 +43,13 @@ permanent exit vs reversible G0 is **differentiation status**.
 ## 4. What would actually quantify it *(the panel)*
 
 - **Cycling axis:** Ki67, or better **phospho-Rb** (hyperphospho = cycling; hypophospho = genuinely arrested,
-  a more direct functional readout than p27, independent of p27 localisation).
+  a more direct functional readout than p27, independent of p27 localisation). **The pRb stain = Cell Signaling
+  phospho-Rb Ser807/811, clone D20B12 (#41359)** — detects Rb *hyper*phosphorylation (not mono-phospho), a
+  committed/cycling marker that maps onto the model's `pRb` (hyper) species. NB Ser807/811 is a CDK4/6 *and* CDK2
+  site (only Ser780 is CDK4/6-exclusive), so a **residual Ser807/811⁺ under CDK4/6i = CDK2-bypass** (Rb kept
+  hyperphospho by CDK2); a **Ser780 co-stain** would separate CDK2-bypass (Ser780⁻) from incomplete inhibition
+  (Ser780⁺). Caveat: "hypophospho / D20B12⁻" = true G0 **plus** early-G1 mono-phospho committed cells — neither the
+  stain nor the model isolates pure G0 (see docs/cdk46i_resistance_research.md).
 - **Differentiation axis:** NeuN + NeuroD1, Tag1, MAP2, βIII-tubulin.
 - **p27:** a *supporting* stain, not a definer.
 - **Permanent exit** = NeuN+/NeuroD1+. **Reversible G0** = the operational intersection: Ki67−, pRb-hypophospho,

@@ -58,6 +58,14 @@ SETTLE, MEAS, CHUNK, NP = 4000.0, 9000.0, 60.0, 9
 PRB_G0 = 1.5                       # pRb-hypophospho G0 marker (matches validate_v44 PRB_G0_THR)
 CD_SDLOG = 0.70                    # CyclinD1 abundance CV 0.70 (data); realism only -- does NOT move classification
 KTL0 = 0.801                       # k_Cd_translation median
+# Per-cell CKI heterogeneity (2026-07-15, JP): p16/p18/Cip-Kip are now DISTRIBUTIONS, not unitary values --
+# each cell draws a multiplier ~ LogN(0, SDLOG) on its cohort CKI level. NB this adds realistic cell-to-cell
+# variation in commitment/arrest PROPENSITY, but does NOT by itself create baseline G0 or CDK4/6i escape: the
+# palbo block is UPSTREAM of the CKIs (kPhRbCd=0 zeros Rb mono-phosphorylation regardless of CKI level), and the
+# baseline-G0 arrest threshold sits ~40x above the Cip/Kip median (a distinct high-CKI state, not a tail). The
+# reserve/resist subpopulations therefore remain distinct states; the CKI draws vary everything else.
+INK4_SDLOG = 0.40                  # p16/p18 cell-to-cell CV ~0.42 (INK4 protein heterogeneity)
+CIP_SDLOG  = 0.40                  # Cip/Kip (p27/p21) synthesis CV ~0.42
 
 # grounded subpopulation overrides (verified deterministic probes -- see docstring)
 RESERVE = dict(kSyP21=0.11)                    # high CKI -> reversible baseline G0 (SOX2/OLIG2 reserve)
@@ -133,7 +141,16 @@ def run_cohort(cohort, n, pool, rng):
         states += [name] * int(round(frac * n))
     states = (states + ['normal'] * n)[:n]
     kcd = KTL0 * np.exp(rng.normal(0, CD_SDLOG, size=n))
-    args = [(i, cohort['params'], states[i], float(kcd[i])) for i in range(n)]
+    # per-cell CKI DISTRIBUTIONS: multiply each cohort CKI by a lognormal draw (0 stays 0, e.g. GNP p16)
+    p16m = np.exp(rng.normal(0, INK4_SDLOG, size=n))
+    p18m = np.exp(rng.normal(0, INK4_SDLOG, size=n))
+    cipm = np.exp(rng.normal(0, CIP_SDLOG, size=n))
+    def cell_params(i):
+        p = dict(cohort['params'])
+        p['p16'] = p['p16'] * float(p16m[i]); p['p18'] = p['p18'] * float(p18m[i])
+        p['kSyP21'] = p['kSyP21'] * float(cipm[i])
+        return p
+    args = [(i, cell_params(i), states[i], float(kcd[i])) for i in range(n)]
     res = pool.map(_worker, args)
     base = [b for (_, b, _) in res]; cdki = [c for (_, _, c) in res]
     g0_base = 100.0 * np.mean([b == 'g0' for b in base])
