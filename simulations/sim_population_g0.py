@@ -38,7 +38,12 @@ from src.build_model_v44_heldt import build_model_v44
 
 SEL = ['time', 'MPF', 'P21', 'aRc', 'Dna', 'Cd']
 KTL0, KTLEZ0 = 0.801, 0.004
-CD_SDLOG, P27_SDLOG, EZ_SDLOG = 0.633, 0.32, 0.51     # CyclinD1 CV0.70, p27 CV0.33, EZH2 CV0.55 (data)
+# CyclinD1 + p27 spreads are deliberately kept WIDE/flexible: their quantification is not trustworthy (EGL cell
+# packing is too tight to count p27-high cells accurately, and culture is confounded by high differentiation
+# rates), so we do NOT pin them to a precise measured CV. Wider p27/CyclinD1 spread also gives GNP a realistic
+# small p27-high (differentiating) tail rather than an implausible 0% (JP: GNPs have some p27-high cells in the
+# outer EGL, fewer than MB). CyclinD1 variation additionally softens the (otherwise sharp ~1.35) per-cell G0 threshold.
+CD_SDLOG, P27_SDLOG, EZ_SDLOG = 0.70, 0.42, 0.51      # CyclinD1 ~CV0.85, p27 ~CV0.44 (flexible), EZH2 CV0.55
 # Birth-p27 has TWO noise sources, and separating them is what makes Spencer concordance work:
 #   * INHERITED cell-to-cell heterogeneity (CV 0.33 = P27_SDLOG): drawn once per lineage, SHARED by sisters
 #     (a mother's daughters inherit ~the same p27 setpoint) -> sisters land in the SAME fate -> high concordance.
@@ -50,7 +55,11 @@ PART = 0.08                                           # SMALL partition-asymmetr
 SETTLE, MEAS, CHUNK, NP = 5000.0, 12000.0, 60.0, 9
 DWELL_CUT, P27_HI = 2.0, 0.1                          # transient if mean G0 dwell >= 2h; G0 = pre-S & p27>0.1
 # cell-type identities (per-condition params) + birth-p27 median
-GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=0.6)
+# Birth-p27 population medians. The DETERMINISTIC validation setpoints are 0.6 (GNP) / 1.39 (MB); here the GNP
+# median is raised toward the differentiating tail (still < the ~1.35 pause threshold, so the median GNP cell still
+# cycles -- GNP validation is unaffected) so the population shows the p27-high GNP minority JP observes. Exact values
+# are intentionally soft (see the CV note above); the load-bearing claim is qualitative: GNP < MB, both nonzero.
+GNP = dict(params=dict(Ptch1_copy_number=1.0, MYCN_amplification=1.0, p16=0.0, p18=0.464, kSyP21=0.002), med=0.9)
 MB  = dict(params=dict(Ptch1_copy_number=0.1, MYCN_amplification=2.8, p16=0.306, p18=1.553, kSyP21=0.002), med=1.39)
 
 _RR = None
@@ -104,8 +113,10 @@ def _run_lineage(shh, params, ktl, ktlez, bp, part, seed):
 
 def _work(task):
     i, shh, tag, params, ktl, ktlez, bp, rep = task
-    # partition noise is rep-dependent (sisters differ); the inherited bp is shared (rep-independent)
-    dwells, g0_frac = _run_lineage(shh, params, ktl, ktlez, bp, PART, (hash((i, round(shh, 3), tag, rep)) & 0xFFFFFFFF))
+    # partition noise is rep-dependent (sisters differ); the inherited bp is shared (rep-independent).
+    # DETERMINISTIC seed (no Python hash() -- that is randomized across runs, making the figure irreproducible).
+    seed = (int(i) * 100003 + int(round(shh * 1000)) * 131 + (1 if tag == 'MB' else 0) * 17 + int(rep) * 7) & 0xFFFFFFFF
+    dwells, g0_frac = _run_lineage(shh, params, ktl, ktlez, bp, PART, seed)
     if len(dwells) == 0:
         return (i, shh, tag, rep, 'arrest', np.nan, 0)
     cls = 'transient' if np.mean(dwells) >= DWELL_CUT else 'immediate'
@@ -175,9 +186,9 @@ def main():
     fig, ax = plt.subplots(1, 3, figsize=(15, 4.6))
     fig.suptitle("Population layer: GNP vs medulloblastoma transient-G0 -- quiescence-onset vs mitogen + Spencer sister concordance",
                  fontsize=13, fontweight='bold', y=1.0)
-    fig.text(0.5, 0.90, f"N={N} lineages/type, data-grounded abundance draws (CyclinD1 CV 0.70, EZH2 CV 0.55); birth-p27 CV 0.33 "
-             "INHERITED (shared by sisters) + small partition noise; MB birth-p27 median 1.39. Panel A/B: flow/Moser-comparable snapshot G0 time-fraction.",
-             ha='center', fontsize=8.5, color='#555', style='italic')
+    fig.text(0.5, 0.905, f"N={N}/type. p27 & CyclinD1 spreads kept wide (EGL/culture G0 quantification is untrustworthy) -> GNP keeps a small p27-high "
+             "minority, not 0%; birth-p27 heterogeneity inherited by sisters. Snapshot G0 fraction: absolute scale uncertain, GNP < MB is the claim.",
+             ha='center', fontsize=8, color='#555', style='italic')
     COL = {'GNP': '#1b9e77', 'MB': '#762A83'}
     for j, tag in enumerate(('GNP', 'MB')):                                  # (A) snapshot G0 fraction at SHH=0.5
         v = snap(cell(tag, 0.5, 0)) * 100
@@ -185,7 +196,7 @@ def main():
         ax[0].text(j, v + 0.6, f'{v:.0f}%', ha='center', fontsize=12, fontweight='bold')
     ax[0].axhspan(1, 31, color='#f5b041', alpha=0.12); ax[0].text(1.45, 31, 'Moser 1-31%', fontsize=7.5, va='bottom', ha='right', color='#a0680a')
     ax[0].set_xticks([0, 1]); ax[0].set_xticklabels(['GNP', 'MB']); ax[0].set_ylim(0, 38); ax[0].set_ylabel('snapshot CDK2low G0 time-fraction (%)')
-    ax[0].set_title('(A) Snapshot G0 fraction (SHH=0.5)\nGNP ~0 vs an MB quiescent subpopulation', fontsize=10.5, fontweight='bold')
+    ax[0].set_title('(A) Snapshot G0 fraction (SHH=0.5)\nsmall in GNP, larger in MB (both quiescent minorities)', fontsize=10.5, fontweight='bold')
     for tag in ('GNP', 'MB'):                                               # (B) quiescence onset vs mitogen
         y = [snap(cell(tag, s, 0)) * 100 for s in SHH_SWEEP]
         ax[1].plot(SHH_SWEEP, y, '-o', color=COL[tag], lw=2, ms=5, label=tag)
