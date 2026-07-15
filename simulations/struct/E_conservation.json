@@ -1,0 +1,54 @@
+{
+  "n_species": 47,
+  "rank": 44,
+  "n_conservation": 3,
+  "moieties": [
+    {
+      "species": [
+        "Rb",
+        "Rbm",
+        "pRb",
+        "RbE2f",
+        "RbmE2f"
+      ],
+      "coeffs": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expr": "Rb + Rbm + pRb + RbE2f + RbmE2f",
+      "mean": 5.000000000000516,
+      "cv": 6.123367631463571e-14
+    },
+    {
+      "species": [
+        "C1",
+        "pC1",
+        "E1C1"
+      ],
+      "coeffs": [
+        1,
+        1,
+        1
+      ],
+      "expr": "C1 + pC1 + E1C1",
+      "mean": 0.9999999999999892,
+      "cv": 9.151897538069077e-15
+    },
+    {
+      "species": [
+        "Gli_rep",
+        "Gli_act"
+      ],
+      "coeffs": [
+        1,
+        1
+      ],
+      "expr": "Gli_rep + Gli_act",
+      "mean": 0.6000000000000004,
+      "cv": 3.8147885895153024e-16
+    }
+  ]
+}

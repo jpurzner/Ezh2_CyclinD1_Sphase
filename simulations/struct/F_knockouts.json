@@ -1,0 +1,357 @@
+{
+  "baseline_pass": 28,
+  "n_checks": 28,
+  "rows": [
+    {
+      "name": "E2f synth (L1)",
+      "param": "kSyE2f",
+      "module": "Rb-E2f",
+      "passed": 11,
+      "n_broken": 17,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.147075489395134,
+      "mb_g0": 0.0
+    },
+    {
+      "name": "CyclinE (L1)",
+      "param": "kSyCe",
+      "module": "CDK2",
+      "passed": 11,
+      "n_broken": 17,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.147217289944628,
+      "mb_g0": 0.0
+    },
+    {
+      "name": "p27 clear (L2)",
+      "param": "kDeP21Cd",
+      "module": "Skp2-commit",
+      "passed": 11,
+      "n_broken": 17,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.148343690337638,
+      "mb_g0": 100.0
+    },
+    {
+      "name": "CyclinD1 (mito)",
+      "param": "k_Cd_translation",
+      "module": "CyclinD1",
+      "passed": 11,
+      "n_broken": 17,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.019277211009082,
+      "mb_g0": 100.0
+    },
+    {
+      "name": "CycD-CDK4/6 Rb",
+      "param": "kPhRbCd",
+      "module": "commitment",
+      "passed": 11,
+      "n_broken": 17,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.14717524044287,
+      "mb_g0": 0.0
+    },
+    {
+      "name": "growth (N5)",
+      "param": "mu",
+      "module": "Mass",
+      "passed": 11,
+      "n_broken": 17,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.148933873897465,
+      "mb_g0": 100.0
+    },
+    {
+      "name": "E2f autoact(L1)",
+      "param": "kSyE2fE2f",
+      "module": "Rb-E2f",
+      "passed": 12,
+      "n_broken": 16,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU S fold",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)",
+        "EZH2 Palbo mRNA drop (~0.44)",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 7.200270201004658,
+      "mb_g0": 0.0
+    },
+    {
+      "name": "S-phase (Dna)",
+      "param": "kSyDna",
+      "module": "Replication",
+      "passed": 18,
+      "n_broken": 10,
+      "broken": [
+        "CyclinD1 GNP+HHi/GNP",
+        "GNP+SHH cycles (>0 div)",
+        "MB cycles (>0 div)",
+        "Period GNP (~22h)",
+        "MB 2N (G0+G1) count% (flow)",
+        "MB S count% (flow; BrdU Ts~3h)",
+        "MB G2+M duration ~2.5h (direct)",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 protein G2/G0 (1.48)"
+      ],
+      "fold": 4.233419693958831,
+      "mb_g0": 0.0
+    },
+    {
+      "name": "EZH2 cyc-synth",
+      "param": "kEZE2f",
+      "module": "EZH2",
+      "passed": 20,
+      "n_broken": 8,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "MB HU G2 fold",
+        "EZH2 transcript S/G0 (1.8-2.5)",
+        "EZH2 Palbo mRNA drop (~0.44)"
+      ],
+      "fold": 7.114419896500178,
+      "mb_g0": 10.496875
+    },
+    {
+      "name": "EZH2 fb (N2)",
+      "param": "kTlEZ",
+      "module": "EZH2",
+      "passed": 21,
+      "n_broken": 7,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "MB HU G2 fold",
+        "HU EZH2-in-S boost (1.31)"
+      ],
+      "fold": 6.860183981595985,
+      "mb_g0": 10.5
+    },
+    {
+      "name": "mark nucleate",
+      "param": "a0_prc2",
+      "module": "H3K27",
+      "passed": 23,
+      "n_broken": 5,
+      "broken": [
+        "CyclinD1 MB+HHi/MB",
+        "CyclinD1 MB/GNP",
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "MB HU G2 fold"
+      ],
+      "fold": 6.860183981595633,
+      "mb_g0": 10.5
+    },
+    {
+      "name": "mark rd-wr (L5)",
+      "param": "a_rw_prc2",
+      "module": "H3K27",
+      "passed": 25,
+      "n_broken": 3,
+      "broken": [
+        "EZH2i CycD1 fold (GNP)",
+        "EZH2 G0/cycling (~0.6)",
+        "MB HU G2 fold"
+      ],
+      "fold": 5.840802225050534,
+      "mb_g0": 10.715625000000001
+    },
+    {
+      "name": "p27 synth",
+      "param": "kSyP21",
+      "module": "CDK2-p27",
+      "passed": 26,
+      "n_broken": 2,
+      "broken": [
+        "GNP-SHH arrest (0 div)",
+        "GNP+HHi arrest (0 div)"
+      ],
+      "fold": 5.630585158722725,
+      "mb_g0": 11.734375
+    },
+    {
+      "name": "Gli eraser",
+      "param": "k_jmjd3_gli",
+      "module": "H3K27",
+      "passed": 26,
+      "n_broken": 2,
+      "broken": [
+        "CyclinD1 GNP+HHi/GNP",
+        "CyclinD1 MB/GNP"
+      ],
+      "fold": 3.855601475739235,
+      "mb_g0": 11.884375
+    },
+    {
+      "name": "CyclinA",
+      "param": "kSyCa",
+      "module": "CDK2",
+      "passed": 27,
+      "n_broken": 1,
+      "broken": [
+        "MB HU G2 fold"
+      ],
+      "fold": 4.606850577462378,
+      "mb_g0": 0.1
+    },
+    {
+      "name": "Skp2 (L2)",
+      "param": "kSySkp2",
+      "module": "Skp2-commit",
+      "passed": 28,
+      "n_broken": 0,
+      "broken": [],
+      "fold": 5.564070526949487,
+      "mb_g0": 11.8125
+    },
+    {
+      "name": "Cdc20 (N1)",
+      "param": "kaCdc20",
+      "module": "MPF",
+      "passed": 28,
+      "n_broken": 0,
+      "broken": [],
+      "fold": 5.61225990686154,
+      "mb_g0": 11.7375
+    },
+    {
+      "name": "EZH2-direct*2",
+      "param": "K_EZH2_repression",
+      "module": "DEAD-test",
+      "passed": 28,
+      "n_broken": 0,
+      "broken": [],
+      "fold": 5.612219449880822,
+      "mb_g0": 11.734375
+    }
+  ]
+}
