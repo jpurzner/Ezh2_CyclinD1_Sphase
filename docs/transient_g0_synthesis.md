@@ -92,43 +92,40 @@ the whole-tumour Ki67 to ~30%).
 - **MB baseline G0 ~20%** is a SOFT target (informed guess) — do not over-fit.
 - Human MB Ki67 ~30% (measured); differentiated fraction ~half; reversible G0 ~20% (guess).
 
-## 7. Two therapy-escape routes require heterogeneity *(2026-07-15, JP cell-culture data)*
+## 7. CDK4/6i is a DOSE-RESPONSE, not a resistant clone *(2026-07-15, JP palbociclib data)*
 
-Two observations do **not** fall out of a single homogeneous MB population, and forcing them from one deterministic
-cell fails on direct test — each needs a distinct, grounded subpopulation:
+**The reframe (supersedes an earlier resistant-clone reading).** JP's pRb-Ser807/811⁺ data: the dividing fraction
+falls to **16–18% at 1 µM** (72h, washout → rebounds to 50%: reversible) and **~2% at 5 µM** (saturating; slower to
+wash out but still reversible; the extra 5 µM effects are off-target toxicity). This is a **DOSE-RESPONSE**, not a
+genetically-resistant subpopulation. Modeling palbo as **graded residual CDK4/6 activity** (`kPhRbCd = KP·resid`)
+over a population with CyclinD1 (CV 0.70) + CKI (CV 0.42) heterogeneity, three things fall out of v44 as-is —
+**no CDK2-bypass "option B", no senescence compartment** (`simulations/sim_cdk46i_dose_response.py`,
+`fig_cdk46i_dose_response.png`):
 
-1. **MB carries ~20% reversible G0 at baseline.** A homogeneous MB does **not** sit in baseline G0: it is
-   **Hh-autonomous** (Ptch1-low + MYCN drive cyclinD), so raising INK4 (p18 up to 8×), lowering SHH, or lowering
-   MYCN all keep it cycling (verified sweeps — the mitogen route is a dead end). What **does** produce a reversible,
-   pRb-hypophospho, p27-high baseline G0 is a **high CDK-inhibitor tone** (kSyP21 ≈ 0.11). So the reserve is a
-   **high-CKI subpopulation** — the SOX2 / OLIG2 quiescent-reserve logic (survives antimitotics, re-enters).
-2. **~10–20% of MB cells keep DIVIDING under CDK4/6i** (JP, cell culture). A homogeneous MB fully arrests
-   (p27 0→1.38, pRb→0). What escapes is a **low total-Rb subpopulation** (Rb pool ≈ 0.5): with little Rb to hold
-   E2F, cells cross the restriction point **independent of cyclinD–CDK4/6** and keep dividing under the drug
-   (verified). This is the canonical **RB1-loss / low-Rb CDK4/6i-resistance** route.
+1. **Dose-limited, pRb-positive residual.** As dose rises the dividing fraction slides down a graded curve, and
+   **every dividing cell is pRb-Ser807/811⁺** — the high-CyclinD tail overcomes partial inhibition and keeps
+   hyperphosphorylating Rb. The 16–18% residual = a *sub-saturating* dose; it vanishes at saturating dose. This is
+   why the residual is pRb-POSITIVE without needing CDK2-bypass. (Consistent with subtherapeutic CNS/BBB exposure
+   for MB in vivo — palbo is a P-gp/BCRP substrate.)
+2. **Reversible quiescent reserve** (drug-INDEPENDENT): a distinct high-CKI baseline-G0 fraction (MB ~20%, GNP ~2%;
+   SOX2/OLIG2-like) that sits out of cycle at every dose and re-enters when its quiescence signal is released
+   (Cook Sangar 2017: SHH-MB regrows on withdrawal). This is a **distinct bistable state, NOT a distribution tail**
+   — a swept CKI/CyclinD1 distribution only reaches ~20% baseline G0 at an extreme, effectively bimodal width
+   (Cip/Kip tail 30–119× median), which *is* a separate mode. GNP lacks it (~2% = its small low-CyclinD1 tail).
+3. **Reversibility / re-entry kinetics.** Arrest is reversible at every dose; **deeper arrest (higher dose) → slower
+   washout re-entry** (more p27 to clear: ~1180 model-units at 38% inhibition → ~1555 at 100%), which reproduces
+   JP's "5 µM takes longer to wash out" with **no senescence state**.
 
-**GNP has neither** (no high-CKI reserve, full Rb) → it **arrests cleanly** under CDK4/6i (~2% baseline G0 = the
-low-CyclinD1-abundance tail crossing the pRb threshold — *not* differentiation, which is out of scope; ~0% escape).
-The MB−GNP gap is the **therapy-escape liability**: under CDK4/6i **~35% of MB persist** — a ~20% quiescent reserve
-(arrested but reversible: survives the drug and re-enters when the quiescence signal is released) **plus** a ~15%
-resistant fraction that keeps dividing. **Only the ~15% actively proliferate during the drug**; the ~20% is a
-surviving regrowth reservoir, not active escape.
+**What the model claims.** The dose-response *shape* and the pRb-positive sign of the residual are **emergent ODE
+outputs** (the residual IS the high-CyclinD tail; dividing == pRb⁺ at every dose was verified True). The reserve
+FRACTION (~20%) is a hand-set SOFT estimate (§3, §6) — a distinct state, not derived. Caveat: the modeled dose
+transition is **steeper than a real CDK4/6i curve** (bistable R-point + finite heterogeneity); wider CyclinD1/CKI
+heterogeneity would spread it to a realistic Hill slope — this is where the CKI distributions actually earn their keep.
 
-**What the model does vs does not claim (important — this is a MIXTURE model, not an emergent-fraction prediction).**
-`simulations/sim_cdk46i_escape.py` composes MB as 65% normal / 20% reserve / 15% resistant (GNP 100% normal).
-- **The subpopulation SIZES (20% / 15%) are hand-set — JP's culture ESTIMATES, a SOFT target (§3, §6), not a model
-  output.** The reported baseline-G0 and still-dividing percentages therefore **equal those inputs**; the per-cell
-  CyclinD1-abundance heterogeneity is included for realism but does **not** move the classification (the state
-  overrides dominate), so it does not make the magnitudes emergent. The GNP-vs-MB contrast is likewise an
-  **assumption** (GNP lacks both subpopulations — normal tissue, no RB1 loss, no tumour quiescent reserve), not a
-  derivation.
-- **What the model VERIFIES (genuine ODE outputs):** each mechanism produces its claimed phenotype — high-CKI →
-  reversible baseline G0; low-Rb → keeps dividing under CDK4/6i; normal → arrests under CDK4/6i; and **reversibility**
-  is confirmed by a clean arrest-then-release run (`--reversibility`): the reserve re-enters on CKI release and the
-  drug-arrested normal cell re-enters on washout, **both 0 divisions during arrest → 12 after release**. So the
-  model asserts these mechanisms **are sufficient**, at the assumed sizes, to reproduce the observed contrast.
-Figure `simulations/fig_cdk46i_escape.png`.
-
-**Falsifiable predictions** (these would make the fractions measurable rather than assumed): reserve cells =
-p27-high / pRb-hypophospho / SOX2⁺ (or OLIG2⁺), Ki67⁻, re-enter on release; resistant cells = Rb-low / RB1-loss,
-Ki67⁺ **during** CDK4/6i. Distinct stains → the two escape routes are separable experimentally.
+**Falsifiable / discriminating experiments.** (a) A **Ser780 co-stain** separates the two residual mechanisms:
+dose-limited residual = Ser780⁻/Ser807-811⁺ at *sub-saturating* dose (partial CDK4/6 still primes)… actually both
+sites fall together under partial inhibition, so the cleaner test is the **dose-response curve itself** — a graded,
+reversible, pRb⁺ residual that disappears at saturating dose is dose-limitation; a residual that **persists at
+saturating dose and grows over weeks** is genuine acquired resistance (CCNE1 amplification → "option B", see
+`docs/option_b_cdk2_bypass_reading.md`). (b) Reserve cells = p27-high/pRb-hypophospho/**SOX2⁺**, Ki67⁻, re-enter on
+withdrawal. **Note (2026-07-15):** the old `sim_cdk46i_escape.py` resistant-clone framing is RETIRED by this section.
