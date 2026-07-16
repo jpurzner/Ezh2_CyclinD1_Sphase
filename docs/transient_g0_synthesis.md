@@ -118,9 +118,18 @@ over a population with CyclinD1 (CV 0.70) + CKI (CV 0.42) heterogeneity, three t
 
 **What the model claims.** The dose-response *shape* and the pRb-positive sign of the residual are **emergent ODE
 outputs** (the residual IS the high-CyclinD tail; dividing == pRb⁺ at every dose was verified True). The reserve
-FRACTION (~20%) is a hand-set SOFT estimate (§3, §6) — a distinct state, not derived. Caveat: the modeled dose
-transition is **steeper than a real CDK4/6i curve** (bistable R-point + finite heterogeneity); wider CyclinD1/CKI
-heterogeneity would spread it to a realistic Hill slope — this is where the CKI distributions actually earn their keep.
+FRACTION (~20%) is a hand-set SOFT estimate (§3, §6) — a distinct state, not derived.
+
+**Fit to JP's two doses (2026-07-15).** Only two doses measured (1 µM → 16-18% pRb⁺; 5 µM → ~2%, saturating;
+nothing below 1 µM). Mapping concentration → residual CDK4/6 activity by `resid = K/(K+C)` and sweeping heterogeneity
+width, the model fits BOTH points at an **empirical K ≈ 1.5 µM** (unrelated to the ~11 nM in-vitro IC50 — JP: the
+biochemical value is routinely off from the cell-culture dose; no CDK6 amplification). **KEY caveat/prediction:**
+the transition is intrinsically **STEEP** (IC50 ~0.7 µM, essentially saturated by ~2 µM) and **widening the
+CyclinD1/CKI heterogeneity does NOT soften it** — the bistable R-point makes each cell near-binary and sets a hard
+wall, so CyclinD spread can't spread the population dose-response. This is a **falsifiable prediction**: intermediate
+doses (2-3 µM) should already be ~saturated (~2%), not still dropping toward 5 µM. If a real 2-3 µM shows
+intermediate values, the true curve is shallower than v44 predicts → there are heterogeneity sources beyond
+CyclinD1/CKI (CDK4/6 abundance, drug uptake) that v44 doesn't carry. `fig_cdk46i_dose_response.png` is on the µM axis.
 
 **Falsifiable / discriminating experiments.** (a) A **Ser780 co-stain** separates the two residual mechanisms:
 dose-limited residual = Ser780⁻/Ser807-811⁺ at *sub-saturating* dose (partial CDK4/6 still primes)… actually both
