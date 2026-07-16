@@ -22,11 +22,13 @@ for coh in ('GNP', 'MB'):
     ax.axhline(res, color=COL[coh], ls=':', lw=1.2, alpha=0.7, zorder=1)
 ax.fill_between(inhib, 0, np.array(R['cohorts']['MB']['pct_dividing_prb_pos']), color=COL['MB'], alpha=0.06, zorder=0)
 
-# JP's palbo data points
-ax.axhspan(16, 18, color='#7f8c8d', alpha=0.16, zorder=0)
-ax.text(1.5, 34, "1 µM: 16–18% pRb⁺\n(sub-saturating, reversible)", fontsize=9.5, color='#333', va='center')
-ax.annotate("5 µM: ~2% pRb⁺\n(saturating; slower to\nwash out, still reversible)", xy=(88, 2), xytext=(58, 32),
-            fontsize=9.5, color='#333', ha='left', arrowprops=dict(arrowstyle='->', color='#666', lw=1.1))
+# JP's two measured points, anchored onto the model dose axis (1 µM = where MB curve ~16-18%; 5 µM = saturating).
+# Only two doses were measured (nothing below 1 µM), so the curve SHAPE below 1 µM is a model extrapolation.
+ax.axhspan(16, 18, color='#7f8c8d', alpha=0.14, zorder=0)
+ax.axvline(39, color='#333', ls='--', lw=1.1, alpha=0.6, zorder=1)
+ax.text(38, 60, "1 µM\n(sub-saturating)\n→ 16–18% pRb⁺,\nreversible", fontsize=9, color='#222', ha='right', va='center')
+ax.axvline(60, color='#333', ls='--', lw=1.1, alpha=0.6, zorder=1)
+ax.text(62, 60, "5 µM\n(saturating)\n→ ~2% pRb⁺,\nslower washout", fontsize=9, color='#222', ha='left', va='center')
 ax.text(99, 20.5, "MB reserve ~20%", fontsize=8.2, color=COL['MB'], alpha=0.85, va='bottom', ha='right')
 ax.text(99, 2.5, "GNP reserve ~2%", fontsize=8.2, color=COL['GNP'], alpha=0.85, va='bottom', ha='right')
 
