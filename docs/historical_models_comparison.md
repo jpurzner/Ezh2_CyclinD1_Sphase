@@ -6,10 +6,11 @@ The kinetics of EZH2/PRC2 inhibition on CyclinD1 are the sharpest place the mode
 is the cleanest lens on "how historical models differ from the current one."*
 
 ## The foundation (unchanged across generations)
-v44 = **Heldt et al. PNAS 2018** cell-cycle core (Cdk1/APC/Cdc20 + Rb/E2F restriction switch, conserved Rb/Cdh1/Gli
-pools) + v44 additions: an explicit **mitotic switch** (Cdc25/Wee1 hysteresis), **HU→fork-speed** S-phase coupling,
-a **Hedgehog/MYCN** module driving CyclinD1 transcription, cell-growth-gated commitment, and the **EZH2/H3K27me3**
-epigenetic layer. What changed generation-to-generation is *how EZH2/PRC2/H3K27me3 represses CyclinD1* — everything
+v44 = **Heldt et al. PNAS 2018** cell-cycle core (Cdk1/APC/Cdc20 + Rb/E2F restriction switch, conserved **Rb and
+Cdh1** moiety pools) + v44 additions: an explicit **mitotic switch** (Cdc25/Wee1 hysteresis), **HU→fork-speed**
+S-phase coupling, the **Hedgehog/MYCN** module driving CyclinD1 transcription (ported from v42; the Gli pool lives
+here, NOT in the Heldt core), cell-growth-gated commitment, and the **EZH2/H3K27me3** epigenetic layer. What
+changed generation-to-generation is *how EZH2/PRC2/H3K27me3 represses CyclinD1* — everything
 else (the engine) is shared, so behavioural differences isolate to this layer.
 
 ## The four generations of CyclinD1 repression
@@ -17,18 +18,22 @@ else (the engine) is shared, so behavioural differences isolate to this layer.
 | Gen | flag | repressor | EZH2i CyclinD1 fold | de-repression kinetics |
 |----|------|-----------|--------------------|------------------------|
 | **1. Instant (direct-EZH2)** | `with_h3k27_dilution=False` | EZH2 level, algebraic `K/(K+EZH2·(1−EZH2i))` | **6.2× (step)** | INSTANT — EZH2i collapses repression the same timestep |
-| **2. Explicit-mark memory** | `with_h3k27_memory=True` | the mark `H3K27_Cd` directly | **5.6× (slow)** | slow (~72h), set by mark demethylation `k_demeth` |
+| **2. Explicit-mark memory** | `with_h3k27_memory=True` | the mark `H3K27_Cd` directly | **5.6× (slow)** | slow (~72h), set by mark demethylation `k_demeth_cd` |
 | **3. PRC2-occupancy (lumped)** | `with_h3k27_chain=False` | **PRC2 occupancy** `f0+(1−f0)/(1+(PRC2/K)^n)` | **1.25×** | fast + small (complex stays) |
 | **4. Serial me-chain (current)** | *default* | PRC2 occupancy; mark = me3 via me0→me1→me2→me3 | **1.7×** | gradual (~12h) + me2→me3 lag |
 
 ## The three conceptual shifts (why each move was made)
 
 1. **Instant → a real timescale (Gen 1 → 2).** The original model repressed CyclinD1 by the EZH2 *level*, so an
-   EZH2 inhibitor de-repressed instantly and hugely. This is the "old wrong instant mechanism" — and it is why the
-   original EZH2i-fold validation target (2.2×) was mis-set: it was fit to an instantaneous full collapse. Making
-   the **H3K27me3 mark** (not EZH2 directly) the repressor gives de-repression a **real, mark-decay-limited
-   timescale** (EZH2 stops writing → the mark decays over hours → CyclinD1 rises), matching the experimental
-   observation that EZH2i de-repression is gradual, not a step.
+   EZH2 inhibitor de-repressed **instantly and hugely** (6.2× step in MB). The experimental target it should hit is
+   the **measured qPCR value — CyclinD1 2.2× in GNP + tazemetostat 1 µM** (Chahin Fig.3C; this is a live validation
+   target, `validate_v44.py`), and the instant model badly OVERSHOOTS it (6.2×) with no kinetics. Making the
+   **H3K27me3 mark** (not EZH2 directly) the repressor gives de-repression a **real, mark-decay-limited timescale**
+   (EZH2 stops writing → the mark decays over hours → CyclinD1 rises), matching the observation that EZH2i
+   de-repression is gradual, not a step. *(Open tension, not resolved by any generation: the CATALYTIC-inhibitor
+   correction below caps the model's EZH2i fold at ~1.7× — the complex stays bound — which UNDERSHOOTS the 2.2×
+   qPCR; whether the 2.2× reflects catalytic EZH2i or a fuller loss is the standing question, see
+   `docs/transient_g0_synthesis.md` / memory.)*
 
 2. **Mark-as-repressor → PRC2-occupancy-as-repressor (Gen 2 → 3), and the catalytic-inhibitor correction.** JP's
    EED-KO-vs-catalytic-dead-KO data settled the mechanism: it is **PRC2 complex OCCUPANCY** that represses

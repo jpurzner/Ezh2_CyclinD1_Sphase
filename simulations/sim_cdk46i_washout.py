@@ -1,7 +1,13 @@
-"""CDK4/6i washout kinetics in MB: 72h palbociclib -> washout, tracking the pRb-Ser807/811⁺ cycling fraction over
-time. Reproduces JP's experiment (1 µM reversible, rebounds; 5 µM saturating, slower to re-enter). Palbo = graded
-residual CDK4/6 activity (kPhRbCd=KP*resid): 1 µM -> resid 0.60 (sub-saturating), 5 µM -> resid 0.23 (saturating,
-from the K~1.5 µM fit). Time is mapped to hours via the model's calibration (62.8 units/hour; cycle ~22h).
+"""CDK4/6i washout kinetics in MB: 72h palbociclib -> washout, tracking the CYCLING fraction (fraction of cells that
+divided within the last cell cycle, from Dna 1->0 events -- NOT a pRb threshold) over time. Reproduces JP's
+experiment (1 µM reversible, rebounds; 5 µM saturating, slower to re-enter). Palbo = graded residual CDK4/6 activity
+(kPhRbCd=KP*resid): 1 µM -> resid 0.61 (sub-saturating), 5 µM -> resid 0.23 (saturating), from the K~1.5 µM fit.
+Time is mapped to hours via the model's calibration (62.8 units/hour; cycle ~22h).
+
+CAVEAT: the exact 1 µM residual (~16%) is FINE-TUNED -- the dose-response is steep at the R-point (~4 percentage
+points of cycling per 0.01 in resid: 0.60->12%, 0.61->16%, 0.62->20%), so the residual LEVEL is sensitive to the
+precise dose->resid mapping. The ROBUST, dose-mapping-independent results are qualitative: a partial reversible
+residual at sub-saturating dose, full reversible arrest at saturating dose, and SLOWER re-entry at higher dose.
 
 Run:  ./venv/bin/python simulations/sim_cdk46i_washout.py [--n=40] [--workers=8]
 """
