@@ -193,3 +193,7 @@ simulations/optimize_twostep_best.json
 # R session history
 *.Rhistory
 .Rhistory
+# CDK4/6i dose-response + washout + EZH2/PRC2 kinetics figures (2026-07) — vector PDFs tracked
+!simulations/fig_cdk46i_dose_response.pdf
+!simulations/fig_cdk46i_washout.pdf
+!simulations/fig_ezh2_prc2_kinetics.pdf

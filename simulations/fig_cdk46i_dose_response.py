@@ -51,5 +51,6 @@ foot = ('Model = v44 MB/GNP populations (CyclinD1 CV 0.70 + CKI CV 0.42), palbo 
 fig.text(0.10, 0.015, foot, fontsize=7.6, color='#666', va='bottom', linespacing=1.5)
 out = os.path.join(HERE, 'fig_cdk46i_dose_response.png')
 fig.savefig(out, dpi=150)
+fig.savefig(out.replace('.png', '.pdf'))
 print('conc(µM) at resid grid:', [round(c, 2) for c in sorted(conc)][:8], '...')
 print('->', out)
