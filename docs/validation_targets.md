@@ -41,11 +41,11 @@
 | GNP−Shh arrests | 0 divisions | 0 | — | 0 | ✓ | ext-lit (Wechsler-Reya '99) |
 | GNP+HHi arrests | 0 divisions | 0 | — | 0 | ✓ | inferred (RNA-seq collapse) |
 | GNP serum-starve arrests | 0 divisions | 0 | — | 0 | ✓ | assum (mitogen=0 by construction) |
-| **Period GNP** ⚠ | cell-cycle length | **16.25 h** | 0.30 | 22.83 | ✗ | **ext-lit (Contestabile 2013)** |
+| **Period GNP** ⚠ | cell-cycle length | **~16 h** | 0.30 | 22.83 | ✗ | **ext-lit (Nakashima 15.9h + Contestabile 16.25h)** |
 
 - **EZH2i fold (✓\*)**: passes only on the wide 0.42 band; model 1.63 is well short of the 2.2 point value → **genuine shortfall** (JP confirmed). Separate genetic point: Ezh2 cKO 2.46× (Fig 3A) — the genetic value argues this is a real miss, not an old artifact.
 - **EZH2 Palbo drop ⚠**: the 0.444× is measured in **MB** (Fig 4F qPCR), but the harness scores it on the **GNP** condition — a cell-type mismatch to resolve.
-- **Period GNP ⚠**: JP adopts **Contestabile 16.25 h** (phase-resolved: G1 7.63/S 7.11/G2 1.18/M 0.33). The harness still checks 22.0 h (model 22.83 passes that); under a 16.25 h target the current model *fails* → the harness change is deferred to the coordinated CKI-split recalibration (needs the MB Tc). This is a **two-citation literature conflict** (Nakashima ~22–23 h vs Contestabile 16.25 h), **not** missing provenance as I first wrote.
+- **Period GNP ⚠**: the two sources **agree on ~16 h** — Nakashima 2015 (live-imaging, mean **15.9 h**) and Contestabile 2013 (phase-resolved **16.25 h**: G1 7.63/S 7.11/G2 1.18/M 0.33). There is **no conflict**: the "~22–23 h Nakashima" in the existing docs is a **miscitation** (Nakashima measured ~15.9 h). So the model's 22.8 h is **~40 % too slow vs both** — nothing in the literature supports 22 h (it's purely the growth default, `mu=0.0005`). Adopting a ~16 h target *fails* the current model → the harness change is deferred to the coordinated CKI-split recalibration (needs the MB Tc). See the cycle-duration *distribution* below.
 
 ---
 
@@ -114,6 +114,9 @@ The completeness audit found measured phenotypes in the source docs that the spe
 | CyclinD1 G0/1 CV | GNP | 0.70 | proposed | JP flow — reconcile with model σ=0.68 (same quantity) |
 | CyclinD1 CV under EZH2i | GNP | 0.82 | proposed | model *prediction* (EZH2 buffers variance) |
 | Transient-G0 fraction | MB | ~12 % | proposed | JP (GNP outer-EGL ≈ 0) |
+| **GNP cycle-duration** | GNP | mean **15.9 h**, SD 3.71, **CV 0.23** (windowed) / 0.32 (full); siblings σ1.94 (CV 0.12) ≪ non-sib σ5.11 | documented | ext-lit (Nakashima 2015) |
+
+**GNP cycle-duration (Nakashima 2015)** — cycle length is **lineage-correlated**: siblings (σ 1.94 h, CV 0.12) are far more alike than random pairs (σ 5.11 h, CV 0.32), so most cell-to-cell variance is heritable/between-lineage, not within-lineage stochastic — a real constraint on how to build the population-of-models. Caveats: the unlabelled ± is **SD** (SEM would imply SD ~44 h, contradicted by the 6–40 h histogram) — flag as an inference if citing variance; the non-sibling ±1.72 h is *not* a comparable dispersion (field spread) — use the 5.76 h mean.
 
 ---
 
@@ -123,8 +126,8 @@ Keep GNP and MB **separate** — the model implicitly sets MB/GNP ≈ 0.99, whic
 
 | | Tc | G1 | S | G2 | M | Src | Status |
 |---|---|---|---|---|---|---|---|
-| **P7 GNP** | 16.25 h | 7.63 | 7.11 | 1.18 | 0.33 | ext-lit (Contestabile 2013) | **adopted** |
-| *(prior GNP estimate)* | ~22–23 h | — | — | — | — | ext-lit (Nakashima 2015, soft) | superseded/conflict |
+| **P7 GNP** | ~16 h | 7.63 | 7.11 | 1.18 | 0.33 | ext-lit (Nakashima 15.9h + Contestabile 16.25h) | **adopted** |
+| *(the "22–23 h Nakashima")* | — | — | — | — | — | **miscitation** — Nakashima is ~15.9 h | corrected |
 | **MB** | *TBD (longer)* | — | — | — | — | unpub (JP: ↑CKI + transient G0) | **needs target** |
 | model (default) | GNP 22.8 ≈ MB 22.8 | — | — | — | — | assum (mu=0.0005) | current |
 | model (CKI-split) | GNP 16.1 / MB 22.0 | — | — | — | — | the `k_mu_cki` feature | candidate |
@@ -137,7 +140,7 @@ Keep GNP and MB **separate** — the model implicitly sets MB/GNP ≈ 0.99, whic
 
 ## Open issues / to document
 
-1. **Period**: reconcile Nakashima 22–23 h vs Contestabile 16.25 h (JP adopts Contestabile); then decide the harness change (coupled to the CKI-split recal + MB Tc).
+1. **Period**: settled at ~16 h (Nakashima 15.9 h + Contestabile 16.25 h agree). **Correct the "~22–23 h Nakashima" miscitation** in `Ezh2_CcnD1_model_targets.md` §G, `DATA_PROVENANCE.md` §2.8, **and check the manuscript**; then the harness change to ~16 h (coupled to the CKI-split recal + MB Tc).
 2. **MB cycle length**: add a formal target (JP investigating).
 3. **CyclinD1 MB+HHi**: 0.144 (harness/provenance, load-bearing) vs 0.40 (compendium §A) — reconcile.
 4. **EZH2i fold**: 2.2 target vs 1.63 model = real shortfall to close.
@@ -152,7 +155,7 @@ Keep GNP and MB **separate** — the model implicitly sets MB/GNP ≈ 0.99, whic
 ## References
 
 - Chahin et al. (manuscript) — Fig 3A/3B/3C/3E/3F, 4A/4B/4D/4F/4G/4H/4I/4J, Supp 6D, Fig 5, §A–F (RNA-seq, qPCR, scRNA, IF, microscopy).
-- Contestabile et al. 2013 — P7 GNP phase durations. · Nakashima 2015 — prior GNP period estimate.
+- Contestabile et al. 2013 — P7 GNP phase durations (16.25 h). · Nakashima 2015 — P7 GNP cycle duration (mean **15.9 h**) + duration distribution (live-imaging lineage tracking).
 - Fujita — G2/M duration. · Wechsler-Reya & Scott 1999 — Shh mitogen. · Cook Sangar 2017 — SHH-MB palbo reversibility.
 - Heldt et al. 2018 (PNAS) — cell-cycle engine. · Vock / RNAdecayCafe — mRNA half-lives.
 
