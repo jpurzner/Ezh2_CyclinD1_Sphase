@@ -130,9 +130,22 @@ GROWTH_BLOCK = """
   M_commit = 1.2843242130809425;        // critical cell size for COMMITMENT (G0->G1; Skp2-p27 feedforward fires) ->
                           // transient G0 ~20% (MB); cell grows in G0 (p27 high) until mass>=M_commit
   n_size = 6;             // steepness of the size gates
+  // ---- graded G1 / cell-cycle LENGTHENING (JP 2026-07-20): the cycle length is the mass-doubling time (ln2/mu),
+  // so subthreshold mitogen (low CyclinD1) SLOWS growth -> longer Tc, GRADUALLY (no transient G0). This delays
+  // S-phase / lengthens the low-E2F interval so the slow EZH2 response follows. mu_min_frac=1 => mu_eff=mu
+  // (NO-OP, default unchanged). Set mu_min_frac<1 to engage lengthening at low mitogen (arrest only as Cd->0). ----
+  mu_min_frac = 1;        // 1 = off (legacy). <1 = growth slows to mu*mu_min_frac at low CyclinD1 (Tc lengthens up to /mu_min_frac)
+  K_g1len = 1.0;          // CyclinD1 midpoint at which lengthening half-engages
+  n_g1len = 4;            // steepness of the mitogen dependence
+  // ---- CELL-TYPE cycle length via CKIs (JP 2026-07-24): GNP(P7) cycles FAST (~16h); MB is SLOWER (~22h) because
+  // higher INK4 (p16+p18) + transient G0s. mu_eff is DIVIDED by (1 + k_mu_cki*(p16+p18)) so high-CKI MB grows/cycles
+  // slower than low-CKI GNP. k_mu_cki=0 => OFF (no-op, cycle = ln2/mu for all types; default unchanged). To engage a
+  // GNP-16h/MB-22h split: raise base mu and set k_mu_cki>0 (GNP p18=0.464 -> ~16h; MB p16+p18=1.86 -> ~22h).
+  k_mu_cki = 0;           // 0 = off (legacy, cell-type-invariant cycle). >0 = INK4-slowed MB cycle
+  mu_eff := mu/(1 + k_mu_cki*(p16 + p18))*(mu_min_frac + (1 - mu_min_frac)*Cd^n_g1len/(K_g1len^n_g1len + Cd^n_g1len));
   size_gate := mass^n_size/(M_size^n_size + mass^n_size);
   commit_gate := mass^n_size/(M_commit^n_size + mass^n_size);
-  Growth: => mass; Cell*mu*mass;
+  Growth: => mass; Cell*mu_eff*mass;
 """
 _FIRE_OLD = ("Phosphorylation_priming_of_replication_complexes: Rc => pRc; "
              "Cell*((kPhRc*(Ce + Ca)^n/(jCy^n + (Ce + Ca)^n))*Rc);")
@@ -154,7 +167,13 @@ SKP2_BLOCK = """
   kSySkp2bas = 0.002;      // basal Skp2 synthesis
   kDeSkp2C1 = 1.0;         // APC/C-Cdh1 (C1)-mediated Skp2 degradation (keeps Skp2 low in G0/G1)
   kDeSkp2bas = 0.02;       // basal Skp2 turnover
-  Skp2_synthesis: => Skp2; Cell*(kSySkp2bas + kSySkp2*E2f);
+  // 2026-07-20: MITOGEN-DOSE Skp2 induction. Data (JP scRNA + MB table): Skp2 is HIGHER in MB (~2.3x GNP-P7) and
+  // declines with differentiation -- but E2F-only + Cdh1-degradation makes MB Skp2 LOW (MB high Cdh1/p27). Skp2 is
+  // induced by proliferative/mitogen signalling (high in SHH-MB), so add a CyclinD1-dose synthesis term. kSySkp2_Cd=0
+  // => NO-OP (default unchanged).
+  kSySkp2_Cd = 0;          // mitogen(CyclinD1)-dose Skp2 induction: >0 raises Skp2 in high-CyclinD1 (MB) cells
+  K_Skp2_Cd = 2.0;         // CyclinD1 half-saturation for the dose term
+  Skp2_synthesis: => Skp2; Cell*(kSySkp2bas + kSySkp2*E2f + kSySkp2_Cd*Cd/(K_Skp2_Cd + Cd));
   Skp2_degradation_Cdh1: Skp2 => ; Cell*kDeSkp2C1*C1*Skp2;
   Skp2_decay: Skp2 => ; Cell*kDeSkp2bas*Skp2;
 """
@@ -183,6 +202,7 @@ EZH2_CORE_BLOCK = """
                           // so raising the flat baseline does not over-repress CyclinD1.
   K_Ce_EZ = 0.5; K_Ca_EZ = 0.8; wCe = 0.582;       // CycE(S-onset)/CycA(S-G2) gate weights (wCe baked)
   kDeEZm = 0.0098; kTlEZ = 0.015098862630302894; kDeEZ = 0.0011685177801161655;  // EZH2 t1/2 ~14h (was 0.00015=77h, under-constrained): pinned by HU-arrest in-S boost + G0-withdrawal IF; kTlEZ co-tuned to hold EZH2 level (EZi-fold/MB-GNP)
+  kDeEZ_C1 = 0;  // APC/C-Cdh1 (C1)-gated EZH2 degradation: EZH2 is a Cdh1 substrate -> degraded in G0/G1 (C1 active), STABILIZED in S/G2/committed & HU-arrest (C1 phospho-off) so elongated/arrested S ACCUMULATES EZH2 (exp-verified). Default 0 = legacy single-rate turnover.
   // EZH2 is a Rb-E2f target driven by CyclinD1-CDK4/6: synthesis is cycle-gated (E2f x CycE/CycA, peaks S/G2)
   // AND MITOGEN-DOSE dependent (the *Cd/(Kez_cd+Cd) factor). The Cd term reproduces the dose-dependent EZH2
   // increase over a WIDE rShh range (Fig 4H) and the MB/GNP=2.05x (Fig 4J), while SATURATING (Kez_cd=2) so the
@@ -190,7 +210,7 @@ EZH2_CORE_BLOCK = """
   EZH2_tx: => EZH2m; Cell*(kEZbas + (kEZbas_Cd + kEZE2f*E2f/(K_E2f_EZ + E2f)*(wCe*Ce/(K_Ce_EZ + Ce) + (1 - wCe)*Ca/(K_Ca_EZ + Ca)))*Cd/(Kez_cd + Cd));
   EZH2m_deg: EZH2m => ; Cell*kDeEZm*EZH2m;
   EZH2_tl: EZH2m => EZH2m + EZH2; Cell*kTlEZ*EZH2m;
-  EZH2_deg: EZH2 => ; Cell*kDeEZ*EZH2;
+  EZH2_deg: EZH2 => ; Cell*(kDeEZ + kDeEZ_C1*C1)*EZH2;
 """
 
 # ---- CyclinD placeholder (used when with_hh=False): constant mitogen x EZH2 repression ----
@@ -227,12 +247,23 @@ HH_MYCN_BLOCK = """
   k_Ptch1_basal = 0.1493; k_Ptch1_Gli = 1.873; K_Gli_Ptch = 0.3978;
   k_Ptch1_mRNA_deg = 0.8; k_Ptch1_translation = 1.0; k_Ptch1_deg = 0.5;
   k_SHH_Ptch_bind = 5.0; k_SHH_Ptch_release = 0.1; k_SHH_Ptch_deg = 0.8;
+  // CILIUM cell-cycle DUTY CYCLE (JP 2026-07-21; hh-signalling-timing.md): ~94% of EGL GNP progenitors are ciliated
+  // but cilia RESORB pre-mitotically (G2/M) -> Shh reception is phase-gated (on G1/S, off through G2/M), restored
+  // after division. cilium_gate multiplies the SHH->Ptch1 reception. w_cilium=0 => OFF (default; gate=1, no change).
+  w_cilium = 0; K_cil = 0.6; n_cil = 4;
+  cilium_gate := 1 - w_cilium*Cb^n_cil/(K_cil^n_cil + Cb^n_cil);   // ->1 in G1/S (ciliated), ->(1-w) at high CyclinB (G2/M, cilium resorbed)
   // HH/MYCN->CyclinD1 DE-SATURATED + refit WITH the Gli->Ptch1 negative feedback (v44_recalibrate_gli.py):
   // Gli1 MB/GNP 7.2x, CyclinD1 6.8x, vismo crashes MB CyclinD1 to 0.142 of MB (~1.0x a cycling GNP).
   // Gli supplies ~86% of MB CyclinD1; Mycn/basal the HHi-resistant residual. Used WITH the saturating
   // CyclinD1->Rb drive (with_cd_sat). The Gli->Ptch1 loop (k_Ptch1_basal/Gli, K_Gli_Ptch above) damps
   // GNP Gli (transient overshoot, adaptive) and is BROKEN in MB (low functional Ptch1 -> constitutive Gli).
   k_Smo_act = 1.573; k_Smo_inact = 1.2; K_Ptch_Smo = 0.1025;
+  // DELAYED Ptch1 negative feedback (JP 2026-07-21): the real Gli->Ptch1 TRANSCRIPTIONAL feedback acts over HOURS,
+  // not the quasi-static minutes the fast Ptch1_free uses. Ptch1_slow accumulates with Gli_act on an hours timescale
+  // and adds to the Ptch1 inhibition of Smo -> Gli/CyclinD1 OVERSHOOTS then DROPS (adaptation). Gated by
+  // Ptch1_copy_number (BROKEN in MB, like the fast loop). k_ptch1_slow_on=0 => OFF (default, validation-preserving).
+  species Ptch1_slow; Ptch1_slow = 0.0;
+  k_ptch1_slow_on = 0; k_ptch1_slow_off = 0.006; w_ptch1_slow = 4.0;
   k_Gli_rep_to_act = 3.0; k_Gli_act_to_rep = 1.5; K_Smo_Gli_switch = 0.8879;
   Vmax_Gli1_tx = 1.27; K_Gli_act_Gli1 = 1.182; n_Gli_act = 2; K_Gli_rep_Gli1 = 0.4; n_Gli_rep = 2;
   k_Gli1_mRNA_deg = 0.8; k_Gli1_translation = 1.2; k_Gli1_deg = 0.8;
@@ -258,6 +289,17 @@ HH_MYCN_BLOCK = """
   k_Cd_tx_basal = 0.483; k_Cd_tx_Gli_max = 59.2; K_Gli_act_CycD = 0.4568; K_Gli_rep_CycD = 0.3;   // wide-search baked (basal, Gli_max)
   k_Cd_mRNA_deg = 0.8;
   k_MYCN_synth_basal = 0.3; k_MYCN_synth_Gli = 0.102; K_Gli_MYCN = 0.5; k_MYCN_deg = 1.0;
+  // MYCN_expr (JP 2026-07-27): SHH-MB is NOT MYCN-amplified (that is Group-3 MB); MYCN is ELEVATED because it
+  // is a Hedgehog/Gli target. MYCN_expr is a MB-specific, DEVELOPMENTALLY Gli-set elevated-expression term
+  // (additive to the basal), 0 in GNP. Data (Chahin RNA-seq): MYCN rises with chronic Hh dose (wt GNP 3077 ->
+  // Ptch+/- 4251 -> MB 8808) but is ACUTELY vismodegib-RESISTANT in MB (8808->7862, -11%) vs GNP (-20%) -- i.e.
+  // developmentally locked, acutely Gli-independent. An acute Gli1-driven self-activation LATCH cannot realize
+  // this (the buffer + the GNP/MB discrimination are the same knob, and GNP's own 20% drop puts it too close to
+  // any threshold; ~50-candidate search + fine threshold mapping, 2026-07-27), so the lock is represented as a
+  // developmental state (this MB-specific term), not an acute switch. Replaces the MYCN_amplification multiplier.
+  MYCN_expr = 0.0;
+  // deprecated (failed mechanism, kept default-inert): the acute Gli1-Hill + self-activation latch.
+  n_MYCN_Gli = 2; k_MYCN_auto = 0.0; K_MYCN_auto = 0.6; n_MYCN_auto = 4;
   k_Cd_tx_MYCN = 21.66; K_MYCN_Cd = 1.655; n_MYCN_Cd = 3.658;   // wide-search baked (was 35.22)
   K_EZH2_repression = 0.4846191484325215;   // EZH2-DIRECT CyclinD1 repression. NB: DEAD in the with_h3k27_chain DEFAULT (repression there is the PRC2-occupancy Hill f0_prc2+(1-f0)/(1+(PRC2/K_prc2)^n); tune EZH2i via K_prc2/a_rw_prc2). Only LIVE in the legacy w_ezdir (memory/lumped-mark) branches.
   k_Cd_translation = 0.801; k_Cd_deg = 1.0;   // wide-search baked (was 0.75). Cd protein scale: GNP (and MB+HHi == cycling-GNP level by
@@ -270,11 +312,13 @@ HH_MYCN_BLOCK = """
   Ptch1_mRNA_degradation: Ptch1_mRNA => ; k_Ptch1_mRNA_deg*Ptch1_mRNA;
   Ptch1_translation: Ptch1_mRNA => Ptch1_mRNA + Ptch1_free; k_Ptch1_translation*Ptch1_mRNA;
   Ptch1_degradation: Ptch1_free => ; k_Ptch1_deg*Ptch1_free;
-  SHH_Ptch_binding: Ptch1_free => SHH_Ptch; k_SHH_Ptch_bind*SHH*Ptch1_free;
+  SHH_Ptch_binding: Ptch1_free => SHH_Ptch; k_SHH_Ptch_bind*SHH*cilium_gate*Ptch1_free;
   SHH_Ptch_release: SHH_Ptch => Ptch1_free; k_SHH_Ptch_release*SHH_Ptch;
   SHH_Ptch_degradation: SHH_Ptch => ; k_SHH_Ptch_deg*SHH_Ptch;
-  Smo_activation: => Smo_active; k_Smo_act/(1 + Ptch1_free*Ptch1_copy_number/K_Ptch_Smo)*(1 - HHi);
+  Smo_activation: => Smo_active; k_Smo_act/(1 + (Ptch1_free + w_ptch1_slow*Ptch1_slow)*Ptch1_copy_number/K_Ptch_Smo)*(1 - HHi);
   Smo_inactivation: Smo_active => ; k_Smo_inact*Smo_active;
+  Ptch1_slow_on:  => Ptch1_slow; k_ptch1_slow_on*Gli_act^2*(1 - Ptch1_slow);   // slow (hours) delayed accumulation, STEEP in Gli (near-0 at baseline -> transient overshoot preserved)
+  Ptch1_slow_off: Ptch1_slow => ; k_ptch1_slow_off*Ptch1_slow;
   Gli_rep_to_act: Gli_rep => Gli_act; k_Gli_rep_to_act*Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2)*Gli_rep;
   Gli_act_to_rep: Gli_act => Gli_rep; k_Gli_act_to_rep*(1 - Smo_active^2/(K_Smo_Gli_switch^2 + Smo_active^2))*Gli_act;
   Gli1_transcription: => Gli1_mRNA; Vmax_Gli1_tx*Gli_act^n_Gli_act/(K_Gli_act_Gli1^n_Gli_act + Gli_act^n_Gli_act)*(1 - Gli_rep^n_Gli_rep/(K_Gli_rep_Gli1^n_Gli_rep + Gli_rep^n_Gli_rep))*(Ptch1_copy_number + (1 - Ptch1_copy_number)*g_smo_Gli1_broken) + k_Gli1_auto*Gli1_epi;
@@ -283,7 +327,7 @@ HH_MYCN_BLOCK = """
   Gli1_mRNA_degradation: Gli1_mRNA => ; k_Gli1_mRNA_deg*Gli1_mRNA;
   Gli1_translation: Gli1_mRNA => Gli1_mRNA + Gli1; k_Gli1_translation*Gli1_mRNA;
   Gli1_degradation: Gli1 => ; k_Gli1_deg*Gli1;
-  MYCN_synthesis: => MYCN; k_MYCN_synth_basal*MYCN_amplification + k_MYCN_synth_Gli*(Gli_act + Gli1)/(K_Gli_MYCN + Gli_act + Gli1);
+  MYCN_synthesis: => MYCN; (k_MYCN_synth_basal + MYCN_expr) + k_MYCN_synth_Gli*(Gli_act + Gli1)/(K_Gli_MYCN + Gli_act + Gli1);
   MYCN_degradation: MYCN => ; k_MYCN_deg*MYCN;
   CycD1_transcription: => Cd_mRNA; (k_Cd_tx_basal + k_Cd_tx_Gli_max*(Gli_act + Gli1)^n_Gli_act/(K_Gli_act_CycD^n_Gli_act + (Gli_act + Gli1)^n_Gli_act)*(K_Gli_rep_CycD^n_Gli_rep/(K_Gli_rep_CycD^n_Gli_rep + Gli_rep^n_Gli_rep)) + k_Cd_tx_MYCN*MYCN^n_MYCN_Cd/(K_MYCN_Cd^n_MYCN_Cd + MYCN^n_MYCN_Cd))*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)));
   CycD1_mRNA_degradation: Cd_mRNA => ; k_Cd_mRNA_deg*Cd_mRNA;
@@ -311,7 +355,7 @@ import re as _re
 # state Rbm is the literal transient-G0 buffer (E2f-bound, growing) before the Skp2-p27 feedforward
 # fires the hyper switch. Toggle: build_model_v44(with_two_step_rb=True). Re-uses existing rate
 # constants (kPhRbCd mono; kPhRbCe/kPhRbCa hyper; kDpRb dephos; kAsRbE2f/kDsRbE2f binding).
-def _apply_two_step_rb(m, with_growth):
+def _apply_two_step_rb(m, with_growth, decouple_commit=False):
     # Keep `pRb` as the HYPER form (its Heldt annotation is literally "hyperphosphorylated"), add only
     # `Rbm` (mono) + `RbmE2f` (mono.E2f). Reaction IDs with Heldt annotations are kept; the mono->hyper
     # and mono-E2f reactions are appended with new IDs. `pRb` = experimental phospho-Rb(Ser807/811)
@@ -331,7 +375,12 @@ def _apply_two_step_rb(m, with_growth):
     # kept. G0 is now read off pRb-HYPOphosphorylation (the functional switch), p27 is the supporting readout.
     cdk_d = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
     _clear_brake = "/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
-    p27_clear = f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}*commit_gate" if with_growth else f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}"
+    # decouple_commit (JP 2026-07-26): drop the growth/size gate (commit_gate) from p27-clearance so the
+    # G0->G1 commitment is governed PURELY by the CyclinD1/CDKi balance (cdk_d) + birth-p27 (Spencer/Cappell),
+    # NOT by growth rate. Lets a fast 16h core cycle keep a strong CyclinD1-vs-CDKi commitment threshold, and
+    # makes MB's transient G0 (longer AVERAGE cycle) come from its high CDKi, not from a slower engine.
+    _commit_gated = with_growth and not decouple_commit
+    p27_clear = f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}*commit_gate" if _commit_gated else f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}"
     m = m.replace(
         "species Rb in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, E1 in Cell;",
         "species Rb in Cell, Rbm in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, RbmE2f in Cell, E1 in Cell;")
@@ -392,8 +441,9 @@ def _apply_overrides(model, overrides):
 def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_skp2=True, with_two_step_rb=True, with_cd_sat=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
-                    with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=True,
-                    with_mitogen_tracker=False, params=None):
+                    with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
+                    with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
+                    mycn_autoreg=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -427,11 +477,18 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         m = m.replace("\n  Cd = 0.65;", "")   # drop Heldt's constant Cd init
         blocks += EZH2_CORE_BLOCK
         blocks += HH_MYCN_BLOCK if with_hh else CD_PLACEHOLDER_BLOCK
-        # EZH2/EZH2m dilution at division. Concentration convention (with_ezh2_conc=True, DEFAULT since
-        # 2026-07-13): EZH2 is a CONCENTRATION -> preserved at symmetric division (½N over ½V); its reset comes
-        # from its own ~10h turnover (kDeEZ), NOT a discrete halving. The legacy discrete /2 (with_ezh2_conc=False)
-        # treats EZH2 like an AMOUNT but reads it like a concentration (fixed-K Hills, no /mass) -> an
-        # inconsistency; it was the ONLY soluble protein so treated. See docs/daughter_transfer_plan.md.
+        # mycn_autoreg (DEPRECATED, default-off): the acute Gli1-driven MYCN self-activation LATCH. It cannot
+        # realize the developmental Hh-lock (buffer strength and GNP/MB discrimination are the same knob; see the
+        # MYCN_expr note). Superseded by the additive MYCN_expr elevated-expression term (now the default). Flag
+        # kept only so callers/env do not break; it is intentionally inert.
+        _ = mycn_autoreg
+        # EZH2/EZH2m dilution at division. DILUTION convention (with_ezh2_conc=False, DEFAULT since 2026-07-19):
+        # EZH2 is DILUTED at division (discrete /2) so that a cell's EZH2 tracks its DIVISION HISTORY -- this is
+        # what makes an ELONGATED / HU-ARRESTED S ACCUMULATE EZH2 (exp-verified by JP): dividing cells reset it,
+        # arrested cells don't. Paired with LOW baseline kDeEZ (committed/S cells STABLE) + APC/Cdh1(C1)-gated
+        # kDeEZ_C1 (clears EZH2 in G0). The concentration convention (with_ezh2_conc=True, default 2026-07-13..07-19)
+        # preserved EZH2 across division so arrest could NOT accumulate it -> the S-elongation EZH2 boost was flat
+        # (1.009); reverted here. kTlEZ stays at its string default (no concentration-convention x0.78 rescale).
         if not with_ezh2_conc:
             blocks = blocks.replace("MPF = 0, preMPF = 0, Cdc20 = 0 ;",
                                     "MPF = 0, preMPF = 0, Cdc20 = 0, EZH2 = EZH2/2, EZH2m = EZH2m/2 ;")
@@ -446,7 +503,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
 
     if with_two_step_rb:
         # split Rb->pRb into Rb->Rbm (mono, CyclinD, size-gated)->Rbh (hyper, CyclinE/A, releases E2f)
-        m = _apply_two_step_rb(m, with_growth)
+        m = _apply_two_step_rb(m, with_growth, decouple_commit)
 
     if with_cd_sat and not with_two_step_rb:
         # CyclinD1 -> Rb drive SATURATES (CDK4/6 kinase activity is bounded): kPhRbCd*Cd is replaced by
@@ -657,21 +714,30 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 "\n  K_prc2 = 0.0028684066713754613; n_prc2 = 3.982266551808909; f0_prc2 = 0.18030409984207782;"
                 "\n  kme1 = 9.706031386488556; kme2 = 8.266881635062989; kme3 = 4.555295001018562;   // serial rates x PRC2: FAST me0->me1,me1->me2; SLOW me2->me3 (rate-limiting; optimize_chain 2026-07-11, me3 lag ~13h)"
                 "\n  d_me = 0.0014787645946766597;   // precursor (me1,me2) passive turnover"
+                # ---- 2026-07-21 four mechanism additions (JP-approved); all NO-OP at these string defaults ----
+                "\n  n_rw = 1;   // read-write cooperativity exponent: a_rw_prc2*Mk^n_rw (1 = linear/legacy; >1 = cooperative EED spreading -> bistable-capable, gap #1)"
+                "\n  k_h33 = 0;   // replication-INDEPENDENT H3.3/HIRA transcription-coupled me3 loss (k_h33*txHill*Mk -> me0): mark decay in NON-dividing cells (gap #3). 0 = off"
+                "\n  dil_frac = 0.5;   // discrete S-onset dilution fraction (0.5 = legacy instantaneous halving); set 0 to use the continuous k_dil_S term instead"
+                "\n  k_dil_S = 0;   // continuous replication dilution x DNA-synth flux (kSyDna*vfork*aRc): spreads dilution over S so an elongated S recovers concurrently (gap #2). 0 = off; ~0.693 => ~50% over a full S"
                 # EZH2i is a SAM-competitive CATALYTIC inhibitor: it blocks the SET-domain methyltransferase
                 # but leaves the PRC2 complex BOUND and the existing H3K27me3 in place. So (1-EZH2i) acts ONLY on
                 # the writing activity (PRC2, below, drives the me-chain); the CyclinD1 repression is driven by
                 # PRC2 OCCUPANCY (PRC2_rep, NO EZH2i factor) -> after EZH2i, repression falls only as the mark
                 # decays (turnover + eraser + replicative dilution) = mark-decay-LIMITED, GRADUAL de-repression,
                 # not the old instant collapse. At EZH2i=0, PRC2 == PRC2_rep, so baseline is unchanged.
-                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"
-                "\n  PRC2_rep := EZH2*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // OCCUPANCY (represses CyclinD1): complex stays bound under EZH2i"
+                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk^n_rw)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"
+                "\n  PRC2_rep := EZH2*(a0_prc2 + a_rw_prc2*Mk^n_rw)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // OCCUPANCY (represses CyclinD1): complex stays bound under EZH2i"
                 "\n  me0_to_me1: => m1_me; Cell*PRC2*kme1*(1 - m1_me - m2_me - Mk);   // FAST"
                 "\n  me1_to_me2: m1_me => m2_me; Cell*PRC2*kme2*m1_me;                // FAST"
                 "\n  me2_to_me3: m2_me => Mk; Cell*PRC2*kme3*m2_me;                    // SLOW (rate-limiting)"
                 "\n  me3_demeth: Mk => m2_me; Cell*(del_mk + k_jmjd3_gli*Gli1)*Mk;    // eraser strips me3->me2"
                 "\n  me2_demeth: m2_me => m1_me; Cell*(d_me + k_jmjd3_gli*Gli1)*m2_me;"
                 "\n  me1_turnover: m1_me => ; Cell*d_me*m1_me;                         // -> me0 (implicit)"
-                "\n  Mk_replicative_dilution: at (Dna > 0.05): m1_me = 0.5*m1_me, m2_me = 0.5*m2_me, Mk = 0.5*Mk;"
+                "\n  me3_h33_exchange: Mk => ; Cell*k_h33*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk)*Mk;   // H3.3/HIRA replication-INDEPENDENT, transcription-coupled histone exchange -> me0 (gap #3)"
+                "\n  Mk_replicative_dilution: at (Dna > 0.05): m1_me = (1 - dil_frac)*m1_me, m2_me = (1 - dil_frac)*m2_me, Mk = (1 - dil_frac)*Mk;"
+                "\n  me1_dil_S: m1_me => ; Cell*k_dil_S*kSyDna*vfork*aRc*m1_me;   // continuous S-phase (fork-gated) dilution -> me0 (gap #2)"
+                "\n  me2_dil_S: m2_me => ; Cell*k_dil_S*kSyDna*vfork*aRc*m2_me;"
+                "\n  me3_dil_S: Mk => ; Cell*k_dil_S*kSyDna*vfork*aRc*Mk;"
             )
             m = m.replace("\nend", mk + "\nend")
             m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
@@ -687,8 +753,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 "\n  a0_prc2 = 0.00037763461927116913; a_rw_prc2 = 0.004297010112265872; g_prc2 = 0.04244445931486211;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction (optimize_prc2 2026-07-10)"
                 "\n  K_prc2 = 0.0034813553293576824; n_prc2 = 3.385026804758643; f0_prc2 = 0.05054636367014487;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
                 # EZH2i = catalytic inhibitor: (1-EZH2i) on the WRITING (PRC2) only; repression via PRC2_rep OCCUPANCY (no EZH2i)
-                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"
-                "\n  PRC2_rep := EZH2*(a0_prc2 + a_rw_prc2*Mk)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // OCCUPANCY (represses CyclinD1): complex stays bound under EZH2i"
+                "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk^n_rw)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"
+                "\n  PRC2_rep := EZH2*(a0_prc2 + a_rw_prc2*Mk^n_rw)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // OCCUPANCY (represses CyclinD1): complex stays bound under EZH2i"
                 "\n  Mk_methylation: => Mk; Cell*PRC2*(1 - Mk);   // PRC2 writes H3K27me3 on unmethylated substrate"
             )
             m = m.replace("\nend", mk + "\nend")
@@ -705,6 +771,51 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             m = m.replace("\nend", mk + "\nend")
             m = m.replace("(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)))",
                           "((1 - w_ezdir)*(f0_mk + (1 - f0_mk)/(1 + (Mk/K_mk)^n_mk)) + w_ezdir*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i))))")
+        # ---- POISED BIVALENT DIFFERENTIATION GENE (JP 2026-07-21; added AFTER the mark-block if/elif/else so it
+        # never breaks that chain). Off by default (with_diff_gene=False) -> default model unchanged. A heavily-
+        # H3K27me3-marked differentiation locus that is ALSO H3K4me3+ (bivalent / poised): repressed in the
+        # progenitor but "ready to fire" the instant H3K27me3 falls. Written by the SAME EZH2/PRC2 writer and diluted
+        # by the SAME S-phase replication as CyclinD1, but with NO feedback to the cell cycle (a passive SENTINEL /
+        # readout -> validation-neutral). Writing is SLOW (restoration ~ Tc, the me3 de-novo lag) so the mark is
+        # DIVISION-RATE-SENSITIVE: at fast Tc it dilutes below the poised H3K4me3 level and the gene PREMATURELY
+        # ACTIVATES (Diff -> 1) -- the "too fast -> differentiation" event of the speed-limiter framework. Also fires
+        # under EZH2i (writer loss). Requires the chain (Mk) + growth (Dna/aRc/vfork/kSyDna). ----
+        if with_diff_gene and with_prc2 and with_h3k27_chain:
+            dg = (
+                "\n  species me1_diff in Cell; me1_diff = 0.05;   // H3K27me1 at the differentiation locus"
+                "\n  species me2_diff in Cell; me2_diff = 0.12;   // H3K27me2"
+                "\n  species Mk_diff in Cell;  Mk_diff = 0.85;    // H3K27me3 (= me3): the heavy repressive mark at the diff locus"
+                "\n  species Diff in Cell;     Diff = 0.0;         // PREMATURE differentiation-GENE ACTIVATION readout (0 = repressed/poised)"
+                "\n  H3K4_diff = 0.55;                             // H3K4me3 (poising ACTIVE mark) -- constitutively present at the bivalent locus"
+                "\n  a0_diff = 0.0014; a_rw_diff = 0.006; n_rw_diff = 2;   // PRC2 recruitment at the diff locus (accessory + me3 read-write)"
+                "\n  kme1_diff = 6.0; kme2_diff = 5.0; kme3_diff = 0.35;   // SERIAL rates x PRC2_diff: FAST me0->me1,me1->me2; SLOW me2->me3 (=> me3) = the de-novo LAG -> me3 is division-rate-sensitive"
+                "\n  del_diff = 0.0005; d_me_diff = 0.0007;   // me3->me2 turnover + precursor (me1,me2) turnover"
+                "\n  k_dil_diff = 0.693;   // continuous S-phase (fork-gated) replicative dilution (halves all me over a full S)"
+                "\n  K_diff = 0.28; n_diff = 8; k_on_diff = 0.05; k_off_diff = 0.02;   // HIGH activation threshold: the gene fires ONLY when me3 is LARGELY LOST (Mk_diff < ~0.28) -> robustly repressed"
+                "\n  k_erase_diff = 0.12; K_erase = 0.7; n_erase = 10;   // bivalent RESOLUTION: an active gene erases its own me3 (KDM6B) -> latches the activation (silent below Diff~0.7)"
+                "\n  g_diff_exit = 0.97; K_diff_exit = 0.5; n_diff_exit = 4;   // DOWNSTREAM (G0/differentiation is complex): once the gene is ON the cell COMPLETES its final mitosis then exits to G0 (represses CyclinD1 re-commitment; a few residual divisions during the transition)"
+                "\n  PRC2_diff := EZH2*(1 - EZH2i)*(a0_diff + a_rw_diff*Mk_diff^n_rw_diff);   // PRC2 writing at the diff locus (EZH2-driven, me3 read-write)"
+                "\n  diff_drive := H3K4_diff*K_diff^n_diff/(K_diff^n_diff + Mk_diff^n_diff);   // high only when me3 is LOW (repression relieved; H3K4me3 poises the gene)"
+                "\n  diff_exit := 1 - g_diff_exit*Diff^n_diff_exit/(K_diff_exit^n_diff_exit + Diff^n_diff_exit);   // 1 when Diff low; -> (1-g) when the gene is active (bias to G0)"
+                "\n  me0d_to_me1d: => me1_diff; Cell*PRC2_diff*kme1_diff*(1 - me1_diff - me2_diff - Mk_diff);   // FAST"
+                "\n  me1d_to_me2d: me1_diff => me2_diff; Cell*PRC2_diff*kme2_diff*me1_diff;                    // FAST"
+                "\n  me2d_to_me3d: me2_diff => Mk_diff; Cell*PRC2_diff*kme3_diff*me2_diff;                     // SLOW (rate-limiting) = de-novo lag"
+                "\n  me3d_demeth: Mk_diff => me2_diff; Cell*del_diff*Mk_diff;                                  // passive turnover me3->me2"
+                "\n  me2d_demeth: me2_diff => me1_diff; Cell*d_me_diff*me2_diff;"
+                "\n  me1d_turn:   me1_diff => ; Cell*d_me_diff*me1_diff;                                       // -> me0 (implicit)"
+                "\n  me3d_erase: Mk_diff => me2_diff; Cell*k_erase_diff*Diff^n_erase/(K_erase^n_erase + Diff^n_erase)*Mk_diff;   // active-gene self-erasure (latch)"
+                "\n  meX_dil_S: me1_diff => ; Cell*k_dil_diff*kSyDna*vfork*aRc*me1_diff;                       // S-phase dilution (fork-gated)"
+                "\n  meY_dil_S: me2_diff => ; Cell*k_dil_diff*kSyDna*vfork*aRc*me2_diff;"
+                "\n  meZ_dil_S: Mk_diff => ; Cell*k_dil_diff*kSyDna*vfork*aRc*Mk_diff;"
+                "\n  Diff_activate: => Diff; Cell*k_on_diff*diff_drive*(1 - Diff);                             // PREMATURE ACTIVATION when me3 collapses"
+                "\n  Diff_repress:  Diff => ; Cell*k_off_diff*Mk_diff*Diff;                                    // re-repressed if me3 recovers (before resolution)"
+            )
+            m = m.replace("\nend", dg + "\nend")
+            # DOWNSTREAM coupling: a fired diff gene biases the cell to G0 (completes its final mitosis, then stops
+            # re-committing) by multiplying the CyclinD1 transcription by diff_exit. NOT an abrupt mid-cycle arrest --
+            # differentiation itself (G0-dependent) is complex and not modelled in detail. Diff low => diff_exit=1.
+            m = m.replace("(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2_rep/K_prc2)^n_prc2))",
+                          "(f0_prc2 + (1 - f0_prc2)/(1 + (PRC2_rep/K_prc2)^n_prc2))*diff_exit")
 
     if with_two_step_rb and with_ezh2:
         # Baked two-step-Rb calibration (optimize_twostep_g0 2026-07-14 JOINT G0+EZH2 re-opt, 28/28 -- the
@@ -720,18 +831,62 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # single-step bake). User `params` still override. pRb(hyper) = G0 marker (Moser 2018); R-point
         # logic (Narasimha/Sanidas); p27 (P21 pool) the dominant CIP/KIP in GNP/MB.
         _ts_bake = {
-            # 2026-07-15 transient-G0 reframe re-fit (optimize_twostep_g0, crutch retired + CDK4/6-activity-gated
-            # clearance + pRb G0 marker): 27/28, the standing miss is MB HU G2 (0.356; the reframe's faster MB
-            # commitment shifted the replication-stress G2 redistribution). Reversible G0 anchors: GNP/MB baseline
-            # ~0 deterministic (population tail gives MB ~20%), CDK4/6i fills p27->G0 in both.
-            'M_commit': 2.476412980954672, 'kPhRbCd': 0.24815677888709098, 'kDeP21Cd': 0.41589702424892366,
-            'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.4017818215702697, 'f_commit_carry': 0.37450197206637914,
-            'kSyDna': 0.044127508144560235, 'M_size': 3.140622748974385, 'kEZbas': 0.0008644043464390895,
-            'kEZbas_Cd': 0.0003466979945158097, 'kEZE2f': 0.010651023620327642, 'Kez_cd': 6.608075636199197,
-            'K_E2f_EZ': 0.38025405535265255, 'k_jmjd3_gli': 0.2210703487046962, 'a0_prc2': 0.0020808091768527593,
-            'a_rw_prc2': 0.003469447252304735, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.01,
-            'n_prc2': 4.180192407776259, 'f0_prc2': 0.2, 'del_mk': 0.0023271809546474517,
-            'KmHU_fire': 0.3}
+            # 2026-07-27 CELL-TYPE SPLIT BAKED (JP-approved): GNP 16-17h / MB ~23.5h CORE cycle, decoupled commitment.
+            # GNP cycle = data (Nakashima 15.9h + Contestabile 16.25h); MB longer via the SAME k_mu_cki slowdown driven
+            # by MB's higher INK4 (p16+p18) -- the cycle-length split EMERGES from the CDKi, not a separate knob. Paired
+            # with decouple_commit=True (default flipped): the G0/commit R-point is gated on CyclinD1/CDKi + birth-p27
+            # (growth-INDEPENDENT), which restores cKO Shh-dependence + the strong EZH2 governor at the faster cycle.
+            # Params from recal_16h_v3 (cKO-hard-constrained search). 26/29 (fails: CyclinD1 GNP+HHi = the basal-cut cost
+            # of cKO; MB HU S+G2 = the structural HU limit). See memory mb-celltype-transient-g0-parameterization.
+            'mu': 0.000769, 'k_mu_cki': 0.307,
+            # 2026-07-19 Cdh1-EZH2 re-bake (JP-approved; optimize_cdh1_ezh2). Adds APC/Cdh1(C1)-GATED EZH2
+            # DEGRADATION (kDeEZ_C1) on top of the DILUTION convention (with_ezh2_conc=False, default flipped) so an
+            # ELONGATED / HU-ARRESTED S ACCUMULATES EZH2 (exp-verified by JP): HU EZH2-in-S boost 1.009->1.24, EZH2
+            # protein G2/G0 1.04->1.86, EZH2 G0/cycling 0.44->0.62 -- all previously ~flat. Mechanism: LOW baseline
+            # kDeEZ (committed/S/arrest cells STABLE, EZH2 banks over the long arrest) + kDeEZ_C1*C1 clears EZH2 in G0
+            # (Cdh1 active). Biologically grounded: EZH2 is a bona fide APC/C-Cdh1 substrate. Eraser still OFF
+            # (k_jmjd3_gli=0); fold via direct Gli/MYCN transcription; vismodegib 0.128; mark half-life ~2.8h preserved.
+            # Still 27/28; lone miss is MB HU G2 (0.352), the SAME structural near-miss (see v44-hu-s-g2-structural-limit).
+            # Cell-cycle machinery (M_commit, kPhRbCd, Rb, f_commit_carry, M_size, g_prc2) UNCHANGED. User `params` override.
+            'M_commit': 2.476412980954672, 'kPhRbCd': 0.1433, 'kDeP21Cd': 0.6300278361307281,   # kPhRbCd, K_CdRb: split re-tune (was 0.2482 / 0.4018)
+            'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.3284, 'f_commit_carry': 0.37450197206637914,
+            'kSyDna': 0.046863027361587935, 'M_size': 3.140622748974385, 'kEZbas': 0.0006220377408563062,
+            'kEZbas_Cd': 0.00031843672436329825, 'kEZE2f': 0.01226393864518667, 'Kez_cd': 9.17574845440131,
+            'kDeEZ': 0.0002766221763090641, 'kDeEZ_C1': 0.0003858762128411371, 'K_E2f_EZ': 0.4497729841633607,
+            # 2026-07-21 (JP-approved): re-enable a MASSIVELY NERFED Gli->Jmjd3/Kdm6b eraser (was 0 by default; the
+            # optimize_chain string default 0.108) + three more-biological mark mechanisms, all added default-preserving
+            # then engaged here: n_rw (cooperative read-write, gap #1), dil_frac=0/k_dil_S (continuous S-phase dilution
+            # spread over S so an elongated S recovers concurrently, gap #2), k_h33 (H3.3/HIRA transcription-coupled
+            # replication-INDEPENDENT me3 loss, gap #3). Values chosen mild to preserve the 28/29 validation.
+            'k_jmjd3_gli': 0.005, 'n_rw': 2, 'dil_frac': 0.0, 'k_dil_S': 0.693, 'k_h33': 0.003,
+            'a0_prc2': 0.0028749753507882796,
+            'a_rw_prc2': 0.0022657109194688194, 'g_prc2': 0.0704913572494475, 'K_prc2': 0.006856946735209077,
+            'n_prc2': 4.015744557919901, 'f0_prc2': 0.17482554666158287, 'del_mk': 0.00044000677598027846,
+            'KmHU_fire': 0.2797289308652902,
+            # 2026-07-20 Skp2 MITOGEN-DOSE induction (JP scRNA + MB table: Skp2 HIGHER in MB ~2.3x -- the model's
+            # E2F-only + Cdh1-degradation made MB Skp2 LOW because MB has high Cdh1). Re-optimized -> Skp2 MB/GNP 2.31,
+            # HU-G2 recovered to 0.357 (structural floor), 28/29. kSySkp2_Cd=0 would disable it.
+            'kSySkp2_Cd': 0.24457065227870578, 'K_Skp2_Cd': 10.296077904941832,
+            'k_Cd_tx_Gli_max': 0.143566, 'k_Cd_tx_MYCN': 0.031157,   # split re-tune (was 0.0941 / 0.0203)
+            'k_Cd_tx_basal': 0.000236,   # split re-tune (was 0.000281). tx scaled 1/800 (with k_Cd_mRNA_deg 1/800) so the mRNA is a SLOW reservoir; THEN halved 2026-07-24: lowers the mitogen-INDEPENDENT CyclinD1 floor so that even FULL de-repression (genetic f0_prc2=1 / EZH2 cKO) stays Shh-DEPENDENT (no division at SHH=0, matches JP's cKO: transcript UP but no Shh-independent division + differentiates). Governed threshold only 0.16->0.18, de-repression fold preserved (~3.5x full / ~1.6x EZH2i), validation-neutral 28/29. Shh-dependence now comes from the LOW basal (CyclinD1 needs Gli-drive to commit), NOT from EZH2 repression -> EZH2 = threshold/level GOVERNOR, not the Shh on/off switch
+            # 2026-07-20 graded G1/cell-cycle LENGTHENING (JP): subthreshold mitogen SLOWS growth -> Tc lengthens
+            # GRADUALLY (no transient G0) -> longer low-E2F G1 -> slow EZH2 (S-phase) response = the buffering.
+            # K_g1len (0.6) sits BELOW the GNP/MB CyclinD1, so it is LATENT at the validation conditions (still 27/28,
+            # only GNP period 22.6->~23h) and engages only under mitogen withdrawal/perturbation (Tc up to ~2.5x at
+            # deep subthreshold). mu_min_frac=1 would disable it. Free params (no withdrawal target yet) -- tune when
+            # withdrawal/EdU-plateau data land.
+            'mu_min_frac': 0.4, 'K_g1len': 0.6,
+            # 2026-07-21 CyclinD1 = the Hh MEMORY CARRIER (Ho, Tsai & Stearns 2020, Curr Biol 30:2829; JP acks), and
+            # the memory is the cumulative CyclinD1 TRANSCRIPT reservoir (JP mechanism). The PROTEIN is labile/fast
+            # (k_Cd_deg=1.0, a gated readout that forms rapidly when there is lots of mRNA); the mRNA is the SLOW
+            # RESERVOIR, driven UP by Gli and DOWN by EZH2 -- an INCOHERENT FEEDFORWARD (Gli raises both the transcript
+            # and EZH2, so when mitogen falls EZH2's repression lifts and COMPENSATES, holding the transcript up
+            # longer; the more EZH2, the more de-repression 'room'). Implemented by slowing the mRNA (k_Cd_mRNA_deg
+            # 0.8->0.001 = ~11-12h reservoir) with the transcription (k_Cd_tx_*, above) scaled 1/800 to HOLD both mRNA
+            # and protein LEVELS (so g_prc2/H3.3 terms reading Cd_mRNA are unaffected; fold ratios preserved).
+            # Validation-neutral (28/29); after Hh-off the mRNA reservoir t1/2 ~13h -> cell COASTS ~1 more cycle
+            # (the paper's previous-cycle restriction point). Persistence tunable via k_Cd_mRNA_deg.
+            'k_Cd_mRNA_deg': 0.001}
         # tolerate flag combos where some params are absent (e.g. with_h3k27_memory has no chain params)
         m = _apply_overrides(m, {k: v for k, v in _ts_bake.items() if (k + ' = ') in m})
     if hu is not None:

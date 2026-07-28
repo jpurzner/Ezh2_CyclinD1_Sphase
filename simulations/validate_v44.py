@@ -59,9 +59,13 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_h3k27_dilution=(os.environ.get('H3K27_DILUTION', '1') == '1'),
                          with_h3k27_chain=(os.environ.get('H3K27_CHAIN', '1') == '1'),
                          with_two_step_rb=(os.environ.get('TWO_STEP_RB', '1') == '1'),
-                         with_ezh2_conc=(os.environ.get('EZH2_CONC', '1') == '1'),
+                         with_ezh2_conc=(os.environ.get('EZH2_CONC', '0') == '1'),   # 2026-07-19: DILUTION convention is now default (Cdh1-EZH2 re-bake); set EZH2_CONC=1 for the legacy concentration convention
                          with_mitogen_tracker=(os.environ.get('MITOGEN_TRACKER', '0') == '1'),
+                         decouple_commit=(os.environ.get('DECOUPLE_COMMIT', '1') == '1'),  # 2026-07-27: BAKED default (cell-type split); G0/commit gated on CyclinD1/CDKi (not size). DECOUPLE_COMMIT=0 for the legacy size-gated commitment.
+                         mycn_autoreg=(os.environ.get('MYCN_AUTOREG', '0') == '1'),  # 2026-07-27: MYCN from Gli1 + bistable self-activation (SHH-MB is NOT MYCN-amplified); HHi conditions use establish-then-withdraw
                          params=PARAMS or None)
+
+_MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'
 
 
 def _new_rr():
@@ -91,7 +95,11 @@ def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
             rr['Ptch1_copy_number'] = ptch1_cn
             rr['HHi'] = hhi
             rr['EZH2i'] = ezh2i
-            rr['MYCN_amplification'] = mycn_amp
+            # MYCN elevated expression (JP 2026-07-27): SHH-MB is NOT MYCN-amplified; MB's higher MYCN is a
+            # developmentally-Gli-set elevated EXPRESSION, modeled as an additive MB-specific term (0 in GNP).
+            # mycn_amp is kept as the interface (an expression FOLD); MYCN_expr = basal*(fold-1) is algebraically
+            # equal to the old basal*amp multiplier, so all folds are unchanged.
+            rr['MYCN_expr'] = rr['k_MYCN_synth_basal'] * (mycn_amp - 1.0)
             rr['p16'] = p16              # INK4 (Cdkn2a): competitive CDK4/6 brake (0 in GNP, elevated in MB)
             if p18 is not None:
                 rr['p18'] = p18          # INK4 (Cdkn2c): constitutive (GNP default 0.4), ~3x in MB
@@ -106,6 +114,15 @@ def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
                 rr['k_Cd_translation'] = 0.0  # remove mitogen (CyclinD1) -> G0
             rr.integrator.setValue("absolute_tolerance", atol)
             try:
+                if _MYCN_AUTOREG and hhi > 0:
+                    # establish-then-withdraw: the MYCN bistable latch requires the cell to establish with
+                    # Hh ON (MYCN latched high in MB) BEFORE vismodegib. A fresh HHi start can't reproduce
+                    # cell-type-specific MYCN buffering (both types begin identical with Gli->0). So settle at
+                    # HHi=0, then apply HHi and measure the withdrawn phase.
+                    rr['HHi'] = 0.0
+                    rr.simulate(0, 8000, 8000, selections=["time", "MYCN"])
+                    rr['HHi'] = hhi
+                    return rr.simulate(0, te_end, te_pts, selections=SEL)
                 return rr.simulate(0, te_end, te_pts, selections=SEL)
             except Exception as e:
                 last = e
@@ -269,6 +286,12 @@ def main():
     check("Gli1 GNP+HHi reduction", 1 - gl('GNP + HHi')/gl('GNP + SHH'), 0.99, 0.05)
     check("Gli1 MB/GNP",          gl('MB')/gl('GNP + SHH'),        6.90, 0.40)  # raw RNA-seq
     check("EZH2 MB/GNP",          ez('MB')/ez('GNP + SHH'),        2.05, 0.35)
+    # Skp2 (JP scRNA timecourse + MB table): HIGHER in MB (~2.3x GNP-P7, mitogen-induced via the kSySkp2_Cd dose
+    # term). The differentiation DECLINE (log2fc 1.73 down, t50 P12) is captured mechanistically by that same term
+    # (Skp2 falls as mitogen/CyclinD1 drops); not checked here because serum-starve is a deeper arrest than mild
+    # differentiation and the commitment needs Skp2~0 in the p27-high G0.
+    sk = lambda c: mean_settled(sims[c], 'Skp2')
+    check("Skp2 MB/GNP",          sk('MB')/sk('GNP + SHH'),        2.3, 0.30)
     # EZH2i de-repression of CyclinD1 (~2x)
     check("EZH2i CycD1 fold (GNP)", cd('GNP + EZH2i')/cd('GNP + SHH'), 2.2, 0.42)
     # EZH2 G0/cycling
