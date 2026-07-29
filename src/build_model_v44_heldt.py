@@ -236,6 +236,12 @@ HH_MYCN_BLOCK = """
   species Gli_rep = 0.1, Gli_act = 0.5, Gli1_mRNA = 1.0, Gli1 = 1.4, Gli1_epi = 0.0001;
   species MYCN = 0.4, Cd_mRNA = 2.6, Cd in Cell;
   Cd = 0.70;
+  // CyclinD2 (JP 2026-07-28): a SEPARATE, weakly-Hh-responsive D-cyclin. Data (Chahin RNA-seq): CCND2 is the
+  // DOMINANT D-cyclin (~5x CCND1 in GNP) and drops only ~35% under vismodegib (vs CCND1 ~85%), so it is a large
+  // buffered CDK4/6 floor. Modeled as basal + a small Gli-driven part + an MB developmental elevation (Cd2_expr),
+  // no EZH2 repression. It adds to the CyclinD1->Rb drive with weight w_Cd2. Defaults 0 (neutral) until engaged.
+  species Cd2 in Cell; Cd2 = 0.0;
+  k_Cd2_bas = 0.0; k_Cd2_Gli = 0.0; K_Cd2_Gli = 0.457; k_Cd2_deg = 1.0; Cd2_expr = 0.0; w_Cd2 = 0.0;
   // Ptch1_copy_number is the FUNCTIONAL Ptch1 fraction (gene dosage x functional competence):
   //   GNP = 1.0 (two wt alleles), Ptch1+/- = 0.5, MB-with-LOH = 0.1 (residual / non-functional).
   //   It gates Ptch1's REPRESSION of Smo (function), NOT Ptch1 transcription (production).
@@ -332,6 +338,8 @@ HH_MYCN_BLOCK = """
   CycD1_transcription: => Cd_mRNA; (k_Cd_tx_basal + k_Cd_tx_Gli_max*(Gli_act + Gli1)^n_Gli_act/(K_Gli_act_CycD^n_Gli_act + (Gli_act + Gli1)^n_Gli_act)*(K_Gli_rep_CycD^n_Gli_rep/(K_Gli_rep_CycD^n_Gli_rep + Gli_rep^n_Gli_rep)) + k_Cd_tx_MYCN*MYCN^n_MYCN_Cd/(K_MYCN_Cd^n_MYCN_Cd + MYCN^n_MYCN_Cd))*(K_EZH2_repression/(K_EZH2_repression + EZH2*(1 - EZH2i)));
   CycD1_mRNA_degradation: Cd_mRNA => ; k_Cd_mRNA_deg*Cd_mRNA;
   Cd_translation: Cd_mRNA => Cd_mRNA + Cd; k_Cd_translation*Cd_mRNA;
+  CycD2_synthesis: => Cd2; (k_Cd2_bas + Cd2_expr + k_Cd2_Gli*(Gli_act + Gli1)/(K_Cd2_Gli + Gli_act + Gli1));
+  CycD2_degradation: Cd2 => ; k_Cd2_deg*Cd2;
   Cd_degradation: Cd => ; k_Cd_deg*Cd;
 """
 
@@ -373,14 +381,15 @@ def _apply_two_step_rb(m, with_growth, decouple_commit=False):
     # MB (high p16/p18 braking CDK4/6) clears slowly -> a modest baseline G0 -- so the MB G0 comes from real INK4
     # biology, NOT an inflated birth-p27. The w_p27*P21 denominator self-brake (mutual CDK4/6<->p27 antagonism) is
     # kept. G0 is now read off pRb-HYPOphosphorylation (the functional switch), p27 is the supporting readout.
-    cdk_d = "kPhRbCd*Cd/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
-    _clear_brake = "/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + Cd)"
+    # CyclinD1 + CyclinD2 both feed CDK4/6 -> Rb (Cd2 weighted by w_Cd2; w_Cd2=0 => CyclinD1-only, default-neutral)
+    cdk_d = "kPhRbCd*(Cd + w_Cd2*Cd2)/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + (Cd + w_Cd2*Cd2))"
+    _clear_brake = "/(K_CdRb*(1 + p16 + p18 + w_p27*P21) + (Cd + w_Cd2*Cd2))"
     # decouple_commit (JP 2026-07-26): drop the growth/size gate (commit_gate) from p27-clearance so the
     # G0->G1 commitment is governed PURELY by the CyclinD1/CDKi balance (cdk_d) + birth-p27 (Spencer/Cappell),
     # NOT by growth rate. Lets a fast 16h core cycle keep a strong CyclinD1-vs-CDKi commitment threshold, and
     # makes MB's transient G0 (longer AVERAGE cycle) come from its high CDKi, not from a slower engine.
     _commit_gated = with_growth and not decouple_commit
-    p27_clear = f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}*commit_gate" if _commit_gated else f"kDeP21Cd*kPhRbCd*Cd{_clear_brake}"
+    p27_clear = f"kDeP21Cd*kPhRbCd*(Cd + w_Cd2*Cd2){_clear_brake}*commit_gate" if _commit_gated else f"kDeP21Cd*kPhRbCd*(Cd + w_Cd2*Cd2){_clear_brake}"
     m = m.replace(
         "species Rb in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, E1 in Cell;",
         "species Rb in Cell, Rbm in Cell, pRb in Cell, E2f in Cell, RbE2f in Cell, RbmE2f in Cell, E1 in Cell;")
@@ -839,6 +848,11 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # Params from recal_16h_v3 (cKO-hard-constrained search). 26/29 (fails: CyclinD1 GNP+HHi = the basal-cut cost
             # of cKO; MB HU S+G2 = the structural HU limit). See memory mb-celltype-transient-g0-parameterization.
             'mu': 0.000769, 'k_mu_cki': 0.307,
+            # 2026-07-28 TWO-CYCLIN (JP): engage CyclinD2 (separate, Hh-buffered D-cyclin; CCND2 dominant + drops
+            # only ~35% under vismo). Cd2 = basal + small Gli-driven + MB elevation (Cd2_expr, set per-condition);
+            # feeds the CDK4/6->Rb drive with w_Cd2. Calibrated: D2 MB/GNP 2.39, GNP+HHi 0.66 (exact). w_Cd2<=0.2
+            # keeps Shh-gating (D2's Gli-independent drive stays below the R-point). See cyclind1-d2-two-cyclin-model.
+            'k_Cd2_bas': 2.0, 'k_Cd2_Gli': 2.49, 'K_Cd2_Gli': 0.3, 'w_Cd2': 0.079448,   # w_Cd2: two-cyclin recal
             # 2026-07-19 Cdh1-EZH2 re-bake (JP-approved; optimize_cdh1_ezh2). Adds APC/Cdh1(C1)-GATED EZH2
             # DEGRADATION (kDeEZ_C1) on top of the DILUTION convention (with_ezh2_conc=False, default flipped) so an
             # ELONGATED / HU-ARRESTED S ACCUMULATES EZH2 (exp-verified by JP): HU EZH2-in-S boost 1.009->1.24, EZH2
@@ -848,8 +862,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # (k_jmjd3_gli=0); fold via direct Gli/MYCN transcription; vismodegib 0.128; mark half-life ~2.8h preserved.
             # Still 27/28; lone miss is MB HU G2 (0.352), the SAME structural near-miss (see v44-hu-s-g2-structural-limit).
             # Cell-cycle machinery (M_commit, kPhRbCd, Rb, f_commit_carry, M_size, g_prc2) UNCHANGED. User `params` override.
-            'M_commit': 2.476412980954672, 'kPhRbCd': 0.1433, 'kDeP21Cd': 0.6300278361307281,   # kPhRbCd, K_CdRb: split re-tune (was 0.2482 / 0.4018)
-            'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.3284, 'f_commit_carry': 0.37450197206637914,
+            'M_commit': 2.476412980954672, 'kPhRbCd': 0.1403, 'kDeP21Cd': 0.6300278361307281,   # kPhRbCd, K_CdRb: two-cyclin recal (split was 0.1433 / 0.3284)
+            'kDsRbmE2f': 1.8821064877621487, 'K_CdRb': 0.4032, 'f_commit_carry': 0.37450197206637914,
             'kSyDna': 0.046863027361587935, 'M_size': 3.140622748974385, 'kEZbas': 0.0006220377408563062,
             'kEZbas_Cd': 0.00031843672436329825, 'kEZE2f': 0.01226393864518667, 'Kez_cd': 9.17574845440131,
             'kDeEZ': 0.0002766221763090641, 'kDeEZ_C1': 0.0003858762128411371, 'K_E2f_EZ': 0.4497729841633607,
@@ -867,8 +881,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # E2F-only + Cdh1-degradation made MB Skp2 LOW because MB has high Cdh1). Re-optimized -> Skp2 MB/GNP 2.31,
             # HU-G2 recovered to 0.357 (structural floor), 28/29. kSySkp2_Cd=0 would disable it.
             'kSySkp2_Cd': 0.24457065227870578, 'K_Skp2_Cd': 10.296077904941832,
-            'k_Cd_tx_Gli_max': 0.143566, 'k_Cd_tx_MYCN': 0.031157,   # split re-tune (was 0.0941 / 0.0203)
-            'k_Cd_tx_basal': 0.000236,   # split re-tune (was 0.000281). tx scaled 1/800 (with k_Cd_mRNA_deg 1/800) so the mRNA is a SLOW reservoir; THEN halved 2026-07-24: lowers the mitogen-INDEPENDENT CyclinD1 floor so that even FULL de-repression (genetic f0_prc2=1 / EZH2 cKO) stays Shh-DEPENDENT (no division at SHH=0, matches JP's cKO: transcript UP but no Shh-independent division + differentiates). Governed threshold only 0.16->0.18, de-repression fold preserved (~3.5x full / ~1.6x EZH2i), validation-neutral 28/29. Shh-dependence now comes from the LOW basal (CyclinD1 needs Gli-drive to commit), NOT from EZH2 repression -> EZH2 = threshold/level GOVERNOR, not the Shh on/off switch
+            'k_Cd_tx_Gli_max': 0.152118, 'k_Cd_tx_MYCN': 0.031157,   # two-cyclin recal (split 0.1436 / 0.0203)
+            'k_Cd_tx_basal': 0.000529,   # two-cyclin recal: RAISED (D2 now floors proliferation) -> D1 GNP+HHi 0.055->0.10 passes. tx scaled 1/800 (with k_Cd_mRNA_deg 1/800) so the mRNA is a SLOW reservoir; THEN halved 2026-07-24: lowers the mitogen-INDEPENDENT CyclinD1 floor so that even FULL de-repression (genetic f0_prc2=1 / EZH2 cKO) stays Shh-DEPENDENT (no division at SHH=0, matches JP's cKO: transcript UP but no Shh-independent division + differentiates). Governed threshold only 0.16->0.18, de-repression fold preserved (~3.5x full / ~1.6x EZH2i), validation-neutral 28/29. Shh-dependence now comes from the LOW basal (CyclinD1 needs Gli-drive to commit), NOT from EZH2 repression -> EZH2 = threshold/level GOVERNOR, not the Shh on/off switch
             # 2026-07-20 graded G1/cell-cycle LENGTHENING (JP): subthreshold mitogen SLOWS growth -> Tc lengthens
             # GRADUALLY (no transient G0) -> longer low-E2F G1 -> slow EZH2 (S-phase) response = the buffering.
             # K_g1len (0.6) sits BELOW the GNP/MB CyclinD1, so it is LATENT at the validation conditions (still 27/28,

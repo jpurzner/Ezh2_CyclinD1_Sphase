@@ -34,6 +34,7 @@ P27_THR = 0.1        # p27 (P21) marker threshold (legacy; the G0/G1 split now u
 PRB_G0_THR = float(os.environ.get('PRB_G0_THR', '1.5'))   # G0 = pre-S cells with pRb(hyper) BELOW this = hypophospho/arrested
                      # (2026-07-15 transient-G0 reframe: pRb-hypophospho is the functional arrest switch, not p27 level)
 MYCN_AMP_MB = 2.8
+CD2_EXPR_MB = 3.59       # CyclinD2 MB-specific developmental elevation (added to the shared Cd2 basal); GNP = 0
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
 P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
 P18_MB = 1.553           #   dominant INK4 (GNP 0.464 -> MB 1.553 = 3.35x ~ data 3.7x); p16 the MB-specific small one.
@@ -50,7 +51,7 @@ P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '0.6'))   # env-overridable. 202
                          # CyclinD1 commitment threshold so vismo's CyclinD1 drop arrests MB; EZH2i (CyclinD1
                          # up) overcomes the COMPETITIVE INK4 brake -> rescue. CDK4/6i (kPhRbCd=0, Vmax) NOT rescuable.
 
-SEL = ["time", "Cb", "MPF", "Cd", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
+SEL = ["time", "Cb", "MPF", "Cd", "Cd2", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
        "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass", "vfork", "Mk"]
 
 # Build once; reset + set runtime inputs per condition (fast).
@@ -100,6 +101,7 @@ def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
             # mycn_amp is kept as the interface (an expression FOLD); MYCN_expr = basal*(fold-1) is algebraically
             # equal to the old basal*amp multiplier, so all folds are unchanged.
             rr['MYCN_expr'] = rr['k_MYCN_synth_basal'] * (mycn_amp - 1.0)
+            rr['Cd2_expr'] = CD2_EXPR_MB if ptch1_cn < 0.5 else 0.0   # CyclinD2 MB developmental elevation (MB has Ptch loss)
             rr['p16'] = p16              # INK4 (Cdkn2a): competitive CDK4/6 brake (0 in GNP, elevated in MB)
             if p18 is not None:
                 rr['p18'] = p18          # INK4 (Cdkn2c): constitutive (GNP default 0.4), ~3x in MB
@@ -271,6 +273,7 @@ def main():
 
     # transcript (Cd_mRNA matches RNA-seq); levels = mean settled
     cd = lambda c: mean_settled(sims[c], 'Cd_mRNA')
+    cd2 = lambda c: mean_settled(sims[c], 'Cd2')   # CyclinD2 (separate, Hh-buffered D-cyclin)
     my = lambda c: mean_settled(sims[c], 'MYCN')
     gl = lambda c: mean_settled(sims[c], 'Gli1')
     ez = lambda c: mean_settled(sims[c], 'EZH2')
@@ -280,6 +283,11 @@ def main():
     check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.40)
     check("CyclinD1 MB+HHi/MB",   cd('MB + HHi')/cd('MB'),         0.144, 0.45)  # MB_HHi: 86% drop
     check("CyclinD1 MB/GNP",      cd('MB')/cd('GNP + SHH'),        5.07, 0.20)  # Fig 4I. Model 5.6 (11% high), TIGHT band -- the 2026-07-14 joint re-opt genuinely lands this (was 7.1 passing only on a wide 0.45 band; the old 7.1 was the inflated birth-p27=1.8 crutch, since removed)
+    # CyclinD2 (Chahin RNA-seq): DOMINANT D-cyclin, Hh-BUFFERED (drops only ~35% vs CyclinD1 ~85%). Separate species.
+    if cd2('GNP + SHH') > 1e-6:   # only when the two-cyclin model is engaged (w_Cd2/k_Cd2_bas > 0)
+        check("CyclinD2 MB/GNP",       cd2('MB')/cd2('GNP + SHH'),      2.39, 0.25)
+        check("CyclinD2 GNP+HHi/GNP",  cd2('GNP + HHi')/cd2('GNP + SHH'), 0.66, 0.30)
+        check("CyclinD2 MB+HHi/MB",    cd2('MB + HHi')/cd2('MB'),       0.59, 0.45)  # MB drop non-sig (trend, padj 0.076) -> wide band
     check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.30)
     check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.25)
     check("MYCN MB/GNP",          my('MB')/my('GNP + SHH'),        2.80, 0.30)
