@@ -1,13 +1,14 @@
 """Replicative dilution of H3K27me3 limits EZH2's repressive reach — mitogen sweep, dilution ON vs OFF.
 
-The AUM module halves the Ccnd1 H3K27me3 mark (Mk) once per cycle at early S (Dna>0.05). Because the
-cell-cycle period is set by the mitogen-driven CyclinD1, faster-cycling (higher-mitogen) cells dilute
-the mark MORE often -> the mark cannot fully restore between divisions -> it ratchets below its
-no-dilution steady state -> EZH2 represses Ccnd1 LESS. This is the endogenous-clock replicative-dilution
-phenotype (Jadhav 2020): repression is proliferation-rate-dependent.
+The mark (Mk = H3K27me3 at Ccnd1) is diluted during S-phase in proportion to replication flux
+(k_dil_S, replication-fork-coupled). Because the cell-cycle period is set by the mitogen-driven
+CyclinD1, faster-cycling (higher-mitogen) cells replicate MORE often -> the mark cannot fully restore
+between divisions -> it ratchets below its no-dilution steady state -> EZH2 represses Ccnd1 LESS. This
+is the endogenous-clock replicative-dilution phenotype (Jadhav 2020): repression is
+proliferation-rate-dependent.
 
-We compare the model WITH dilution (default) vs WITHOUT (the S-phase halving disabled: Mk=0.5*Mk ->
-Mk=1.0*Mk) across a mitogen (SHH) sweep in the GNP context.
+We compare the model WITH dilution (default) vs WITHOUT (k_dil_S = 0) across a mitogen (SHH) sweep in
+the GNP context.
 
 Panels:
   A  Mk(t) at a representative mitogen: ON = sawtooth (halved each division, re-methylates); OFF = smooth,
@@ -27,9 +28,11 @@ import numpy as np, matplotlib.pyplot as plt, tellurium as te
 from scipy.signal import find_peaks
 from src.build_model_v44_heldt import build_model_v44
 
-# dilution ON = default AUM; dilution OFF = disable the S-phase halving event
+# dilution ON = default; dilution OFF = disable replicative dilution.
+# NB the mark is now diluted CONTINUOUSLY during S-phase (k_dil_S, replication-flux-coupled),
+# not by a discrete once-per-cycle halving (dil_frac, default 0). "OFF" therefore zeroes k_dil_S.
 M_ON = build_model_v44(with_ezh2=True, with_hh=True)
-M_OFF = M_ON.replace("Mk = 0.5*Mk", "Mk = 1.0*Mk")
+M_OFF = build_model_v44(with_ezh2=True, with_hh=True, params={"k_dil_S": 0.0})
 assert M_OFF != M_ON, "failed to disable the dilution event"
 
 

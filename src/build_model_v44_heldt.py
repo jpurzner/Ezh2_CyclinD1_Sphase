@@ -760,6 +760,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # (5.07 dose fold) while Gli/Jmjd3 keeps the MARK low (ChIP). Replaces the phenomenological w_ezdir blend.
             mk = shared + (
                 "\n  a0_prc2 = 0.00037763461927116913; a_rw_prc2 = 0.004297010112265872; g_prc2 = 0.04244445931486211;   // PRC2 recruitment: accessory (mark-indep, sequence/SUZ12) + H3K27me3 read-write (EED); nascent-tx eviction (optimize_prc2 2026-07-10)"
+                "\n  n_rw = 1;   // read-write cooperativity exponent (a_rw_prc2*Mk^n_rw); declared here too so the non-chain PRC2 branch builds (else 'n_rw missing'); _ts_bake sets 2"
                 "\n  K_prc2 = 0.0034813553293576824; n_prc2 = 3.385026804758643; f0_prc2 = 0.05054636367014487;   // CyclinD1 repression Hill on PRC2 OCCUPANCY + leaky floor (Pol II retained)"
                 # EZH2i = catalytic inhibitor: (1-EZH2i) on the WRITING (PRC2) only; repression via PRC2_rep OCCUPANCY (no EZH2i)
                 "\n  PRC2 := EZH2*(1 - EZH2i)*(a0_prc2 + a_rw_prc2*Mk^n_rw)*(1 - g_prc2*Cd_mRNA^p_tx_mk/(K_tx_mk^p_tx_mk + Cd_mRNA^p_tx_mk));   // CATALYTIC (writes me): EZH2i-blocked"

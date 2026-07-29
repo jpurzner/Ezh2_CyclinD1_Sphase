@@ -16,9 +16,12 @@ from matplotlib.patches import FancyBboxPatch
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY = os.path.join(ROOT, 'venv/bin/python'); VAL = os.path.join(ROOT, 'simulations/validate_v44.py')
 
-# ---- the cell-type-split operating point (recal_16h_v3_best; cKO-preserving) ----
-SPLIT = dict(mu=0.000769, k_mu_cki=0.307, kPhRbCd=0.1433, K_CdRb=0.3284,
-             k_Cd_tx_Gli_max=0.143566, k_Cd_tx_basal=0.000236, k_Cd_tx_MYCN=0.031157)
+# ---- the cell-type-split operating point (two-cyclin recal, cKO-preserving) ----
+# These MIRROR the baked _ts_bake defaults (two-cyclin model, 30/32); passing them explicitly
+# documents the operating point. If a future recal changes _ts_bake, sync these too.
+SPLIT = dict(mu=0.000769, k_mu_cki=0.307, kPhRbCd=0.1403, K_CdRb=0.4032,
+             k_Cd_tx_Gli_max=0.152118, k_Cd_tx_basal=0.000529, k_Cd_tx_MYCN=0.031157,
+             w_Cd2=0.079448, k_Cd2_bas=2.0, k_Cd2_Gli=2.49, K_Cd2_Gli=0.3)
 GNP_CORE_H, MB_CORE_H = 17.2, 23.5   # measured core periods at this point
 
 # palette (status + cell-type identity)
@@ -32,6 +35,7 @@ plt.rcParams.update({'font.size': 9, 'font.family': 'DejaVu Sans', 'axes.linewid
 # name -> (celltype, tol, kind, target_override, short_label)
 M = {
  'CyclinD1 GNP+HHi/GNP':        ('GNP', 0.40, 'fold', None, 'CyclinD1 +HHi/ctrl'),
+ 'CyclinD2 GNP+HHi/GNP':        ('GNP', 0.30, 'fold', None, 'CyclinD2 +HHi/ctrl'),
  'MYCN GNP+HHi/GNP':            ('GNP', 0.30, 'fold', None, 'MYCN +HHi/ctrl'),
  'Gli1 GNP+HHi reduction':      ('GNP', 0.05, 'fold', None, 'Gli1 +HHi reduction'),
  'EZH2i CycD1 fold (GNP)':      ('GNP', 0.42, 'fold', None, 'EZH2i CyclinD1 fold'),
@@ -43,6 +47,7 @@ M = {
  'GNP+HHi arrest (0 div)':      ('GNP', None, 'binary', None, 'arrests +HHi'),
  'GNP serum-starve arrest':     ('GNP', None, 'binary', None, 'arrests serum-starve'),
  'CyclinD1 MB+HHi/MB':          ('MB', 0.45, 'fold', None, 'CyclinD1 +HHi/ctrl'),
+ 'CyclinD2 MB+HHi/MB':          ('MB', 0.45, 'fold', None, 'CyclinD2 +HHi/ctrl'),
  'MYCN MB+HHi/MB':              ('MB', 0.25, 'fold', None, 'MYCN +HHi/ctrl'),
  'MB 2N (G0+G1) count% (flow)': ('MB', 0.30, 'value', None, '2N (G0+G1) %'),
  'MB S count% (flow; BrdU Ts~3h)':('MB', 0.42, 'value', None, 'S %'),
@@ -56,6 +61,7 @@ M = {
  'MB+CDK4/6i arrest (0)':       ('MB', None, 'binary', None, 'arrests +CDK4/6i'),
  'MB+CDK4/6i+EZH2i no rescue':  ('MB', None, 'binary', None, '+EZH2i no rescue'),
  'CyclinD1 MB/GNP':             ('cross', 0.20, 'fold', None, 'CyclinD1 MB/GNP'),
+ 'CyclinD2 MB/GNP':             ('cross', 0.25, 'fold', None, 'CyclinD2 MB/GNP'),
  'MYCN MB/GNP':                 ('cross', 0.30, 'fold', None, 'MYCN MB/GNP'),
  'Gli1 MB/GNP':                 ('cross', 0.40, 'fold', None, 'Gli1 MB/GNP'),
  'EZH2 MB/GNP':                 ('cross', 0.35, 'fold', None, 'EZH2 MB/GNP'),
@@ -168,7 +174,7 @@ def main():
     fig.suptitle('v44 cell-type parameterization — P7 GNP vs SHH-medulloblastoma', x=0.055, ha='left',
                  fontsize=15.5, fontweight='bold', color=INK, y=0.965)
     fig.text(0.055, 0.905, f"one engine, two cell types · only the biological identities differ · "
-             f"the cycle-length split emerges from the MB CDKi · {passed}/29 harness-scored targets",
+             f"the cycle-length split emerges from the MB CDKi · {passed}/{len(M)} harness-scored targets",
              fontsize=10, color=MUT, ha='left')
 
     # ---- Panel: parameter differences ----
@@ -177,6 +183,7 @@ def main():
     rows = [('Hedgehog', None, None, None),
             ('Ptch1 copy #', '1.0', '0.1', 'Ptch loss'),
             ('MYCN expression', '1.0×', '2.86×', 'Gli-set'),
+            ('CyclinD2 expr', '1.0×', '3.6×', 'Hh-buffered'),
             ('CDK inhibitors', None, None, None),
             ('p16  (INK4)', '0', '0.31', ''),
             ('p18  (INK4)', '0.46', '1.55', 'dominant'),
@@ -209,7 +216,7 @@ def main():
                  fontweight='bold', transform=axP.transAxes)
         y -= dy * 1.02
     y -= dy * 0.6
-    axP.text(0.0, y, 'shared engine: mu 7.7e-4, k_mu_cki 0.31,\ndecouple_commit, kPhRbCd 0.14, K_CdRb 0.33',
+    axP.text(0.0, y, 'shared engine: mu 7.7e-4, k_mu_cki 0.31, decouple_commit,\nkPhRbCd 0.14, K_CdRb 0.40, w_Cd2 0.08 (two-cyclin)',
              fontsize=7.2, color=FAINT, transform=axP.transAxes, va='top', family='DejaVu Sans')
 
     # ---- validation forests ----
@@ -232,7 +239,7 @@ def main():
     out = os.path.join(ROOT, 'simulations', 'fig_celltype_validation')
     fig.savefig(out + '.pdf', bbox_inches='tight')
     fig.savefig(out + '.png', dpi=150, bbox_inches='tight')
-    print('wrote', out + '.pdf / .png  |  passed', passed, '/29')
+    print('wrote', out + '.pdf / .png  |  passed', passed, '/', len(M))
 
 if __name__ == '__main__':
     main()

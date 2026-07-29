@@ -31,8 +31,9 @@ plt.rcParams.update({'font.size': 10, 'axes.titlesize': 11, 'axes.labelsize': 10
                      'axes.titleweight': 'bold', 'figure.dpi': 110})
 
 M_ON = build_model_v44(with_ezh2=True, with_hh=True)
-assert 'Mk = 0.5*Mk' in M_ON, 'dilution event string changed'
-M_OFF = M_ON.replace('Mk = 0.5*Mk', 'Mk = 1.0*Mk')     # dilution disabled (halving -> no-op)
+# dilution is now CONTINUOUS S-phase (k_dil_S, replication-flux-coupled), not a discrete halving;
+# "dilution disabled" therefore zeroes k_dil_S.
+M_OFF = build_model_v44(with_ezh2=True, with_hh=True, params={'k_dil_S': 0.0})  # dilution disabled
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=0)
 
 
