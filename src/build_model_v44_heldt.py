@@ -452,7 +452,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
-                    mycn_autoreg=False, params=None):
+                    mycn_autoreg=False, with_cdki_species=False, params=None):
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -840,6 +840,107 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
         # regime the 5.07 fold already pins. Applied BRANCH-SPECIFICALLY (with_two_step_rb=False keeps the
         # single-step bake). User `params` still override. pRb(hyper) = G0 marker (Moser 2018); R-point
         # logic (Narasimha/Sanidas); p27 (P21 pool) the dominant CIP/KIP in GNP/MB.
+        if with_cdki_species:
+            # EXPLORATION (JP 2026-07-30): model the individually-expressed CDKIs as dynamic species.
+            # STAGE 1 (INK4): p18 (Cdkn2c) + p19 (Cdkn2d) as protein species with turnover; drop p16 (silent in GNP)
+            # from the CDK4/6 brake. Input params p18/p19 = expression-set target LEVELS; the *_prot species relax
+            # to them (kDe turnover) -> steady state == target, but with realistic protein kinetics and a hook for
+            # transcriptional (Gli/EZH2) synthesis regulation later. CIP/KIP (p21,p57) = Stage 2.
+            m = m.replace(
+                "\n  p18 = 0.464;",
+                "\n  p18 = 0.464;\n  p19 = 0.36;   // Cdkn2c(p18)/Cdkn2d(p19) INK4 target levels (RNA-seq: p18 dominant, p19 secondary)"
+                "\n  kDe_p18 = 0.003; kDe_p19 = 0.03;   // INK4 turnover: p18 STABLE (tau~4h); p19^INK4d SHORT-lived (tau~23min, S-peaking) (reviewer)"
+                "\n  species p18_prot in Cell; p18_prot = 0.464;\n  species p19_prot in Cell; p19_prot = 0.36;")
+            m = m.replace(
+                "\nend",
+                "\n  p18_synthesis: => p18_prot; Cell*kDe_p18*p18;"
+                "\n  p18_degradation: p18_prot => ; Cell*kDe_p18*p18_prot;"
+                "\n  p19_synthesis: => p19_prot; Cell*kDe_p19*p19;"
+                "\n  p19_degradation: p19_prot => ; Cell*kDe_p19*p19_prot;\nend", 1)
+            m = m.replace("1 + p16 + p18 + w_p27*P21", "1 + p18_prot + p19_prot + w_p27*P21")
+            # PROVENANCE FIX (reviewer 2026-07-30): CRL4^Cdt2 (kDeP21aRc*Cdt2*aRc) is a p21 route (PIP-degron), NOT
+            # p27 (no PIP box). The Heldt species is p21, relabeled p27 -> the term rode along. Strip it off p27 here
+            # (p27 then persists further into S) and re-attach it to p21a below (aRc-gated S-phase clearance = the
+            # branch-divergence term: origins fire -> p21 slammed to 0; arrest -> term is 0, so it does NOT feed the runaway).
+            m = m.replace(" + kDeP21aRc*Cdt2*aRc", "")
+            # STAGE 2 (CIP/KIP): p21 (Cdkn1a) as a dynamic species sequestering CyclinE/A-CDK2 (own complexes,
+            # mirroring p27/kAsCyP21 kinetics) + adding to the CDK4/6 brake via w_p27*(P21 + p21a). Synthesis is
+            # basal + p53-inducible (kSyp21aP53; P53~0 default). GNP synthesis kept LOW (p21 ~10% of p27 in GNP) so
+            # the GNP<->MB dichotomy holds; MB elevates it (data 2.8x). PCNA/Rc arm skipped (p27 dominates it).
+            m = m.replace(
+                "\nend",
+                "\n  species p21a in Cell; p21a = 0.05;   // Cdkn1a (p21) functional pool"
+                "\n  species Cep21a in Cell; Cep21a = 0;\n  species Cap21a in Cell; Cap21a = 0;"
+                "\n  kSyp21a = 0.00002; kSyp21aP53 = 0.0001; kDep21a = 0.02; w_cdk2_p21 = 0.3;   // p21 synth+turnover; w_cdk2_p21 = CDK2 potency vs p27 (<1: p21 weaker; reviewer)"
+                "\n  // NB start p21a NEAR-ZERO so flag-on preserves the GNP<->MB dichotomy; Stage 3 raises kSyp21a to the"
+                "\n  // data level (p21 ~10% of p27 GNP, 2.8x in MB) WITH compensating re-tune (avoid the Skp2-gated runaway)."
+                "\n  Synthesis_of_p21a: => p21a; Cell*(kSyp21a + kSyp21aP53*P53);"
+                "\n  Assoc_CycE_Cdk2_p21a: Ce + p21a -> Cep21a; Cell*(kAsCyP21*w_cdk2_p21*Ce*p21a - kDsCyP21*Cep21a);"
+                "\n  Assoc_CycA_Cdk2_p21a: Ca + p21a -> Cap21a; Cell*(kAsCyP21*w_cdk2_p21*Ca*p21a - kDsCyP21*Cap21a);"
+                "\n  Deg_free_p21a: p21a => ; Cell*(kDep21a + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc)*p21a;"
+                "\n  Deg_p21a_in_CycE: Cep21a => Ce; Cell*(kDep21a + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc)*Cep21a;"
+                "\n  Deg_p21a_in_CycA: Cap21a => Ca; Cell*(kDep21a + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc)*Cap21a;"
+                "\n  Deg_CycE_in_Cep21a: Cep21a => p21a; Cell*((kDeCe + kDeCeCa*Ca)*Cep21a);"
+                "\n  Deg_CycA_in_Cap21a: Cap21a => p21a; Cell*((kDeCa + kDeCaC1*C1)*Cap21a);\nend", 1)
+            m = m.replace("w_p27*P21", "w_p27*(P21 + p21a)")
+            m = m.replace("tCe := Ce + CeP21;", "tCe := Ce + CeP21 + Cep21a;")
+            m = m.replace("tCa := Ca + CaP21;", "tCa := Ca + CaP21 + Cap21a;")
+            m = m.replace("CeP21 = 0, CaP21 = 0,", "CeP21 = 0, CaP21 = 0, Cep21a = 0, Cap21a = 0,")
+            # p57 (Cdkn1c): DE-EMPHASIZED (JP 2026-07-30) -- minimally expressed in proliferating GNP/MB; largely a
+            # Sox2+ quiescent-cell CKI, not a functional player here. Species/reactions kept (structure) but carried
+            # OFF (kSyp57a = 0 -> p57a decays to ~0, vestigial). p53-independent; no CDK4/6 brake role.
+            m = m.replace(
+                "\nend",
+                "\n  species p57a in Cell; p57a = 0.0;"
+                "\n  species Cep57a in Cell; Cep57a = 0;\n  species Cap57a in Cell; Cap57a = 0;"
+                "\n  kSyp57a = 0.0; kDep57a = 0.02; w_cdk2_p57 = 0.3;   // p57 OFF (Sox2+/quiescent CKI; de-emphasized in proliferating cells)"
+                "\n  Synthesis_of_p57a: => p57a; Cell*kSyp57a;"
+                "\n  Assoc_CycE_Cdk2_p57a: Ce + p57a -> Cep57a; Cell*(kAsCyP21*w_cdk2_p57*Ce*p57a - kDsCyP21*Cep57a);"
+                "\n  Assoc_CycA_Cdk2_p57a: Ca + p57a -> Cap57a; Cell*(kAsCyP21*w_cdk2_p57*Ca*p57a - kDsCyP21*Cap57a);"
+                "\n  Deg_free_p57a: p57a => ; Cell*(kDep57a + kDeP21Cy*Skp2*(Ce + Ca))*p57a;"
+                "\n  Deg_p57a_in_CycE: Cep57a => Ce; Cell*(kDep57a + kDeP21Cy*Skp2*(Ce + Ca))*Cep57a;"
+                "\n  Deg_p57a_in_CycA: Cap57a => Ca; Cell*(kDep57a + kDeP21Cy*Skp2*(Ce + Ca))*Cap57a;"
+                "\n  Deg_CycE_in_Cep57a: Cep57a => p57a; Cell*((kDeCe + kDeCeCa*Ca)*Cep57a);"
+                "\n  Deg_CycA_in_Cap57a: Cap57a => p57a; Cell*((kDeCa + kDeCaC1*C1)*Cap57a);\nend", 1)
+            m = m.replace("w_p27*(P21 + p21a)", "w_p27*(P21 + p21a + p57a)")
+            m = m.replace("tCe := Ce + CeP21 + Cep21a;", "tCe := Ce + CeP21 + Cep21a + Cep57a;")
+            m = m.replace("tCa := Ca + CaP21 + Cap21a;", "tCa := Ca + CaP21 + Cap21a + Cap57a;")
+            m = m.replace("Cep21a = 0, Cap21a = 0,", "Cep21a = 0, Cap21a = 0, Cep57a = 0, Cap57a = 0,")
+            # STAGE 2.5 (reviewers 2026-07-30, round 2): commitment swap + degradation corrections.
+            # KPC: p27 clearance is Skp2-indep, mitogen-insensitive, and acts on CYTOPLASMIC Ser10-P p27 -> a CONSTANT
+            #   kDeKPC on the FREE pool ONLY (NOT the nuclear cyclin/PCNA complexes, NOT CdP21). Drop the old CDK4/6-gated
+            #   clearance from every pool; basal+KPC put p27 t1/2 ~1-2h (kDeKPC ~0.006, not 0.05 = 13min bug).
+            m = m.replace(" + kDeP21Cd*kPhRbCd*(Cd + w_Cd2*Cd2)/(K_CdRb*(1 + p18_prot + p19_prot + w_p27*(P21 + p21a + p57a)) + (Cd + w_Cd2*Cd2))", "")
+            m = m.replace("Degradation_of_free_p21: P21 => ; Cell*((kDeP21 + ",
+                          "Degradation_of_free_p21: P21 => ; Cell*((kDeP21 + kDeKPC + ")
+            # CdP21 redistribution (option A, STOICHIOMETRIC + saturating): p27 binds CyclinD1-CDK4/6 (Cd CONSUMED -> the
+            #   buffer SATURATES at Cd abundance -> non-linear collapse as Cd falls); the buffered Cd is returned to the
+            #   Rb-drive NUMERATOR (Cd+Cd2+CdP21) so total drive = Cd_total (option A: the p27-CDK4 trimer is part of the
+            #   drive, not a bystander). Free p27 is REMOVED from the Rb DENOMINATOR (it can't brake CDK4/6 until bound ->
+            #   acts on CDK2 only; fixes the free-inhibits/bound-doesn't double-hit). INK4 promotes release. CdP21 is NOT
+            #   reset at division (CyclinD1 persists through mitosis -> no mass sink; buffer stays full into G1). Stage 3 recal.
+            m = m.replace(
+                "(Cd + w_Cd2*Cd2)/(K_CdRb*(1 + p18_prot + p19_prot + w_p27*(P21 + p21a + p57a)) + (Cd + w_Cd2*Cd2))",
+                "(Cd + w_Cd2*Cd2 + CdP21)/(K_CdRb*(1 + p18_prot + p19_prot) + (Cd + w_Cd2*Cd2 + CdP21))")   # p21/p57 dropped from the CDK4/6 brake (poor CDK4/6 modulators; they act on CDK2 only). INK4 = the CDK4/6 brake; p27 via CdP21 stoichiometry.
+            m = m.replace(
+                "\nend",
+                "\n  kDeKPC = 0.006;   // p27 KPC clearance: CONSTANT, FREE-pool only; basal+KPC t1/2 ~1-2h"
+                "\n  kSeqCd = 0.05; kRelCd = 0.01; w_ink4 = 1.0;   // CyclinD1-p27 buffer (bimolecular, saturating); INK4 releases (PLACEHOLDER)"
+                "\n  species CdP21 in Cell; CdP21 = 0;   // p27 buffered on CyclinD1-CDK4/6 (option A: counts in the Rb drive)"
+                "\n  Buffer_p27_on_CyclinD: Cd + P21 -> CdP21; Cell*(kSeqCd*Cd*P21 - kRelCd*(1 + w_ink4*(p18_prot + p19_prot))*CdP21);"
+                "\n  Deg_p27_in_CdP21: CdP21 => Cd; Cell*kDeP21*CdP21;   // buffered p27 turns over at BASAL only; Cd released\nend", 1)
+            m = m.replace("tP21 := P21 + CeP21 + CaP21 + iPcna + iRc;", "tP21 := P21 + CeP21 + CaP21 + iPcna + iRc + CdP21;")
+            # PCNA/Rc arm — mechanistic MOVE REVERTED (2026-07-30, round 3). Moving iPcna/iRc p27->p21a is
+            # NUMERICALLY PATHOLOGICAL: iPcna/iRc are replication-coupled shared species that hold mass while the
+            # near-zero p21a pool is dragged strongly NEGATIVE (p21a min ~-0.4, corrupting the sim to 15/32) — the
+            # "mechanistic version for free" is not free in this shared-species framework. So p21 keeps its Cdt2/
+            # S-phase clearance via the aRc PROXY (in p21a's free/complex degradation, from the Stage-2 swap), which
+            # is robust. KNOWN LIMITATION for review: the base-Heldt PCNA/Rc binding stays nominally on p27 (p27's
+            # Cdt2 degradation IS removed); a fully mechanistic p21-PCNA arm needs dedicated (non-shared) p21-PCNA
+            # species, deferred. tP21 keeps iPcna/iRc (Heldt convention).
+            m = m.replace("tP21 := P21 + CeP21 + CaP21 + iPcna + iRc + CdP21;",
+                          "tP21 := P21 + CeP21 + CaP21 + iPcna + iRc + CdP21;")  # unchanged (documented above)
+
         _ts_bake = {
             # 2026-07-27 CELL-TYPE SPLIT BAKED (JP-approved): GNP 16-17h / MB ~23.5h CORE cycle, decoupled commitment.
             # GNP cycle = data (Nakashima 15.9h + Contestabile 16.25h); MB longer via the SAME k_mu_cki slowdown driven

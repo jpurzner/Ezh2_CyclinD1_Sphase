@@ -37,7 +37,8 @@ MYCN_AMP_MB = 2.8
 CD2_EXPR_MB = 3.59       # CyclinD2 MB-specific developmental elevation (added to the shared Cd2 basal); GNP = 0
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
 P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
-P18_MB = 1.553           #   dominant INK4 (GNP 0.464 -> MB 1.553 = 3.35x ~ data 3.7x); p16 the MB-specific small one.
+P18_MB = float(os.environ.get('P18_MB', '1.553'))   # dominant INK4 (GNP 0.464 -> MB; env-overridable for CDKI data tone 1.73)
+P19_MB = float(os.environ.get('P19_MB', '0.58'))    # Cdkn2d(p19) MB tone (GNP 0.36 builder default); used only when CDKI_SPECIES=1
 KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment threshold kPhRbCd=0.35 to preserve the rescue.)
 P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '0.6'))   # env-overridable. 2026-07-15 transient-G0 reframe: the
                          # MB-specific BIRTH-p27 "crutch" is RETIRED (set to the GNP baseline 0.6). MB's baseline
@@ -64,6 +65,7 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_mitogen_tracker=(os.environ.get('MITOGEN_TRACKER', '0') == '1'),
                          decouple_commit=(os.environ.get('DECOUPLE_COMMIT', '1') == '1'),  # 2026-07-27: BAKED default (cell-type split); G0/commit gated on CyclinD1/CDKi (not size). DECOUPLE_COMMIT=0 for the legacy size-gated commitment.
                          mycn_autoreg=(os.environ.get('MYCN_AUTOREG', '0') == '1'),  # 2026-07-27: MYCN from Gli1 + bistable self-activation (SHH-MB is NOT MYCN-amplified); HHi conditions use establish-then-withdraw
+                         with_cdki_species=(os.environ.get('CDKI_SPECIES', '0') == '1'),  # 2026-07-30 EXPLORATION: individual dynamic CDKI species (default off = neutral)
                          params=PARAMS or None)
 
 _MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'
@@ -76,7 +78,7 @@ def _new_rr():
     return rr
 
 
-def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, ksyp21=None, p21div=None,
+def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=None, p19=None, ksyp21=None, p21div=None,
         hu=0.0, cdk46i=False, serum_starve=False, t_end=12000, n_pts=48000):
     """Run one condition. Real-time minutes."""
     rr = _new_rr()
@@ -105,6 +107,10 @@ def run(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, p16=0.0, p18=No
             rr['p16'] = p16              # INK4 (Cdkn2a): competitive CDK4/6 brake (0 in GNP, elevated in MB)
             if p18 is not None:
                 rr['p18'] = p18          # INK4 (Cdkn2c): constitutive (GNP default 0.4), ~3x in MB
+            _p19 = p19 if p19 is not None else (P19_MB if ptch1_cn < 0.5 else None)
+            if _p19 is not None:
+                try: rr['p19'] = _p19    # INK4 (Cdkn2d): CDKI-species mode; MB tone auto-applied (no-op if p19 param absent)
+                except Exception: pass
             if ksyp21 is not None:
                 rr['kSyP21'] = ksyp21    # p21/p27 (CDK2 inhibitor) synthesis; elevated in MB
             if p21div is not None:
@@ -219,7 +225,7 @@ CONDITIONS = {
     'GNP + EZH2i':       dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP + HHi + EZH2i': dict(shh=0.5, ptch1_cn=1.0, hhi=1.0, ezh2i=1.0, mycn_amp=1.0),
     'GNP Serum-starved': dict(shh=0.5, ptch1_cn=1.0, hhi=0.0, ezh2i=0.0, mycn_amp=1.0, serum_starve=True),
-    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
+    'MB':                dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, p19=P19_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
     'MB + HHi':          dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=0.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
     'MB + EZH2i':        dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=0.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
     'MB + HHi + EZH2i':  dict(shh=0.5, ptch1_cn=PTCH1_MB, hhi=1.0, ezh2i=1.0, mycn_amp=MYCN_AMP_MB, p16=P16_MB, p18=P18_MB, ksyp21=KSYP21_MB, p21div=P21_DIV_MB),
