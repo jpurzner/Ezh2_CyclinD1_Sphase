@@ -1,0 +1,124 @@
+# Reviewer Engagements & Open Questions
+
+*This page is the project's **live agenda**: the external and internal reviews that reshaped the model, the conceptual corrections JP (the wet-lab PI) has issued along the way, and the questions that are still open or deliberately deferred. It is deliberately honest about what was applied, what was found infeasible, and what remains unsettled. For the mechanisms themselves see [Mechanisms Explored](04_mechanisms_explored.md); for dead-ends see [Things Tried & Abandoned](05_things_tried_and_abandoned.md); for the target set see [Calibration & Validation](06_calibration_and_validation.md).*
+
+---
+
+## 1. The expert reviews that shaped the model
+
+Three distinct review engagements have materially changed the model. Two were external-expert reviews (the CDKI-degradation biochemistry review, in two rounds; and the parameter-identifiability review, a six-stage statistical proposal). One was an internal pre-build verification that killed a planned feature before it was built (the S-phase checkpoint). Each is treated below with what was proposed, what was applied, and what was found infeasible.
+
+### 1.1 The CDKI-degradation review (two rounds) — `docs/cdki_module_design.md`
+
+When JP asked to "model the individual species of the expressed CDKI" (replacing the lumped static `p16`/`p18` params and the single `P21` species that was standing in for *all* CIP/KIP proteins), the resulting design spec went through **two rounds of expert biochemistry review**. The reviewer's corrections were unusually specific and several were load-bearing. See [dynamic-cdki-module](04_mechanisms_explored.md) for the mechanism; the reviewer-facing accounting is here.
+
+**Corrections applied (round 1 → round 2):**
+
+| # | Reviewer correction | What was wrong | How applied |
+|---|---|---|---|
+| 1 | **CRL4^Cdt2 provenance + the PCNA/Rc arm belong to p21, not p27** | The inherited Heldt species called `p27` was literally p21 relabeled; p27 has no PIP-box degron and is not a Cdt2 substrate | Moved the entire PCNA/Rc binding arm and CRL4^Cdt2 degradation `p27 → p21a`; Cdt2 now acts on PCNA-bound p21 (`iPcna`/`iRc`) |
+| 2 | **KPC magnitude + pool** | `kDeKPC` was set to imply a ~13-min p27 half-life; KPC acts only on cytoplasmic Ser10-P **free** p27, not on complexes | `kDeKPC` 0.05 → **0.006** (t½ ~1–2 h), restricted to the free pool. This restored a usable (non-zero) p27 level |
+| 3 | **CdP21 redistribution must be stoichiometric + saturating** | The catalytic version of CyclinD1-p27 buffering never saturated | `Cd + P21 ⇌ CdP21` with Cd **consumed** (buffer saturates at Cd abundance, collapses non-linearly as Cd falls); buffered Cd returned to the Rb-drive numerator (option A) |
+| 4 | **§3.1 ↔ §3.3 double-hit** | Free p27 was braking CDK4/6 *and* CDK2 simultaneously | Free p27 removed from the Rb (CDK4/6) denominator — it acts on CDK2 only; the p27→CDK4/6 effect is purely stoichiometric via CdP21 |
+| 5 | **No division reset for CdP21** | CdP21 had been a mass sink at mitosis | CyclinD1 persists through mitosis, so the buffer stays full into G1 — no reset |
+| 6 | **INK4 turnover heterogeneity** | p18 and p19 had been given identical kinetics | Split: p18 (Cdkn2c) stable (`kDe_p18`=0.003), p19 (Cdkn2d, INK4d) short-lived (`kDe_p19`=0.03) |
+
+**Corrections that turned out to be *findings* (infeasible as first hoped):**
+
+- **The p21/p57 degeneracy — confirmed, and then confirmed *biologically*.** The reviewer warned that p21 and p57 share binding constants (`kAsCyP21`) and a Skp2 term with p27, so against aggregate CDK2 activity their synthesis rates would be **near-unidentifiable** ("check the sloppy direction before spending a fit"). This proved exactly right: engaging p21/p57 at their measured transcript abundances (~0.49/0.24) breaks validation from **30/32 to 15/32** — they over-inhibit CDK2 even with p27 decomposed to near-zero and even at reduced CDK2 potency (`w_cdk2_p21/p57`) and off the CDK4/6 brake. Across ~560 sims the resolution stood: **p21/p57 remain expressed-but-inert; the functional CDK regulation is p27 + INK4 + CdP21.** The reviewer's second point — "p21 lacks the key tyrosine, poor CDK4/6 activator" — was applied by removing p21/p57 from the CDK4/6 brake. The biological reading: **mRNA abundance overstates the active nuclear CDK-inhibitor pool** for these heavily post-translationally-regulated proteins.
+- **The mechanistic p21-PCNA arm had to be reverted.** Moving the PCNA/Rc arm onto p21 (correction #1) caused `p21a` to go **negative (~−0.4)**, corrupting the sim: `iPcna`/`iRc` are replication-coupled *shared* species that cannot host a near-zero p21 pool. Resolution: p21 keeps Cdt2 via the robust `aRc` proxy; `iPcna`/`iRc` stay on p27 (Heldt) with p27's Cdt2 removed. p21a is now positive everywhere (min +0.0001). **A fully mechanistic, non-shared p21-PCNA arm is deferred** (see §3).
+
+**Outcome.** The module calibrated to **30/32** (fails only the structural HU pair, [v44-hu-s-g2-structural-limit](05_things_tried_and_abandoned.md)) with the reviewer-designed CdP21 buffer as the Shh-gated commitment lever, and was **baked as default** (commit `ec1a141`, JP-approved). Open items the reviewer flagged and that remain live: free-p27 Skp2 over-degradation (T187 phosphorylation needs p27 *in complex*, but the model applies the Skp2 term to the free pool too — known simplification, known direction); INK4 release modeled as catalytic not competitive (no explicit INK4·CDK4/6 complex — unbounded in INK4); p19's cell-cycle split is cosmetic under constant synthesis; and **CDKI-on validation is slow/stiff (>200 s)**.
+
+### 1.2 The parameter-identifiability review — `PARAMETER_IDENTIFIABILITY_PLAN.md`
+
+An external reviewer submitted a six-stage proposal (FIM spectrum → sloppy directions → continuation → profile likelihoods). The plan document is the project's response — it **accepts the framing** but corrects the parts addressed to an earlier model and reports four measurements that reorder the priorities. It is one of the most consequential documents in the repo.
+
+**Where the proposal was aimed at a stale model:** the proposal described "22/27 validation, 5 standing failures, ~130 parameters, an AUM mark module with `f0_mk`/`K_mk`/`del_mk`." The current tree is **30/32 with 2 misses, 213 global parameters, a serial me1→me2→me3 methylation chain + PRC2 occupancy (the named mark params exist only in the dead `with_prc2=False` branch), two D-cyclins, and a baked GNP/MB split.** Consequences: **Stage 6 as written cannot run** (two of the three params it profiles don't exist; live analogues are `f0_prc2`, `K_prc2`, `del_mk`); **Stage 4 is nearly moot** (2 failures sharing one HU cause, already probed by `_frontier_hu.py`).
+
+**The measurements that reordered everything:**
+
+1. **The pass/fail score hides the model's state.** Converting to band-fraction residuals, **7 of 25 continuous targets sit at ≥65 % of their tolerance band** — the model is resting against roughly a third of its constraints at once. The worst non-HU residuals are `CyclinD1 MB/GNP` (94 %), `CyclinD1 GNP+HHi` (91 %), `EZH2i CyclinD1 fold` (65 %) — **all three load-bearing for the manuscript's central claim, all three low.** Worse, every optimizer uses a **band-hinge loss** (`max(0,|x−t|/t − tol)`) that is exactly zero inside the band, so the search has no gradient over most of the feasible region — *the flat directions are partly manufactured by the objective.*
+2. **σ should not come from the tolerances.** The tightest band (`CyclinD1 MB/GNP`, tol=0.20) sits on the most ambiguous target — **5.07 by the Fig 4I normalization, 7.58 in the raw RNA-seq table**, a 1.5× ambiguity that is 2.5× wider than its own tolerance. The fold targets rest on **n=2** groups (`MB_Ptch_het`, `MB_GDC0449`). The repo holds only group means — **no counts matrix, no DESeq2 `lfcSE`** — so σ cannot currently be computed. **Recovering `lfcSE` for the ~8 RNA-seq folds is named the single highest-leverage input to the entire analysis.**
+3. **Exact structural degeneracies exist in the sector the central claim depends on — verified numerically.** The reviewer's three proposed null vectors were **all wrong as stated** (e.g. Gli1 enters only as the conserved sum `Gli_act + Gli1` pinned at 0.6). The *real* degeneracies: a **verified 3-dimensional exactly-flat subspace** in the EZH2→PRC2→repression chain — `{a0_prc2, a_rw_prc2, K_prc2}×λ, {kme1,kme2,kme3}÷λ`; `kTlEZ×λ, {a0_prc2,a_rw_prc2}÷λ`; the EZH2-mRNA scale — each leaving all 32 outputs unchanged to **<6×10⁻⁷** across a factor-4 λ range (control moved 17 targets 38–45 %). **These are precisely the parameters `optimize_prc2.py`/`optimize_chain.py`/`optimize_cdh1_ezh2.py` have been searching** — so those overnight runs have been partly wandering on a manifold where no evaluation can improve anything, and the landed `_ts_bake` values are one arbitrary point on a provably flat curve.
+4. **Inert parameters and harness discontinuities.** `MYCN_amplification`, `K_EZH2_repression`, `M_commit` (inert since `decouple_commit=True`, commit `5e4f63e`, yet still actively searched by two optimizers), `dil_frac=0`, and the whole legacy `k_w_mk`/`k0_mk`/… set are **structurally inert** — including any in a FIM produces spurious zero eigenvalues. `KSYP21_MB`/`P21_DIV_MB` are set in every MB dict but **equal the GNP defaults** (no-ops). Finite differences are smooth (elasticities converge by h≈0.05) *except* `kPhRbCd`, whose Jacobian column sign-flips at h=0.20 — a bifurcation crossing. Three harness-level discontinuities remain live hazards: the retry ladder silently shortening the horizon, the `classify()` fallback substituting duration- for count-fractions, and `find_peaks` stepping the division count by ±1.
+
+**The adopted reframing (Stage 7, "the strongest part of the proposal"):** *Species are in arbitrary units and the model is calibrated to ratios, so individual rate constants were never the deliverable. The defensible claim is that the model's three testable predictions — vismodegib arrests MB, EZH2i rescues it, CDK4/6i arrest is not rescuable — project onto the well-determined (stiff) subspace.* This is honest for an AU-unit model and is the intended manuscript framing. (Prediction 3 must first be *removed* from the scored checks — see §3, it is currently fit to the model's own output.)
+
+**Status:** plan only, nothing implemented. The recommended first three steps (fix the gauge by pinning `kTlEZ`/`a0_prc2`/`k_Cd_translation`; fix `_apply_overrides` to reach comma-declared species; commit the recovered `compute_sensitivity.py`) are "worth doing even if the rest is dropped."
+
+### 1.3 The S-phase-checkpoint verification — `v44_verification_findings.md`
+
+Not an outside review but a **pre-build verification that functioned as one** — it killed a planned feature before a line of the builder was touched. The question was whether the S-phase duration could be made concentration-dependent (an intra-S CHK1→Cdc25 checkpoint responding to HU), replacing the phenomenological "eps-in-S" clock slowdown of v43.
+
+**The clear, consistent negative:** in the Gérard–Goldbeter oscillator topology, **S-phase duration is a structural invariant (~4.7 h) set by the relaxation oscillator; no molecular concentration can lengthen it.** Dynamic replication-gated Cdc25B inhibition left S flat at every HU dose; throttling Cdk1 activation to 2 % did not delay mitosis; a sensitivity scan showed the mitotic module (where the biological checkpoint acts) has **zero leverage** on period or S — concentration changes redistribute time into **G1**, never into S. The dynamical reason: S/G2→M is a fast relaxation discharge slaved to the Rb–E2F–CyclinA pacemaker, and the CyclinA pulse is self-terminating via E2F autoinhibition on a fixed timescale.
+
+**Consequence:** the v43 eps-in-S checkpoint was **reframed from "a hack we apologized for" into "the demonstrably correct coarse-graining for this oscillator class."** A genuinely concentration-dependent S would require a different model with explicit DNA replication (origin licensing, fork number × speed, "% genome replicated" as a slow state, hard mitosis gate) — a v44/v45-scale rebuild with no ready-made SBML, explicitly deferred. The verification saved the project from building a checkpoint that *cannot work*.
+
+---
+
+## 2. JP's key conceptual corrections
+
+Distinct from the outside reviews, the PI has issued a series of conceptual corrections that changed how the biology is framed in the model. These are the "the model is saying the wrong thing about the biology" interventions.
+
+### 2.1 EZH2 has two separable arms — the model holds only one — [ezh2-two-arms-cko-scoping](04_mechanisms_explored.md)
+
+JP's most important scoping correction (2026-07-28). EZH2 has **two arms that oppose at tumor initiation**, and the model deliberately holds only the second:
+
+- **Arm 1 — developmental, DOMINANT, NOT modeled.** EZH2's genome-wide repression of the *differentiation* program keeps GNPs progenitor-like. EZH2 cKO → premature differentiation → cell-cycle **exit** → the progenitor pool is **depleted**, so **Ptch⁺/⁻;EZH2-cKO does not increase MB frequency.** EZH2 loss does *not* drive proliferation or tumors. **This corrects an earlier over-statement that EZH2 was tumor-suppressive-via-CyclinD1 — that framing was wrong.**
+- **Arm 2 — the CyclinD1(/2) governor, the model's scope.** EZH2 ⊣ CyclinD1 raises the mitogen *threshold* for division without decoupling division from Shh; EZH2i lowers the Shh bar. This is what the vismodegib-rescue reads out (EZH2i lifts an arrested MB cell back over threshold; does **not** rescue CDK4/6i — the clean proof the action is via CyclinD1 transcript only).
+
+The two arms looking like opposite EZH2 functions — cKO genetics vs acute EZH2i pharmacology — and both being true is the reconciling insight. Also corrected: **the genetic cKO = reduced H3K27me3 *mark* (writer gone), not the catalytic PRC2-occupancy inhibition that is the *drug*** ([v44-ezh2i-catalytic-mechanism](04_mechanisms_explored.md)). And the model's "Cd"/"CyclinD1" should be read as **CyclinD1/2** — both CCND1 and CCND2 are massively expressed ([cyclind1-d2-two-cyclin-model](04_mechanisms_explored.md)).
+
+### 2.2 MYCN is elevated-in-expression, not amplified — [mycn-elevated-expression-not-amplified](04_mechanisms_explored.md)
+
+SHH-MB is **not** MYCN-amplified (Group-3 is); MYCN is *elevated as a Hh/Gli target*. The model's `MYCN_amplification` multiplier was replaced by an additive `MYCN_expr` elevated-expression term (0.54 in MB, Gli-set), algebraically neutral at 26/29. `MYCN_amplification` is now **dead code referenced by no rate law** — which is exactly why the identifiability plan (§1.2) flags it as a structurally-inert parameter that would inject a spurious zero eigenvalue into any FIM.
+
+### 2.3 H3K27me3 — broad-mark *kinetics* vs local *repression* — [h3k27me3-kinetics-vs-local-repression](04_mechanisms_explored.md)
+
+A foundational reframing (2026-07-30) of how the mark should be modeled. The mark spreads over a **large** promoter region, but its **transcriptional-repression impact is very local** to the proximal promoter; the broad domain mostly enhances the **kinetics** of transcriptional control (responsiveness, switching speed), **not** the steady-state repression magnitude. This resolves the "marked-but-expressed" paradox and reconciles "CCND2 should be H3K27me3-marked" with "D2 transcription must stay largely mark-independent" (equal dynamic mark-gating of D2 was data-incompatible, 29/32 with the vismo direction inverted). Refined further: the mark = a **poised, high-threshold, fast-off switch** (raises the activator bar, snaps off fast) — mapping directly onto the governor finding that EZH2 raises the mitogen threshold without decoupling from mitogen.
+
+**Modeling implication (future, NOT built — JP said "forget it for now, revert"):** decompose the mark's two roles — a small *local* component setting steady-state repression level, and the large *broad* domain setting the rate/time-constant of the transcriptional response — rather than lumping all of `Mk` into the steady-state repression Hill as the current model does. The identifiability plan supplies the quantitative case for this: `del_mk` (the mark-turnover rate carrying the manuscript's ~16 h de-repression half-life) has a **maximum elasticity of 0.016** across every scored target, because **none of the targets is a time constant.** The mark's kinetics are unconstrained by construction — the fix is a *dynamic target* (the de-repression time-course after EZH2i, the mark-restoration τ after washout), not a better profile.
+
+### 2.4 p57 = Sox2⁺/quiescent CKI — de-emphasized
+
+Cdkn1c/p57 is minimally expressed in proliferating GNP/MB (largely a Sox2⁺ quiescent-cell CKI, 0.35× MB/GNP), so `p57a` is carried **off** (`kSyp57a=0`, vestigial) — species and reactions kept for structure but no functional role. Its 0.35× MB drop is the natural EZH2/mark hook and is noted as a candidate future refinement, but the functional CIP/KIP set is p27 + p21 (both largely inert vs a p27-dominant pool).
+
+### 2.5 GNPs stay Shh-dependent — a hard constraint
+
+A standing correction baked into the validation as a **feasibility constraint**: GNP **never divides without Shh, even under EZH2i** (0 divisions/day at SHH=0 in both arms). EZH2 *raises* the Shh threshold (EZH2i drops the bar ~0.15 → ~0.05) but does not decouple division from Shh — and the Shh-dependence comes from the **low CyclinD1 basal**, not from EZH2 ([ezh2-governor-reservoir-remeasure](04_mechanisms_explored.md)). This is why `k_Cd_tx_basal` was halved (baked, 28/29) and why the cKO check (`cKO@0 = 0.00`) is a hard post-filter on every calibration.
+
+### 2.6 Loosen the targets — the data is noisy — [target-flexibility-noisy-data](06_calibration_and_validation.md)
+
+A methodological correction (2026-07-10) that the identifiability review later corroborated from the statistics side. JP: **stop exact-matching the validation targets.** They are noisy experimental data (bulk RNA-seq folds, flow phase fractions, a ChIP that is only "~half," a Palbo "~56%"), so demanding exact fits makes the model rigid and manufactures false target-vs-target tension — which is why recent optima kept landing pinned to their pass-ceilings. The prescription: widen the quantitative tolerances (RNA-seq ±30–40 %, flow ±30 %, ChIP "half" → [0.4,0.6]), keep the *qualitative* targets tight (arrest = 0, cycles > 0, no-rescue = 0), and convert the optimizer loss to **band penalties**. This is the same band-hinge loss the identifiability review independently flagged as gradient-free inside the band (§1.2) — the two reviews meet here: the band is right for scoring but wrong for search.
+
+---
+
+## 3. Open questions & deferred items — the live agenda
+
+Ordered roughly by how load-bearing each is for the manuscript.
+
+**Identifiability / provenance (the highest-leverage open work):**
+- **Recover DESeq2 `lfcSE` (or per-replicate counts) for the ~8 RNA-seq fold targets.** Everything downstream — which directions are stiff, what a profile CI means — is a linear function of σ, and σ cannot currently be computed from the repo (means only). Named the single highest-leverage input.
+- **Fix a gauge before any further search.** Pin `kTlEZ`, `a0_prc2`, `k_Cd_translation` to remove the verified 3-D flat subspace; three current optimizers are searching provably-flat manifolds.
+- **Resolve the CyclinD1 MB/GNP normalization ambiguity** (5.07 vs 7.58, a 1.5× fork wider than its own tolerance).
+- **Remove the four non-informative checks from the residual vector**: the serum-starve arrest (tautological — the condition sets `k_Cd_translation=0`), the MB+CDK4/6i+EZH2i no-rescue (a *model prediction*, Fig S9I/J — fitting it is circular), the MB+CDK4/6i arrest (real data is a reversible 16–18 % pRb⁺ residual, not 0 division), and the EZH2 Palbo drop (measured in MB, scored on GNP). Prediction 3 in the reframing (CDK4/6i not rescuable) is one of these and must be un-scored before it can be honestly analyzed as a prediction.
+- **The evidence-provenance framework** (`EVIDENCE_FRAMEWORK_PROPOSAL.md`, proposal only). The most urgent single item in it: **mint `EXP-*` records for the unpublished JP measurements** (`mb_cdk46i_arrest`, `mb_vismo_ezh2i_rescue`, `cd_g01_cv`, `skp2_mb_gnp`) — these are load-bearing primary observations that **exist only in chat transcripts**, with no cell line, N, replicate structure, or raw-file pointer recorded. The rescue contrast is "arguably the central claim the model exists to explain." Everything else in the repo is recoverable from files; these are not. Second: point `validate_v44.py` at `validation_targets.json` (currently *no code reads the "single source of truth"* — the harness is a pile of literals, and drift is already documented in the JSON's own `OPEN_ISSUES`).
+
+**Structural / dynamical open questions:**
+- **The HU S/G2 structural limit.** MB HU-S fold (target 1.36) and MB HU-G2 fold (target 0.23) cannot both pass by any re-fit — they are anti-correlated because in-model BrdU is replication flux ([v44-hu-s-g2-structural-limit](05_things_tried_and_abandoned.md)). The open question is whether the measured pair lies *outside the attainable set* of the current fork-coupling — a quantitative structural claim (extend `_frontier_hu.py`) that would replace "we tried hard" in the manuscript.
+- **No formal MB cycle-length target.** The MB 23–26 h cycle time is an *unvalidated output*. The GNP period, by contrast, is *resolved* in the literature — Nakashima 2015 (15.9 h) and Contestabile (16.25 h) **agree on ~16 h**; the model's 22.83 h is the growth-timed default (`Tc≈ln2/mu`), literature-unsupported, and the harness's "22 h" check is a known miscitation whose fix is deferred to the CKI-split recalibration (§ [Calibration & Validation](06_calibration_and_validation.md), [16 h attempt](03_evolution_timeline.md)) — tracked as a *state*, not a mistake.
+- **Discrete transient-G0 needs a population layer** — [cdki-baked-g0-g1-behavior](04_mechanisms_explored.md). The baked CDKI model has a **sharp, switch-like** CdP21/R-point commitment, so the discrete p27-high/pRb-low transient G0 of the prior model is **gone** (G0-fraction = 0 %, pRb never < 1.66). The reviewer's fast constant-KPC clearance + the CdP21 buffer removed the mechanism; slowing KPC does not recover it (structurally absent). MB's longer cycle is now a **longer G1 driven by high INK4**, not a discrete pause. Recovering a discrete-G0 *subpopulation* needs the **population/birth-p27-heterogeneity layer** — not a clearance change.
+- **Graded G1-lengthening is latent behind `K_g1len`** — [withdrawal-graded-g1-lengthening](05_things_tried_and_abandoned.md), [withdrawal-loop-overdamped-governor](04_mechanisms_explored.md). JP's expectation that mitogens set G1 *duration* (not GO/NO-GO) is achievable but latent: `K_g1len=0.6` sits below the operating Cd, so `mu_eff` lengthening never engages above threshold. Raising `K_g1len` to ~1.8–2.5 recovers clean graded G1 (GNP 26.7 h → 14.0 h as SHH 0.6 → 1.0). Same lever appears in the withdrawal-loop probe, which established the whole system is an **overdamped governor, not an oscillator** (0 sustained oscillations in ~200 sims including 60 adversarial; the proposed CyclinD1↓→EZH2↓ feedback loop exists but cannot ring in the current continuous machinery). Not baked.
+- **Mechanistic p21-PCNA arm** — deferred (§1.1). A fully mechanistic (non-shared) p21-PCNA arm needs dedicated species; the current `aRc`-proxy is a documented simplification.
+- **CDKI-on stiffness/speed.** The baked dynamic-CDKI model makes validation and figure generation **slow and stiff** (>200 s per validate). Fast checks route around it via direct cycle tests. A performance pass is deferred.
+- **Concentration-dependent S-phase** (Option B, §1.3) — an explicit DNA-replication layer is a v44/v45-scale rebuild, deferred as a separate scoped project.
+
+**Deferred mark refinements:**
+- Decompose `Mk` into local-repression vs broad-kinetic components (§2.3) — captured conceptually, JP said "revert for now."
+- Give the inert p57 a functional EZH2/mark-coupled role via its 0.35× MB drop (§2.4).
+- Add **dynamic targets** (EZH2i de-repression time-course; mark-restoration τ after washout) so the mark kinetics — currently unconstrained (`del_mk` elasticity 0.016) — are actually tested rather than assumed.
+
+---
+
+*See also: [Evolution Timeline](03_evolution_timeline.md) for when each of these landed, [Calibration & Validation](06_calibration_and_validation.md) for the target set and the band-hinge loss, [Data & Evidence](07_data_and_evidence.md) for provenance status, and [Model Architecture](02_model_architecture.md) for the 213-parameter / 49-species structure the identifiability review anatomizes.*
