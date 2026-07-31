@@ -37,7 +37,7 @@ MYCN_AMP_MB = 2.8
 CD2_EXPR_MB = 3.59       # CyclinD2 MB-specific developmental elevation (added to the shared Cd2 basal); GNP = 0
 PTCH1_MB = 0.1            # MB = Ptch1 loss (constitutive Hedgehog); v44 uses 0.1 (0 -> species->0)
 P16_MB = 0.306           # MB CDK-inhibitor tones -- wide-search baked (were 0.15/1.5/0.004). p18 still the
-P18_MB = float(os.environ.get('P18_MB', '1.553'))   # dominant INK4 (GNP 0.464 -> MB; env-overridable for CDKI data tone 1.73)
+P18_MB = float(os.environ.get('P18_MB', '1.73'))    # dominant INK4 (GNP 0.464 -> MB); CDKI data tone (was 1.553 legacy)
 P19_MB = float(os.environ.get('P19_MB', '0.58'))    # Cdkn2d(p19) MB tone (GNP 0.36 builder default); used only when CDKI_SPECIES=1
 KSYP21_MB = 0.002        #   (search co-tuned with the raised commitment threshold kPhRbCd=0.35 to preserve the rescue.)
 P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '0.6'))   # env-overridable. 2026-07-15 transient-G0 reframe: the
@@ -65,7 +65,7 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_mitogen_tracker=(os.environ.get('MITOGEN_TRACKER', '0') == '1'),
                          decouple_commit=(os.environ.get('DECOUPLE_COMMIT', '1') == '1'),  # 2026-07-27: BAKED default (cell-type split); G0/commit gated on CyclinD1/CDKi (not size). DECOUPLE_COMMIT=0 for the legacy size-gated commitment.
                          mycn_autoreg=(os.environ.get('MYCN_AUTOREG', '0') == '1'),  # 2026-07-27: MYCN from Gli1 + bistable self-activation (SHH-MB is NOT MYCN-amplified); HHi conditions use establish-then-withdraw
-                         with_cdki_species=(os.environ.get('CDKI_SPECIES', '0') == '1'),  # 2026-07-30 EXPLORATION: individual dynamic CDKI species (default off = neutral)
+                         with_cdki_species=(os.environ.get('CDKI_SPECIES', '1') == '1'),  # 2026-07-30 BAKED default: individual dynamic CDKI species (set CDKI_SPECIES=0 for the legacy lumped-CDKI model)
                          params=PARAMS or None)
 
 _MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'

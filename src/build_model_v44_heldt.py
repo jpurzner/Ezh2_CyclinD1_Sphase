@@ -452,7 +452,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
-                    mycn_autoreg=False, with_cdki_species=False, params=None):
+                    mycn_autoreg=False, with_cdki_species=True, params=None):   # 2026-07-30 BAKED: individual dynamic CDKI species now DEFAULT
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -949,7 +949,10 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # (growth-INDEPENDENT), which restores cKO Shh-dependence + the strong EZH2 governor at the faster cycle.
             # Params from recal_16h_v3 (cKO-hard-constrained search). 26/29 (fails: CyclinD1 GNP+HHi = the basal-cut cost
             # of cKO; MB HU S+G2 = the structural HU limit). See memory mb-celltype-transient-g0-parameterization.
-            'mu': 0.000769, 'k_mu_cki': 0.307,
+            'mu': 0.000769, 'k_mu_cki': 0.3619,   # k_mu_cki re-fit for the baked dynamic-CDKI model (was 0.307)
+            # 2026-07-30 DYNAMIC-CDKI BAKED (recal_cdki_clean_best): individual expressed CDKI species now default.
+            # p27+INK4(p18/p19)+CdP21 carry CDK regulation; p21 low-activity, p57 off. 30/32 (fails HU pair), Shh-dep.
+            'kSeqCd': 2.13243, 'kRelCd': 0.01647, 'kDeKPC': 0.02022, 'w_ink4': 3.6204, 'kSyP21': 0.00116,
             # 2026-07-28 TWO-CYCLIN (JP): engage CyclinD2 (separate, Hh-buffered D-cyclin; CCND2 dominant + drops
             # only ~35% under vismo). Cd2 = basal + small Gli-driven + MB elevation (Cd2_expr, set per-condition);
             # feeds the CDK4/6->Rb drive with w_Cd2. Calibrated: D2 MB/GNP 2.39, GNP+HHi 0.66 (exact). w_Cd2<=0.2
