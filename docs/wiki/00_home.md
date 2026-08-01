@@ -43,6 +43,7 @@ to **[Things Tried & Abandoned](05_things_tried_and_abandoned.md)** and **[Mecha
 | [08 — Figures Catalog](08_figures_catalog.md) | Every figure: script, what it shows, which concept/paper panel it supports. |
 | [09 — Repos, Directories & Reproduction](09_repos_directories_reproduction.md) | Map of the three directories + two GitHub repos + how to run everything. |
 | [10 — Reviewer Engagements & Open Questions](10_reviewer_and_open_questions.md) | The expert reviews that shaped the model, JP's key conceptual corrections, and the live open-questions agenda. |
+| [11 — Transient G0 & Quiescence](11_transient_g0_and_quiescence.md) | GNP graded-G1-no-G0 vs MB-competent-for-G0: the two-quiescence biology (p21 bifurcation vs p57/OLIG2 stem dormancy), what the model currently does (a p27/CdP21 switch, no transient G0), the 5 gaps, and the module changes needed. |
 
 *Provenance: this wiki summarizes the state as of the dates cited within each page; where a claim is about code behavior or a
 parameter value, it reflects what was true when written — verify against current source before relying on a specific number.*
