@@ -452,7 +452,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_memory=False, with_h3k27_dilution=True, with_prc2=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
-                    mycn_autoreg=False, with_cdki_species=True, params=None):   # 2026-07-30 BAKED: individual dynamic CDKI species now DEFAULT
+                    mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
+                    params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -941,6 +942,43 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             m = m.replace("tP21 := P21 + CeP21 + CaP21 + iPcna + iRc + CdP21;",
                           "tP21 := P21 + CeP21 + CaP21 + iPcna + iRc + CdP21;")  # unchanged (documented above)
 
+            if with_p21_pip_degron:
+                # ===== Mechanistic p21-PCNA / CRL4^Cdt2 arm (UN-MAP; JP path A, 2026-08-01). DEFAULT-OFF; nothing baked. =====
+                # The PIP-degron machinery is INHERITED, not missing: Heldt's "P21" (which v44 remapped to p27) IS p21 --
+                # iPcna = p21.PCNA, iRc = p21.loaded-PCNA (RCi). p27 has no PIP box, so it must not bind PCNA. This block
+                # RESTORES the machinery to p21: repoint the PCNA/Rc binding p27(P21)->p21a, put the CRL4^Cdt2 degron on
+                # the p21a-bound iPcna/iRc (loaded PCNA), drop the free-pool aRc PROXY, and fix the moieties. It KEEPS the
+                # p21->fork (aRc->iRc) edge needed for the Barr-2017 Cdt2-depletion phenotype + the bistable G1/S switch.
+                # REQUIRES p21 at a meaningful abundance (raise kSyp21a at runtime): the round-3 negativity was the
+                # near-zero pool x kAsPcP21=100 stiffness breaking the p21 moiety, NOT the un-map itself. Quantitative
+                # knobs (kSyp21a, w_cdk2_p21, Cdt2) are LEFT at their current values -- set per-experiment / calibrate
+                # downstream. NB p21 abundance is pinned from TRANSCRIPT fold (Cdkn1a ~2.8x MB/GNP); the emergent p21
+                # PROTEIN is a PREDICTION (no p21 protein quants). See docs/p21_pcna_arm_design.md.
+                # (a) repoint PCNA/Rc binding p27(P21) -> p21a
+                m = m.replace("aPcna + P21 -> iPcna; Cell*(kAsPcP21*aPcna*P21 - kDsPcP21*iPcna)",
+                              "aPcna + p21a -> iPcna; Cell*(kAsPcP21*aPcna*p21a - kDsPcP21*iPcna)")
+                m = m.replace("aRc + P21 -> iRc; Cell*(kAsPcP21*aRc*P21 - kDsPcP21*iRc)",
+                              "aRc + p21a -> iRc; Cell*(kAsPcP21*aRc*p21a - kDsPcP21*iRc)")
+                m = m.replace("Nuclear_export_of_inactive_PCNA: iPcna => P21; Cell*kExPc*iPcna;",
+                              "Nuclear_export_of_inactive_PCNA: iPcna => p21a; Cell*kExPc*iPcna;")
+                # (b) CRL4^Cdt2 degron restored ON the p21a-bound (loaded-PCNA) complexes = mechanistic S-phase clearance
+                m = m.replace("iPcna => aPcna; Cell*((kDeP21 + kDeP21Cy*Skp2*(Ce + Ca))*iPcna);",
+                              "iPcna => aPcna; Cell*((kDeP21 + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc)*iPcna);")
+                m = m.replace("iRc => aRc; Cell*((kDeP21 + kDeP21Cy*Skp2*(Ce + Ca))*iRc);",
+                              "iRc => aRc; Cell*((kDeP21 + kDeP21Cy*Skp2*(Ce + Ca) + kDeP21aRc*Cdt2*aRc)*iRc);")
+                # (c) drop the free/CDK2 aRc PROXY on p21a (degradation is now mechanistic, only on PCNA-bound p21)
+                m = m.replace(" + kDeP21aRc*Cdt2*aRc)*p21a;", ")*p21a;")
+                m = m.replace(" + kDeP21aRc*Cdt2*aRc)*Cep21a;", ")*Cep21a;")
+                m = m.replace(" + kDeP21aRc*Cdt2*aRc)*Cap21a;", ")*Cap21a;")
+                # (d) moieties: p27(P21) loses iPcna/iRc; p21(p21a) total gains them
+                m = m.replace("tP21 := P21 + CeP21 + CaP21 + iPcna + iRc + CdP21;",
+                              "tP21 := P21 + CeP21 + CaP21 + CdP21;\n  tp21a := p21a + Cep21a + Cap21a + iPcna + iRc;")
+                # guards: fail LOUD if any splice silently no-op'd (a mismatch would strip clearance -> false neutrality)
+                assert "aPcna + p21a -> iPcna" in m and "aRc + p21a -> iRc" in m, "p21-PCNA repoint no-op"
+                assert m.count("kDeP21aRc*Cdt2*aRc") == 2, "Cdt2 degron not exactly on iPcna+iRc"
+                assert "tp21a :=" in m and "tP21 := P21 + CeP21 + CaP21 + CdP21;" in m, "moiety readouts not updated"
+                assert "kDeP21aRc*Cdt2*aRc)*p21a;" not in m, "free-p21a proxy not removed"
+
         _ts_bake = {
             # 2026-07-27 CELL-TYPE SPLIT BAKED (JP-approved): GNP 16-17h / MB ~23.5h CORE cycle, decoupled commitment.
             # GNP cycle = data (Nakashima 15.9h + Contestabile 16.25h); MB longer via the SAME k_mu_cki slowdown driven
@@ -986,7 +1024,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # E2F-only + Cdh1-degradation made MB Skp2 LOW because MB has high Cdh1). Re-optimized -> Skp2 MB/GNP 2.31,
             # HU-G2 recovered to 0.357 (structural floor), 28/29. kSySkp2_Cd=0 would disable it.
             'kSySkp2_Cd': 0.24457065227870578, 'K_Skp2_Cd': 10.296077904941832,
-            'k_Cd_tx_Gli_max': 0.152118, 'k_Cd_tx_MYCN': 0.031157,   # two-cyclin recal (split 0.1436 / 0.0203)
+            'k_Cd_tx_Gli_max': 0.17494, 'k_Cd_tx_MYCN': 0.062,   # 2026-08-01 p21-un-map re-cal (was 0.152118 / 0.031157): the un-map raises MB-specific EZH2-in-S -> more MB CyclinD1 repression -> MB/GNP fold drops ~7%. Restored via the MB-specific MYCN driver (spares GNP+HHi, unlike Gli) + a small Gli bump. Species-correct targets (EZH2m/Gli1_mRNA). 30/32.
             'k_Cd_tx_basal': 0.000529,   # two-cyclin recal: RAISED (D2 now floors proliferation) -> D1 GNP+HHi 0.055->0.10 passes. tx scaled 1/800 (with k_Cd_mRNA_deg 1/800) so the mRNA is a SLOW reservoir; THEN halved 2026-07-24: lowers the mitogen-INDEPENDENT CyclinD1 floor so that even FULL de-repression (genetic f0_prc2=1 / EZH2 cKO) stays Shh-DEPENDENT (no division at SHH=0, matches JP's cKO: transcript UP but no Shh-independent division + differentiates). Governed threshold only 0.16->0.18, de-repression fold preserved (~3.5x full / ~1.6x EZH2i), validation-neutral 28/29. Shh-dependence now comes from the LOW basal (CyclinD1 needs Gli-drive to commit), NOT from EZH2 repression -> EZH2 = threshold/level GOVERNOR, not the Shh on/off switch
             # 2026-07-20 graded G1/cell-cycle LENGTHENING (JP): subthreshold mitogen SLOWS growth -> Tc lengthens
             # GRADUALLY (no transient G0) -> longer low-E2F G1 -> slow EZH2 (S-phase) response = the buffering.

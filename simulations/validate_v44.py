@@ -52,7 +52,7 @@ P21_DIV_MB = float(os.environ.get('P21_DIV_MB', '0.6'))   # env-overridable. 202
                          # CyclinD1 commitment threshold so vismo's CyclinD1 drop arrests MB; EZH2i (CyclinD1
                          # up) overcomes the COMPETITIVE INK4 brake -> rescue. CDK4/6i (kPhRbCd=0, Vmax) NOT rescuable.
 
-SEL = ["time", "Cb", "MPF", "Cd", "Cd2", "Cd_mRNA", "MYCN", "Gli1", "EZH2", "EZH2m",
+SEL = ["time", "Cb", "MPF", "Cd", "Cd2", "Cd_mRNA", "MYCN", "Gli1", "Gli1_mRNA", "EZH2", "EZH2m",
        "E2f", "pRb", "P21", "Skp2", "aRc", "Dna", "mass", "vfork", "Mk"]
 
 # Build once; reset + set runtime inputs per condition (fast).
@@ -66,6 +66,7 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          decouple_commit=(os.environ.get('DECOUPLE_COMMIT', '1') == '1'),  # 2026-07-27: BAKED default (cell-type split); G0/commit gated on CyclinD1/CDKi (not size). DECOUPLE_COMMIT=0 for the legacy size-gated commitment.
                          mycn_autoreg=(os.environ.get('MYCN_AUTOREG', '0') == '1'),  # 2026-07-27: MYCN from Gli1 + bistable self-activation (SHH-MB is NOT MYCN-amplified); HHi conditions use establish-then-withdraw
                          with_cdki_species=(os.environ.get('CDKI_SPECIES', '1') == '1'),  # 2026-07-30 BAKED default: individual dynamic CDKI species (set CDKI_SPECIES=0 for the legacy lumped-CDKI model)
+                         with_p21_pip_degron=(os.environ.get('P21_PIP_DEGRON', '1') == '1'),  # 2026-08-01 BAKED default: un-map PCNA/Rc + CRL4^Cdt2 p27->p21 (correctness fix). Set P21_PIP_DEGRON=0 for the legacy p27-bound-PCNA wiring.
                          params=PARAMS or None)
 
 _MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'
@@ -280,10 +281,11 @@ def main():
     # transcript (Cd_mRNA matches RNA-seq); levels = mean settled
     cd = lambda c: mean_settled(sims[c], 'Cd_mRNA')
     cd2 = lambda c: mean_settled(sims[c], 'Cd2')   # CyclinD2 (separate, Hh-buffered D-cyclin)
-    my = lambda c: mean_settled(sims[c], 'MYCN')
-    gl = lambda c: mean_settled(sims[c], 'Gli1')
-    ez = lambda c: mean_settled(sims[c], 'EZH2')
-    ezm = lambda c: mean_settled(sims[c], 'EZH2m')
+    my = lambda c: mean_settled(sims[c], 'MYCN')     # single species; RNA-seq transcript proxy (JP 2026-08-01)
+    gl = lambda c: mean_settled(sims[c], 'Gli1')       # protein species (kept for any protein readout)
+    glm = lambda c: mean_settled(sims[c], 'Gli1_mRNA') # 2026-08-01 FIX: Gli1 targets are bulk RNA-seq -> score transcript
+    ez = lambda c: mean_settled(sims[c], 'EZH2')       # protein species (IF-based targets)
+    ezm = lambda c: mean_settled(sims[c], 'EZH2m')     # transcript species (RNA-seq / scRNA / qPCR targets)
 
     # Section A — between-condition ratios
     check("CyclinD1 GNP+HHi/GNP", cd('GNP + HHi')/cd('GNP + SHH'), 0.157, 0.40)
@@ -297,9 +299,9 @@ def main():
     check("MYCN GNP+HHi/GNP",     my('GNP + HHi')/my('GNP + SHH'), 0.78, 0.30)
     check("MYCN MB+HHi/MB",       my('MB + HHi')/my('MB'),         0.86, 0.25)
     check("MYCN MB/GNP",          my('MB')/my('GNP + SHH'),        2.80, 0.30)
-    check("Gli1 GNP+HHi reduction", 1 - gl('GNP + HHi')/gl('GNP + SHH'), 0.99, 0.05)
-    check("Gli1 MB/GNP",          gl('MB')/gl('GNP + SHH'),        6.90, 0.40)  # raw RNA-seq
-    check("EZH2 MB/GNP",          ez('MB')/ez('GNP + SHH'),        2.05, 0.35)
+    check("Gli1 GNP+HHi reduction", 1 - glm('GNP + HHi')/glm('GNP + SHH'), 0.99, 0.05)  # transcript (RNA-seq)
+    check("Gli1 MB/GNP",          glm('MB')/glm('GNP + SHH'),      6.90, 0.40)  # raw RNA-seq -> Gli1_mRNA (JP 2026-08-01)
+    check("EZH2 MB/GNP",          ezm('MB')/ezm('GNP + SHH'),      2.05, 0.35)  # Fig 4J is RNA-seq -> EZH2m transcript (was EZH2 protein) (JP 2026-08-01)
     # Skp2 (JP scRNA timecourse + MB table): HIGHER in MB (~2.3x GNP-P7, mitogen-induced via the kSySkp2_Cd dose
     # term). The differentiation DECLINE (log2fc 1.73 down, t50 P12) is captured mechanistically by that same term
     # (Skp2 falls as mitogen/CyclinD1 drops); not checked here because serum-starve is a deeper arrest than mild
@@ -327,7 +329,7 @@ def main():
 
     # period
     _, _, per_gnp = count_divisions(sims['GNP + SHH'])
-    check("Period GNP (~22h)", np.mean(per_gnp) if len(per_gnp) else 0, 22.0, 0.30)
+    check("Period GNP (~16h)", np.mean(per_gnp) if len(per_gnp) else 0, 16.0, 0.30)   # JP 2026-08-01: adopt Nakashima 15.9h + Contestabile 16.25h (the '22h' was a miscitation). Requires mu re-tune.
 
     # ---- phase proportions: COUNT-fractions (what flow measures), via the lambda-correction ----
     # EVIDENCE / PROVENANCE of these targets (and why the comparison quantity changed):
@@ -350,8 +352,8 @@ def main():
     f1, ez1, f1_dur = classify(sims['MB + HU'], pRb_thr)
     TGT_DMSO = dict(G0=24.8, G1=43.4, S=15.7, G2=16.1)              # flow count-fractions (soft for G0/G1, G2)
     _, _, per_mb = count_divisions(mb); Tc_mb = float(np.mean(per_mb)) if len(per_mb) else 23.0
-    check("MB 2N (G0+G1) count% (flow)", f0['G0'] + f0['G1'], TGT_DMSO['G0'] + TGT_DMSO['G1'], 0.30, '%')
-    check("MB S count% (flow; BrdU Ts~3h)", f0['S'], TGT_DMSO['S'], 0.42, '%')
+    check("MB 2N (G0+G1) count% (microscopy)", f0['G0'] + f0['G1'], TGT_DMSO['G0'] + TGT_DMSO['G1'], 0.30, '%')  # cell-culture microscopy, not flow (JP 2026-08-01)
+    check("MB S count% (microscopy; BrdU Ts~3h)", f0['S'], TGT_DMSO['S'], 0.42, '%')
     check("MB G2+M duration ~2.5h (direct)", (f0_dur['G2'] + f0_dur.get('M', 0)) / 100.0 * Tc_mb, 2.5, 0.55, 'h')
     TGT_HU_FOLD = dict(G0=1.19, G1=1.16, S=1.36, G2=0.23)
     for ph in ('S', 'G2'):  # the directionally clear ones (count-fraction folds)
@@ -361,7 +363,7 @@ def main():
     # EZH2 within-cycle gradient + HU boost (MB)
     check("EZH2 transcript S/G0 (1.8-2.5)", classify_grad(mb, pRb_thr, 'EZH2m')['S'], 2.0, 0.45)
     check("EZH2 protein G2/G0 (1.48)", ez0['G2']/ez0['G0'] if ez0['G0'] else 0, 1.48, 0.45)
-    check("EZH2 Palbo mRNA drop (~0.44)", ezm('GNP + CDK4/6i')/ezm('GNP + SHH'), 0.44, 0.42)   # Fig 4: CDK4/6i drops EZH2 mRNA 56% (E2f-gated); tests the writer is cycle-gated (Point 2)
+    check("EZH2 Palbo mRNA drop (~0.44)", ezm('MB + CDK4/6i')/ezm('MB'), 0.44, 0.42)   # Fig 4F qPCR is in MB cells (JP 2026-08-01): score MB+CDK4/6i vs MB (was GNP). EZH2 mRNA -56%, E2f-gated
     check("HU EZH2-in-S boost (1.31)", ez1['S']/ez0['S'] if ez0['S'] else 0, 1.31, 0.35)
 
     # ---- print results ----

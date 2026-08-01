@@ -80,6 +80,24 @@ CCND2 = 83% of the GNP D-cyclin pool / 61% of MB, and drops only ~35% under vism
 
 ## 4. The EZH2 evidence (writer coupling + repression of CyclinD1)
 
+> **EZH2 is measured in TWO modalities — annotate which is which (JP 2026-08-01).** EZH2 has both **transcript**
+> data (bulk RNA-seq Fig 4J; scRNA-seq Fig 4A/4B; qPCR Fig 4F) and **protein** data (**IF-inferred concentration**:
+> Supp 6D, Fig 4G, and the deep-G0 serum-starve measure). The model carries both species (`EZH2m` transcript /
+> `EZH2` protein), so **each validation target must be scored on the matching species** — a distinction the harness
+> got wrong for EZH2 MB/GNP until 2026-08-01 (it scored protein against an RNA-seq target). Corrected map:
+>
+> | Target | Species scored | Assay |
+> |---|---|---|
+> | EZH2 MB/GNP (2.05) | `EZH2m` transcript | bulk RNA-seq (Fig 4J) — *was mis-scored on protein* |
+> | EZH2 transcript S/G0 (2.0) | `EZH2m` transcript | scRNA-seq (Fig 4A/4B) |
+> | EZH2 Palbo drop (0.44, **MB**) | `EZH2m` transcript | qPCR (Fig 4F) — *was mis-scored on GNP* |
+> | EZH2 protein G2/G0 (1.48) | `EZH2` protein | IF (Supp 6D) |
+> | HU EZH2-in-S (1.31) | `EZH2` protein | IF (Fig 4G) |
+> | EZH2 G0/cycling (0.6) | `EZH2` protein | IF-inferred, deep-G0 serum-starve |
+>
+> See `docs/target_species_provenance.md` for the full cross-species/assay audit of *all* targets.
+
+
 ### 4.1 EZH2 is a cell-cycle-coupled, mitogen-dosed E2F target
 
 - **scRNA-seq, EZH2 transcript by phase** (Fig 4A GNP; 4B MB; 5 datasets): cycling/G0 ≈ **2.0×** → G0/cycling ≈ 0.5. Per-dataset G1/S-vs-G0: Sepp 1.87, Vladoiu 2.07, Ocasio(GNP) 2.09, Luo(MB) 1.79, Ocasio(MB) 2.45. Grounds the E2f×(CycE+CycA) transcription gate.
