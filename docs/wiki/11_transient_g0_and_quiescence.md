@@ -134,6 +134,16 @@ Staged, mapping the review's recommendations onto the model's actual state.
   exit is blocked — the model has APC/Cdh1 (C1) but not the Emi1 dual-negative-feedback bistable form.
 - *Status:* the model has the R-point machinery and now the p21-PCNA wiring; missing = birth-p21 heterogeneity +
   population layer + the Emi1 hysteresis. This is the route to **MB transient G0** (gap G2/G3).
+- **Now protein-grounded (TMT, [§07.13](07_data_and_evidence.md)):** p21 protein is **undetectable in bulk MB**, so
+  the mean is minimal — the bifurcation *must* be birth-p21 heterogeneity in a rare subpopulation, confirming Module A
+  is a **population-layer** mechanism and that keeping p21 inert in the deterministic mean is correct.
+- **Now TESTED (2026-08-02, `docs/stochastic_commitment_g0_findings.md`):** a reduced stochastic-commitment model
+  (p21/p18/p27) shows the GNP-no-G0 / MB-G0 dichotomy **cannot** come from the CKI-vs-CyclinD1 stoichiometry — the
+  measured MB changes (CyclinD1 ×4, CDK4/6 ×2, p18 ×3; p27 flat, p21 undetectable) make MB commit **harder** (less
+  G0). Adversarially verified (72k-eval hunt + 5 wirings; max MB−GNP gap +0.0 pp). Reason: all three measured
+  differences sit on the CDK4/6 arm the ×8 drive dominates; the CDK2 arm (p21/p27) that could bifurcate is flat/shared.
+  **MB G0 works only from an MB-specific birth-p21 *tail* (variance, not mean; Spencer/Barr replication-stress) — so
+  Module A's noise variable is birth-p21 with an MB-specific tail, NOT birth-p27, and NOT the drive-brake abundances.**
 
 ### Module B — p57/OLIG2 lineage-programmed deep dormancy (MB stem compartment)
 - A **quiescence↔activation node** gated by **OLIG2** (Desai/Li 2025), *upstream* of the CDK machinery — NOT routed

@@ -241,4 +241,30 @@ The real-time oscillator core — Rb–E2F bistable restriction point, cyclin/CD
 
 ---
 
+## 13. TMT proteomics — validation, not re-calibration (JP 2026-08-02)
+
+Whole-cell + nuclear **total protein** and phospho, P1/P7/P14 GNP (triplicate) + MB (**n=1**). *MS quant is
+noisier than RNA-seq and MB is single-sample*, so this is used **qualitatively / as validation, NOT as fit
+targets** — nothing was re-parameterized. (`R_projects/phospho_exon/results/cellcycle_P7_to_{MB,P14}.tsv`.)
+
+**Validates the model's core (n=1 MB but coherent):**
+- CyclinD1 4.2×, CyclinD2 3.2×, **Cdk4 1.7×, Cdk6 5.2×** up, **Cdk2 flat** → MB is CyclinD–CDK4/6-driven, not
+  CDK2 = the governor engine. ✓
+- **p18/Cdkn2c protein ~3× up → the INK4-sets-MB's-longer-G1 mechanism is protein-confirmed** (was transcript
+  only). Cleanest validation of a baked mechanism.
+- EZH2 protein 1.6× < transcript 2.05× → the buffering that justified scoring `EZH2m`. ✓
+- Rb S807/811 hyperphospho up in MB / down at P14 exit at protein **and** occupancy → two-step-Rb G0 marker
+  validated per-molecule.
+- **p21 (Cdkn1a) protein UNDETECTABLE** (WC + nuclear) → confirms carrying p21 inert is correct; the
+  transcript↔protein gap (miR-17/92) is real. **Decisive:** the transient-G0 bifurcation ([page 11](11_transient_g0_and_quiescence.md)
+  Module A) can't be a bulk-p21 effect — it must be **birth-p21 heterogeneity in a rare subpopulation** (a
+  population-layer mechanism; p21 stays inert in the deterministic mean).
+- p57 low in bulk MB + OLIG2 undetected + SOX2 5× up → the p57/OLIG2 quiescent compartment is a rare (<5%)
+  minority diluted in bulk — confirms the two-quiescence framing (Module B needs single-cell).
+
+**Flagged corrections (protein contradicts transcript-derived assumptions — n=1 + load-bearing → resolve later
+with MB replicates, do NOT act now):** p27 **not** elevated in MB (flat vs the model's `kSyP21_MB`); Skp2 **not**
+2.3× (protein ~1.2×; but cofactor Cks1b is 2.5× up). Still out of reach: MYCN protein MB fold, p27-pY88 (no pTyr),
+direct CDK4-vs-CDK2. Full detail: memory `proteomics-validation-corrections`.
+
 *Cross-references: [Origins & Foundations](01_origins_and_foundations.md) · [Model Architecture](02_model_architecture.md) · [Evolution Timeline](03_evolution_timeline.md) · [Mechanisms Explored](04_mechanisms_explored.md) · [Things Tried & Abandoned](05_things_tried_and_abandoned.md) · [Calibration & Validation](06_calibration_and_validation.md) · [Figures Catalog](08_figures_catalog.md) · [Repos, Directories & Reproduction](09_repos_directories_reproduction.md) · [Reviewer & Open Questions](10_reviewer_and_open_questions.md)*
