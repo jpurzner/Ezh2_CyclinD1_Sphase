@@ -453,7 +453,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
-                    params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32)
+                    with_p27_optionB=False,
+                    params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -978,6 +979,21 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 assert m.count("kDeP21aRc*Cdt2*aRc") == 2, "Cdt2 degron not exactly on iPcna+iRc"
                 assert "tp21a :=" in m and "tP21 := P21 + CeP21 + CaP21 + CdP21;" in m, "moiety readouts not updated"
                 assert "kDeP21aRc*Cdt2*aRc)*p21a;" not in m, "free-p21a proxy not removed"
+
+            if with_p27_optionB:
+                # ===== Option B (Fan-Meyer 2021, PMID 34320337): p27 is an INHIBITOR at CyclinD-CDK4/6. EXPLORATION. =====
+                # Baked option A treats the buffered p27.CyclinD-CDK4/6 trimer (CdP21) as ACTIVE -- it sits in the Rb-drive
+                # NUMERATOR, so p27 sequestration is drive-neutral and p27 is nearly inert as a brake (free P21 ~1% of the
+                # pool; verified phaseA A1). Option B makes the buffered complex INACTIVE: drop CdP21 from the active drive.
+                # The buffer reaction (Cd + P21 -> CdP21) still CONSUMES Cd, so raising p27 now removes CyclinD1 from the
+                # active pool -> p27 INHIBITS CDK4/6 via the CyclinD1/p27 ratio (Fan-Meyer), on top of free p27 -> CDK2.
+                # This is the mechanism JP endorsed (p27 drives G0; ratio tunes G1). BREAKS the option-A 30/32 calibration
+                # -> needs re-cal (kSeqCd/kRelCd/kDeKPC/w_ink4/kSyP21 + K_CdRb) before it can be a default.
+                _optA = "(Cd + w_Cd2*Cd2 + CdP21)/(K_CdRb*(1 + p18_prot + p19_prot) + (Cd + w_Cd2*Cd2 + CdP21))"
+                assert m.count(_optA) >= 1, "option-B: option-A drive term not found (structure changed?)"
+                m = m.replace(_optA,
+                              "(Cd + w_Cd2*Cd2)/(K_CdRb*(1 + p18_prot + p19_prot) + (Cd + w_Cd2*Cd2))")
+                assert "+ CdP21)/(K_CdRb" not in m, "option-B: CdP21 still in the Rb drive after replace"
 
         _ts_bake = {
             # 2026-07-27 CELL-TYPE SPLIT BAKED (JP-approved): GNP 16-17h / MB ~23.5h CORE cycle, decoupled commitment.
