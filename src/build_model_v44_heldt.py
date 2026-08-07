@@ -453,7 +453,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
-                    with_p27_optionB=False,
+                    with_p27_optionB=False, with_cdk6_gli=False,
                     params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
@@ -994,6 +994,24 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 m = m.replace(_optA,
                               "(Cd + w_Cd2*Cd2)/(K_CdRb*(1 + p18_prot + p19_prot) + (Cd + w_Cd2*Cd2))")
                 assert "+ CdP21)/(K_CdRb" not in m, "option-B: CdP21 still in the Rb drive after replace"
+
+        if with_cdk6_gli:
+            # ===== CDK6 = the 2nd arm of the CyclinD-CDK4/6 drive governor (JP 2026-08-07). EXPLORATION, default OFF. =====
+            # CDK6 is Hh/GLI2-driven (Hedgehog signaling drives MB growth via CDK6, JCI 2017 PMID 29202464: GLI2 binds
+            # the Cdk6 promoter) AND EZH2-marked (JP ChIP) -- the biggest MB drive fold in the bulk data (Cdk6 MB/GNP
+            # ~17x, vismo ~0.4x). Modeled as an EZH2-repressible, Gli-driven multiplier 'cdk6' on the CyclinD-arm Rb-
+            # phosphorylation Vmax (kPhRbCd), mirroring the CyclinD1 IFFL (Gli up + EZH2 represses; a broad mark tunes
+            # kinetics/threshold, so CDK6 is marked AND highly expressed). Makes EZH2 a TWO-PRONGED governor
+            # (CyclinD1 + CDK6) of the whole mitogen-drive axis: under vismo both arms fall (2-arm arrest); under EZH2i
+            # both de-repress (stronger vismo-resistance). GNP normalized ~1; re-balance kPhRbCd/K_CdRb/w_ink4 to hold
+            # ~30/32 (params via _ts_bake / user params). Applies to BOTH Rb-phos drive reactions (CyclinD arm only;
+            # kPhRbCe/kPhRbCa = CyclinE/A-CDK2, untouched).
+            assert "kPhRbCd*(Cd + w_Cd2*Cd2" in m, "cdk6: CyclinD drive term not found"
+            m = m.replace("kPhRbCd*(Cd + w_Cd2*Cd2", "kPhRbCd*cdk6*(Cd + w_Cd2*Cd2")
+            m = m.replace("\nend",
+                "\n  cdk6_basal = 0.3; cdk6_Gli = 2.7; K_Gli_cdk6 = 0.3; n_Gli_cdk6 = 2; K_EZH2_cdk6 = 8.0;   // CDK6 drive factor: GNP~1, MB~1.4 (Gli 0.21->0.40, sharp Hill); vismo->basal (2nd arm); EZH2 MILD (large K = kinetics-not-magnitude). Re-balance."
+                "\n  cdk6 := cdk6_basal + cdk6_Gli*(Gli_act + Gli1)^n_Gli_cdk6/(K_Gli_cdk6^n_Gli_cdk6 + (Gli_act + Gli1)^n_Gli_cdk6)*(K_EZH2_cdk6/(K_EZH2_cdk6 + EZH2*(1 - EZH2i)));\nend", 1)
+            assert "kPhRbCd*cdk6*(Cd" in m and "cdk6 :=" in m, "cdk6 wiring failed"
 
         _ts_bake = {
             # 2026-07-27 CELL-TYPE SPLIT BAKED (JP-approved): GNP 16-17h / MB ~23.5h CORE cycle, decoupled commitment.

@@ -68,6 +68,7 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_cdki_species=(os.environ.get('CDKI_SPECIES', '1') == '1'),  # 2026-07-30 BAKED default: individual dynamic CDKI species (set CDKI_SPECIES=0 for the legacy lumped-CDKI model)
                          with_p21_pip_degron=(os.environ.get('P21_PIP_DEGRON', '1') == '1'),  # 2026-08-01 BAKED default: un-map PCNA/Rc + CRL4^Cdt2 p27->p21 (correctness fix). Set P21_PIP_DEGRON=0 for the legacy p27-bound-PCNA wiring.
                          with_p27_optionB=(os.environ.get('P27_OPTIONB', '0') == '1'),  # 2026-08-05 EXPLORATION (default OFF): Fan-Meyer p27-inhibitory CDK4/6 (buffered p27 = inactive, not in the Rb drive). Needs re-cal before default.
+                         with_cdk6_gli=(os.environ.get('CDK6_GLI', '0') == '1'),  # 2026-08-07 EXPLORATION (default OFF): CDK6 as a Gli-driven, EZH2-marked 2nd arm of the CyclinD-CDK4/6 drive (JCI 2017). Needs re-balance before default.
                          params=PARAMS or None)
 
 _MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'
