@@ -453,7 +453,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
-                    with_p27_optionB=False, with_cdk6_gli=False,
+                    with_p27_optionB=False, with_cdk6_gli=False, with_cd_hyper_escape=False,
                     params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
@@ -1012,6 +1012,24 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 "\n  cdk6_basal = 0.3; cdk6_Gli = 2.7; K_Gli_cdk6 = 0.3; n_Gli_cdk6 = 2; K_EZH2_cdk6 = 8.0;   // CDK6 drive factor: GNP~1, MB~1.4 (Gli 0.21->0.40, sharp Hill); vismo->basal (2nd arm); EZH2 MILD (large K = kinetics-not-magnitude). Re-balance."
                 "\n  cdk6 := cdk6_basal + cdk6_Gli*(Gli_act + Gli1)^n_Gli_cdk6/(K_Gli_cdk6^n_Gli_cdk6 + (Gli_act + Gli1)^n_Gli_cdk6)*(K_EZH2_cdk6/(K_EZH2_cdk6 + EZH2*(1 - EZH2i)));\nend", 1)
             assert "kPhRbCd*cdk6*(Cd" in m and "cdk6 :=" in m, "cdk6 wiring failed"
+
+        if with_cd_hyper_escape:
+            # ===== ESCAPE from the p27 / bistable-OFF G0 (JP 2026-08-07 v44 transient-G0 rebuild). EXPLORATION, default OFF. =====
+            # Diagnostic (birthp27_probe / escape trajectory): a cell born with high p27 LOCKS PERMANENTLY -- NOT because
+            # p27 stays high (free p27 clears to ~0, CDK2 is not p27-inhibited), but because E2f is trapped on MONO-
+            # phosphorylated Rb (RbmE2f) and the two-step Rb lets ONLY CyclinE/A hyper-phosphorylate Rb. So accumulating
+            # CyclinD1 (Cd~13) cannot complete Rb-P / release E2f -> no CyclinE bootstrap -> permanent arrest, never a
+            # transient dwell. FIX (Yang 2020 eLife 44571 / Chung 2019 Mol Cell 31543423: CDK4/6 activity ALONE drives
+            # commitment, even in CyclinE/A-quadruple-null MEFs): let high CyclinD-CDK4/6 contribute WEAKLY to Rb HYPER-
+            # phosphorylation (w_cd_hyper * the CyclinD-CDK4/6 saturating activity). A high-p27 daughter then DWELLS in G0
+            # while CyclinD1 accumulates, then RE-ENTERS once CyclinD-CDK4/6 crosses the hyper-P threshold -> a TRANSIENT
+            # G0. w_cd_hyper kept small so the normal-cycle two-step bistability + Shh-dependence are preserved.
+            _dact = "kPhRbCd*(Cd + w_Cd2*Cd2 + CdP21)/(K_CdRb*(1 + p18_prot + p19_prot) + (Cd + w_Cd2*Cd2 + CdP21))"
+            assert m.count("(kPhRbCe*Ce + kPhRbCa*Ca)*Rbm)")==1 and m.count("(kPhRbCe*Ce + kPhRbCa*Ca)*RbmE2f)")==1, "escape: hyper-P reactions not in expected form (needs default cdki-on/option-A)"
+            m = m.replace("(kPhRbCe*Ce + kPhRbCa*Ca)*Rbm)", f"(kPhRbCe*Ce + kPhRbCa*Ca + w_cd_hyper*{_dact})*Rbm)")
+            m = m.replace("(kPhRbCe*Ce + kPhRbCa*Ca)*RbmE2f)", f"(kPhRbCe*Ce + kPhRbCa*Ca + w_cd_hyper*{_dact})*RbmE2f)")
+            m = m.replace("\nend", "\n  w_cd_hyper = 0.15;   // weak CyclinD-CDK4/6 -> Rb hyper-P: escape from the p27/OFF-lock G0 (transient-G0 re-entry; Yang2020 CDK4/6-alone commits). PLACEHOLDER.\nend", 1)
+            assert "w_cd_hyper*" in m, "escape: w_cd_hyper not wired"
 
         _ts_bake = {
             # 2026-07-27 CELL-TYPE SPLIT BAKED (JP-approved): GNP 16-17h / MB ~23.5h CORE cycle, decoupled commitment.
