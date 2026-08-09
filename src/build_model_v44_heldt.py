@@ -1018,11 +1018,23 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             assert m.count("1 + p18_prot + p19_prot") >= 1, "cdk6: INK4 brake term not found (needs default cdki-on)"
             m = m.replace("1 + p18_prot + p19_prot",
                           "1 + w_p18*p18_prot*K_cdk6_sink/(K_cdk6_sink + cdk6) + p19_prot")
+            # CDK6 is a DYNAMIC species with the SAME mark-memory IFFL as CyclinD1 ("responsive like cyclin d1", JP):
+            # Gli-driven synthesis x PRC2/H3K27me3-mark repression, REUSING the shared PRC2_rep occupancy (the mark Mk is
+            # written by EZH2, ERASED by Gli via k_jmjd3_gli*Gli1). In MB (high Gli) the shared mark is erased -> CDK6
+            # de-repressed, and it PERSISTS (mark memory + a SLOW cdk6 reservoir, k_cdk6_deg) -> CDK6 stays ~7x GNP even
+            # under vismo (the persistent baseline the acute-factor version couldn't give). CDK6-specific K_prc2_cdk6
+            # (more sensitive than CyclinD1) -> bigger MB fold (~17x RNA / ~5x protein) + EZH2-cKO de-repression (~2.39x).
+            # Requires the H3K27 chain (PRC2_rep). Free cdk6 still sinks p18 (INK4 titration, wired above).
+            assert "PRC2_rep :=" in m, "cdk6 mark-memory needs the H3K27 chain (PRC2_rep); build with with_h3k27_chain=True"
             m = m.replace("\nend",
-                "\n  cdk6_basal = 0.4; cdk6_Gli = 6.0; K_Gli_cdk6 = 0.35; n_Gli_cdk6 = 4; K_EZH2_cdk6 = 6.0;   // CDK6 IFFL (Gli-driven, EZH2-repressed, vismo-responsive); tune to MB~5x / vismo 0.41x / EZH2-cKO 2.39x. PLACEHOLDER."
+                "\n  k_cdk6_bas = 0.0002; k_cdk6_Gli = 0.0188; K_Gli_cdk6 = 0.35; n_Gli_cdk6 = 4;   // CDK6 Gli-driven synthesis (mark-memory IFFL like CyclinD1); Gli Hill 0.21->0.40 gives ~5x -> MB fold. Calibrated (analytic; PRC2_rep GNP 0.011/MB 0.020)."
+                "\n  f0_cdk6 = 0.42; K_prc2_cdk6 = 0.0029; n_prc2_cdk6 = 4;   // CDK6 PRC2/H3K27me3-mark repression (reuses shared PRC2_rep). f0=0.42 floors GNP&MB repression -> EZH2-cKO (PRC2_rep->0) de-represses 1/0.42 = 2.4x (data 2.39x)."
+                "\n  k_cdk6_deg = 0.001;   // SLOW -> cdk6 reservoir -> persistent vismo-resistant baseline (like Cd_mRNA)"
                 "\n  K_cdk6_sink = 2.0; w_p18 = 1.0;   // free CDK6 sinks p18 (INK4 titration): eff p18 = w_p18*p18*K/(K+cdk6). w_p18 = p18 brake strength."
-                "\n  cdk6 := cdk6_basal + cdk6_Gli*(Gli_act + Gli1)^n_Gli_cdk6/(K_Gli_cdk6^n_Gli_cdk6 + (Gli_act + Gli1)^n_Gli_cdk6)*(K_EZH2_cdk6/(K_EZH2_cdk6 + EZH2*(1 - EZH2i)));\nend", 1)
-            assert "K_cdk6_sink/(K_cdk6_sink + cdk6)" in m and "cdk6 :=" in m, "cdk6 INK4-sink wiring failed"
+                "\n  species cdk6 in Cell; cdk6 = 1.0;   // CDK6 level (mark-memory reservoir); persists under vismo"
+                "\n  Cdk6_synthesis: => cdk6; Cell*(k_cdk6_bas + k_cdk6_Gli*(Gli_act + Gli1)^n_Gli_cdk6/(K_Gli_cdk6^n_Gli_cdk6 + (Gli_act + Gli1)^n_Gli_cdk6))*(f0_cdk6 + (1 - f0_cdk6)/(1 + (PRC2_rep/K_prc2_cdk6)^n_prc2_cdk6));"
+                "\n  Cdk6_degradation: cdk6 => ; Cell*k_cdk6_deg*cdk6;\nend", 1)
+            assert "K_cdk6_sink/(K_cdk6_sink + cdk6)" in m and "Cdk6_synthesis:" in m, "cdk6 mark-memory wiring failed"
 
         if with_cd_hyper_escape:
             # ===== ESCAPE from the p27 / bistable-OFF G0 (JP 2026-08-07 v44 transient-G0 rebuild). EXPLORATION, default OFF. =====
