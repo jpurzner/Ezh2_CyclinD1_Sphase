@@ -1006,12 +1006,23 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # both de-repress (stronger vismo-resistance). GNP normalized ~1; re-balance kPhRbCd/K_CdRb/w_ink4 to hold
             # ~30/32 (params via _ts_bake / user params). Applies to BOTH Rb-phos drive reactions (CyclinD arm only;
             # kPhRbCe/kPhRbCa = CyclinE/A-CDK2, untouched).
-            assert "kPhRbCd*(Cd + w_Cd2*Cd2" in m, "cdk6: CyclinD drive term not found"
-            m = m.replace("kPhRbCd*(Cd + w_Cd2*Cd2", "kPhRbCd*cdk6*(Cd + w_Cd2*Cd2")
+            # REVISED (JP 2026-08-07): CDK6 protein MB/GNP ~5.2x (TMT log2 2.37; RNA 17x); EZH2-cKO GNP de-represses Cdk6
+            # +1.24 log2 / 2.39x (strongest of the drive genes -> CDK6 is a direct EZH2 target); vismo ~0.41x. CDK6 >>
+            # CyclinD1, so a large UNBOUND CDK6 pool acts as an INK4 (p18) SINK: free CDK6 sops up p18 monomers, RELIEVING
+            # the p18 brake on CyclinD-CDK4/6 -- this is how MB's very high CDK6 OVERWHELMS the 3x-elevated p18 CDKI
+            # (substrate titration). effective p18 in the brake = w_p18*p18_prot*K_cdk6_sink/(K_cdk6_sink + cdk6). Vismo/
+            # EZH2-cKO change cdk6 -> change the sink -> change the effective brake (vismo lowers cdk6 -> p18 brake RESTORED
+            # -> arrest; a 2nd reason vismo needs the axis). p18 kept a real brake (w_p18): GNP (low cdk6) stays p18-braked
+            # (Uziel: p18-KO GNPs cycle w/o Shh), residual p18 in MB -> the Atoh1+ transient-G0 subpopulation. Active
+            # CyclinD-CDK6 drive stays CyclinD-limited (kinase not limiting) -> NO Vmax multiplier; CDK6 acts via the sink.
+            assert m.count("1 + p18_prot + p19_prot") >= 1, "cdk6: INK4 brake term not found (needs default cdki-on)"
+            m = m.replace("1 + p18_prot + p19_prot",
+                          "1 + w_p18*p18_prot*K_cdk6_sink/(K_cdk6_sink + cdk6) + p19_prot")
             m = m.replace("\nend",
-                "\n  cdk6_basal = 0.3; cdk6_Gli = 2.7; K_Gli_cdk6 = 0.3; n_Gli_cdk6 = 2; K_EZH2_cdk6 = 8.0;   // CDK6 drive factor: GNP~1, MB~1.4 (Gli 0.21->0.40, sharp Hill); vismo->basal (2nd arm); EZH2 MILD (large K = kinetics-not-magnitude). Re-balance."
+                "\n  cdk6_basal = 0.4; cdk6_Gli = 6.0; K_Gli_cdk6 = 0.35; n_Gli_cdk6 = 4; K_EZH2_cdk6 = 6.0;   // CDK6 IFFL (Gli-driven, EZH2-repressed, vismo-responsive); tune to MB~5x / vismo 0.41x / EZH2-cKO 2.39x. PLACEHOLDER."
+                "\n  K_cdk6_sink = 2.0; w_p18 = 1.0;   // free CDK6 sinks p18 (INK4 titration): eff p18 = w_p18*p18*K/(K+cdk6). w_p18 = p18 brake strength."
                 "\n  cdk6 := cdk6_basal + cdk6_Gli*(Gli_act + Gli1)^n_Gli_cdk6/(K_Gli_cdk6^n_Gli_cdk6 + (Gli_act + Gli1)^n_Gli_cdk6)*(K_EZH2_cdk6/(K_EZH2_cdk6 + EZH2*(1 - EZH2i)));\nend", 1)
-            assert "kPhRbCd*cdk6*(Cd" in m and "cdk6 :=" in m, "cdk6 wiring failed"
+            assert "K_cdk6_sink/(K_cdk6_sink + cdk6)" in m and "cdk6 :=" in m, "cdk6 INK4-sink wiring failed"
 
         if with_cd_hyper_escape:
             # ===== ESCAPE from the p27 / bistable-OFF G0 (JP 2026-08-07 v44 transient-G0 rebuild). EXPLORATION, default OFF. =====
