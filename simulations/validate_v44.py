@@ -69,6 +69,8 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_p21_pip_degron=(os.environ.get('P21_PIP_DEGRON', '1') == '1'),  # 2026-08-01 BAKED default: un-map PCNA/Rc + CRL4^Cdt2 p27->p21 (correctness fix). Set P21_PIP_DEGRON=0 for the legacy p27-bound-PCNA wiring.
                          with_p27_optionB=(os.environ.get('P27_OPTIONB', '0') == '1'),  # 2026-08-05 EXPLORATION (default OFF): Fan-Meyer p27-inhibitory CDK4/6 (buffered p27 = inactive, not in the Rb drive). Needs re-cal before default.
                          with_cdk6_gli=(os.environ.get('CDK6_GLI', '0') == '1'),  # 2026-08-07 EXPLORATION (default OFF): CDK6 as a Gli-driven, EZH2-marked 2nd arm of the CyclinD-CDK4/6 drive (JCI 2017). Needs re-balance before default.
+                         with_mark_amplifier=(os.environ.get('MARK_AMPLIFIER', '0') == '1'),  # 2026-08-09 EXPLORATION (default OFF): excursion-gated H3K27me3 amplifier (extra CDK6+CyclinD1 repression in slow/out-of-cycle cells; governor IFFL untouched). JP amplifier hypothesis.
+                         with_proximal_distal=(os.environ.get('PROXIMAL_DISTAL', '0') == '1'),  # 2026-08-09 EXPLORATION (default OFF): two-compartment PRC2 (distal reservoir Mk + proximal occupancy P_prox, reservoir-sustained + elongation-gated). JP's molecular mechanism; P_prox~0 in cycling so 31/32 preserved.
                          params=PARAMS or None)
 
 _MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'

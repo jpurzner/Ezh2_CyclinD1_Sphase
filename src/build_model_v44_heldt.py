@@ -454,6 +454,7 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
                     with_p27_optionB=False, with_cdk6_gli=False, with_cd_hyper_escape=False,
+                    with_mark_amplifier=False, with_proximal_distal=False,
                     params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
@@ -1037,6 +1038,67 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 "\n  Cdk6_synthesis: => cdk6; Cell*(k_cdk6_bas + k_cdk6_Gli*(Gli_act + Gli1)^n_Gli_cdk6/(K_Gli_cdk6^n_Gli_cdk6 + (Gli_act + Gli1)^n_Gli_cdk6))*(f0_cdk6 + (1 - f0_cdk6)/(1 + (PRC2_rep/K_prc2_cdk6)^n_prc2_cdk6));"
                 "\n  Cdk6_degradation: cdk6 => ; Cell*k_cdk6_deg*cdk6;\nend", 1)
             assert "K_cdk6_sink/(K_cdk6_sink + cdk6)" in m and "Cdk6_synthesis:" in m, "cdk6 mark-memory wiring failed"
+
+        if with_mark_amplifier:
+            # ===== JP 2026-08-09 H3K27me3 AMPLIFIER (EXPLORATION, default OFF). Requires with_cdk6_gli + the chain. =====
+            # JP hypothesis: a slow / out-of-cycle cell DILUTES H3K27me3 LESS -> the mark BANKS -> represses CDK6 + CyclinD1
+            # -> drive erodes over a couple of divisions -> the transient-G0 dwell deepens. The GOVERNOR IFFL
+            # (f0_prc2.../f0_cdk6...) CANNOT carry this: it must stay SATURATED to give the EZH2i de-repression fold (2.2x)
+            # + the MB/GNP CyclinD1 fold (5x), and a single Hill cannot be both saturated (big STATIC fold) AND high-slope
+            # (big DYNAMIC response) at one operating point -- de-saturating it drops validation to 27-29/32 (EZH2i fold
+            # -> 1.03, MB/GNP -> 3.3; see docs/mark_amplifier_2026-08-09.md). So the amplifier is a SEPARATE,
+            # EXCURSION-GATED repression term mark_amp, multiplied onto BOTH CDK6 synthesis and CyclinD1 transcription, with
+            # midpoint K_mamp set ABOVE the normal cycling PRC2_rep (~0.03) so mark_amp ~= 1 during normal cycling (the
+            # governor + ALL 31/32 validation conditions are ~unchanged by construction) and only drops (adds repression)
+            # once a slow cell banks the mark above the cycling range -> lowers the CDKI arrest threshold + compounding
+            # deepening. Gated on PRC2_rep (occupancy) so EZH2-cKO (PRC2_rep->0) switches the amplifier OFF too. f_mamp =
+            # floor (max extra repression), K_mamp = mark-excursion midpoint, n_mamp = steepness. Tune via params.
+            assert "PRC2_rep :=" in m, "mark amplifier needs the H3K27 chain (PRC2_rep)"
+            assert "Cdk6_synthesis: => cdk6; Cell*(" in m, "mark amplifier needs with_cdk6_gli (CDK6 synthesis)"
+            assert m.count("CycD1_transcription: => Cd_mRNA; (") == 1, "mark amplifier: CyclinD1 transcription reaction not in expected form"
+            m = m.replace("\nend",
+                "\n  f_mamp = 0.35; K_mamp = 0.045; n_mamp = 10;   // H3K27me3 amplifier: EXTRA repression of CDK6+CyclinD1 that engages ONLY when the mark banks above the cycling range (slow/out-of-cycle cells). K_mamp > cycling PRC2_rep -> ~no-op at baseline (31/32 preserved); slow cells -> mark_amp -> f_mamp."
+                "\n  mark_amp := f_mamp + (1 - f_mamp)/(1 + (PRC2_rep/K_mamp)^n_mamp);   // excursion-gated amplifier (JP 2026-08-09)\nend", 1)
+            m = m.replace("Cdk6_synthesis: => cdk6; Cell*(", "Cdk6_synthesis: => cdk6; Cell*mark_amp*(")
+            m = m.replace("CycD1_transcription: => Cd_mRNA; (", "CycD1_transcription: => Cd_mRNA; mark_amp*(")
+            assert "mark_amp :=" in m and "Cell*mark_amp*(" in m and "Cd_mRNA; mark_amp*(" in m, "mark amplifier wiring failed"
+
+        if with_proximal_distal:
+            # ===== JP 2026-08-09 TWO-COMPARTMENT PRC2 / H3K27me3 (EXPLORATION, default OFF). Requires with_cdk6_gli + chain. =====
+            # JP's molecular mechanism: CDK6 & CyclinD1 are heavily H3K27me3-marked yet highly EXPRESSED because the
+            # PROXIMAL promoter/TSS is kept DEPLETED of mark+complex (Pol2 elongation clears it), while the broad DISTAL
+            # region holds H3K27me3 as a RESERVOIR. Repression is the PRC2 COMPLEX (not the mark); the mark recruits/holds
+            # the complex via EED read-write, and makes the locus BIDIRECTIONALLY responsive -- when Pol2 stops elongating
+            # the reservoir rapidly re-loads the proximal promoter -> re-suppression. Two compartments:
+            #   * DISTAL RESERVOIR = Mk (the existing me-chain: read-write substrate, cumulative replicative dilution,
+            #     slow turnover) = the MEMORY. Unchanged.
+            #   * PROXIMAL OCCUPANCY = P_prox (NEW [0,1] species) = the actual repressor of CDK6+CyclinD1. LOADED by the
+            #     reservoir (a_P*Mk^n_anch) but ONLY when Pol2 is NOT elongating (1 - elong_gate); EVICTED by active
+            #     elongation (elong_gate) + a small basal. elong_gate = E2f Hill (the proliferation/elongation state).
+            # Behaviour: CYCLING (E2f high -> elong_gate~1) -> proximal cleared -> P_prox~0 -> NO extra repression -> the
+            # governor + ALL 31/32 validation conditions are UNCHANGED by construction. SUSTAINED ARREST (E2f collapses ->
+            # elong_gate->0) -> the PERSISTENT reservoir re-loads P_prox -> deep, reservoir-SUSTAINED repression that does
+            # NOT collapse with EZH2 (fixing the PRC2_rep=EZH2xmark collapse) -> a transient-G0 dwell that deepens over
+            # time and is REVERSIBLE (mitogen/cycling return -> elongation evicts P_prox -> re-entry). Slow P kinetics +
+            # sharp elong_gate keep normal G1 E2f-dips from loading P_prox (only SUSTAINED arrest does). a_P/n_anch =
+            # reservoir-sustain strength (SCENARIO knob: small->EZH2-gated/leaky 'B'; large->reservoir-sustained 'A');
+            # K_el/n_el = elongation gate; k_onP/k_offP = proximal kinetics; f_P/K_P/n_P = extra repression strength.
+            assert not with_mark_amplifier, "with_proximal_distal supersedes with_mark_amplifier; do not enable both (double-wrap)"
+            assert "species Mk in Cell" in m, "proximal/distal needs the H3K27 chain reservoir (Mk)"
+            assert "Cdk6_synthesis: => cdk6; Cell*(" in m, "proximal/distal needs with_cdk6_gli (CDK6 synthesis)"
+            assert m.count("CycD1_transcription: => Cd_mRNA; (") == 1, "proximal/distal: CyclinD1 transcription not in expected form"
+            m = m.replace("\nend",
+                "\n  a_P = 0.10; n_anch = 4; K_el = 0.20; n_el = 6;   // proximal load = reservoir a_P*Mk^n_anch gated by elongation-OFF; elong_gate = E2f Hill (K_el,n_el). DEFAULT = transient scenario 'C'."
+                "\n  k_onP = 0.05; k_offP = 0.1; basal_offP = 0.002;   // proximal PRC2 loading / eviction kinetics (slow enough that transient G1 E2f-dips do not load P_prox)"
+                "\n  f_P = 0.80; K_P = 0.35; n_P = 4;   // EXTRA proximal repression of CDK6+CyclinD1: Hill on P_prox (f_P = floor = max extra repression). SCENARIO knob: f_P 0.80/a_P 0.10 = TRANSIENT dwell ~148h (30/32); f_P 0.30/a_P 0.50 = PERMANENT-LOCK (28/32, data-excluded like the chromatin latch); f_P 0.90/a_P 0.05 = LEAKY ~89h. Boundary sharp at a_P~0.11."
+                "\n  species P_prox in Cell; P_prox = 0.0;   // proximal PRC2 occupancy [0,1] = reservoir-sustained repressor in arrest"
+                "\n  elong_gate := E2f^n_el/(K_el^n_el + E2f^n_el);   // Pol2 elongation / proliferation state: ~1 cycling, ->0 in sustained arrest"
+                "\n  prox_amp := f_P + (1 - f_P)/(1 + (P_prox/K_P)^n_P);   // extra repression from proximal PRC2 occupancy (1 when P_prox~0)"
+                "\n  P_load: => P_prox; Cell*k_onP*a_P*Mk^n_anch*(1 - elong_gate)*(1 - P_prox);   // reservoir re-loads proximal when Pol2 stops elongating"
+                "\n  P_evict: P_prox => ; Cell*(k_offP*elong_gate + basal_offP)*P_prox;   // active elongation (Pol2) + basal evict the proximal complex\nend", 1)
+            m = m.replace("Cdk6_synthesis: => cdk6; Cell*(", "Cdk6_synthesis: => cdk6; Cell*prox_amp*(")
+            m = m.replace("CycD1_transcription: => Cd_mRNA; (", "CycD1_transcription: => Cd_mRNA; prox_amp*(")
+            assert "P_load:" in m and "Cell*prox_amp*(" in m and "Cd_mRNA; prox_amp*(" in m, "proximal/distal wiring failed"
 
         if with_cd_hyper_escape:
             # ===== ESCAPE from the p27 / bistable-OFF G0 (JP 2026-08-07 v44 transient-G0 rebuild). EXPLORATION, default OFF. =====

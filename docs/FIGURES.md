@@ -1,5 +1,17 @@
 # Model figures — which code generates each
 
+> **New (2026-08-09) — two-compartment PRC2 / H3K27me3 transient-G0 amplifier.** `fig_v44_proximal_distal.pdf`
+> (`fig_v44_proximal_distal.py`) is the review figure for JP's molecular mechanism: a **distal H3K27me3
+> reservoir** recruits the **PRC2 complex** to the **proximal promoter** (the actual repressor), which Pol2
+> elongation keeps cleared in cycling cells (marked-but-expressed) but which the reservoir re-loads in
+> sustained arrest → a reservoir-**sustained**, **reversible** transient-G0 dwell. Behind flag
+> `with_proximal_distal` (default OFF; `PROXIMAL_DISTAL=1`); the **default model is unchanged (still 31/32)**,
+> so the standard figures below were NOT regenerated (they run the default and are identical). The flag ON:
+> **30/32** in the transient regime (only new cost: GNP+HHi CyclinD1 — a testable prediction it is lower than
+> the 0.157 bulk estimate). Scenario map: reversible **transient** dwell ~90–150 h (30/32) between a leaky
+> limit and a **permanent-lock** cliff; the deep permanent latch is more data-excluded (≤29/32). Doc:
+> `docs/mark_amplifier_2026-08-09.md`, `docs/two_compartment_prc2_2026-08-09.md`.
+
 > **Model changelog (2026-07-14) — critical-review root-cause fix, now 28/28.** A joint re-optimization
 > (`simulations/optimize_twostep_g0.py`, baked into `_ts_bake`) resolved the issues an adversarial review of the
 > prior default surfaced. The two-step-Rb default now **passes 28/28** (was 26/28): it **genuinely lands** the
