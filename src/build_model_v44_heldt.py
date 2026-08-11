@@ -453,9 +453,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_h3k27_chain=True, with_mother_g2=False, with_ezh2_conc=False,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
-                    with_p27_optionB=False, with_cdk6_gli=False, with_cd_hyper_escape=False,
+                    with_p27_optionB=True, with_cdk6_gli=True, with_cd_hyper_escape=True,
                     with_mark_amplifier=False, with_proximal_distal=False,
-                    params=None):   # 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
+                    params=None):   # 2026-08-09 BAKED (JP): integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0) = default. Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -1193,6 +1193,16 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             'k_Cd_mRNA_deg': 0.001}
         # tolerate flag combos where some params are absent (e.g. with_h3k27_memory has no chain params)
         m = _apply_overrides(m, {k: v for k, v in _ts_bake.items() if (k + ' = ') in m})
+        # 2026-08-09 BAKED (JP-approved): the INTEGRATED-GOVERNOR joint re-cal (integrated_optimize_best.json,
+        # optionB p27 + CDK6-Gli 2nd arm; 31/32, CyclinD1 MB/GNP 5.07 exact) + the CDK4/6-alone escape strength
+        # (w_cd_hyper=0.1, Yang 2020: high CyclinD1/CDK6 pulls MB cells out of the two-step-Rb lock -> reversible
+        # transient G0). Applied AFTER _ts_bake so it overrides the pre-integrated values; only keys whose params
+        # are declared are set (K_cdk6_sink/w_p18/w_p19 need with_cdk6_gli; w_cd_hyper needs with_cd_hyper_escape).
+        _integrated = {'kPhRbCd': 0.1748299602292031, 'K_CdRb': 0.4025007594938155, 'w_ink4': 4.646376316224687,
+                       'kSyP21': 0.0004043793202695936, 'K_cdk6_sink': 3.879643001142466, 'w_p18': 1.003950915185932,
+                       'w_p19': 0.6655007434943913, 'k_Cd_tx_Gli_max': 0.24197652013556434,
+                       'k_Cd_tx_MYCN': 0.11031706915457935, 'w_cd_hyper': 0.1}
+        m = _apply_overrides(m, {k: v for k, v in _integrated.items() if (k + ' = ') in m})
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
     if params:
