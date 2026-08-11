@@ -26,7 +26,10 @@ from src.build_model_v44_heldt import build_model_v44
 
 FRESH = '--fresh' in sys.argv
 CACHE = 'simulations/fig_v44_ezh2i_rescue_kinetics_cache.npz'
-rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_memory=True))
+# with_h3k27_memory is the alternative explicit-mark variant (no PRC2_rep), incompatible with the now-default
+# integrated flags (cdk6_gli needs the chain's PRC2_rep). Opt out of the 2026-08-09 baked defaults for this figure.
+rr = te.loada(build_model_v44(with_ezh2=True, with_hh=True, with_h3k27_memory=True,
+                              with_p27_optionB=False, with_cdk6_gli=False, with_cd_hyper_escape=False))
 rr.integrator.setValue("absolute_tolerance", 1e-9)
 rr.integrator.setValue("relative_tolerance", 1e-6)
 SEL = ['time', 'Cd', 'H3K27_Cd', 'MPF']
