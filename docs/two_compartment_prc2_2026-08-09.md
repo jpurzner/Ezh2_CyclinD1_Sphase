@@ -59,6 +59,35 @@ CyclinD1) and reads as a **testable prediction**: CyclinD1 in Hedgehog-withdrawn
 bulk estimate (single-cell / sorted measurement would settle it). The other miss (MB HU G2) is the
 pre-existing baseline structural near-miss, unrelated.
 
+## Population analysis — the safe amplifier adds nothing; only the excluded regime matters
+
+`population_amplifier.py` (fig `fig_v44_population_amplifier`) applies a transient high-CDKI **excursion**
+(the stochastic event that drives a cell into G0), returns CDKI to baseline, and measures the **dwell** =
+time to re-entry, for amplifier OFF vs transient (C) vs permanent (A), over a lognormal population of
+excursion magnitudes. Result (decisive):
+
+- The **dwell is set by the CDKI-excursion depth** (intrinsic recovery): 2×→1 h, 3×→10 h, 4×→25 h, 5–6×→~148 h.
+- **Amplifier OFF and transient (C) give IDENTICAL dwells at every excursion** — the validation-safe
+  amplifier does **not** prolong the transient-G0 dwell (its mild proximal repression is evicted as soon as
+  CDKI drops and the cell re-elongates). All cells re-enter (0% permanent).
+- Only the **permanent (A)** regime changes the population — it **locks** the deep (5–6×) excursions (17% of
+  this population never re-enters). And that regime is the one that breaks validation (Palbo-EZH2 + MB+HHi,
+  ≤29/32) = **data-excluded**.
+
+So the earlier reading ("transient dwell ~90–150 h from the amplifier") was wrong — that dwell is intrinsic
+CDKI-recovery, not the amplifier. **The two-compartment amplifier is bistable: inert (≈OFF) in the
+validation-safe regime, or a permanent lock in the data-excluded regime — there is no robust
+"moderately-prolonged transient dwell" in between.**
+
+## Bottom line for the final model
+
+The two-compartment mechanism is real and correctly resolves *marked-but-expressed* (panel A) and shows the
+reservoir *can* sustain PRC2 in arrest (panel B). But its **impactful** form (a deep, sustained/permanent G0)
+is **data-excluded**, and its **safe** form is **inert** at the population level. So the transient-G0
+population in the final model is carried by **CDKI variance + intrinsic recovery** (the rare high-CDKI tail,
+`mb-atoh1-g0-rare-cdki-tail`); the amplifier is kept as a **documented flag (default OFF, not baked)** with a
+clear experimental discriminator, rather than a baked mechanism.
+
 ## Open scenario (JP: G0 behavior is unknown; the experiment isn't done)
 
 The map above assumes the reservoir re-loads the proximal promoter in arrest. The competing G0 unknown JP

@@ -106,53 +106,42 @@ axB.text(0.03, 0.55, 'E2f collapses → Pol2 stops →\nreservoir sustains PRC2\
          transform=axB.transAxes, fontsize=8, style='italic',
          bbox=dict(boxstyle='round', fc='#fbeeea', ec=C_PROX, alpha=0.9))
 
-# ---------- (C) scenario map: dwell & validation vs amplifier strength (from the sweep) ----------
+# ---------- (C) validation cost vs amplifier strength (the strong regime is data-excluded) ----------
 axC = fig.add_subplot(gs[1, 0])
-# workflow amplifier-scenarios results (a_P, dwell_h [None=permanent lock], passed/32)
-scen = [
-    ('B-leaky', 0.05, 89.3, 30), ('C-lite', 0.08, 105.5, 30), ('C-shallow', 0.10, 147.9, 30),
-    ('C-mid', 0.12, None, 30), ('C-deep', 0.15, None, 30), ('A-mid', 0.30, None, 29), ('A-strong', 0.50, None, 28),
-]
-tx = [s[1] for s in scen if s[2] is not None]; ty = [s[2] for s in scen if s[2] is not None]
-axC.plot(tx, ty, 'o-', color=C_PROX, lw=1.6, ms=7, label='transient dwell (30/32)')
-axC.axvspan(0.11, 0.52, color='#d9534f', alpha=0.10)
-axC.text(0.30, 60, 'PERMANENT LOCK\n(bistable latch;\n≤29/32 — loses\nPalbo-EZH2 + MB+HHi\n= data-excluded)',
-         fontsize=8, ha='center', color='#a02c24', style='italic')
-for lbl, a, dw, ps in scen:
-    if dw is not None:
-        axC.annotate(f'{ps}/32', (a, dw), textcoords='offset points', xytext=(0, 8), fontsize=7, ha='center')
+# amp_scenario_wf results: (a_P, passed/32, verdict)
+scen = [(0.05, 30, 'T'), (0.08, 30, 'T'), (0.10, 30, 'T'), (0.12, 30, 'P'), (0.15, 30, 'P'),
+        (0.30, 29, 'P'), (0.50, 28, 'P')]
+ax_ap = [s[0] for s in scen]; ax_ps = [s[1] for s in scen]
+axC.plot(ax_ap, ax_ps, 'o-', color=C_PROX, lw=1.7, ms=7)
+axC.axhline(31, color='#117a65', ls='--', lw=1); axC.text(0.42, 31.06, 'default (flag OFF) 31/32', fontsize=7.5, color='#117a65')
+axC.axvspan(0.11, 0.52, color='#d9534f', alpha=0.09)
 axC.axvline(0.11, color='#a02c24', ls='--', lw=1)
+axC.text(0.30, 28.4, 'PERMANENT LOCK\n(bistable latch — loses\nPalbo-EZH2 + MB+HHi;\ndata-excluded)', fontsize=8,
+         ha='center', color='#a02c24', style='italic')
+axC.text(0.075, 29.4, 'reversible\ntransient regime', fontsize=8, ha='center', color=C_PROX, style='italic')
 axC.set_xlabel('amplifier strength  a$_P$  (reservoir→proximal load)')
-axC.set_ylabel('transient-G0 dwell (h)')
-axC.set_xlim(0.02, 0.52); axC.set_ylim(0, 200)
-axC.set_title('(C) Scenario map — reversible transient window vs permanent-lock cliff')
-axC.legend(fontsize=8, loc='upper left')
-axC.text(0.065, 160, 'reversible\nTRANSIENT G0\n(~90–150 h ≈\n4–6 cycles)', fontsize=8, ha='center',
-         color=C_PROX, style='italic')
+axC.set_ylabel('validation targets passed / 32')
+axC.set_xlim(0.02, 0.52); axC.set_ylim(27.5, 31.4)
+axC.set_title('(C) Validation cost — safe transient (30/32) vs excluded permanent lock')
 
-# ---------- (D) transient-G0 hysteresis: arrest -> drop CDKI -> re-entry ----------
+# ---------- (D) dwell vs CDKI excursion: safe amplifier ~= OFF; only permanent locks (population_amplifier.py) ----------
 axD = fig.add_subplot(gs[1, 1])
-t_switch = 35000
-for amp, col, lab in [(dict(f_P=1.0), '#888', 'amplifier OFF'),
-                      (dict(a_P=0.10, f_P=0.80), C_PROX, 'transient (C): a$_P$0.10 f$_P$0.80'),
-                      (dict(a_P=0.50, f_P=0.30), '#a02c24', 'permanent (A): a$_P$0.50 f$_P$0.30')]:
-    rr, P = make_rr(amp); setp(rr, P, 6.0); rr.reset()
-    d1 = rr.simulate(0, t_switch, t_switch // 10, selections=['time', 'cdk6', 'Dna'])
-    rr['p18'] = 1.73; rr['p19'] = 0.58; rr['kSyP21'] = BP['kSyP21']
-    d2 = rr.simulate(t_switch, 110000, (110000 - t_switch) // 10, selections=['time', 'cdk6', 'Dna'])
-    t = np.concatenate([d1['time'], d2['time']]) / 60
-    ck = np.concatenate([d1['cdk6'], d2['cdk6']])
-    axD.plot(t, ck, color=col, lw=1.4, label=lab)
-    # mark first re-entry division after the switch
-    dna2 = d2['Dna']; dd = np.where((dna2[:-1] > 0.9) & (dna2[1:] < 0.1))[0]
-    if len(dd):
-        axD.axvline(d2['time'][dd[0]] / 60, color=col, ls=':', lw=1, alpha=0.7)
-axD.axvline(t_switch / 60, color='k', ls='-', lw=1.2, alpha=0.6)
-axD.text(t_switch / 60, 5.6, ' CDKI 6×→1×', fontsize=8, rotation=0, va='bottom')
-axD.set_xlabel('time (h)'); axD.set_ylabel('CDK6 level')
-axD.set_ylim(0, 6.2)
-axD.set_title('(D) Transient-G0 hysteresis — dwell then reversible re-entry')
-axD.legend(fontsize=8, loc='center right', framealpha=0.9)
+mags = [2.0, 3.0, 4.0, 5.0, 6.0]
+dwell_off = [1.2, 10.3, 25.3, 147.8, 145.2]      # amplifier OFF  (intrinsic CDKI-recovery)
+dwell_tr = [1.2, 10.3, 25.3, 147.8, 145.2]       # transient (C)  -- IDENTICAL to OFF
+dwell_pm = [1.2, 10.3, 25.3, None, None]         # permanent (A)  -- locks deep excursions
+axD.plot(mags, dwell_off, 'o-', color='#888', lw=3.2, ms=9, alpha=0.7, label='amplifier OFF')
+axD.plot(mags, dwell_tr, 's--', color=C_PROX, lw=1.6, ms=6, label='transient (C) — ≡ OFF')
+pm_x = [m for m, d in zip(mags, dwell_pm) if d is not None]; pm_y = [d for d in dwell_pm if d is not None]
+axD.plot(pm_x, pm_y, '^', color='#a02c24', ms=8, label='permanent (A)')
+for m, d in zip(mags, dwell_pm):
+    if d is None:
+        axD.annotate('LOCK', (m, 6), color='#a02c24', fontsize=8, ha='center', va='bottom', fontweight='bold')
+axD.axhline(24, color='k', ls=':', lw=0.8); axD.text(2.05, 27, 'one cycle (~24 h)', fontsize=7.5)
+axD.set_xlabel('excursion CDKI (× baseline)'); axD.set_ylabel('transient-G0 dwell after re-entry (h)')
+axD.set_ylim(0, 160)
+axD.set_title('(D) Dwell = intrinsic CDKI-recovery — safe amplifier adds nothing; only permanent locks')
+axD.legend(fontsize=8, loc='upper left')
 
 fig.suptitle('Two-compartment PRC2 / H3K27me3 — reservoir-sustained transient-G0 amplifier '
              '(with_proximal_distal, flag; default OFF)', fontsize=12.5, fontweight='bold', y=0.995)
