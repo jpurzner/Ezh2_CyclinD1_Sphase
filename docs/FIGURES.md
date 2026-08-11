@@ -12,6 +12,13 @@
 > limit and a **permanent-lock** cliff; the deep permanent latch is more data-excluded (≤29/32). Doc:
 > `docs/mark_amplifier_2026-08-09.md`, `docs/two_compartment_prc2_2026-08-09.md`.
 
+> **New (2026-08-09) — MB transient G0 via the CDK4/6-alone escape.** `fig_v44_cdk46_escape.pdf`
+> (`fig_v44_cdk46_escape.py`): the permanent MB arrest is the two-step-Rb R-point trap; letting CyclinD–CDK4/6
+> weakly hyper-P Rb (`with_cd_hyper_escape`, Yang 2020; `CD_HYPER_ESCAPE=1`) lets the huge CyclinD1/CDK6 pull
+> cells out → reversible multi-periodic transient G0 (drive-graded dwell 6×→70 h, 8×→89 h). **31/32** up to
+> `w_cd_hyper≈0.2` (better than the amplifier); self-bounded (>0.2 breaks GNP-SHH arrest). The *opposite* of
+> the amplifier and the recommended mechanism for MB transient G0. Doc: `docs/cdk46_escape_transient_g0_2026-08-09.md`.
+
 > **Model changelog (2026-07-14) — critical-review root-cause fix, now 28/28.** A joint re-optimization
 > (`simulations/optimize_twostep_g0.py`, baked into `_ts_bake`) resolved the issues an adversarial review of the
 > prior default surfaced. The two-step-Rb default now **passes 28/28** (was 26/28): it **genuinely lands** the

@@ -71,6 +71,7 @@ _MODEL = build_model_v44(with_ezh2=True, with_hh=True,
                          with_cdk6_gli=(os.environ.get('CDK6_GLI', '0') == '1'),  # 2026-08-07 EXPLORATION (default OFF): CDK6 as a Gli-driven, EZH2-marked 2nd arm of the CyclinD-CDK4/6 drive (JCI 2017). Needs re-balance before default.
                          with_mark_amplifier=(os.environ.get('MARK_AMPLIFIER', '0') == '1'),  # 2026-08-09 EXPLORATION (default OFF): excursion-gated H3K27me3 amplifier (extra CDK6+CyclinD1 repression in slow/out-of-cycle cells; governor IFFL untouched). JP amplifier hypothesis.
                          with_proximal_distal=(os.environ.get('PROXIMAL_DISTAL', '0') == '1'),  # 2026-08-09 EXPLORATION (default OFF): two-compartment PRC2 (distal reservoir Mk + proximal occupancy P_prox, reservoir-sustained + elongation-gated). JP's molecular mechanism; P_prox~0 in cycling so 31/32 preserved.
+                         with_cd_hyper_escape=(os.environ.get('CD_HYPER_ESCAPE', '0') == '1'),  # 2026-08-09 EXPLORATION (default OFF): CDK4/6-alone Rb hyper-P escape (Yang 2020) so high CyclinD1/CDK6 pulls MB cells OUT of the two-step-Rb permanent lock -> reversible transient G0. _dact matched to integrated drive/brake.
                          params=PARAMS or None)
 
 _MYCN_AUTOREG = os.environ.get('MYCN_AUTOREG', '0') == '1'

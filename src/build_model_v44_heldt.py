@@ -1114,7 +1114,12 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # phosphorylation (w_cd_hyper * the CyclinD-CDK4/6 saturating activity). A high-p27 daughter then DWELLS in G0
             # while CyclinD1 accumulates, then RE-ENTERS once CyclinD-CDK4/6 crosses the hyper-P threshold -> a TRANSIENT
             # G0. w_cd_hyper kept small so the normal-cycle two-step bistability + Shh-dependence are preserved.
-            _dact = "kPhRbCd*(Cd + w_Cd2*Cd2 + CdP21)/(K_CdRb*(1 + p18_prot + p19_prot) + (Cd + w_Cd2*Cd2 + CdP21))"
+            # _dact = the CyclinD-CDK4/6 saturating activity, matched to the CURRENT drive/brake so the escape is
+            # consistent with the integrated model: option-B drops CdP21 from the drive; with_cdk6_gli sinks the INK4
+            # brake by unbound CDK6. (JP 2026-08-09: fixed from the option-A-only original for the integrated model.)
+            _drive = "(Cd + w_Cd2*Cd2)" if with_p27_optionB else "(Cd + w_Cd2*Cd2 + CdP21)"
+            _brake = "(1 + (w_p18*p18_prot + w_p19*p19_prot)*K_cdk6_sink/(K_cdk6_sink + cdk6))" if with_cdk6_gli else "(1 + p18_prot + p19_prot)"
+            _dact = f"kPhRbCd*{_drive}/(K_CdRb*{_brake} + {_drive})"
             assert m.count("(kPhRbCe*Ce + kPhRbCa*Ca)*Rbm)")==1 and m.count("(kPhRbCe*Ce + kPhRbCa*Ca)*RbmE2f)")==1, "escape: hyper-P reactions not in expected form (needs default cdki-on/option-A)"
             m = m.replace("(kPhRbCe*Ce + kPhRbCa*Ca)*Rbm)", f"(kPhRbCe*Ce + kPhRbCa*Ca + w_cd_hyper*{_dact})*Rbm)")
             m = m.replace("(kPhRbCe*Ce + kPhRbCa*Ca)*RbmE2f)", f"(kPhRbCe*Ce + kPhRbCa*Ca + w_cd_hyper*{_dact})*RbmE2f)")
