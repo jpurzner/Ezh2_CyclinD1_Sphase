@@ -1093,12 +1093,15 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                 "\n  f_P = 0.80; K_P = 0.35; n_P = 4;   // EXTRA proximal repression of CDK6+CyclinD1: Hill on P_prox (f_P = floor = max extra repression). SCENARIO knob: f_P 0.80/a_P 0.10 = TRANSIENT dwell ~148h (30/32); f_P 0.30/a_P 0.50 = PERMANENT-LOCK (28/32, data-excluded like the chromatin latch); f_P 0.90/a_P 0.05 = LEAKY ~89h. Boundary sharp at a_P~0.11."
                 "\n  species P_prox in Cell; P_prox = 0.0;   // proximal PRC2 occupancy [0,1] = reservoir-sustained repressor in arrest"
                 "\n  elong_gate := E2f^n_el/(K_el^n_el + E2f^n_el);   // Pol2 elongation / proliferation state: ~1 cycling, ->0 in sustained arrest"
+                "\n  w_cd_prox = 1.0; w_cdk6_prox = 1.0;   // per-ARM strength of the proximal repression (1 = full, default; 0 = that arm un-repressed). Lets the H3K27me3->CyclinD1 vs ->CDK6 repression be weakened independently (JP mechanism decomposition)."
                 "\n  prox_amp := f_P + (1 - f_P)/(1 + (P_prox/K_P)^n_P);   // extra repression from proximal PRC2 occupancy (1 when P_prox~0)"
+                "\n  prox_amp_cd := 1 - w_cd_prox*(1 - prox_amp);     // CyclinD1 arm (w_cd_prox scales repression; =prox_amp at w=1)"
+                "\n  prox_amp_cdk6 := 1 - w_cdk6_prox*(1 - prox_amp); // CDK6 arm"
                 "\n  P_load: => P_prox; Cell*k_onP*a_P*Mk^n_anch*(1 - elong_gate)*(1 - P_prox);   // reservoir re-loads proximal when Pol2 stops elongating"
                 "\n  P_evict: P_prox => ; Cell*(k_offP*elong_gate + basal_offP)*P_prox;   // active elongation (Pol2) + basal evict the proximal complex\nend", 1)
-            m = m.replace("Cdk6_synthesis: => cdk6; Cell*(", "Cdk6_synthesis: => cdk6; Cell*prox_amp*(")
-            m = m.replace("CycD1_transcription: => Cd_mRNA; (", "CycD1_transcription: => Cd_mRNA; prox_amp*(")
-            assert "P_load:" in m and "Cell*prox_amp*(" in m and "Cd_mRNA; prox_amp*(" in m, "proximal/distal wiring failed"
+            m = m.replace("Cdk6_synthesis: => cdk6; Cell*(", "Cdk6_synthesis: => cdk6; Cell*prox_amp_cdk6*(")
+            m = m.replace("CycD1_transcription: => Cd_mRNA; (", "CycD1_transcription: => Cd_mRNA; prox_amp_cd*(")
+            assert "P_load:" in m and "Cell*prox_amp_cdk6*(" in m and "Cd_mRNA; prox_amp_cd*(" in m, "proximal/distal wiring failed"
 
         if with_cd_hyper_escape:
             # ===== ESCAPE from the p27 / bistable-OFF G0 (JP 2026-08-07 v44 transient-G0 rebuild). EXPLORATION, default OFF. =====
