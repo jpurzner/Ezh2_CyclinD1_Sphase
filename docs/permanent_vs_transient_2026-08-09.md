@@ -61,10 +61,14 @@ MB transient G0.
 - **Replicative dilution of H3K27me3 does not set the fate** in this model — it sets the *cycling rate*
   (the mark-as-speed-limiter). The two things JP named therefore operate at different stages: dilution in
   the cycling/slowing phase (rate control), drive in the arrested phase (fate).
-- Caveat / open question: this holds in the **near-saturated mark regime** the calibration sits in (Mk ≈
-  0.95). If the mark operated in a lower, unsaturated range, dilution would have more leverage on the
-  cycling drive and *could* feed into the fate near the boundary — a regime worth probing if the
-  proliferation-rate data suggest the mark is less saturated in vivo.
+- **Tested the unsaturated regime (writer ×0.15):** the cycling mark becomes strongly dilution-dependent
+  (Mk 0.38 at dil ×0.5 vs 0.15 at dil ×2) — yet the permanent/transient boundary is **still identical**
+  (MB permanent at 10× for both). So dilution does **not** feed the fate *even when the mark is unsaturated
+  and highly dilution-sensitive in cycling*. The reason is structural: the fate is decided in the arrested
+  state, where replication (hence dilution) has stopped and the mark re-equilibrates to its
+  writer-vs-eraser value. **Replicative dilution is decoupled from the fate regardless of mark saturation.**
+  (Reducing the writer did shift the boundary 8×→10× — the mark's *static* repression tuning again, since
+  less writer = less repression = higher effective drive.)
 
 ## Discriminator experiment
 
