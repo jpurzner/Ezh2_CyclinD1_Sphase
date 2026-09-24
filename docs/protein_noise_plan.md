@@ -4,6 +4,9 @@ Status: **reconnaissance complete, no model code changed.** This document report
 external models and datasets actually say, and proposes how the task list in the hand-off brief
 should change in light of it. Nothing in `src/` has been touched; `validate_v44.py` is unaffected.
 
+**Concrete, tested modifications to act on are in [`protein_noise_fixes.md`](protein_noise_fixes.md).**
+This document is the evidence; that one is the change list.
+
 Companion artefacts produced by this pass:
 
 | artefact | what it is |
@@ -162,15 +165,21 @@ The findings above invert that: **the units problem gates the two tasks the proj
 ### Do first
 
 **R1 — Rescale the HH/MYCN/CyclinD1 arm to real minutes.** *(new; blocks T5 and T6 at the CyclinD1
-node)* Replace the v42-inherited `k_*_deg` constants with minute-frame values from the priors
-table, behind a flag `with_realtime_signalling` defaulting **OFF**. With the flag off the model is
-byte-identical; with it on the module needs recalibration, because the Gli→CyclinD1 Hill and the
-`Cd` scale were baked against the fast relay. Budget this as a calibration pass, not an edit.
+node)* Divide the 28 HH-block rate constants by 60, behind a flag `with_realtime_signalling`
+defaulting **OFF**.
 
-There is a cheaper interim option worth measuring first: keep the fast constants but verify the
-claim in §1.1 directly, by injecting a sinusoidal or OU multiplier on `k_Cd_tx_basal` at several
-correlation times and measuring the transfer to cycle-length variability. If transmission is flat
-to zero below τ ≈ 1 h, the rescale is unavoidable and the measurement justifies the cost.
+**This has since been tested and it is free.** The root cause is narrower than first described:
+the constants were ported from `build_model_v42_mycn.py`, whose time unit is hours (its drivers
+run `t_end=96`/`168`), into v44's minute-frame core — so they are simply missing a `/60`, and the
+original values are biologically sensible as hourly rates. Because scaling every rate in a module
+by one factor leaves its steady states algebraically invariant, and the arm's calibration is
+entirely steady-state, `validate_v44.py` goes **28/28 → 28/28** with no pass/fail flips and a
+largest per-target move of 3.7%. See `docs/protein_noise_fixes.md` §F1 for the full per-target
+diff and the one real behavioural change (within-cycle CyclinD1 amplitude drops ~2.5×, which is
+the intended effect).
+
+*An earlier revision of this section said to "budget this as a calibration pass, not an edit".
+That predated the test and is wrong — it is a mechanical edit.*
 
 **R2 — Settle the *Ccnd1* mRNA half-life, or commit to reporting a curve over it.** *(new)* This is
 the 12× lever. Either find a direct measurement in GNP/MB or a comparable neural progenitor, or
