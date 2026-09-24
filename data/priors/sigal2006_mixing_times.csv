@@ -1,0 +1,41 @@
+protein,function,tau_m_gen,tau_sd,cv,cv_sd
+ANP32B,Pro-apoptotic,2.6,0.3,0.28,0.01
+HMGA2,Transcriptional regulation,2.4,0.5,0.22,0.01
+FLJ46419,Unknown,2.3,0.3,0.23,0.01
+HMGA1,Transcriptional regulation,2.2,0.4,0.27,0.01
+SET,Chromatin remodeling,2.2,0.5,0.18,0.01
+ESTBG213769,Unknown,2.1,0.3,0.26,0.01
+FLJ10154,Unknown,2.0,0.3,0.24,0.01
+ESTCB962035,Unknown,1.8,0.5,0.19,0.01
+TOP1,Topoisomerase 1,1.8,0.2,0.22,0.01
+LMNA,structure,1.6,0.3,0.19,0.01
+H2AFV,Regulatory histone,1.6,0.4,0.2,0.02
+RBBP7,differentiation,1.5,0.2,0.22,0.01
+DDX46,Putative RNA helicase,1.5,0.2,0.2,0.01
+SAE1,substrates,1.4,0.2,0.2,0.01
+KIAA1937,Unknown,1.3,0.2,0.17,0.02
+GTF2F2,polymerase II to promoters,1.2,0.1,0.18,0.01
+SFRS10,Alternative splicing regulator,1.0,0.2,0.15,0.02
+USP7,Deubiquitination,0.9,0.2,0.12,0.01
+CIRBP,Cold response,0.8,0.1,0.16,0.01
+DDX5,activator,0.8,0.1,0.18,0.02
+FLJ10154,Unknown,4.3,0.8,0.24,0.01
+ANP32B,Pro-apoptotic,2.7,0.4,0.28,0.01
+HMGA2,Transcriptional regulation,2.3,0.2,0.22,0.01
+H2AFV,Regulatory histone,2.0,0.6,0.2,0.02
+ESTBG213769,Unknown,2.0,0.5,0.26,0.01
+FLJ46419,Unknown,2.0,0.5,0.23,0.01
+ESTCB962035,Unknown,1.9,0.2,0.19,0.01
+SAE1,Transfer of SUMO-1 to its substrates,1.9,0.7,0.2,0.01
+RBBP7,differentiation,1.9,0.6,0.23,0.01
+SET,Chromatin remodeling,1.9,0.3,0.18,0.01
+TOP1,Topoisomerase 1,1.8,0.2,0.22,0.01
+HMGA1,Transcriptional regulation,1.7,0.3,0.27,0.01
+KIAA1937,Unknown,1.7,0.6,0.17,0.02
+DDX46,,1.6,0.2,0.2,0.01
+LMNA,nuclear membrane structure,1.6,0.3,0.19,0.01
+GTF2F2,promoters,1.2,0.1,0.18,0.01
+SFRS10,Alternative splicing regulator,1.1,0.2,0.15,0.02
+USP7,Deubiquitination,1.0,0.3,0.12,0.01
+CIRBP,Cold response,1.0,0.2,0.16,0.01
+DDX5,p53 transcriptional co-activator,0.9,0.1,0.18,0.02

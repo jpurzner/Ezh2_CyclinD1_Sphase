@@ -11,6 +11,7 @@ them by `simulations/build_turnover_priors.py` (re-run it to regenerate; it neve
 | `mathieson2018_SupplData1.xlsx` | Mathieson et al. 2018 Nat Commun 9:689, Suppl. Data 1 | `76c5951eeaeb4c19…` | 12,327 | time-point / experimental design legend only (no per-gene values) |
 | `mathieson2018_SupplData2.xlsx` | Mathieson et al. 2018 Nat Commun 9:689, Suppl. Data 2 | `e0503f49230680cb…` | 3,338,308 | protein half-lives in B cells, NK cells, monocytes, hepatocytes and MOUSE NEURONS; 8805 high-quality rows |
 | `mathieson2018_SupplData3.xlsx` | Mathieson et al. 2018 Nat Commun 9:689, Suppl. Data 3 | `e1e619c98b966c35…` | 20,706 | proteasome subunit half-lives + exchangeability classification |
+| `sigal2006_SuppNotes.pdf` | Sigal et al. 2006 Nature 444:643, Suppl. Information | `9ecd5e3cdd3117ec…` | 212,999 | Suppl. Tables 1-2: per-protein mixing time tau_m (generations) and CV, 20 CD-tagged H1299 clones; the extrinsic-noise prior |
 
 ## URLs
 
@@ -26,6 +27,9 @@ them by `simulations/build_turnover_priors.py` (re-run it to regenerate; it neve
   <https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41467-018-03106-1/MediaObjects/41467_2018_3106_MOESM5_ESM.xlsx>
 * `mathieson2018_SupplData3.xlsx`
   <https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41467-018-03106-1/MediaObjects/41467_2018_3106_MOESM6_ESM.xlsx>
+* `sigal2006_SuppNotes.pdf`
+  <https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fnature05316/MediaObjects/41586_2006_BFnature05316_MOESM1_ESM.pdf>
+  Parsed to `data/priors/sigal2006_mixing_times.csv` (40 rows = Suppl. Tables 1 and 2).
 
 ## Caveats that the CSV carries per row, restated
 
@@ -71,3 +75,19 @@ unambiguous **class (b)** values available, and they are marked `growth_correcte
 This matters most for `Rb1` (**18.9 h** in neurons). At T_cc = 16 h, dilution (mu = 0.043/h)
 and degradation (0.037/h) are the same size for Rb — which is exactly the Zatulovskiy 2020
 size-dilution premise, now with a number attached.
+
+### Eden 2011 — NOT obtained
+
+Eden et al. 2011 *Science* 331:764, "Proteome half-life dynamics in living human cells"
+(doi:10.1126/science.1199784) is the fourth requested turnover dataset and **could not be
+downloaded**. science.org returns HTTP 403 (Cloudflare) on the article, the `doi/suppl/` listing
+and every `downloadSupplement` pattern tried; the paper is not open access, has no PMC record, and
+the follow-up protocol (Eden et al. 2012 *Nat Protoc*, PMID 22461069) is closed as well.
+
+It needs institutional access. What it would add: **bleach-chase protein half-lives for ~100
+proteins in living human H1299 cells** — a fourth, methodologically independent turnover estimate.
+Its value here is as an *arbiter*, not as a per-gene resource: it is small, human, and a cancer
+line, so it will not cover our missing Hedgehog-arm genes. But it measures half-lives in *living*
+cells by a completely different route from SILAC pulse-chase, so it is the cleanest available
+check on whether Schwanhäusser's half-lives run systematically long (see the Ccnd1 14.0 h vs <1 h
+conflict). Target: Supporting Online Material, Table S1.

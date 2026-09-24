@@ -4,8 +4,25 @@
 Reads data/priors/turnover_burst_priors.csv (built by build_turnover_priors.py) and, for
 every gene with enough data, evaluates the two-stage bursty-transcription result
 
-    CV_p^2  ~  1/<p>  +  (1 + B)/<m> * g_p/(g_p + g_m)                      (intrinsic)
+    CV_p^2  ~  1/<p>  +  (P_CAPTURE + B)/<m> * g_p/(g_p + g_m)              (intrinsic)
     tau_corr ~ max(1/g_m, 1/g_p_eff)
+
+UNIT HAZARD -- the mRNA term must be computed INSIDE ONE DATASET.
+Larsson's B and <m> come from allele-resolved scRNA-seq and count DETECTED molecules, not
+absolute copies. Calibrating against Schwanhausser over 3080 shared genes gives a median
+Schwanhausser/(2 x Larsson) ratio of 4.8, i.e. a UMI capture efficiency p ~ 0.21.
+
+Binomial thinning of a Poisson-Beta leaves kon and koff alone and scales ksyn by p, so
+    B_obs = p*B_true,  <m>_obs = p*<m>_true,  burst FREQUENCY is unaffected,
+and therefore
+    (1 + B_true)/<m>_true  ==  (p + B_obs)/<m>_obs.
+The ratio is capture-invariant -- but ONLY within one dataset. Mixing Schwanhausser's absolute
+<m> with Larsson's deflated B does not cancel and understates the noise by ~1/p (4-16x was
+measured on this gene set). So <m> is taken from Larsson whenever B is, and Schwanhausser's
+<m> is reported alongside purely as a cross-check.
+
+The 1/<p> Poisson term is different: it needs ABSOLUTE protein copies, so it uses
+Schwanhausser. It is negligible above ~10^3 copies anyway.
 
 with g_p_eff = g_p + mu the removal rate INCLUDING dilution (mu = ln2/T_cc). It then puts
 those next to the DECAY RATE THE MODEL ACTUALLY USES for the same species, which is what
@@ -25,6 +42,9 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV = os.path.join(ROOT, "data", "priors", "turnover_burst_priors.csv")
 LN2 = math.log(2.0)
+# scRNA-seq UMI capture efficiency, calibrated in this repo from the median
+# Schwanhausser/(2 x Larsson) mRNA ratio over 3080 shared genes (= 4.8).
+P_CAPTURE = 0.21
 
 # ------------------------------------------------------------------------------------------
 # What v44 actually uses, in MODEL UNITS (1/min -- the Heldt core and everything bolted onto
@@ -75,7 +95,8 @@ def main():
 
     pri = load_priors()
     print(f"# Noise budget   (T_cc = {a.tcc} h, mu = {mu:.4f}/h)")
-    print(f"# CV_p^2 = 1/<p> + (1+B)/<m> * g_p_eff/(g_p_eff+g_m);  g_p_eff includes dilution\n")
+    print(f"# CV_p^2 = 1/<p> + (p_cap+B)/<m> * g_p_eff/(g_p_eff+g_m);  p_cap = {P_CAPTURE} (UMI capture)")
+    print(f"# <m> and B are both Larsson (self-consistent); <p> is Schwanhausser (absolute)\n")
     hdr = (f"{'gene':8s} {'<p>':>9s} {'<m>':>6s} {'B':>5s} {'t_m':>6s} {'t_p':>7s} "
            f"{'filt':>5s} {'CV_p':>6s} {'tau_c/h':>8s} | {'model species':13s} {'model tau':>10s} {'ratio':>7s}")
     print(hdr); print("-" * len(hdr))
@@ -96,7 +117,9 @@ def main():
         tm  = g1("mrna_half_life")
         B   = g1("burst_size_B", prefer="fibroblast")
         m_allele = g1("mrna_mean_per_allele", prefer="fibroblast")
-        m   = g1("mrna_copy_number") or (2 * m_allele if m_allele else None)
+        # SELF-CONSISTENT: <m> must come from the same dataset as B (see the unit hazard above).
+        m   = (2 * m_allele) if m_allele else None
+        m_abs = g1("mrna_copy_number")                       # Schwanhausser, cross-check only
 
         rows = MODEL_RATES.get(gene, [(None, None, None, None)])
         if not (tm and B and m):
@@ -110,7 +133,7 @@ def main():
         g_p = (LN2 / tp) if tp else None
         g_p_eff = (g_p + mu) if g_p else mu      # dilution-only if no measured half-life
         filt = g_p_eff / (g_p_eff + g_m)
-        cv2 = ((1.0 / p) if p else 0.0) + (1.0 + B) / m * filt
+        cv2 = ((1.0 / p) if p else 0.0) + (P_CAPTURE + B) / m * filt
         tau_c = max(1.0 / g_m, 1.0 / g_p_eff)
 
         first = True
@@ -157,7 +180,7 @@ def main():
         tp = g1("protein_half_life", prefer="NIH3T3") or g1("protein_half_life")
         B  = g1("burst_size_B", prefer="fibroblast") or g1("burst_size_B")
         ma = g1("mrna_mean_per_allele", prefer="fibroblast") or g1("mrna_mean_per_allele")
-        m_ = g1("mrna_copy_number") or (2 * ma if ma else None)
+        m_ = (2 * ma) if ma else None       # Larsson only -- must match B's dataset
         if not (B and m_ and tp):
             print(f"{gene:8s} {'-- needs B, <m> and a protein half-life --':>50s}")
             continue
@@ -166,7 +189,7 @@ def main():
         for tm_ in (0.5, 1, 2, 4, 9, 14):
             g_m_ = LN2 / tm_
             f_ = g_p_eff / (g_p_eff + g_m_)
-            cv = math.sqrt(((1.0 / p_) if p_ else 0.0) + (1.0 + B) / m_ * f_)
+            cv = math.sqrt(((1.0 / p_) if p_ else 0.0) + (P_CAPTURE + B) / m_ * f_)
             tau = max(1.0 / g_m_, 1.0 / g_p_eff)
             cells.append(f"{cv:.2f}/{tau:<5.1f}")
         print(f"{gene:8s} {tp:6.1f} {m_:6.1f} {B:6.2f} | " + "  ".join(f"{c:<10s}" for c in cells))
