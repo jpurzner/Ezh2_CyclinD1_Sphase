@@ -193,3 +193,11 @@ simulations/optimize_twostep_best.json
 # R session history
 *.Rhistory
 .Rhistory
+
+# Protein-noise reconnaissance: external blobs are NOT vendored (same policy as *.xml above).
+# Everything here is reproducible with a verified sha256 -- see models_external/SOURCES.md and
+# data/priors/SOURCES.md for the URL, date and checksum of each file.
+# Schwanhausser/Larsson/Mathieson supplementary tables (~10 MB)
+data/priors/raw/
+# shallow clones of reference repos (earm); each carries its own .git
+models_external/repos/

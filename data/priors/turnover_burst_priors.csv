@@ -1,0 +1,529 @@
+v44_species,gene,quantity,value,units,source,table,cell_type,growth_corrected,notes
+Rb/Rbm/pRb/RbE2f,Rb1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P13405
+Rb/Rbm/pRb/RbE2f,Rb1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P06400
+Rb/Rbm/pRb/RbE2f,Rb1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,R-point; size-diluted (Zatulovskiy)
+Rb/Rbm/pRb/RbE2f,Rb1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Rb/Rbm/pRb/RbE2f,Rb1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Rb/Rbm/pRb/RbE2f,Rb1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Rb/Rbm/pRb/RbE2f,Rb1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Rb/Rbm/pRb/RbE2f,Rb1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Rb/Rbm/pRb/RbE2f,Rb1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Rb/Rbm/pRb/RbE2f,Rb1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Rb/Rbm/pRb/RbE2f,Rb1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Rb/Rbm/pRb/RbE2f,Rb1,burst_frequency,0.00698144,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,single allele only; f[1/h] = value*ln2/t_half_mRNA[h]
+Rb/Rbm/pRb/RbE2f,Rb1,burst_size_B,1.10637,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,single allele only
+Rb/Rbm/pRb/RbE2f,Rb1,mrna_mean_per_allele,0.15,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,single allele only
+Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life,18.881,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+E2f/RbE2f/RbmE2f,E2f1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61501
+E2f/RbE2f/RbmE2f,E2f1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q01094
+E2f/RbE2f/RbmE2f,E2f1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,R-point TF; bistable switch
+E2f/RbE2f/RbmE2f,E2f1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E2f/RbE2f/RbmE2f,E2f1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E2f/RbE2f/RbmE2f,E2f1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E2f/RbE2f/RbmE2f,E2f1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E2f/RbE2f/RbmE2f,E2f1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E2f/RbE2f/RbmE2f,E2f1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E2f/RbE2f/RbmE2f,E2f1,burst_frequency,0.464304,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+E2f/RbE2f/RbmE2f,E2f1,burst_size_B,2.97045,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+E2f/RbE2f/RbmE2f,E2f1,mrna_mean_per_allele,1.305,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+E2f/RbE2f/RbmE2f,E2f1,burst_frequency,0.972741,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+E2f/RbE2f/RbmE2f,E2f1,burst_size_B,2.99112,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+E2f/RbE2f/RbmE2f,E2f1,mrna_mean_per_allele,2.505,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+E2f/RbE2f/RbmE2f,E2f1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+E1/E1C1,Fbxo5,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q7TSG3
+E1/E1C1,Fbxo5,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9UKT4
+E1/E1C1,Fbxo5,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"Emi1, APC/C inhibitor"
+E1/E1C1,Fbxo5,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E1/E1C1,Fbxo5,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E1/E1C1,Fbxo5,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E1/E1C1,Fbxo5,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E1/E1C1,Fbxo5,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E1/E1C1,Fbxo5,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+E1/E1C1,Fbxo5,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+E1/E1C1,Fbxo5,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+E1/E1C1,Fbxo5,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+E1/E1C1,Fbxo5,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+E1/E1C1,Fbxo5,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+E1/E1C1,Fbxo5,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+E1/E1C1,Fbxo5,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+C1/pC1/E1C1,Fzr1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9R1K5
+C1/pC1/E1C1,Fzr1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9UM11
+C1/pC1/E1C1,Fzr1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"Cdh1, APC/C co-activator"
+C1/pC1/E1C1,Fzr1,protein_copy_number,3386.9,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+C1/pC1/E1C1,Fzr1,mrna_copy_number,26.55,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+C1/pC1/E1C1,Fzr1,protein_half_life,6.21,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+C1/pC1/E1C1,Fzr1,mrna_half_life,8.52,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+C1/pC1/E1C1,Fzr1,transcription_rate_vsr,2.7,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+C1/pC1/E1C1,Fzr1,translation_rate_ksp,17.08,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+C1/pC1/E1C1,Fzr1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+C1/pC1/E1C1,Fzr1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+C1/pC1/E1C1,Fzr1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+C1/pC1/E1C1,Fzr1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+C1/pC1/E1C1,Fzr1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+C1/pC1/E1C1,Fzr1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+C1/pC1/E1C1,Fzr1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+P21/CeP21/CaP21,Cdkn1a,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P39689
+P21/CeP21/CaP21,Cdkn1a,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P38936
+P21/CeP21/CaP21,Cdkn1a,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,CKI; BURST CANDIDATE (Barr 2017)
+P21/CeP21/CaP21,Cdkn1a,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P21/CeP21/CaP21,Cdkn1a,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P21/CeP21/CaP21,Cdkn1a,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P21/CeP21/CaP21,Cdkn1a,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P21/CeP21/CaP21,Cdkn1a,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P21/CeP21/CaP21,Cdkn1a,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P21/CeP21/CaP21,Cdkn1a,burst_frequency,1.61525,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+P21/CeP21/CaP21,Cdkn1a,burst_size_B,19.0427,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+P21/CeP21/CaP21,Cdkn1a,mrna_mean_per_allele,28.36,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+P21/CeP21/CaP21,Cdkn1a,burst_frequency,2.38661,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+P21/CeP21/CaP21,Cdkn1a,burst_size_B,9.82527,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+P21/CeP21/CaP21,Cdkn1a,mrna_mean_per_allele,22.995,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+P21/CeP21/CaP21,Cdkn1a,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Ce/CeP21,Ccne1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61457
+Ce/CeP21,Ccne1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24864
+Ce/CeP21,Ccne1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,G1/S cyclin
+Ce/CeP21,Ccne1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ce/CeP21,Ccne1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ce/CeP21,Ccne1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ce/CeP21,Ccne1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ce/CeP21,Ccne1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ce/CeP21,Ccne1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ce/CeP21,Ccne1,burst_frequency,0.521988,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Ce/CeP21,Ccne1,burst_size_B,13.5735,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Ce/CeP21,Ccne1,mrna_mean_per_allele,6.615,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Ce/CeP21,Ccne1,burst_frequency,0.968936,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Ce/CeP21,Ccne1,burst_size_B,14.8815,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Ce/CeP21,Ccne1,mrna_mean_per_allele,10.65,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Ce/CeP21,Ccne1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Ca/CaP21,Ccna2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P51943
+Ca/CaP21,Ccna2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P20248
+Ca/CaP21,Ccna2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,S/G2 cyclin
+Ca/CaP21,Ccna2,protein_copy_number,21381,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Ca/CaP21,Ccna2,mrna_copy_number,52.75,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Ca/CaP21,Ccna2,protein_half_life,4.33,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Ca/CaP21,Ccna2,mrna_half_life,8.51,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Ca/CaP21,Ccna2,transcription_rate_vsr,5.37,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Ca/CaP21,Ccna2,translation_rate_ksp,73.75,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Ca/CaP21,Ccna2,burst_frequency,0.111211,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Ca/CaP21,Ccna2,burst_size_B,18.6571,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Ca/CaP21,Ccna2,mrna_mean_per_allele,1.93,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Ca/CaP21,Ccna2,burst_frequency,0.461288,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Ca/CaP21,Ccna2,burst_size_B,30.2955,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Ca/CaP21,Ccna2,mrna_mean_per_allele,6.53,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Ca/CaP21,Ccna2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+aPcna/iPcna,Pcna,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P17918
+aPcna/iPcna,Pcna,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P12004
+aPcna/iPcna,Pcna,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,replication clamp
+aPcna/iPcna,Pcna,protein_copy_number,5.39625e+06,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+aPcna/iPcna,Pcna,mrna_copy_number,206.43,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+aPcna/iPcna,Pcna,protein_half_life,78.53,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+aPcna/iPcna,Pcna,mrna_half_life,10.44,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+aPcna/iPcna,Pcna,transcription_rate_vsr,17.97,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+aPcna/iPcna,Pcna,translation_rate_ksp,840.78,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+aPcna/iPcna,Pcna,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+aPcna/iPcna,Pcna,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+aPcna/iPcna,Pcna,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+aPcna/iPcna,Pcna,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+aPcna/iPcna,Pcna,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+aPcna/iPcna,Pcna,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+aPcna/iPcna,Pcna,protein_half_life,64.5695,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+P53,Trp53,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P02340
+P53,Trp53,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P04637
+P53,Trp53,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,damage response
+P53,Trp53,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P53,Trp53,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P53,Trp53,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P53,Trp53,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P53,Trp53,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P53,Trp53,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+P53,Trp53,burst_frequency,1.72893,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+P53,Trp53,burst_size_B,2.98646,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+P53,Trp53,mrna_mean_per_allele,4.67,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+P53,Trp53,burst_frequency,3.13398,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+P53,Trp53,burst_size_B,3.41139,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+P53,Trp53,mrna_mean_per_allele,8.645,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+P53,Trp53,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Cd/Cd_mRNA,Ccnd1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P25322
+Cd/Cd_mRNA,Ccnd1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24385
+Cd/Cd_mRNA,Ccnd1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,MITOGEN INTEGRATOR; BURST CANDIDATE
+Cd/Cd_mRNA,Ccnd1,protein_copy_number,89631.5,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Cd/Cd_mRNA,Ccnd1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Cd/Cd_mRNA,Ccnd1,protein_half_life,1.31,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Cd/Cd_mRNA,Ccnd1,mrna_half_life,14,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Cd/Cd_mRNA,Ccnd1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Cd/Cd_mRNA,Ccnd1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Cd/Cd_mRNA,Ccnd1,burst_frequency,0.614185,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Cd/Cd_mRNA,Ccnd1,burst_size_B,6.76496,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Cd/Cd_mRNA,Ccnd1,mrna_mean_per_allele,4.285,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Cd/Cd_mRNA,Ccnd1,burst_frequency,0.677448,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Cd/Cd_mRNA,Ccnd1,burst_size_B,5.67629,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Cd/Cd_mRNA,Ccnd1,mrna_mean_per_allele,3.54,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Cd/Cd_mRNA,Ccnd1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Skp2,Skp2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9Z0Z3
+Skp2,Skp2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q13309
+Skp2,Skp2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,bistable commitment (Skp2-p27)
+Skp2,Skp2,protein_copy_number,3401.5,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Skp2,Skp2,mrna_copy_number,14.47,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Skp2,Skp2,protein_half_life,3.38,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Skp2,Skp2,mrna_half_life,2.82,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Skp2,Skp2,transcription_rate_vsr,3.83,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Skp2,Skp2,translation_rate_ksp,53.18,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+Skp2,Skp2,burst_frequency,0.318866,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Skp2,Skp2,burst_size_B,3.27278,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Skp2,Skp2,mrna_mean_per_allele,0.875,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Skp2,Skp2,burst_frequency,0.146988,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Skp2,Skp2,burst_size_B,12.755,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Skp2,Skp2,mrna_mean_per_allele,1.795,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Skp2,Skp2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+MPF/preMPF,Ccnb1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P24860
+MPF/preMPF,Ccnb1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P14635
+MPF/preMPF,Ccnb1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,mitotic cyclin
+MPF/preMPF,Ccnb1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Ccnb1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Ccnb1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Ccnb1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Ccnb1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Ccnb1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Ccnb1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+MPF/preMPF,Ccnb1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+MPF/preMPF,Ccnb1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+MPF/preMPF,Ccnb1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+MPF/preMPF,Ccnb1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+MPF/preMPF,Ccnb1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+MPF/preMPF,Ccnb1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+MPF/preMPF,Cdk1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P11440
+MPF/preMPF,Cdk1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P06493
+MPF/preMPF,Cdk1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,mitotic kinase
+MPF/preMPF,Cdk1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Cdk1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Cdk1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Cdk1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Cdk1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Cdk1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MPF/preMPF,Cdk1,burst_frequency,0.265045,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+MPF/preMPF,Cdk1,burst_size_B,19.8495,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+MPF/preMPF,Cdk1,mrna_mean_per_allele,4.965,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+MPF/preMPF,Cdk1,burst_frequency,0.667644,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+MPF/preMPF,Cdk1,burst_size_B,16.7362,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+MPF/preMPF,Cdk1,mrna_mean_per_allele,7.015,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+MPF/preMPF,Cdk1,protein_half_life,127.139,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+Cdc20,Cdc20,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9JJ66
+Cdc20,Cdc20,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q12834
+Cdc20,Cdc20,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"APC/C co-activator, mitotic exit"
+Cdc20,Cdc20,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Cdc20,Cdc20,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Cdc20,Cdc20,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Cdc20,Cdc20,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Cdc20,Cdc20,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Cdc20,Cdc20,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Cdc20,Cdc20,burst_frequency,0.125671,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Cdc20,Cdc20,burst_size_B,8.7452,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Cdc20,Cdc20,mrna_mean_per_allele,1.115,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+Cdc20,Cdc20,burst_frequency,0.608543,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Cdc20,Cdc20,burst_size_B,14.9874,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Cdc20,Cdc20,mrna_mean_per_allele,4.36,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Cdc20,Cdc20,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+EZH2/EZH2m,Ezh2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61188
+EZH2/EZH2m,Ezh2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q15910
+EZH2/EZH2m,Ezh2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,PRC2 catalytic; THE EPIGENETIC BRAKE
+EZH2/EZH2m,Ezh2,protein_copy_number,2155.55,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+EZH2/EZH2m,Ezh2,mrna_copy_number,30.02,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+EZH2/EZH2m,Ezh2,protein_half_life,22.02,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+EZH2/EZH2m,Ezh2,mrna_half_life,9.85,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+EZH2/EZH2m,Ezh2,transcription_rate_vsr,2.73,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+EZH2/EZH2m,Ezh2,translation_rate_ksp,3.96,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+EZH2/EZH2m,Ezh2,burst_frequency,0.394476,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+EZH2/EZH2m,Ezh2,burst_size_B,2.76642,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+EZH2/EZH2m,Ezh2,mrna_mean_per_allele,0.965,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+EZH2/EZH2m,Ezh2,burst_frequency,1.76559,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+EZH2/EZH2m,Ezh2,burst_size_B,3.12031,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+EZH2/EZH2m,Ezh2,mrna_mean_per_allele,5.185,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+EZH2/EZH2m,Ezh2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+"(PRC2, implicit)",Suz12,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q80U70
+"(PRC2, implicit)",Suz12,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q15022
+"(PRC2, implicit)",Suz12,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,PRC2 core (not an explicit species)
+"(PRC2, implicit)",Suz12,protein_copy_number,18735.4,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Suz12,mrna_copy_number,17.21,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Suz12,protein_half_life,21.22,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Suz12,mrna_half_life,6.26,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Suz12,transcription_rate_vsr,2.24,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Suz12,translation_rate_ksp,60.51,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Suz12,burst_frequency,0.220165,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only; f[1/h] = value*ln2/t_half_mRNA[h]
+"(PRC2, implicit)",Suz12,burst_size_B,2.51082,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only
+"(PRC2, implicit)",Suz12,mrna_mean_per_allele,0.55,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only
+"(PRC2, implicit)",Suz12,burst_frequency,0.420335,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+"(PRC2, implicit)",Suz12,burst_size_B,13.613,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+"(PRC2, implicit)",Suz12,mrna_mean_per_allele,3.905,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+"(PRC2, implicit)",Suz12,protein_half_life,31.187,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+"(PRC2, implicit)",Eed,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q921E6
+"(PRC2, implicit)",Eed,uniprot_human,NA,accession,UniProt,REST api,-,n/a,O75530
+"(PRC2, implicit)",Eed,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,PRC2 core (not an explicit species)
+"(PRC2, implicit)",Eed,protein_copy_number,23353.4,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Eed,mrna_copy_number,23.56,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Eed,protein_half_life,37.1,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Eed,mrna_half_life,5.33,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Eed,transcription_rate_vsr,3.52,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Eed,translation_rate_ksp,41.66,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+"(PRC2, implicit)",Eed,burst_frequency,0.504105,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+"(PRC2, implicit)",Eed,burst_size_B,5.31892,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+"(PRC2, implicit)",Eed,mrna_mean_per_allele,2.37,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+"(PRC2, implicit)",Eed,burst_frequency,1.68422,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+"(PRC2, implicit)",Eed,burst_size_B,9.60269,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+"(PRC2, implicit)",Eed,mrna_mean_per_allele,9.01,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+"(PRC2, implicit)",Eed,protein_half_life,60.7085,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+Gli1/Gli1_mRNA,Gli1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P47806
+Gli1/Gli1_mRNA,Gli1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P08151
+Gli1/Gli1_mRNA,Gli1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,HH output; MB marker
+Gli1/Gli1_mRNA,Gli1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli1/Gli1_mRNA,Gli1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli1/Gli1_mRNA,Gli1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli1/Gli1_mRNA,Gli1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli1/Gli1_mRNA,Gli1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli1/Gli1_mRNA,Gli1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli1/Gli1_mRNA,Gli1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Gli1/Gli1_mRNA,Gli1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Gli1/Gli1_mRNA,Gli1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Gli1/Gli1_mRNA,Gli1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Gli1/Gli1_mRNA,Gli1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Gli1/Gli1_mRNA,Gli1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Gli1/Gli1_mRNA,Gli1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Gli_act/Gli_rep,Gli2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q0VGT2
+Gli_act/Gli_rep,Gli2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P10070
+Gli_act/Gli_rep,Gli2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,lumped into Gli_act
+Gli_act/Gli_rep,Gli2,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli2,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli2,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli2,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli2,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli2,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli2,burst_frequency,2.42861e-17,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only; f[1/h] = value*ln2/t_half_mRNA[h]
+Gli_act/Gli_rep,Gli2,burst_size_B,2.64058,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only
+Gli_act/Gli_rep,Gli2,mrna_mean_per_allele,0.08,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only
+Gli_act/Gli_rep,Gli2,burst_frequency,0.364814,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+Gli_act/Gli_rep,Gli2,burst_size_B,7.22219,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Gli_act/Gli_rep,Gli2,mrna_mean_per_allele,1.705,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+Gli_act/Gli_rep,Gli2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Gli_act/Gli_rep,Gli3,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61602
+Gli_act/Gli_rep,Gli3,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P10071
+Gli_act/Gli_rep,Gli3,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,lumped into Gli_rep
+Gli_act/Gli_rep,Gli3,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli3,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli3,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli3,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli3,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli3,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Gli_act/Gli_rep,Gli3,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Gli_act/Gli_rep,Gli3,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Gli_act/Gli_rep,Gli3,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Gli_act/Gli_rep,Gli3,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Gli_act/Gli_rep,Gli3,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Gli_act/Gli_rep,Gli3,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Gli_act/Gli_rep,Gli3,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+MYCN,Mycn,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P03966
+MYCN,Mycn,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P04198
+MYCN,Mycn,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,MB amplification; mitogen floor
+MYCN,Mycn,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MYCN,Mycn,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MYCN,Mycn,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MYCN,Mycn,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MYCN,Mycn,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MYCN,Mycn,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+MYCN,Mycn,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+MYCN,Mycn,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+MYCN,Mycn,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+MYCN,Mycn,burst_frequency,0.271396,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+MYCN,Mycn,burst_size_B,18.497,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+MYCN,Mycn,mrna_mean_per_allele,3.945,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+MYCN,Mycn,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Ptch1_free/_mRNA,Ptch1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61115
+Ptch1_free/_mRNA,Ptch1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q13635
+Ptch1_free/_mRNA,Ptch1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,HH receptor; GNP=1 / MB=0.1 dosage
+Ptch1_free/_mRNA,Ptch1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ptch1_free/_mRNA,Ptch1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ptch1_free/_mRNA,Ptch1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ptch1_free/_mRNA,Ptch1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ptch1_free/_mRNA,Ptch1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ptch1_free/_mRNA,Ptch1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Ptch1_free/_mRNA,Ptch1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Ptch1_free/_mRNA,Ptch1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Ptch1_free/_mRNA,Ptch1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Ptch1_free/_mRNA,Ptch1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Ptch1_free/_mRNA,Ptch1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Ptch1_free/_mRNA,Ptch1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Ptch1_free/_mRNA,Ptch1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Smo_active,Smo,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P56726
+Smo_active,Smo,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q99835
+Smo_active,Smo,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,vismodegib target
+Smo_active,Smo,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Smo_active,Smo,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Smo_active,Smo,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Smo_active,Smo,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Smo_active,Smo,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Smo_active,Smo,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+Smo_active,Smo,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Smo_active,Smo,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Smo_active,Smo,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+Smo_active,Smo,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+Smo_active,Smo,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Smo_active,Smo,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Cdt2 param),Dtl,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q3TLR7
+(Cdt2 param),Dtl,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9NZJ0
+(Cdt2 param),Dtl,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"CRL4-Cdt2, p21 degron (param, not species)"
+(Cdt2 param),Dtl,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdt2 param),Dtl,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdt2 param),Dtl,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdt2 param),Dtl,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdt2 param),Dtl,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdt2 param),Dtl,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdt2 param),Dtl,burst_frequency,0.165658,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Cdt2 param),Dtl,burst_size_B,2.13218,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Cdt2 param),Dtl,mrna_mean_per_allele,0.345,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Cdt2 param),Dtl,burst_frequency,0.540382,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Cdt2 param),Dtl,burst_size_B,3.27688,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Cdt2 param),Dtl,mrna_mean_per_allele,1.24,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Cdt2 param),Dtl,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Wee1a assignment),Wee1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P47810
+(Wee1a assignment),Wee1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P30291
+(Wee1a assignment),Wee1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"mitotic switch (algebraic, not a species)"
+(Wee1a assignment),Wee1,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Wee1a assignment),Wee1,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Wee1a assignment),Wee1,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Wee1a assignment),Wee1,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Wee1a assignment),Wee1,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Wee1a assignment),Wee1,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Wee1a assignment),Wee1,burst_frequency,0.068911,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Wee1a assignment),Wee1,burst_size_B,1.95404,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Wee1a assignment),Wee1,mrna_mean_per_allele,0.195,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Wee1a assignment),Wee1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(Wee1a assignment),Wee1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(Wee1a assignment),Wee1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(Wee1a assignment),Wee1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Cdc25a assignment),Cdc25a,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P48964
+(Cdc25a assignment),Cdc25a,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P30304
+(Cdc25a assignment),Cdc25a,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"mitotic switch (algebraic, not a species)"
+(Cdc25a assignment),Cdc25a,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdc25a assignment),Cdc25a,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdc25a assignment),Cdc25a,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdc25a assignment),Cdc25a,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdc25a assignment),Cdc25a,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdc25a assignment),Cdc25a,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(Cdc25a assignment),Cdc25a,burst_frequency,0.294427,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Cdc25a assignment),Cdc25a,burst_size_B,4.15453,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Cdc25a assignment),Cdc25a,mrna_mean_per_allele,1.07,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Cdc25a assignment),Cdc25a,burst_frequency,1.14228,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Cdc25a assignment),Cdc25a,burst_size_B,6.35363,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Cdc25a assignment),Cdc25a,mrna_mean_per_allele,4.64,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Cdc25a assignment),Cdc25a,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(kPhRbCd param),Cdk4,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P30285
+(kPhRbCd param),Cdk4,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P11802
+(kPhRbCd param),Cdk4,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,CyclinD partner (lumped into Cd)
+(kPhRbCd param),Cdk4,protein_copy_number,298984,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk4,mrna_copy_number,178.55,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk4,protein_half_life,6.96,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk4,mrna_half_life,10.49,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk4,transcription_rate_vsr,15.56,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk4,translation_rate_ksp,204.55,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk4,burst_frequency,1.83847,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(kPhRbCd param),Cdk4,burst_size_B,13.1443,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(kPhRbCd param),Cdk4,mrna_mean_per_allele,20.225,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(kPhRbCd param),Cdk4,burst_frequency,1.6332,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(kPhRbCd param),Cdk4,burst_size_B,43.2158,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(kPhRbCd param),Cdk4,mrna_mean_per_allele,25.56,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(kPhRbCd param),Cdk4,protein_half_life,28.409,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 1 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+(kPhRbCd param),Cdk6,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q64261
+(kPhRbCd param),Cdk6,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q00534
+(kPhRbCd param),Cdk6,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,CyclinD partner (lumped into Cd)
+(kPhRbCd param),Cdk6,protein_copy_number,411418,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk6,mrna_copy_number,27.12,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk6,protein_half_life,13.79,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk6,mrna_half_life,4.65,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk6,transcription_rate_vsr,4.57,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk6,translation_rate_ksp,1103.06,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(kPhRbCd param),Cdk6,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(kPhRbCd param),Cdk6,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+(kPhRbCd param),Cdk6,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+(kPhRbCd param),Cdk6,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(kPhRbCd param),Cdk6,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(kPhRbCd param),Cdk6,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(kPhRbCd param),Cdk6,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Ce/Ca partner),Cdk2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P97377
+(Ce/Ca partner),Cdk2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24941
+(Ce/Ca partner),Cdk2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,lumped into Ce/Ca
+(Ce/Ca partner),Cdk2,protein_copy_number,189046,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Ce/Ca partner),Cdk2,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Ce/Ca partner),Cdk2,protein_half_life,46.9,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Ce/Ca partner),Cdk2,mrna_half_life,4.72,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Ce/Ca partner),Cdk2,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Ce/Ca partner),Cdk2,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Ce/Ca partner),Cdk2,burst_frequency,0.472401,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Ce/Ca partner),Cdk2,burst_size_B,2.51914,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Ce/Ca partner),Cdk2,mrna_mean_per_allele,1.155,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Ce/Ca partner),Cdk2,burst_frequency,1.17882,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Ce/Ca partner),Cdk2,burst_size_B,3.19502,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Ce/Ca partner),Cdk2,mrna_mean_per_allele,3.025,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Ce/Ca partner),Cdk2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(P21 pool),Cdkn1b,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P46414
+(P21 pool),Cdkn1b,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P46527
+(P21 pool),Cdkn1b,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,p27; v44 lumps p21/p27 into P21
+(P21 pool),Cdkn1b,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(P21 pool),Cdkn1b,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(P21 pool),Cdkn1b,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(P21 pool),Cdkn1b,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(P21 pool),Cdkn1b,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(P21 pool),Cdkn1b,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(P21 pool),Cdkn1b,burst_frequency,0.430309,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only; f[1/h] = value*ln2/t_half_mRNA[h]
+(P21 pool),Cdkn1b,burst_size_B,0.990808,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only
+(P21 pool),Cdkn1b,mrna_mean_per_allele,0.42,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,single allele only
+(P21 pool),Cdkn1b,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(P21 pool),Cdkn1b,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(P21 pool),Cdkn1b,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(P21 pool),Cdkn1b,protein_half_life,15.572,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+(p18 param),Cdkn2c,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q60772
+(p18 param),Cdkn2c,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P42773
+(p18 param),Cdkn2c,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,INK4c; constitutive GNP brake
+(p18 param),Cdkn2c,protein_copy_number,4356.05,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(p18 param),Cdkn2c,mrna_copy_number,7.81,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(p18 param),Cdkn2c,protein_half_life,189.49,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(p18 param),Cdkn2c,mrna_half_life,4.85,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(p18 param),Cdkn2c,transcription_rate_vsr,1.69,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(p18 param),Cdkn2c,translation_rate_ksp,3.82,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(p18 param),Cdkn2c,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(p18 param),Cdkn2c,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+(p18 param),Cdkn2c,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+(p18 param),Cdkn2c,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(p18 param),Cdkn2c,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(p18 param),Cdkn2c,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(p18 param),Cdkn2c,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(p19 param),Cdkn2d,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q60773
+(p19 param),Cdkn2d,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P55273
+(p19 param),Cdkn2d,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,INK4d
+(p19 param),Cdkn2d,protein_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(p19 param),Cdkn2d,mrna_copy_number,NA,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(p19 param),Cdkn2d,protein_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(p19 param),Cdkn2d,mrna_half_life,NA,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(p19 param),Cdkn2d,transcription_rate_vsr,NA,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(p19 param),Cdkn2d,translation_rate_ksp,NA,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,gene absent from the 5029-protein table
+(p19 param),Cdkn2d,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(p19 param),Cdkn2d,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+(p19 param),Cdkn2d,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,gene absent from table
+(p19 param),Cdkn2d,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table; f[1/h] = value*ln2/t_half_mRNA[h]
+(p19 param),Cdkn2d,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(p19 param),Cdkn2d,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
+(p19 param),Cdkn2d,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Chk1 assignment),Chek1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,O35280
+(Chk1 assignment),Chek1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,O14757
+(Chk1 assignment),Chek1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,intra-S checkpoint (algebraic)
+(Chk1 assignment),Chek1,protein_copy_number,9371.01,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Chk1 assignment),Chek1,mrna_copy_number,5.83,molecules/cell,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Chk1 assignment),Chek1,protein_half_life,7.71,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Chk1 assignment),Chek1,mrna_half_life,5.88,h,Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Chk1 assignment),Chek1,transcription_rate_vsr,0.8,molecules/(cell*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Chk1 assignment),Chek1,translation_rate_ksp,180.34,molecules/(mRNA*h),Schwanhausser 2011 (2013 corrigendum),Suppl. Table 3,mouse NIH3T3,unknown,
+(Chk1 assignment),Chek1,burst_frequency,0.117565,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Chk1 assignment),Chek1,burst_size_B,2.10591,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Chk1 assignment),Chek1,mrna_mean_per_allele,0.235,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse primary fibroblast,n/a,mean of C57+CAST alleles
+(Chk1 assignment),Chek1,burst_frequency,0.842132,"per mRNA-degradation-rate (delta), per allele",Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles; f[1/h] = value*ln2/t_half_mRNA[h]
+(Chk1 assignment),Chek1,burst_size_B,2.50947,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Chk1 assignment),Chek1,mrna_mean_per_allele,1.685,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
+(Chk1 assignment),Chek1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
