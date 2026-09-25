@@ -120,6 +120,20 @@ age-dependent degradation, with the fast/slow rate pair.
 
 *If either is easier as a PDF than as a table, that's fine — I can pull numbers out of a PDF.*
 
+### B3. Battich et al. 2020, *Science* 367:1151 — supplementary tables  *(added 2026-09-25)*
+doi:10.1126/science.aax3072 · "Sequencing metabolically labeled transcripts in single cells
+reveals mRNA turnover strategies" (scEU-seq)
+
+No PMC record; science.org 403s.
+
+**Why:** the only dataset that gives **synthesis and degradation rates simultaneously, resolved
+across the cell cycle** — and it was done in **RPE1**, the line Heldt 2018 was fitted in. Every
+other stability dataset we hold is a single steady-state number per gene; this one says how
+turnover itself changes through the cycle, in a model whose entire subject is cycle-dependent
+regulation.
+
+*Status of B1/B2: both supplied 2026-09-24 and ingested — see `protein_noise_data_exploration.md` §7.*
+
 ---
 
 ## C. Don't bother — I can get these myself

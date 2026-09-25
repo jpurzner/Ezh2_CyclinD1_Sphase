@@ -16,6 +16,14 @@ them by `simulations/build_turnover_priors.py` (re-run it to regenerate; it neve
 | `mcshane2016_mmc3_structure.xlsx` | McShane et al. 2016 Cell 167:803, Table S3 (mmc3) | `0c7745c2b224514b…` | 1,077,614 | degradation class mapped onto structure: PDB chains, quaternary structure, subunit interfaces, assembly, coexpression; 21790 mouse entries |
 | `mcshane2016_mmc4_RPE.xlsx` | McShane et al. 2016 Cell 167:803, Table S4 (mmc4) | `ff3cf9ba3f686ada…` | 1,359,689 | human RPE, same columns as mmc1; 3134 proteins. RPE is the line Heldt 2018 was fitted in |
 | `eden2011_SOM_revision1.pdf` | Eden et al. 2011 Science 331:764, Supporting Online Material (revision 1) | `e5f94498e5bed8d8…` | 2,287,191 | bleach-chase in living human H1299. Table S4 = 100 protein half-lives under normal growth; parsed to data/priors/eden2011_bleachchase_halflives.csv |
+| `ochiai2020/aaz6699_Table_S1.bz2` | Ochiai et al. 2020 Sci Adv 6:eaaz6699, Table S1 | `78ace73adb18136f…` | 20,573,436 | allele-resolved scRNA-seq counts, 129 alleles, mouse ESC (bz2 CSV, 119 MB uncompressed) |
+| `ochiai2020/aaz6699_Table_S2.bz2` | Ochiai et al. 2020 Sci Adv 6:eaaz6699, Table S2 | `af6279ce39e3006f…` | 20,504,710 | same for CAST alleles |
+| `ochiai2020/aaz6699_Table_S3.xlsx` | Ochiai et al. 2020, Table S3 | `1e255436f5d1b098…` | 92,087 | smFISH counts, GFP/iRFP knock-in alleles |
+| `ochiai2020/aaz6699_Table_S4.xlsx` | Ochiai et al. 2020, Table S4 | `4246b9371d05eb5e…` | 2,863,944 | knock-in plasmids, scRNA-seq QC, smFISH probes, primers |
+| `ochiai2020/aaz6699_SM.pdf` | Ochiai et al. 2020, Supplementary Materials | `ff1c72bf248c7e34…` | 11,559,519 | figures S1-S13 and legends |
+| `herzog2017/NIHMS73945-supplement-Supplementary_table_1.xls` | Herzog et al. 2017 Nat Methods 14:1198, Suppl. Table 1 | `b7b70a59e2496a0f…` | 603,136 | SLAM-seq transcriptional output, mouse ESC, 7180 genes |
+| `herzog2017/NIHMS73945-supplement-Supplementary_table_2.xls` | Herzog et al. 2017, Suppl. Table 2 | `cb7816ff8bef30d0…` | 1,367,040 | SLAM-seq global mRNA HALF-LIVES, mouse ESC, 5969 genes with a fitted value |
+| `larsson2019_TableS2_promoter_regression.xlsx` | Larsson et al. 2019 Nature 565:251, Suppl. Table 2 | `8b0db1d01c942087…` | 15,741 | OLS regressions of core promoter elements (TATA, INR, gene length) on burst size / frequency / mean expression |
 
 ## URLs
 
@@ -114,3 +122,21 @@ line, so it will not cover our missing Hedgehog-arm genes. But it measures half-
 cells by a completely different route from SILAC pulse-chase, so it is the cleanest available
 check on whether Schwanhäusser's half-lives run systematically long (see the Ccnd1 14.0 h vs <1 h
 conflict). Target: Supporting Online Material, Table S1.
+
+### Bursting x chromatin x stability (added 2026-09-25)
+
+Fetched in response to "is there a dataset linking bursting to mRNA stability and ChIP-seq?".
+All three are **mouse ES cells**, so they can be joined gene-by-gene:
+
+* **Ochiai 2020** (Sci Adv, PMC7299619, fully OA; supplementary via the Europe PMC
+  `supplementaryFiles` endpoint) — burst kinetics genome-wide, regressed against ChIP-seq
+  occupancy at promoter and gene body. Raw GEO: **GSE132593** (SuperSeries of GSE132589-92).
+  The deposited tables are the count matrices, *not* the fitted per-gene kinetics; those would
+  have to be re-inferred from Tables S1/S2, or read off the figures.
+* **Herzog 2017** (Nat Methods, PMC5712218, OA) — SLAM-seq mRNA half-lives, mouse ESC.
+  Metabolic labelling, so no transcription block and no actinomycin-D artefact.
+* **Larsson 2019 Table S3** (already held) — burst kinetics in the same cell type.
+
+**Blocked:** Battich et al. 2020 *Science* 367:1151 (scEU-seq, simultaneous synthesis and
+degradation rates, cell-cycle resolved, in RPE1). No PMC record, science.org 403. Would need
+institutional access — see `docs/protein_noise_data_requests.md`.
