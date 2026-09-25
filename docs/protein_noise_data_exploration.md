@@ -263,6 +263,128 @@ amplitude (CV ≈ 0.2) and timescale can be calibrated independently.
 
 ---
 
+## 7. Eden 2011 and McShane 2016 (supplied 2026-09-24): the "Schwanhäusser runs long" question is settled
+
+Both were blocked to automated download and were supplied from institutional access. Eden's
+supplementary tables could not be exported, but **Table S4 is machine-readable inside the SOM PDF**
+and was parsed from it — 100 proteins, matching the paper's stated count
+(`data/priors/eden2011_bleachchase_halflives.csv`).
+
+### 7.1 Schwanhäusser reads ~1.74× long, and we now know why
+
+McShane measured pulse-chase turnover **in mouse NIH3T3 — the same line as Schwanhäusser** — so
+this is a clean method-vs-method comparison with cell type held fixed. On 2549 shared genes:
+
+| | median t½ |
+|---|---|
+| McShane (pulse-chase, 1-state fit) | 22.9 h |
+| Schwanhäusser (SILAC) | 47.0 h |
+| **median ratio S/M** | **1.74×** |
+
+Schwanhäusser is longer for **76%** of genes (log–log r = +0.54). Decisive, though, is the
+breakdown by McShane's degradation class:
+
+| class | n | median McShane | median Schwanhäusser | ratio |
+|---|---|---|---|---|
+| **ED** (exponential) | 1138 | 32.9 h | 46.6 h | **1.24×** |
+| **NED** (non-exponential) | 319 | 15.2 h | 56.0 h | **3.41×** |
+| UN (undetermined) | 1092 | 20.6 h | 45.8 h | 2.07× |
+
+**The bias is concentrated almost entirely in the non-exponential proteins.** That is exactly what
+you expect from fitting one exponential to two-pool kinetics: the fast pool is gone before the
+first useful timepoint, so the fit tracks the stable pool and reports a long half-life. So
+"Schwanhäusser runs long" is confirmed *and* explained — it is not a global calibration offset but
+a model-misspecification artefact affecting ~10–40% of proteins.
+
+**Practical rule:** for an ED protein, Schwanhäusser is fine (1.24×). For an NED protein it should
+not be used at all.
+
+Eden provides an independent third reading, in living human H1299: median half-life **8.2 h**
+(range 0.8–22.5). But note the convention difference in §7.3 before comparing it to anything.
+
+**Eden covers none of our 33 genes** — as anticipated when it was requested, it is a global
+arbiter, not a per-gene resource. That is the answer it was wanted for, and it delivered it.
+
+### 7.2 Non-exponential degradation is real for this model, and EZH2 resolves cleanly
+
+McShane classifies **11% of NIH3T3 and 10% of RPE proteins as NED** — confirming the brief's
+"~10%". For NED proteins the two-state split is enormous: median `kA` = 0.419/h (t½ 99 min) decaying
+to `kB` = 0.0038/h (t½ 181 h), a median **138×** ratio.
+
+Among v44's species, **`Cdk4`, `Pcna` and `Ccnb1` are classified NED** (their fitted `kB` is at or
+near zero, i.e. the assembled pool is effectively stable on the experiment's timescale). v44
+currently degrades free and complexed pools at the **same** rate, so this is a structural
+simplification, not a parameter choice — which is precisely why McShane was worth getting.
+
+**EZH2 resolves the earlier ambiguity.** In NIH3T3 it is classified ED but its two-state fit still
+splits sharply: `kA` = 1.465/h (t½ 28 min, unassembled) versus `kB` = 0.0569/h (t½ 12.2 h,
+assembled). Which value should v44's single `EZH2` species match?
+
+| candidate | t½ | τ with dilution (T_cc=16 h) | v44 kDeEZ / bio |
+|---|---|---|---|
+| Schwanhäusser 1-exp | 22.0 h | 13.4 h | 1.1× |
+| **McShane assembled pool (`kB`)** | **12.2 h** | **10.0 h** | **1.4×** |
+| McShane 1-state blend | 5.0 h | 5.5 h | 2.6× |
+| McShane fast pool (`kA`) | 0.5 h | 0.7 h | 21.5× |
+
+EZH2 in the model is the **catalytic subunit of assembled PRC2** — it writes H3K27me3 — so the
+assembled-pool rate `kB` is the correct comparator, not the 1-exponential blend that averages in
+unassembled protein destined for rapid destruction. v44's `kDeEZ` (τ = 14.3 h) sits within 1.1–1.4×
+of both defensible values. **The constant is well-placed**; the earlier claim that it matched
+Schwanhäusser to 0.9× was right in magnitude but for a partly coincidental reason (that comparison
+was mRNA-limited, not protein-limited).
+
+The same pattern holds for the other PRC2 subunits — `Suz12` 21.2 h (Schwanhäusser) vs 4.9 h
+(McShane 1-state) vs 6.9 h (`kB`); `Eed` 37.1 / 9.0 / 26.6 h.
+
+### 7.3 Four datasets, three different dilution conventions — do not pool them
+
+This is now the main provenance hazard in the priors table, and each row carries its convention:
+
+| source | measures | class | `growth_corrected` |
+|---|---|---|---|
+| **Mathieson 2018** | degradation only (post-mitotic cells, no dilution exists) | (b) | yes |
+| **Schwanhäusser 2011** | degradation only (established empirically in §1) | (b) | yes |
+| **Eden 2011** | degradation **+ dilution** (SOM Box S1 defines α as the sum) | **(a)** | **no** |
+| **McShane 2016** | pulse-chase in cycling cells; convention not yet verified | (c) | unknown |
+
+Subtracting µ from Eden before comparing is mandatory. At H1299's ~21 h doubling, Eden's median
+8.2 h corresponds to a degradation-only half-life of ~12.5 h.
+
+### 7.4 Correction: the extrinsic noise component is real and dominant
+
+§5b cautioned that Sigal's τm = ln2/(degradation + dilution) already contains the dilution v44
+models explicitly, so setting τ_ext = 1.75 generations would double-count. **Eden and Sigal used
+the same lab's same CD-tagged H1299 clones**, so that can now be tested rather than assumed.
+
+Sigal's theory predicts τm (in hours) = ln2/α = the bleach-chase half-life. On the 6 proteins
+present in both:
+
+| protein | Eden t½ (h) | Sigal τm (gen) | τm in h @ T_cc = 21 h | ratio |
+|---|---|---|---|---|
+| CIRBP | 6.9 | 0.90 | 18.9 | 2.74 |
+| DDX46 | 7.9 | 1.55 | 32.6 | 4.12 |
+| DDX5 | 8.7 | 0.85 | 17.9 | 2.05 |
+| H2AFV | 13.9 | 1.80 | 37.8 | 2.72 |
+| HMGA1 | 11.1 | 1.95 | 41.0 | 3.69 |
+| LMNA | 12.8 | 1.60 | 33.6 | 2.62 |
+| | | | **median** | **2.73** |
+
+The observed memory is **~2.7× longer than the removal rate alone predicts** (all six between 2.0
+and 4.1; none near 1.0). Reading it the other way, the theory would only hold if T_cc were 7.7 h,
+and H1299 doubles in ~20–24 h.
+
+**So the extrinsic component is not a bookkeeping artefact of dilution — it is the dominant
+contributor to protein memory**, roughly tripling the correlation time beyond what degradation and
+dilution give. My §5b caution was too strong: an extrinsic OU with τ ≈ 1.5–2 generations is
+justified by measurement, and the brief's §3.1 specification was right.
+
+The calibration target is now concrete: **with the model's own removal rates in place, the added
+extrinsic drift should extend each species' autocorrelation half-time by ≈2.7×.** n = 6, so treat
+the factor as order-2–3 rather than precisely 2.73.
+
+---
+
 ## 6. What is missing
 
 ### Blocking — the work cannot be validated without these
@@ -297,15 +419,9 @@ amplitude (CV ≈ 0.2) and timescale can be calibrated independently.
 
 8. ~~**Sigal 2006**~~ — **obtained**, see §5b. τm = 1.75 generations, CV = 0.20, both confirming
    the brief's assumed values.
-9. **Eden 2011** (bleach-chase) — **blocked, needs institutional access.** science.org returns 403
-   on the article, the `doi/suppl/` listing and every `downloadSupplement` pattern; not open
-   access, no PMC record, and the 2012 *Nat Protoc* follow-up is closed too. Target: Supporting
-   Online Material, Table S1 (~100 proteins, human H1299, bleach-chase). Its value is as an
-   **arbiter** of the "Schwanhäusser runs long" question — an independent method in living cells —
-   not as a per-gene resource; it is too small and too human to fill the Hedgehog-arm gaps.
-10. **McShane 2016** — non-exponential, age-dependent degradation, and free vs complexed pools.
-    Directly relevant: v44 carries many complexes (`CeP21`, `CaP21`, `RbE2f`, `E1C1`, `iPcna`,
-    `iRc`) and currently degrades bound and free pools at the same rate.
+9. ~~**Eden 2011**~~ and ~~**McShane 2016**~~ — **both obtained** (supplied 2026-09-24), see §7.
+   Together they settle the "Schwanhäusser runs long" question: 1.74× in the same cell line, with
+   the bias concentrated in non-exponential proteins.
 11. **Zatulovskiy 2020** (Rb dilution), **Padovan-Merhar 2015** (burst frequency vs cell size,
     replication dosage compensation), **Lanz 2022** (proteome scaling), **Beentjes 2020** (exact
     solutions — the analytic test cases for T6's acceptance criteria).

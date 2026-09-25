@@ -15,6 +15,17 @@ Rb/Rbm/pRb/RbE2f,Rb1,burst_frequency,0.00698144,"per mRNA-degradation-rate (delt
 Rb/Rbm/pRb/RbE2f,Rb1,burst_size_B,1.10637,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,single allele only
 Rb/Rbm/pRb/RbE2f,Rb1,mrna_mean_per_allele,0.15,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,single allele only
 Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life,18.881,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Rb/Rbm/pRb/RbE2f,Rb1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life_1state,14.2574,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile ED; RPE is the line Heldt 2018 was fitted in
+Rb/Rbm/pRb/RbE2f,Rb1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_kA_fast_pool,0.0306039,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_kB_stable_pool,0.0562048,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_ktransfer,0.132651,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 E2f/RbE2f/RbmE2f,E2f1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61501
 E2f/RbE2f/RbmE2f,E2f1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q01094
 E2f/RbE2f/RbmE2f,E2f1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,R-point TF; bistable switch
@@ -31,6 +42,17 @@ E2f/RbE2f/RbmE2f,E2f1,burst_frequency,0.972741,"per mRNA-degradation-rate (delta
 E2f/RbE2f/RbmE2f,E2f1,burst_size_B,2.99112,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 E2f/RbE2f/RbmE2f,E2f1,mrna_mean_per_allele,2.505,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 E2f/RbE2f/RbmE2f,E2f1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+E2f/RbE2f/RbmE2f,E2f1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+E2f/RbE2f/RbmE2f,E2f1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+E2f/RbE2f/RbmE2f,E2f1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+E2f/RbE2f/RbmE2f,E2f1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+E2f/RbE2f/RbmE2f,E2f1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+E2f/RbE2f/RbmE2f,E2f1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+E2f/RbE2f/RbmE2f,E2f1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+E2f/RbE2f/RbmE2f,E2f1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+E2f/RbE2f/RbmE2f,E2f1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+E2f/RbE2f/RbmE2f,E2f1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+E2f/RbE2f/RbmE2f,E2f1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 E1/E1C1,Fbxo5,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q7TSG3
 E1/E1C1,Fbxo5,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9UKT4
 E1/E1C1,Fbxo5,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"Emi1, APC/C inhibitor"
@@ -47,6 +69,17 @@ E1/E1C1,Fbxo5,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele"
 E1/E1C1,Fbxo5,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 E1/E1C1,Fbxo5,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 E1/E1C1,Fbxo5,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+E1/E1C1,Fbxo5,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+E1/E1C1,Fbxo5,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+E1/E1C1,Fbxo5,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+E1/E1C1,Fbxo5,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+E1/E1C1,Fbxo5,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+E1/E1C1,Fbxo5,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+E1/E1C1,Fbxo5,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+E1/E1C1,Fbxo5,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+E1/E1C1,Fbxo5,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+E1/E1C1,Fbxo5,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+E1/E1C1,Fbxo5,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 C1/pC1/E1C1,Fzr1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9R1K5
 C1/pC1/E1C1,Fzr1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9UM11
 C1/pC1/E1C1,Fzr1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"Cdh1, APC/C co-activator"
@@ -63,6 +96,17 @@ C1/pC1/E1C1,Fzr1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per alle
 C1/pC1/E1C1,Fzr1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 C1/pC1/E1C1,Fzr1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 C1/pC1/E1C1,Fzr1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+C1/pC1/E1C1,Fzr1,protein_half_life_1state,10.0517,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile UN
+C1/pC1/E1C1,Fzr1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+C1/pC1/E1C1,Fzr1,deg_rate_kA_fast_pool,0.126976,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+C1/pC1/E1C1,Fzr1,deg_rate_kB_stable_pool,0.0365356,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+C1/pC1/E1C1,Fzr1,deg_rate_ktransfer,0.0632342,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+C1/pC1/E1C1,Fzr1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+C1/pC1/E1C1,Fzr1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+C1/pC1/E1C1,Fzr1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+C1/pC1/E1C1,Fzr1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+C1/pC1/E1C1,Fzr1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+C1/pC1/E1C1,Fzr1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 P21/CeP21/CaP21,Cdkn1a,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P39689
 P21/CeP21/CaP21,Cdkn1a,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P38936
 P21/CeP21/CaP21,Cdkn1a,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,CKI; BURST CANDIDATE (Barr 2017)
@@ -79,6 +123,17 @@ P21/CeP21/CaP21,Cdkn1a,burst_frequency,2.38661,"per mRNA-degradation-rate (delta
 P21/CeP21/CaP21,Cdkn1a,burst_size_B,9.82527,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 P21/CeP21/CaP21,Cdkn1a,mrna_mean_per_allele,22.995,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 P21/CeP21/CaP21,Cdkn1a,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+P21/CeP21/CaP21,Cdkn1a,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+P21/CeP21/CaP21,Cdkn1a,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+P21/CeP21/CaP21,Cdkn1a,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+P21/CeP21/CaP21,Cdkn1a,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+P21/CeP21/CaP21,Cdkn1a,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+P21/CeP21/CaP21,Cdkn1a,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+P21/CeP21/CaP21,Cdkn1a,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+P21/CeP21/CaP21,Cdkn1a,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+P21/CeP21/CaP21,Cdkn1a,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+P21/CeP21/CaP21,Cdkn1a,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+P21/CeP21/CaP21,Cdkn1a,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Ce/CeP21,Ccne1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61457
 Ce/CeP21,Ccne1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24864
 Ce/CeP21,Ccne1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,G1/S cyclin
@@ -95,6 +150,17 @@ Ce/CeP21,Ccne1,burst_frequency,0.968936,"per mRNA-degradation-rate (delta), per 
 Ce/CeP21,Ccne1,burst_size_B,14.8815,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Ce/CeP21,Ccne1,mrna_mean_per_allele,10.65,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Ce/CeP21,Ccne1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Ce/CeP21,Ccne1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Ce/CeP21,Ccne1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Ce/CeP21,Ccne1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Ce/CeP21,Ccne1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Ce/CeP21,Ccne1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ce/CeP21,Ccne1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Ce/CeP21,Ccne1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Ce/CeP21,Ccne1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Ce/CeP21,Ccne1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Ce/CeP21,Ccne1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ce/CeP21,Ccne1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Ca/CaP21,Ccna2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P51943
 Ca/CaP21,Ccna2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P20248
 Ca/CaP21,Ccna2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,S/G2 cyclin
@@ -111,6 +177,17 @@ Ca/CaP21,Ccna2,burst_frequency,0.461288,"per mRNA-degradation-rate (delta), per 
 Ca/CaP21,Ccna2,burst_size_B,30.2955,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Ca/CaP21,Ccna2,mrna_mean_per_allele,6.53,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Ca/CaP21,Ccna2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Ca/CaP21,Ccna2,protein_half_life_1state,4.10563,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile UN
+Ca/CaP21,Ccna2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+Ca/CaP21,Ccna2,deg_rate_kA_fast_pool,1.31171e-06,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Ca/CaP21,Ccna2,deg_rate_kB_stable_pool,0.191279,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Ca/CaP21,Ccna2,deg_rate_ktransfer,1.1705,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ca/CaP21,Ccna2,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Ca/CaP21,Ccna2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Ca/CaP21,Ccna2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Ca/CaP21,Ccna2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Ca/CaP21,Ccna2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ca/CaP21,Ccna2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 aPcna/iPcna,Pcna,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P17918
 aPcna/iPcna,Pcna,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P12004
 aPcna/iPcna,Pcna,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,replication clamp
@@ -127,6 +204,17 @@ aPcna/iPcna,Pcna,burst_frequency,NA,"per mRNA-degradation-rate (delta), per alle
 aPcna/iPcna,Pcna,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 aPcna/iPcna,Pcna,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 aPcna/iPcna,Pcna,protein_half_life,64.5695,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+aPcna/iPcna,Pcna,protein_half_life_1state,12.6925,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile NED
+aPcna/iPcna,Pcna,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NED (NED = non-exponential: fast unassembled pool then stable)
+aPcna/iPcna,Pcna,deg_rate_kA_fast_pool,0.190742,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+aPcna/iPcna,Pcna,deg_rate_kB_stable_pool,0.0120054,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+aPcna/iPcna,Pcna,deg_rate_ktransfer,0.0884771,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+aPcna/iPcna,Pcna,protein_half_life_1state,20.8812,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile ED; RPE is the line Heldt 2018 was fitted in
+aPcna/iPcna,Pcna,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+aPcna/iPcna,Pcna,deg_rate_kA_fast_pool,2.47757e-06,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+aPcna/iPcna,Pcna,deg_rate_kB_stable_pool,0.0341461,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+aPcna/iPcna,Pcna,deg_rate_ktransfer,1.05457,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+aPcna/iPcna,Pcna,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 P53,Trp53,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P02340
 P53,Trp53,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P04637
 P53,Trp53,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,damage response
@@ -143,6 +231,17 @@ P53,Trp53,burst_frequency,3.13398,"per mRNA-degradation-rate (delta), per allele
 P53,Trp53,burst_size_B,3.41139,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 P53,Trp53,mrna_mean_per_allele,8.645,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 P53,Trp53,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+P53,Trp53,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+P53,Trp53,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+P53,Trp53,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+P53,Trp53,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+P53,Trp53,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+P53,Trp53,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+P53,Trp53,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+P53,Trp53,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+P53,Trp53,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+P53,Trp53,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+P53,Trp53,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Cd/Cd_mRNA,Ccnd1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P25322
 Cd/Cd_mRNA,Ccnd1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24385
 Cd/Cd_mRNA,Ccnd1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,MITOGEN INTEGRATOR; BURST CANDIDATE
@@ -159,6 +258,17 @@ Cd/Cd_mRNA,Ccnd1,burst_frequency,0.677448,"per mRNA-degradation-rate (delta), pe
 Cd/Cd_mRNA,Ccnd1,burst_size_B,5.67629,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Cd/Cd_mRNA,Ccnd1,mrna_mean_per_allele,3.54,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Cd/Cd_mRNA,Ccnd1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Cd/Cd_mRNA,Ccnd1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Cd/Cd_mRNA,Ccnd1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Cd/Cd_mRNA,Ccnd1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Cd/Cd_mRNA,Ccnd1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Cd/Cd_mRNA,Ccnd1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Cd/Cd_mRNA,Ccnd1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Cd/Cd_mRNA,Ccnd1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Cd/Cd_mRNA,Ccnd1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Cd/Cd_mRNA,Ccnd1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Cd/Cd_mRNA,Ccnd1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Cd/Cd_mRNA,Ccnd1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Skp2,Skp2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9Z0Z3
 Skp2,Skp2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q13309
 Skp2,Skp2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,bistable commitment (Skp2-p27)
@@ -175,6 +285,17 @@ Skp2,Skp2,burst_frequency,0.146988,"per mRNA-degradation-rate (delta), per allel
 Skp2,Skp2,burst_size_B,12.755,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Skp2,Skp2,mrna_mean_per_allele,1.795,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Skp2,Skp2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Skp2,Skp2,protein_half_life_1state,3.56558,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+Skp2,Skp2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+Skp2,Skp2,deg_rate_kA_fast_pool,0.144232,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Skp2,Skp2,deg_rate_kB_stable_pool,0.266084,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Skp2,Skp2,deg_rate_ktransfer,0.198206,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Skp2,Skp2,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Skp2,Skp2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Skp2,Skp2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Skp2,Skp2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Skp2,Skp2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Skp2,Skp2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 MPF/preMPF,Ccnb1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P24860
 MPF/preMPF,Ccnb1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P14635
 MPF/preMPF,Ccnb1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,mitotic cyclin
@@ -191,6 +312,17 @@ MPF/preMPF,Ccnb1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per alle
 MPF/preMPF,Ccnb1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 MPF/preMPF,Ccnb1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 MPF/preMPF,Ccnb1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+MPF/preMPF,Ccnb1,protein_half_life_1state,3.85224,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile NED
+MPF/preMPF,Ccnb1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NED (NED = non-exponential: fast unassembled pool then stable)
+MPF/preMPF,Ccnb1,deg_rate_kA_fast_pool,0.32783,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+MPF/preMPF,Ccnb1,deg_rate_kB_stable_pool,5.28357e-05,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+MPF/preMPF,Ccnb1,deg_rate_ktransfer,0.0381523,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+MPF/preMPF,Ccnb1,protein_half_life_1state,3.86701,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile UN; RPE is the line Heldt 2018 was fitted in
+MPF/preMPF,Ccnb1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+MPF/preMPF,Ccnb1,deg_rate_kA_fast_pool,0.653907,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+MPF/preMPF,Ccnb1,deg_rate_kB_stable_pool,0.135686,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+MPF/preMPF,Ccnb1,deg_rate_ktransfer,1.00383,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+MPF/preMPF,Ccnb1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 MPF/preMPF,Cdk1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P11440
 MPF/preMPF,Cdk1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P06493
 MPF/preMPF,Cdk1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,mitotic kinase
@@ -207,6 +339,17 @@ MPF/preMPF,Cdk1,burst_frequency,0.667644,"per mRNA-degradation-rate (delta), per
 MPF/preMPF,Cdk1,burst_size_B,16.7362,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 MPF/preMPF,Cdk1,mrna_mean_per_allele,7.015,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 MPF/preMPF,Cdk1,protein_half_life,127.139,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+MPF/preMPF,Cdk1,protein_half_life_1state,26.0745,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+MPF/preMPF,Cdk1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+MPF/preMPF,Cdk1,deg_rate_kA_fast_pool,0.0008441,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+MPF/preMPF,Cdk1,deg_rate_kB_stable_pool,0.0267498,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+MPF/preMPF,Cdk1,deg_rate_ktransfer,2.5954,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+MPF/preMPF,Cdk1,protein_half_life_1state,18.5262,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile ED; RPE is the line Heldt 2018 was fitted in
+MPF/preMPF,Cdk1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+MPF/preMPF,Cdk1,deg_rate_kA_fast_pool,3.27664e-08,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+MPF/preMPF,Cdk1,deg_rate_kB_stable_pool,0.0458076,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+MPF/preMPF,Cdk1,deg_rate_ktransfer,0.229824,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+MPF/preMPF,Cdk1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Cdc20,Cdc20,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9JJ66
 Cdc20,Cdc20,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q12834
 Cdc20,Cdc20,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"APC/C co-activator, mitotic exit"
@@ -223,6 +366,17 @@ Cdc20,Cdc20,burst_frequency,0.608543,"per mRNA-degradation-rate (delta), per all
 Cdc20,Cdc20,burst_size_B,14.9874,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Cdc20,Cdc20,mrna_mean_per_allele,4.36,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Cdc20,Cdc20,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Cdc20,Cdc20,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Cdc20,Cdc20,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Cdc20,Cdc20,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Cdc20,Cdc20,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Cdc20,Cdc20,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Cdc20,Cdc20,protein_half_life_1state,3.25194,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile UN; RPE is the line Heldt 2018 was fitted in
+Cdc20,Cdc20,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+Cdc20,Cdc20,deg_rate_kA_fast_pool,0.507906,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Cdc20,Cdc20,deg_rate_kB_stable_pool,0.194887,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Cdc20,Cdc20,deg_rate_ktransfer,1.50863,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Cdc20,Cdc20,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 EZH2/EZH2m,Ezh2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61188
 EZH2/EZH2m,Ezh2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q15910
 EZH2/EZH2m,Ezh2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,PRC2 catalytic; THE EPIGENETIC BRAKE
@@ -239,6 +393,17 @@ EZH2/EZH2m,Ezh2,burst_frequency,1.76559,"per mRNA-degradation-rate (delta), per 
 EZH2/EZH2m,Ezh2,burst_size_B,3.12031,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 EZH2/EZH2m,Ezh2,mrna_mean_per_allele,5.185,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 EZH2/EZH2m,Ezh2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+EZH2/EZH2m,Ezh2,protein_half_life_1state,4.98464,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+EZH2/EZH2m,Ezh2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+EZH2/EZH2m,Ezh2,deg_rate_kA_fast_pool,1.4648,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+EZH2/EZH2m,Ezh2,deg_rate_kB_stable_pool,0.0568779,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+EZH2/EZH2m,Ezh2,deg_rate_ktransfer,0.918734,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+EZH2/EZH2m,Ezh2,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+EZH2/EZH2m,Ezh2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+EZH2/EZH2m,Ezh2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+EZH2/EZH2m,Ezh2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+EZH2/EZH2m,Ezh2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+EZH2/EZH2m,Ezh2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 "(PRC2, implicit)",Suz12,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q80U70
 "(PRC2, implicit)",Suz12,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q15022
 "(PRC2, implicit)",Suz12,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,PRC2 core (not an explicit species)
@@ -255,6 +420,17 @@ EZH2/EZH2m,Ezh2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),
 "(PRC2, implicit)",Suz12,burst_size_B,13.613,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 "(PRC2, implicit)",Suz12,mrna_mean_per_allele,3.905,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 "(PRC2, implicit)",Suz12,protein_half_life,31.187,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+"(PRC2, implicit)",Suz12,protein_half_life_1state,4.90044,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+"(PRC2, implicit)",Suz12,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+"(PRC2, implicit)",Suz12,deg_rate_kA_fast_pool,0.354738,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+"(PRC2, implicit)",Suz12,deg_rate_kB_stable_pool,0.100903,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+"(PRC2, implicit)",Suz12,deg_rate_ktransfer,0.613058,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+"(PRC2, implicit)",Suz12,protein_half_life_1state,6.59628,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile ED; RPE is the line Heldt 2018 was fitted in
+"(PRC2, implicit)",Suz12,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+"(PRC2, implicit)",Suz12,deg_rate_kA_fast_pool,1.72088,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+"(PRC2, implicit)",Suz12,deg_rate_kB_stable_pool,0.0639171,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+"(PRC2, implicit)",Suz12,deg_rate_ktransfer,1.68675,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+"(PRC2, implicit)",Suz12,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 "(PRC2, implicit)",Eed,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q921E6
 "(PRC2, implicit)",Eed,uniprot_human,NA,accession,UniProt,REST api,-,n/a,O75530
 "(PRC2, implicit)",Eed,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,PRC2 core (not an explicit species)
@@ -271,6 +447,17 @@ EZH2/EZH2m,Ezh2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),
 "(PRC2, implicit)",Eed,burst_size_B,9.60269,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 "(PRC2, implicit)",Eed,mrna_mean_per_allele,9.01,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 "(PRC2, implicit)",Eed,protein_half_life,60.7085,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+"(PRC2, implicit)",Eed,protein_half_life_1state,9.01121,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+"(PRC2, implicit)",Eed,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+"(PRC2, implicit)",Eed,deg_rate_kA_fast_pool,0.560481,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+"(PRC2, implicit)",Eed,deg_rate_kB_stable_pool,0.0260097,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+"(PRC2, implicit)",Eed,deg_rate_ktransfer,0.840879,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+"(PRC2, implicit)",Eed,protein_half_life_1state,10.3094,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile UN; RPE is the line Heldt 2018 was fitted in
+"(PRC2, implicit)",Eed,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+"(PRC2, implicit)",Eed,deg_rate_kA_fast_pool,0.150691,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+"(PRC2, implicit)",Eed,deg_rate_kB_stable_pool,4.34831e-05,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+"(PRC2, implicit)",Eed,deg_rate_ktransfer,0.191105,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+"(PRC2, implicit)",Eed,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Gli1/Gli1_mRNA,Gli1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P47806
 Gli1/Gli1_mRNA,Gli1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P08151
 Gli1/Gli1_mRNA,Gli1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,HH output; MB marker
@@ -287,6 +474,17 @@ Gli1/Gli1_mRNA,Gli1,burst_frequency,NA,"per mRNA-degradation-rate (delta), per a
 Gli1/Gli1_mRNA,Gli1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Gli1/Gli1_mRNA,Gli1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Gli1/Gli1_mRNA,Gli1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Gli1/Gli1_mRNA,Gli1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Gli1/Gli1_mRNA,Gli1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Gli1/Gli1_mRNA,Gli1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Gli1/Gli1_mRNA,Gli1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Gli1/Gli1_mRNA,Gli1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli1/Gli1_mRNA,Gli1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Gli1/Gli1_mRNA,Gli1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Gli1/Gli1_mRNA,Gli1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Gli1/Gli1_mRNA,Gli1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Gli1/Gli1_mRNA,Gli1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli1/Gli1_mRNA,Gli1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Gli_act/Gli_rep,Gli2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q0VGT2
 Gli_act/Gli_rep,Gli2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P10070
 Gli_act/Gli_rep,Gli2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,lumped into Gli_act
@@ -303,6 +501,17 @@ Gli_act/Gli_rep,Gli2,burst_frequency,0.364814,"per mRNA-degradation-rate (delta)
 Gli_act/Gli_rep,Gli2,burst_size_B,7.22219,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Gli_act/Gli_rep,Gli2,mrna_mean_per_allele,1.705,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 Gli_act/Gli_rep,Gli2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Gli_act/Gli_rep,Gli2,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Gli_act/Gli_rep,Gli2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Gli_act/Gli_rep,Gli2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Gli_act/Gli_rep,Gli2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Gli_act/Gli_rep,Gli2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli_act/Gli_rep,Gli2,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Gli_act/Gli_rep,Gli2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Gli_act/Gli_rep,Gli2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Gli_act/Gli_rep,Gli2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Gli_act/Gli_rep,Gli2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli_act/Gli_rep,Gli2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Gli_act/Gli_rep,Gli3,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61602
 Gli_act/Gli_rep,Gli3,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P10071
 Gli_act/Gli_rep,Gli3,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,lumped into Gli_rep
@@ -319,6 +528,17 @@ Gli_act/Gli_rep,Gli3,burst_frequency,NA,"per mRNA-degradation-rate (delta), per 
 Gli_act/Gli_rep,Gli3,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Gli_act/Gli_rep,Gli3,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Gli_act/Gli_rep,Gli3,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Gli_act/Gli_rep,Gli3,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Gli_act/Gli_rep,Gli3,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Gli_act/Gli_rep,Gli3,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Gli_act/Gli_rep,Gli3,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Gli_act/Gli_rep,Gli3,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli_act/Gli_rep,Gli3,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Gli_act/Gli_rep,Gli3,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Gli_act/Gli_rep,Gli3,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Gli_act/Gli_rep,Gli3,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Gli_act/Gli_rep,Gli3,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli_act/Gli_rep,Gli3,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 MYCN,Mycn,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P03966
 MYCN,Mycn,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P04198
 MYCN,Mycn,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,MB amplification; mitogen floor
@@ -335,6 +555,17 @@ MYCN,Mycn,burst_frequency,0.271396,"per mRNA-degradation-rate (delta), per allel
 MYCN,Mycn,burst_size_B,18.497,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 MYCN,Mycn,mrna_mean_per_allele,3.945,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 MYCN,Mycn,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+MYCN,Mycn,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+MYCN,Mycn,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+MYCN,Mycn,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+MYCN,Mycn,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+MYCN,Mycn,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+MYCN,Mycn,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+MYCN,Mycn,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+MYCN,Mycn,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+MYCN,Mycn,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+MYCN,Mycn,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+MYCN,Mycn,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Ptch1_free/_mRNA,Ptch1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61115
 Ptch1_free/_mRNA,Ptch1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q13635
 Ptch1_free/_mRNA,Ptch1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,HH receptor; GNP=1 / MB=0.1 dosage
@@ -351,6 +582,17 @@ Ptch1_free/_mRNA,Ptch1,burst_frequency,NA,"per mRNA-degradation-rate (delta), pe
 Ptch1_free/_mRNA,Ptch1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Ptch1_free/_mRNA,Ptch1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Ptch1_free/_mRNA,Ptch1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Ptch1_free/_mRNA,Ptch1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Ptch1_free/_mRNA,Ptch1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Ptch1_free/_mRNA,Ptch1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Ptch1_free/_mRNA,Ptch1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Ptch1_free/_mRNA,Ptch1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ptch1_free/_mRNA,Ptch1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Ptch1_free/_mRNA,Ptch1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Ptch1_free/_mRNA,Ptch1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Ptch1_free/_mRNA,Ptch1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Ptch1_free/_mRNA,Ptch1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ptch1_free/_mRNA,Ptch1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Smo_active,Smo,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P56726
 Smo_active,Smo,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q99835
 Smo_active,Smo,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,vismodegib target
@@ -367,6 +609,17 @@ Smo_active,Smo,burst_frequency,NA,"per mRNA-degradation-rate (delta), per allele
 Smo_active,Smo,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Smo_active,Smo,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+Smo_active,Smo,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+Smo_active,Smo,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Smo_active,Smo,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+Smo_active,Smo,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Smo_active,Smo,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+Smo_active,Smo,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+Smo_active,Smo,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+Smo_active,Smo,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+Smo_active,Smo,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+Smo_active,Smo,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Cdt2 param),Dtl,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q3TLR7
 (Cdt2 param),Dtl,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9NZJ0
 (Cdt2 param),Dtl,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"CRL4-Cdt2, p21 degron (param, not species)"
@@ -383,6 +636,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (Cdt2 param),Dtl,burst_size_B,3.27688,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Cdt2 param),Dtl,mrna_mean_per_allele,1.24,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Cdt2 param),Dtl,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Cdt2 param),Dtl,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(Cdt2 param),Dtl,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Cdt2 param),Dtl,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(Cdt2 param),Dtl,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Cdt2 param),Dtl,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Cdt2 param),Dtl,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(Cdt2 param),Dtl,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Cdt2 param),Dtl,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(Cdt2 param),Dtl,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Cdt2 param),Dtl,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Cdt2 param),Dtl,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Wee1a assignment),Wee1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P47810
 (Wee1a assignment),Wee1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P30291
 (Wee1a assignment),Wee1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"mitotic switch (algebraic, not a species)"
@@ -399,6 +663,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (Wee1a assignment),Wee1,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (Wee1a assignment),Wee1,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (Wee1a assignment),Wee1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Wee1a assignment),Wee1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(Wee1a assignment),Wee1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Wee1a assignment),Wee1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(Wee1a assignment),Wee1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Wee1a assignment),Wee1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Wee1a assignment),Wee1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(Wee1a assignment),Wee1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Wee1a assignment),Wee1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(Wee1a assignment),Wee1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Wee1a assignment),Wee1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Wee1a assignment),Wee1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Cdc25a assignment),Cdc25a,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P48964
 (Cdc25a assignment),Cdc25a,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P30304
 (Cdc25a assignment),Cdc25a,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,"mitotic switch (algebraic, not a species)"
@@ -415,6 +690,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (Cdc25a assignment),Cdc25a,burst_size_B,6.35363,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Cdc25a assignment),Cdc25a,mrna_mean_per_allele,4.64,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Cdc25a assignment),Cdc25a,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Cdc25a assignment),Cdc25a,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(Cdc25a assignment),Cdc25a,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Cdc25a assignment),Cdc25a,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(Cdc25a assignment),Cdc25a,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Cdc25a assignment),Cdc25a,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Cdc25a assignment),Cdc25a,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(Cdc25a assignment),Cdc25a,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Cdc25a assignment),Cdc25a,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(Cdc25a assignment),Cdc25a,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Cdc25a assignment),Cdc25a,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Cdc25a assignment),Cdc25a,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (kPhRbCd param),Cdk4,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P30285
 (kPhRbCd param),Cdk4,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P11802
 (kPhRbCd param),Cdk4,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,CyclinD partner (lumped into Cd)
@@ -431,6 +717,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (kPhRbCd param),Cdk4,burst_size_B,43.2158,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (kPhRbCd param),Cdk4,mrna_mean_per_allele,25.56,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (kPhRbCd param),Cdk4,protein_half_life,28.409,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 1 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+(kPhRbCd param),Cdk4,protein_half_life_1state,8.12641,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile NED
+(kPhRbCd param),Cdk4,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NED (NED = non-exponential: fast unassembled pool then stable)
+(kPhRbCd param),Cdk4,deg_rate_kA_fast_pool,0.167877,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(kPhRbCd param),Cdk4,deg_rate_kB_stable_pool,1.2442e-06,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(kPhRbCd param),Cdk4,deg_rate_ktransfer,0.0240856,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(kPhRbCd param),Cdk4,protein_half_life_1state,4.13916,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile UN; RPE is the line Heldt 2018 was fitted in
+(kPhRbCd param),Cdk4,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+(kPhRbCd param),Cdk4,deg_rate_kA_fast_pool,0.238454,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(kPhRbCd param),Cdk4,deg_rate_kB_stable_pool,0.00114422,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(kPhRbCd param),Cdk4,deg_rate_ktransfer,0.0559879,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(kPhRbCd param),Cdk4,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (kPhRbCd param),Cdk6,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q64261
 (kPhRbCd param),Cdk6,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q00534
 (kPhRbCd param),Cdk6,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,CyclinD partner (lumped into Cd)
@@ -447,6 +744,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (kPhRbCd param),Cdk6,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (kPhRbCd param),Cdk6,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (kPhRbCd param),Cdk6,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(kPhRbCd param),Cdk6,protein_half_life_1state,20.8391,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+(kPhRbCd param),Cdk6,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+(kPhRbCd param),Cdk6,deg_rate_kA_fast_pool,0.01047,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(kPhRbCd param),Cdk6,deg_rate_kB_stable_pool,0.033479,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(kPhRbCd param),Cdk6,deg_rate_ktransfer,1.63102,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(kPhRbCd param),Cdk6,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(kPhRbCd param),Cdk6,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(kPhRbCd param),Cdk6,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(kPhRbCd param),Cdk6,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(kPhRbCd param),Cdk6,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(kPhRbCd param),Cdk6,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Ce/Ca partner),Cdk2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P97377
 (Ce/Ca partner),Cdk2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24941
 (Ce/Ca partner),Cdk2,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,lumped into Ce/Ca
@@ -463,6 +771,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (Ce/Ca partner),Cdk2,burst_size_B,3.19502,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Ce/Ca partner),Cdk2,mrna_mean_per_allele,3.025,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Ce/Ca partner),Cdk2,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Ce/Ca partner),Cdk2,protein_half_life_1state,35.9042,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,degradation profile ED
+(Ce/Ca partner),Cdk2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,ED (NED = non-exponential: fast unassembled pool then stable)
+(Ce/Ca partner),Cdk2,deg_rate_kA_fast_pool,4.93621e-07,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(Ce/Ca partner),Cdk2,deg_rate_kB_stable_pool,0.0220686,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Ce/Ca partner),Cdk2,deg_rate_ktransfer,0.307299,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Ce/Ca partner),Cdk2,protein_half_life_1state,15.7944,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile UN; RPE is the line Heldt 2018 was fitted in
+(Ce/Ca partner),Cdk2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+(Ce/Ca partner),Cdk2,deg_rate_kA_fast_pool,3.65462e-06,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(Ce/Ca partner),Cdk2,deg_rate_kB_stable_pool,0.0711023,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Ce/Ca partner),Cdk2,deg_rate_ktransfer,0.127559,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Ce/Ca partner),Cdk2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (P21 pool),Cdkn1b,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P46414
 (P21 pool),Cdkn1b,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P46527
 (P21 pool),Cdkn1b,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,p27; v44 lumps p21/p27 into P21
@@ -479,6 +798,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (P21 pool),Cdkn1b,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (P21 pool),Cdkn1b,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (P21 pool),Cdkn1b,protein_half_life,15.572,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,"mean of 2 replicate(s); POST-MITOTIC -> pure degradation, no dilution"
+(P21 pool),Cdkn1b,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(P21 pool),Cdkn1b,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(P21 pool),Cdkn1b,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(P21 pool),Cdkn1b,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(P21 pool),Cdkn1b,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(P21 pool),Cdkn1b,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(P21 pool),Cdkn1b,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(P21 pool),Cdkn1b,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(P21 pool),Cdkn1b,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(P21 pool),Cdkn1b,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(P21 pool),Cdkn1b,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (p18 param),Cdkn2c,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q60772
 (p18 param),Cdkn2c,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P42773
 (p18 param),Cdkn2c,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,INK4c; constitutive GNP brake
@@ -495,6 +825,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (p18 param),Cdkn2c,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (p18 param),Cdkn2c,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (p18 param),Cdkn2c,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(p18 param),Cdkn2c,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(p18 param),Cdkn2c,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(p18 param),Cdkn2c,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(p18 param),Cdkn2c,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(p18 param),Cdkn2c,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(p18 param),Cdkn2c,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(p18 param),Cdkn2c,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(p18 param),Cdkn2c,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(p18 param),Cdkn2c,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(p18 param),Cdkn2c,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(p18 param),Cdkn2c,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (p19 param),Cdkn2d,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q60773
 (p19 param),Cdkn2d,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P55273
 (p19 param),Cdkn2d,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,INK4d
@@ -511,6 +852,17 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (p19 param),Cdkn2d,burst_size_B,NA,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (p19 param),Cdkn2d,mrna_mean_per_allele,NA,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,gene absent from table
 (p19 param),Cdkn2d,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(p19 param),Cdkn2d,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(p19 param),Cdkn2d,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(p19 param),Cdkn2d,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(p19 param),Cdkn2d,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(p19 param),Cdkn2d,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(p19 param),Cdkn2d,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,gene absent from table; RPE is the line Heldt 2018 was fitted in
+(p19 param),Cdkn2d,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(p19 param),Cdkn2d,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(p19 param),Cdkn2d,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(p19 param),Cdkn2d,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(p19 param),Cdkn2d,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Chk1 assignment),Chek1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,O35280
 (Chk1 assignment),Chek1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,O14757
 (Chk1 assignment),Chek1,model_role,NA,-,this repo,src/build_model_v44_heldt.py,-,n/a,intra-S checkpoint (algebraic)
@@ -527,3 +879,14 @@ Smo_active,Smo,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),m
 (Chk1 assignment),Chek1,burst_size_B,2.50947,mRNAs per burst,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Chk1 assignment),Chek1,mrna_mean_per_allele,1.685,molecules/allele,Larsson 2019,Suppl. Table 1 (fibro) / 3 (ESC),mouse embryonic stem cell,n/a,mean of C57+CAST alleles
 (Chk1 assignment),Chek1,protein_half_life,NA,h,Mathieson 2018,Suppl. Data 2 (high qual),mouse primary neuron,yes,gene absent from the high-quality table
+(Chk1 assignment),Chek1,protein_half_life_1state,NA,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,gene absent from table
+(Chk1 assignment),Chek1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,n/a,NA (NED = non-exponential: fast unassembled pool then stable)
+(Chk1 assignment),Chek1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: newly made / unassembled pool
+(Chk1 assignment),Chek1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Chk1 assignment),Chek1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),mouse NIH3T3,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Chk1 assignment),Chek1,protein_half_life_1state,5.54124,h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,degradation profile UN; RPE is the line Heldt 2018 was fitted in
+(Chk1 assignment),Chek1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,n/a,UN (NED = non-exponential: fast unassembled pool then stable)
+(Chk1 assignment),Chek1,deg_rate_kA_fast_pool,0.851393,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
+(Chk1 assignment),Chek1,deg_rate_kB_stable_pool,0.112447,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
+(Chk1 assignment),Chek1,deg_rate_ktransfer,2.80007,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Chk1 assignment),Chek1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set

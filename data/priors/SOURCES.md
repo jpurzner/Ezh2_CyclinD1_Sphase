@@ -12,6 +12,10 @@ them by `simulations/build_turnover_priors.py` (re-run it to regenerate; it neve
 | `mathieson2018_SupplData2.xlsx` | Mathieson et al. 2018 Nat Commun 9:689, Suppl. Data 2 | `e0503f49230680cb…` | 3,338,308 | protein half-lives in B cells, NK cells, monocytes, hepatocytes and MOUSE NEURONS; 8805 high-quality rows |
 | `mathieson2018_SupplData3.xlsx` | Mathieson et al. 2018 Nat Commun 9:689, Suppl. Data 3 | `e1e619c98b966c35…` | 20,706 | proteasome subunit half-lives + exchangeability classification |
 | `sigal2006_SuppNotes.pdf` | Sigal et al. 2006 Nature 444:643, Suppl. Information | `9ecd5e3cdd3117ec…` | 212,999 | Suppl. Tables 1-2: per-protein mixing time tau_m (generations) and CV, 20 CD-tagged H1299 clones; the extrinsic-noise prior |
+| `mcshane2016_mmc1_3T3.xlsx` | McShane et al. 2016 Cell 167:803, Table S1 (mmc1) | `2d0a872ffc1c18b4…` | 1,285,880 | mouse NIH3T3; pulse-chase time course (0-32 h, 3 reps) fitted with a 1-state exponential AND a 2-state (fast pool A -> stable pool B) model; degradation profile ED/NED/UN; 3293 proteins |
+| `mcshane2016_mmc3_structure.xlsx` | McShane et al. 2016 Cell 167:803, Table S3 (mmc3) | `0c7745c2b224514b…` | 1,077,614 | degradation class mapped onto structure: PDB chains, quaternary structure, subunit interfaces, assembly, coexpression; 21790 mouse entries |
+| `mcshane2016_mmc4_RPE.xlsx` | McShane et al. 2016 Cell 167:803, Table S4 (mmc4) | `ff3cf9ba3f686ada…` | 1,359,689 | human RPE, same columns as mmc1; 3134 proteins. RPE is the line Heldt 2018 was fitted in |
+| `eden2011_SOM_revision1.pdf` | Eden et al. 2011 Science 331:764, Supporting Online Material (revision 1) | `e5f94498e5bed8d8…` | 2,287,191 | bleach-chase in living human H1299. Table S4 = 100 protein half-lives under normal growth; parsed to data/priors/eden2011_bleachchase_halflives.csv |
 
 ## URLs
 
@@ -76,7 +80,26 @@ This matters most for `Rb1` (**18.9 h** in neurons). At T_cc = 16 h, dilution (m
 and degradation (0.037/h) are the same size for Rb — which is exactly the Zatulovskiy 2020
 size-dilution premise, now with a number attached.
 
-### Eden 2011 — NOT obtained
+### Eden 2011 and McShane 2016 — supplied by the user, 2026-09-24
+
+Both were blocked to automated download (science.org and cell.com return 403; neither has a PMC
+record). J. Purzner supplied them from institutional access. Files live in the repo's `papers/`
+directory; the tables needed here were copied into `raw/`.
+
+**Eden's supplementary tables could not be exported**, but Table S4 is machine-readable inside the
+SOM PDF and was parsed from it (`pdftotext -layout`, 100 rows, matching the paper's stated 100
+proteins) into `data/priors/eden2011_bleachchase_halflives.csv`.
+
+**Provenance hazard — Eden is class (a), not (b).** SOM Box S1 defines the measured quantity as
+"the protein removal rate, α, is the sum of intra-cellular degradation and the dilution rate".
+Bleach-chase therefore measures degradation **plus** dilution, unlike Schwanhäusser (growth-
+corrected) and Mathieson (post-mitotic). Do not pool Eden's half-lives with those without first
+subtracting µ.
+
+Also supplied and noted but not used as a prior: `ncomms6425.pdf` (Shi et al. 2014, *Nat Commun*,
+"An epigenetic switch induced by Shh signalling…") — relevant biology, not a turnover dataset.
+
+### Eden 2011 — superseded, retained for the record
 
 Eden et al. 2011 *Science* 331:764, "Proteome half-life dynamics in living human cells"
 (doi:10.1126/science.1199784) is the fourth requested turnover dataset and **could not be

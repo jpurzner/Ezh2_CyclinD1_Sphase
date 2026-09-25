@@ -13,6 +13,14 @@ Sources (raw files under data/priors/raw/, provenance in data/priors/SOURCES.md)
   Mathieson 2018 Nat Commun 9:689, Suppl. Data 2     -- primary cells incl. MOUSE NEURONS:
       protein half-life. Neurons are POST-MITOTIC, so these are dilution-free (pure
       degradation) -- the class-(b) reference for the T4 dilution audit.
+  McShane 2016 Cell 167:803, mmc1 (NIH3T3) and mmc4 (RPE) -- pulse-chase time course fitted
+      with BOTH a 1-state exponential and a 2-state model (fast pool A -> stable pool B).
+      Gives the degradation PROFILE (ED / NED / UN) and, for the 2-state fit, kA, kB and
+      ktransfer. RPE is the line Heldt 2018 was fitted in, so mmc4 is the direct reference
+      for v44's Heldt-inherited constants.
+  Eden 2011 Science 331:764, SOM Table S4              -- bleach-chase in LIVING human H1299,
+      100 proteins. NB bleach-chase measures the TOTAL removal rate alpha = degradation +
+      dilution, so these are class (a) EFFECTIVE values, unlike Schwanhausser/Mathieson.
 
 UNITS / CAVEATS that the CSV carries per row:
   * Larsson burst frequency is reported PER mRNA-DEGRADATION-RATE (delta), not per hour.
@@ -89,6 +97,42 @@ def _f(v):
         return None if x != x else x
     except (TypeError, ValueError):
         return None
+
+
+# ---------------------------------------------------------------- McShane
+def load_mcshane(fname, sheet):
+    """gene -> (1-state half-life h, profile, kA, kB, ktransfer). Profile is ED/NED/UN."""
+    import openpyxl
+    wb = openpyxl.load_workbook(os.path.join(RAW, fname), read_only=True)
+    ws = wb[sheet]
+    it = ws.iter_rows(values_only=True)
+    hdr = list(next(it))
+    out = {}
+    for row in it:
+        if not row or not row[1]:
+            continue
+        d = dict(zip(hdr, row))
+        rec = (_f(d.get("Half-life (exponential) 1-state-model [h]")),
+               str(d.get("Degradation profile") or "").strip(),
+               _f(d.get("2-state-model_kA [h-1]")),
+               _f(d.get("2-state-model_kB [h-1]")),
+               _f(d.get("2-state-model_ktransfer [h-1]")))
+        for g in str(row[1]).split(";"):
+            g = g.strip()
+            if g and g not in out:
+                out[g] = rec
+    return out
+
+
+# ------------------------------------------------------------------- Eden
+def load_eden():
+    """gene -> bleach-chase half-life (h). Parsed from the SOM PDF, Table S4."""
+    import csv as _csv
+    path = os.path.join(ROOT, "data", "priors", "eden2011_bleachchase_halflives.csv")
+    if not os.path.exists(path):
+        return {}
+    with open(path) as fh:
+        return {r["gene"].strip().upper(): float(r["half_life_h"]) for r in _csv.DictReader(fh)}
 
 
 # ------------------------------------------------------------ Schwanhausser
@@ -174,6 +218,9 @@ def load_mathieson():
 def main():
     try:
         sch, lar, mat = load_schwanhausser(), load_larsson(), load_mathieson()
+        mcs_3t3 = load_mcshane("mcshane2016_mmc1_3T3.xlsx", "FinalTable_PostNorm_3T3_")
+        mcs_rpe = load_mcshane("mcshane2016_mmc4_RPE.xlsx", "FinalTable_RPE_")
+        eden = load_eden()
     except ImportError as e:
         sys.exit(f"missing reader dependency ({e}); need xlrd (for .xls) and openpyxl (.xlsx)")
 
@@ -222,6 +269,35 @@ def main():
             "Mathieson 2018", "Suppl. Data 2 (high qual)", "mouse primary neuron", "yes",
             notes=("mean of %d replicate(s); POST-MITOTIC -> pure degradation, no dilution" % m[1])
                   if m else "gene absent from the high-quality table")
+
+        # McShane: 1-state half-life + the 2-state (fast/stable pool) decomposition
+        for tbl, key, ct in ((mcs_3t3, gene, "mouse NIH3T3"), (mcs_rpe, gene.upper(), "human RPE")):
+            hit = tbl.get(key) or tbl.get(gene)
+            prof = hit[1] if hit else ""
+            note = (f"degradation profile {prof}" if hit else "gene absent from table")
+            if ct == "human RPE":
+                note += "; RPE is the line Heldt 2018 was fitted in"
+            add(sp, gene, "protein_half_life_1state", hit[0] if hit else None, "h",
+                "McShane 2016", "mmc1 (3T3) / mmc4 (RPE)", ct, "unknown", notes=note)
+            add(sp, gene, "degradation_profile", None, "ED|NED|UN",
+                "McShane 2016", "mmc1 (3T3) / mmc4 (RPE)", ct, "n/a",
+                notes=(prof or "NA") + " (NED = non-exponential: fast unassembled pool then stable)")
+            add(sp, gene, "deg_rate_kA_fast_pool", hit[2] if hit else None, "1/h",
+                "McShane 2016", "mmc1 (3T3) / mmc4 (RPE)", ct, "unknown",
+                notes="2-state model: newly made / unassembled pool")
+            add(sp, gene, "deg_rate_kB_stable_pool", hit[3] if hit else None, "1/h",
+                "McShane 2016", "mmc1 (3T3) / mmc4 (RPE)", ct, "unknown",
+                notes="2-state model: assembled / complexed pool -- match model species to THIS "
+                      "when the species represents the functional complexed form")
+            add(sp, gene, "deg_rate_ktransfer", hit[4] if hit else None, "1/h",
+                "McShane 2016", "mmc1 (3T3) / mmc4 (RPE)", ct, "unknown",
+                notes="2-state model: rate of A -> B (maturation / assembly)")
+
+        e = eden.get(gene.upper())
+        add(sp, gene, "protein_half_life_effective", e, "h",
+            "Eden 2011", "SOM Table S4", "human H1299 (living)", "no",
+            notes=("bleach-chase; INCLUDES dilution (alpha = degradation + dilution)"
+                   if e else "gene absent from the 100-protein set"))
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", newline="") as fh:
