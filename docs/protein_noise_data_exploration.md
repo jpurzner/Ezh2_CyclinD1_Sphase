@@ -422,9 +422,12 @@ the factor as order-2–3 rather than precisely 2.73.
 9. ~~**Eden 2011**~~ and ~~**McShane 2016**~~ — **both obtained** (supplied 2026-09-24), see §7.
    Together they settle the "Schwanhäusser runs long" question: 1.74× in the same cell line, with
    the bias concentrated in non-exponential proteins.
-11. **Zatulovskiy 2020** (Rb dilution), **Padovan-Merhar 2015** (burst frequency vs cell size,
-    replication dosage compensation), **Lanz 2022** (proteome scaling), **Beentjes 2020** (exact
-    solutions — the analytic test cases for T6's acceptance criteria).
+10. **Zatulovskiy 2020** (Rb dilution), **Padovan-Merhar 2015** (burst frequency vs cell size,
+    replication dosage compensation), **Lanz 2022** (proteome scaling), **Li, Bickel & Biggin 2014**
+    (the Schwanhäusser reanalysis), **Beentjes 2020** (exact solutions — the analytic test cases for
+    T6's acceptance criteria). **All reachable without help** — the first four via PMC author
+    manuscripts, Beentjes via arXiv:1912.04337. Mine to fetch, see
+    `protein_noise_data_requests.md` §C.
 
 ### Conceptual gaps no download fixes
 
