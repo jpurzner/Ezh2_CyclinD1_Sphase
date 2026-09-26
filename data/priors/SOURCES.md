@@ -27,6 +27,7 @@ them by `simulations/build_turnover_priors.py` (re-run it to regenerate; it neve
 | `battich2020/aax3072_table-s1.csv` | Battich et al. 2020 Science 367:1151, Table S1 | `18a8d807adaaff6a…` | 7,949,155 | scEU-seq in RPE1-FUCCI. 528 genes x 301 cell-cycle-pseudotime bins: normalised SYNTHESIS (kappa) and DEGRADATION (gamma) rates, cosine similarity, strategy group A-G. Rates are log2(rate / median rate along the cycle) |
 | `battich2020/aax3072_table-s3.csv` | Battich et al. 2020, Table S3 | `951ff2a689448efe…` | 85,610 | intestinal organoid stem-vs-differentiated DE analysis (not used here) |
 | `battich2020/aax3072-battich-sm.pdf` | Battich et al. 2020, Supplementary Materials | `afe3872e486d6481…` | 4,008,049 | methods incl. the rate-inference and strategy-calling procedure |
+| `dorrbaum2018/elife-34202-supp1.xlsx` | Dorrbaum et al. 2018 eLife 7:e34202, Suppl. Table 1 | `108a1ac8f1ca6560…` | 1,177,237 | dynamic SILAC protein half-lives, rat primary hippocampal culture, 3 sheets: mixed / neuron-enriched / glia-enriched, ~3600-4100 proteins each |
 
 ## URLs
 
@@ -149,3 +150,11 @@ median rate along the cycle**, so they carry shape and fold-range but not absolu
 `cosine_similarity` is cos(norm_gamma, norm_kappa) — verified by recomputation against all 528
 rows, median |difference| = 0.0000. Negative = degradation falls as synthesis rises
 (**cooperative**); positive = degradation rises with synthesis (**destabilizing**).
+
+### Cell-type transfer (added 2026-09-26)
+
+Dörrbaum was fetched to answer "how cell-type-specific are these rates?" — it supplies two
+neural-lineage cell types measured by one method, the most similar pair obtainable. Result, with
+the other multi-cell-type datasets: protein half-life transfers at r ~= 0.6 regardless of how
+similar the cell types are, and method disagreement (r = 0.54, same cell line) is as large as
+cell-type disagreement. See `docs/protein_noise_celltype_transfer.md`.
