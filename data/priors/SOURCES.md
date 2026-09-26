@@ -24,6 +24,9 @@ them by `simulations/build_turnover_priors.py` (re-run it to regenerate; it neve
 | `herzog2017/NIHMS73945-supplement-Supplementary_table_1.xls` | Herzog et al. 2017 Nat Methods 14:1198, Suppl. Table 1 | `b7b70a59e2496a0f…` | 603,136 | SLAM-seq transcriptional output, mouse ESC, 7180 genes |
 | `herzog2017/NIHMS73945-supplement-Supplementary_table_2.xls` | Herzog et al. 2017, Suppl. Table 2 | `cb7816ff8bef30d0…` | 1,367,040 | SLAM-seq global mRNA HALF-LIVES, mouse ESC, 5969 genes with a fitted value |
 | `larsson2019_TableS2_promoter_regression.xlsx` | Larsson et al. 2019 Nature 565:251, Suppl. Table 2 | `8b0db1d01c942087…` | 15,741 | OLS regressions of core promoter elements (TATA, INR, gene length) on burst size / frequency / mean expression |
+| `battich2020/aax3072_table-s1.csv` | Battich et al. 2020 Science 367:1151, Table S1 | `18a8d807adaaff6a…` | 7,949,155 | scEU-seq in RPE1-FUCCI. 528 genes x 301 cell-cycle-pseudotime bins: normalised SYNTHESIS (kappa) and DEGRADATION (gamma) rates, cosine similarity, strategy group A-G. Rates are log2(rate / median rate along the cycle) |
+| `battich2020/aax3072_table-s3.csv` | Battich et al. 2020, Table S3 | `951ff2a689448efe…` | 85,610 | intestinal organoid stem-vs-differentiated DE analysis (not used here) |
+| `battich2020/aax3072-battich-sm.pdf` | Battich et al. 2020, Supplementary Materials | `afe3872e486d6481…` | 4,008,049 | methods incl. the rate-inference and strategy-calling procedure |
 
 ## URLs
 
@@ -137,6 +140,12 @@ All three are **mouse ES cells**, so they can be joined gene-by-gene:
   Metabolic labelling, so no transcription block and no actinomycin-D artefact.
 * **Larsson 2019 Table S3** (already held) — burst kinetics in the same cell type.
 
-**Blocked:** Battich et al. 2020 *Science* 367:1151 (scEU-seq, simultaneous synthesis and
-degradation rates, cell-cycle resolved, in RPE1). No PMC record, science.org 403. Would need
-institutional access — see `docs/protein_noise_data_requests.md`.
+**Battich et al. 2020** *Science* 367:1151 (scEU-seq) — **supplied by the user 2026-09-26**
+(`papers/battish/`), was blocked to automated download. Simultaneous synthesis and degradation
+rates resolved across the cell cycle, in **RPE1-FUCCI — the line Heldt 2018 was fitted in**.
+
+Units note: Table S1's `norm_gamma` / `norm_kappa` are **log2 of the rate divided by that gene's
+median rate along the cycle**, so they carry shape and fold-range but not absolute magnitude.
+`cosine_similarity` is cos(norm_gamma, norm_kappa) — verified by recomputation against all 528
+rows, median |difference| = 0.0000. Negative = degradation falls as synthesis rises
+(**cooperative**); positive = degradation rises with synthesis (**destabilizing**).

@@ -92,7 +92,7 @@ beads. Without this, any excess CV is uninterpretable — it could be biology or
 
 ---
 
-## B. Paywalled — these two I could not get
+## B. Paywalled — all now supplied by the user; kept for provenance
 
 ### B1. Eden et al. 2011, *Science* 331:764 — **Supporting Online Material, Table S1**
 doi:10.1126/science.1199784 · "Proteome half-life dynamics in living human cells"
@@ -120,7 +120,9 @@ age-dependent degradation, with the fast/slow rate pair.
 
 *If either is easier as a PDF than as a table, that's fine — I can pull numbers out of a PDF.*
 
-### B3. Battich et al. 2020, *Science* 367:1151 — supplementary tables  *(added 2026-09-25)*
+### ~~B3. Battich et al. 2020~~ — **supplied 2026-09-26**, see `protein_noise_cellcycle_rates.md`
+
+### B3 (for the record)
 doi:10.1126/science.aax3072 · "Sequencing metabolically labeled transcripts in single cells
 reveals mRNA turnover strategies" (scEU-seq)
 
