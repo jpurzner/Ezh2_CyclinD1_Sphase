@@ -68,13 +68,48 @@ for building it.
 
 | cell line | burst kinetics | ChIP depth | notes |
 |---|---|---|---|
-| **mouse ESC** | Larsson S3 (7309 genes); Ochiai 2020 | **very deep** — ENCODE + ChIP-Atlas (333 Suz12 experiments alone) | best-characterised pair |
+| **mouse ESC** | Larsson S3 (7309 genes); Ochiai 2020 | **very deep** — 469 distinct antigens in ChIP-Atlas alone (see below) | best-characterised pair |
 | **GM12878** | Jin, Feng & Bush, bioRxiv 2022.09.21.508743 | **deepest that exists** — ENCODE Tier 1, hundreds of antigens | strongest candidate; human LCL |
 | mouse fibroblast (primary CAST×C57) | Larsson S1 (7870 genes) | **thin** — NIH/3T3 is only a proxy and has few experiments | weakest link |
 | human fibroblast | Larsson S6 (1609 orthologues) | moderate | gives the species contrast |
 
 **mESC + GM12878 is the pair to train on** — both have deep ChIP, and they are about as different
 as two cell types get, which is what makes the transfer test meaningful.
+
+### 4b. Feature richness is far better than a single-antigen extrapolation suggests
+
+An earlier pessimistic estimate here was extrapolated from **one** antigen (Suz12, marginal
+r ≈ 0.2). That was the wrong basis. ChIP-Atlas alone holds **469 distinct antigens for mm10
+`ES cells`**, including the marks that matter, with deep coverage:
+
+| | experiments | | experiments |
+|---|---|---|---|
+| H3K27ac | 3182 | ATAC-seq | 3969 |
+| **H3K27me3** | **2137** | RNA Pol II | 709 |
+| H3K4me3 | 1099 | Ctcf | 420 |
+| H3K9me3 | 595 | **Suz12** | 333 |
+| H3K4me1 | 488 | Rnf2 (Ring1B) | 260 |
+| H3K36me3 | 284 | **Ezh2** | 133 |
+| H2AK119ub | 247 | Jarid2 | 102 |
+
+GM12878 has ENCODE's full complement on top of this. A genome-wide model with 20–50 features is a
+completely different proposition from a single-antigen correlation, and the earlier pessimism
+should not be carried forward.
+
+**Correction:** this document previously stated that H3K27me3 "cannot be tested" because
+ChIP-Atlas excludes histone marks. That applies only to their precomputed *Target Genes*
+convenience tables (`antigen class = "TFs and others"`). The **per-experiment peak BEDs and
+bigWigs are available for histone marks**, so H3K27me3 — the mark v44 actually uses — can be used;
+it just needs the promoter/gene-body aggregation step doing directly rather than downloaded
+ready-made.
+
+### 4c. This does not appear to have been published
+
+Searching for a genome-wide predictive chromatin→burst-kinetics model turns up **inference**
+methods (DeepTX, BurstLink — recovering bursting *from* scRNA-seq) and Ochiai's tail-selected
+correlations, but not a trained, cross-cell-type-validated predictor. That cuts both ways: there
+is **no published R² to set expectations against**, and the work would be novel rather than a
+reimplementation.
 
 ## 5. The design — and the validation that actually matters
 
@@ -103,14 +138,18 @@ So:
 * **The expression confound.** ChIP signal, burst frequency and mean expression are all mutually
   correlated; mean expression must be in the model as a covariate or the ChIP coefficients will
   mostly be reading expression back (`protein_noise_bursting_chromatin.md` §2b).
-* **Antigen availability must intersect.** The model can only use marks present in *both* the
-  training lines and GNP/MB. If our ChIP is H3K27me3 (+ maybe EZH2/SUZ12), the model must be
-  restricted to those — a small feature set, and H3K27me3 has **not** been tested against bursting
-  in this work at all (ChIP-Atlas's Target Genes feature excludes histone marks).
-* **Only ~10 genes matter.** Genome-wide R² is the wrong metric. What matters is whether the
-  prediction is right for *Ccnd1*, *Ezh2*, *Gli1*, *Skp2*, *Cdkn1a*. Consider weighting training
-  toward genes resembling these in expression and chromatin state, and report per-gene intervals
-  rather than a global score.
+* **Antigen availability must intersect.** The model can only *apply* marks present in both the
+  training lines and GNP/MB. Two mitigations rather than restricting the model up front: train the
+  rich version and **ablate** to our available marks to measure what is lost; and consider **ChIP
+  imputation** (ChromImpute / Avocado / Epitome) to fill missing marks for GNP from the ones we
+  have plus sequence — a mature method that exists precisely for this situation.
+* **Train genome-wide; *evaluate* on the genes that matter.** These are separate concerns and an
+  earlier version of this document conflated them, suggesting the training set be weighted toward
+  genes resembling *Ccnd1* etc. **That was wrong** — it discards most of the ~6000-gene sample for
+  no gain. Train on everything; then report held-out performance *stratified* by the regime our
+  genes occupy (expression decile, PRC2-target status), and per-gene prediction intervals rather
+  than a single global R². The stratification is the real concern: a model can be accurate overall
+  and useless for lowly-expressed PRC2 targets, which is where several of our genes sit.
 * **Larsson's counts are capture-deflated** (UMI capture p ≈ 0.21). Keep `B` and `⟨m⟩` in the same
   unit system throughout — see the unit hazard in `protein_noise_HANDOFF.md` §3.3.
 
