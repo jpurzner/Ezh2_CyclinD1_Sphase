@@ -114,7 +114,9 @@ def main():
         p   = g1("protein_copy_number")
         tp  = g1("protein_half_life", prefer="NIH3T3")      # cycling-cell value
         tpn = q.get("protein_half_life", {}).get("mouse primary neuron")
-        tm  = g1("mrna_half_life")
+        # PREFER Herzog SLAM-seq (mouse ESC) over Schwanhausser (NIH3T3): metabolic labelling,
+        # runs 2.31x shorter, and matches the cell type Larsson's ESC burst table came from.
+        tm  = g1("mrna_half_life", prefer="ESC") or g1("mrna_half_life")
         B   = g1("burst_size_B", prefer="fibroblast")
         m_allele = g1("mrna_mean_per_allele", prefer="fibroblast")
         # SELF-CONSISTENT: <m> must come from the same dataset as B (see the unit hazard above).
@@ -131,7 +133,11 @@ def main():
 
         g_m = LN2 / tm
         g_p = (LN2 / tp) if tp else None
-        g_p_eff = (g_p + mu) if g_p else mu      # dilution-only if no measured half-life
+        # With no measured protein half-life the only removal we can justify is dilution, which
+        # makes tau_c collapse to 1/mu for every such gene. That is an ASSUMPTION, not a result,
+        # so the row is marked and should not be read as a measurement.
+        assumed_tp = g_p is None
+        g_p_eff = (g_p + mu) if g_p else mu
         filt = g_p_eff / (g_p_eff + g_m)
         cv2 = ((1.0 / p) if p else 0.0) + (P_CAPTURE + B) / m * filt
         tau_c = max(1.0 / g_m, 1.0 / g_p_eff)
@@ -143,12 +149,15 @@ def main():
                     f"{math.sqrt(cv2):6.2f} {tau_c:8.1f}") if first else " " * 63
             first = False
             if sp is None:
-                print(lead + " | (no v44 species)")
+                print(lead + " | (no v44 species)" +
+                      ("   [!] tau assumed (no protein t_half)" if assumed_tp else ""))
                 continue
             tau_model = 1.0 / k / 60.0                      # hours
             tau_bio = (1.0 / g_m) if kind == "mrna" else (1.0 / g_p_eff)
             ratio = tau_bio / tau_model
             flag = "  <-- model >20x too fast" if ratio > 20 else ("  <-- model too fast" if ratio > 3 else "")
+            if assumed_tp:
+                flag += "   [!] no protein t_half: tau is dilution-only ASSUMPTION"
             print(f"{lead} | {sp:13s} {tau_model:9.2f}h {ratio:6.1f}x{flag}")
 
     print("\n# Legend: t_m/t_p = mRNA/protein half-life (h). filt = g_p_eff/(g_p_eff+g_m), the fraction")
@@ -162,7 +171,8 @@ def main():
     # Rather than impute a value, sweep it and show what the choice buys.
     print(f"\n\n# mRNA-lifetime sensitivity for the burst candidates (T_cc = {a.tcc} h)")
     print("# NOT an imputation -- this is the range the conclusion has to survive.\n")
-    band = [("Ccnd1", 0.5, 14.0), ("Cdkn1a", 0.5, 9.0), ("Mycn", 0.5, 9.0), ("Ezh2", 5.0, 9.85)]
+    band = [("Ccnd1", 0.5, 14.0), ("Cdkn1a", 0.5, 9.0), ("Mycn", 0.5, 9.0), ("Ezh2", 5.0, 9.85),
+            ("Skp2", 0.5, 9.0), ("Ccna2", 0.5, 9.0)]
     print(f"{'gene':8s} {'t_p/h':>6s} {'<m>':>6s} {'B':>6s} | " +
           "  ".join(f"t_m={t:<5g}" for t in (0.5, 1, 2, 4, 9, 14)))
     print(f"{'':8s} {'':6s} {'':6s} {'':6s} | " +

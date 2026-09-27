@@ -18,6 +18,11 @@ Sources (raw files under data/priors/raw/, provenance in data/priors/SOURCES.md)
       Gives the degradation PROFILE (ED / NED / UN) and, for the 2-state fit, kA, kB and
       ktransfer. RPE is the line Heldt 2018 was fitted in, so mmc4 is the direct reference
       for v44's Heldt-inherited constants.
+  Herzog 2017 Nat Methods 14:1198, Suppl. Table 2      -- SLAM-seq mRNA half-lives, mouse ESC.
+      Metabolic labelling, so no transcription block and no actinomycin-D artefact. Runs 2.31x
+      SHORTER than Schwanhausser on 3071 shared genes and covers many genes Schwanhausser misses
+      (Gli1, Gli2, Mycn, Cdkn1a, Ccne1, Ccnb1, E2f1...). Same cell type as Larsson Table S3, so
+      burst frequency can be converted to 1/h self-consistently.
   Eden 2011 Science 331:764, SOM Table S4              -- bleach-chase in LIVING human H1299,
       100 proteins. NB bleach-chase measures the TOTAL removal rate alpha = degradation +
       dilution, so these are class (a) EFFECTIVE values, unlike Schwanhausser/Mathieson.
@@ -97,6 +102,26 @@ def _f(v):
         return None if x != x else x
     except (TypeError, ValueError):
         return None
+
+
+# ----------------------------------------------------------------- Herzog
+def load_herzog():
+    """gene -> SLAM-seq mRNA half-life (h), mouse ESC."""
+    import xlrd
+    path = os.path.join(RAW, "herzog2017",
+                        "NIHMS73945-supplement-Supplementary_table_2.xls")
+    if not os.path.exists(path):
+        return {}
+    sheet = xlrd.open_workbook(path).sheet_by_index(0)
+    hdr = sheet.row_values(0)
+    iN, iH = hdr.index("Name"), hdr.index("Half-life (h)")
+    out = {}
+    for r in range(1, sheet.nrows):
+        row = sheet.row_values(r)
+        v = _f(row[iH])
+        if v and v > 0:
+            out.setdefault(str(row[iN]).strip(), v)
+    return out
 
 
 # ---------------------------------------------------------------- McShane
@@ -221,6 +246,7 @@ def main():
         mcs_3t3 = load_mcshane("mcshane2016_mmc1_3T3.xlsx", "FinalTable_PostNorm_3T3_")
         mcs_rpe = load_mcshane("mcshane2016_mmc4_RPE.xlsx", "FinalTable_RPE_")
         eden = load_eden()
+        herzog = load_herzog()
     except ImportError as e:
         sys.exit(f"missing reader dependency ({e}); need xlrd (for .xls) and openpyxl (.xlsx)")
 
@@ -292,6 +318,14 @@ def main():
             add(sp, gene, "deg_rate_ktransfer", hit[4] if hit else None, "1/h",
                 "McShane 2016", "mmc1 (3T3) / mmc4 (RPE)", ct, "unknown",
                 notes="2-state model: rate of A -> B (maturation / assembly)")
+
+        hz = herzog.get(gene)
+        add(sp, gene, "mrna_half_life", hz, "h",
+            "Herzog 2017 (SLAM-seq)", "Suppl. Table 2", "mouse ESC", "n/a",
+            notes=("metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; "
+                   "same cell type as Larsson Table S3 (ESC) so burst frequency converts "
+                   "self-consistently: f[1/h] = f[per delta]*ln2/this")
+                  if hz else "gene absent from the SLAM-seq table")
 
         e = eden.get(gene.upper())
         add(sp, gene, "protein_half_life_effective", e, "h",

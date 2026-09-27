@@ -25,6 +25,7 @@ Rb/Rbm/pRb/RbE2f,Rb1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / 
 Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_kA_fast_pool,0.0306039,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_kB_stable_pool,0.0562048,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Rb/Rbm/pRb/RbE2f,Rb1,deg_rate_ktransfer,0.132651,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Rb/Rbm/pRb/RbE2f,Rb1,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 Rb/Rbm/pRb/RbE2f,Rb1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 E2f/RbE2f/RbmE2f,E2f1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61501
 E2f/RbE2f/RbmE2f,E2f1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q01094
@@ -52,6 +53,7 @@ E2f/RbE2f/RbmE2f,E2f1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) /
 E2f/RbE2f/RbmE2f,E2f1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 E2f/RbE2f/RbmE2f,E2f1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 E2f/RbE2f/RbmE2f,E2f1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+E2f/RbE2f/RbmE2f,E2f1,mrna_half_life,3.38377,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 E2f/RbE2f/RbmE2f,E2f1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 E1/E1C1,Fbxo5,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q7TSG3
 E1/E1C1,Fbxo5,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9UKT4
@@ -79,6 +81,7 @@ E1/E1C1,Fbxo5,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (R
 E1/E1C1,Fbxo5,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 E1/E1C1,Fbxo5,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 E1/E1C1,Fbxo5,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+E1/E1C1,Fbxo5,mrna_half_life,1.5737,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 E1/E1C1,Fbxo5,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 C1/pC1/E1C1,Fzr1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9R1K5
 C1/pC1/E1C1,Fzr1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9UM11
@@ -106,6 +109,7 @@ C1/pC1/E1C1,Fzr1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4
 C1/pC1/E1C1,Fzr1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 C1/pC1/E1C1,Fzr1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 C1/pC1/E1C1,Fzr1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+C1/pC1/E1C1,Fzr1,mrna_half_life,2.82492,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 C1/pC1/E1C1,Fzr1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 P21/CeP21/CaP21,Cdkn1a,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P39689
 P21/CeP21/CaP21,Cdkn1a,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P38936
@@ -133,6 +137,7 @@ P21/CeP21/CaP21,Cdkn1a,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) 
 P21/CeP21/CaP21,Cdkn1a,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 P21/CeP21/CaP21,Cdkn1a,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 P21/CeP21/CaP21,Cdkn1a,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+P21/CeP21/CaP21,Cdkn1a,mrna_half_life,1.40531,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 P21/CeP21/CaP21,Cdkn1a,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Ce/CeP21,Ccne1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61457
 Ce/CeP21,Ccne1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24864
@@ -160,6 +165,7 @@ Ce/CeP21,Ccne1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (
 Ce/CeP21,Ccne1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Ce/CeP21,Ccne1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Ce/CeP21,Ccne1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ce/CeP21,Ccne1,mrna_half_life,4.00647,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Ce/CeP21,Ccne1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Ca/CaP21,Ccna2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P51943
 Ca/CaP21,Ccna2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P20248
@@ -187,6 +193,7 @@ Ca/CaP21,Ccna2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (
 Ca/CaP21,Ccna2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Ca/CaP21,Ccna2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Ca/CaP21,Ccna2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ca/CaP21,Ccna2,mrna_half_life,4.81597,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Ca/CaP21,Ccna2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 aPcna/iPcna,Pcna,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P17918
 aPcna/iPcna,Pcna,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P12004
@@ -214,6 +221,7 @@ aPcna/iPcna,Pcna,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4
 aPcna/iPcna,Pcna,deg_rate_kA_fast_pool,2.47757e-06,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 aPcna/iPcna,Pcna,deg_rate_kB_stable_pool,0.0341461,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 aPcna/iPcna,Pcna,deg_rate_ktransfer,1.05457,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+aPcna/iPcna,Pcna,mrna_half_life,7.21544,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 aPcna/iPcna,Pcna,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 P53,Trp53,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P02340
 P53,Trp53,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P04637
@@ -241,6 +249,7 @@ P53,Trp53,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),
 P53,Trp53,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 P53,Trp53,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 P53,Trp53,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+P53,Trp53,mrna_half_life,5.989,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 P53,Trp53,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Cd/Cd_mRNA,Ccnd1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P25322
 Cd/Cd_mRNA,Ccnd1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24385
@@ -268,6 +277,7 @@ Cd/Cd_mRNA,Ccnd1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4
 Cd/Cd_mRNA,Ccnd1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Cd/Cd_mRNA,Ccnd1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Cd/Cd_mRNA,Ccnd1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Cd/Cd_mRNA,Ccnd1,mrna_half_life,3.36988,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Cd/Cd_mRNA,Ccnd1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Skp2,Skp2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9Z0Z3
 Skp2,Skp2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q13309
@@ -295,6 +305,7 @@ Skp2,Skp2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),
 Skp2,Skp2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Skp2,Skp2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Skp2,Skp2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Skp2,Skp2,mrna_half_life,2.23312,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Skp2,Skp2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 MPF/preMPF,Ccnb1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P24860
 MPF/preMPF,Ccnb1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P14635
@@ -322,6 +333,7 @@ MPF/preMPF,Ccnb1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4
 MPF/preMPF,Ccnb1,deg_rate_kA_fast_pool,0.653907,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 MPF/preMPF,Ccnb1,deg_rate_kB_stable_pool,0.135686,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 MPF/preMPF,Ccnb1,deg_rate_ktransfer,1.00383,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+MPF/preMPF,Ccnb1,mrna_half_life,3.08865,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 MPF/preMPF,Ccnb1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 MPF/preMPF,Cdk1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P11440
 MPF/preMPF,Cdk1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P06493
@@ -349,6 +361,7 @@ MPF/preMPF,Cdk1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 
 MPF/preMPF,Cdk1,deg_rate_kA_fast_pool,3.27664e-08,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 MPF/preMPF,Cdk1,deg_rate_kB_stable_pool,0.0458076,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 MPF/preMPF,Cdk1,deg_rate_ktransfer,0.229824,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+MPF/preMPF,Cdk1,mrna_half_life,3.39393,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 MPF/preMPF,Cdk1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Cdc20,Cdc20,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q9JJ66
 Cdc20,Cdc20,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q12834
@@ -376,6 +389,7 @@ Cdc20,Cdc20,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE
 Cdc20,Cdc20,deg_rate_kA_fast_pool,0.507906,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Cdc20,Cdc20,deg_rate_kB_stable_pool,0.194887,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Cdc20,Cdc20,deg_rate_ktransfer,1.50863,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Cdc20,Cdc20,mrna_half_life,4.40246,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Cdc20,Cdc20,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 EZH2/EZH2m,Ezh2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61188
 EZH2/EZH2m,Ezh2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q15910
@@ -403,6 +417,7 @@ EZH2/EZH2m,Ezh2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 
 EZH2/EZH2m,Ezh2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 EZH2/EZH2m,Ezh2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 EZH2/EZH2m,Ezh2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+EZH2/EZH2m,Ezh2,mrna_half_life,3.71323,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 EZH2/EZH2m,Ezh2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 "(PRC2, implicit)",Suz12,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q80U70
 "(PRC2, implicit)",Suz12,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q15022
@@ -430,6 +445,7 @@ EZH2/EZH2m,Ezh2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1
 "(PRC2, implicit)",Suz12,deg_rate_kA_fast_pool,1.72088,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 "(PRC2, implicit)",Suz12,deg_rate_kB_stable_pool,0.0639171,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 "(PRC2, implicit)",Suz12,deg_rate_ktransfer,1.68675,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+"(PRC2, implicit)",Suz12,mrna_half_life,2.76827,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 "(PRC2, implicit)",Suz12,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 "(PRC2, implicit)",Eed,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q921E6
 "(PRC2, implicit)",Eed,uniprot_human,NA,accession,UniProt,REST api,-,n/a,O75530
@@ -457,6 +473,7 @@ EZH2/EZH2m,Ezh2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1
 "(PRC2, implicit)",Eed,deg_rate_kA_fast_pool,0.150691,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 "(PRC2, implicit)",Eed,deg_rate_kB_stable_pool,4.34831e-05,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 "(PRC2, implicit)",Eed,deg_rate_ktransfer,0.191105,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+"(PRC2, implicit)",Eed,mrna_half_life,3.36866,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 "(PRC2, implicit)",Eed,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Gli1/Gli1_mRNA,Gli1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P47806
 Gli1/Gli1_mRNA,Gli1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P08151
@@ -484,6 +501,7 @@ Gli1/Gli1_mRNA,Gli1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / m
 Gli1/Gli1_mRNA,Gli1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Gli1/Gli1_mRNA,Gli1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Gli1/Gli1_mRNA,Gli1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli1/Gli1_mRNA,Gli1,mrna_half_life,3.04656,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Gli1/Gli1_mRNA,Gli1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Gli_act/Gli_rep,Gli2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q0VGT2
 Gli_act/Gli_rep,Gli2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P10070
@@ -511,6 +529,7 @@ Gli_act/Gli_rep,Gli2,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / 
 Gli_act/Gli_rep,Gli2,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Gli_act/Gli_rep,Gli2,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Gli_act/Gli_rep,Gli2,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli_act/Gli_rep,Gli2,mrna_half_life,1.90393,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 Gli_act/Gli_rep,Gli2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Gli_act/Gli_rep,Gli3,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61602
 Gli_act/Gli_rep,Gli3,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P10071
@@ -538,6 +557,7 @@ Gli_act/Gli_rep,Gli3,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / 
 Gli_act/Gli_rep,Gli3,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Gli_act/Gli_rep,Gli3,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Gli_act/Gli_rep,Gli3,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Gli_act/Gli_rep,Gli3,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 Gli_act/Gli_rep,Gli3,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 MYCN,Mycn,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P03966
 MYCN,Mycn,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P04198
@@ -565,6 +585,7 @@ MYCN,Mycn,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (RPE),
 MYCN,Mycn,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 MYCN,Mycn,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 MYCN,Mycn,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+MYCN,Mycn,mrna_half_life,2.00332,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 MYCN,Mycn,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Ptch1_free/_mRNA,Ptch1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q61115
 Ptch1_free/_mRNA,Ptch1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q13635
@@ -592,6 +613,7 @@ Ptch1_free/_mRNA,Ptch1,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) 
 Ptch1_free/_mRNA,Ptch1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Ptch1_free/_mRNA,Ptch1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Ptch1_free/_mRNA,Ptch1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Ptch1_free/_mRNA,Ptch1,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 Ptch1_free/_mRNA,Ptch1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 Smo_active,Smo,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P56726
 Smo_active,Smo,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q99835
@@ -619,6 +641,7 @@ Smo_active,Smo,degradation_profile,NA,ED|NED|UN,McShane 2016,mmc1 (3T3) / mmc4 (
 Smo_active,Smo,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 Smo_active,Smo,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 Smo_active,Smo,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+Smo_active,Smo,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Cdt2 param),Dtl,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q3TLR7
 (Cdt2 param),Dtl,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q9NZJ0
@@ -646,6 +669,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (Cdt2 param),Dtl,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (Cdt2 param),Dtl,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (Cdt2 param),Dtl,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Cdt2 param),Dtl,mrna_half_life,2.22386,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (Cdt2 param),Dtl,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Wee1a assignment),Wee1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P47810
 (Wee1a assignment),Wee1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P30291
@@ -673,6 +697,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (Wee1a assignment),Wee1,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (Wee1a assignment),Wee1,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (Wee1a assignment),Wee1,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Wee1a assignment),Wee1,mrna_half_life,1.77951,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (Wee1a assignment),Wee1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Cdc25a assignment),Cdc25a,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P48964
 (Cdc25a assignment),Cdc25a,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P30304
@@ -700,6 +725,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (Cdc25a assignment),Cdc25a,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (Cdc25a assignment),Cdc25a,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (Cdc25a assignment),Cdc25a,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Cdc25a assignment),Cdc25a,mrna_half_life,1.40183,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (Cdc25a assignment),Cdc25a,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (kPhRbCd param),Cdk4,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P30285
 (kPhRbCd param),Cdk4,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P11802
@@ -727,6 +753,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (kPhRbCd param),Cdk4,deg_rate_kA_fast_pool,0.238454,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (kPhRbCd param),Cdk4,deg_rate_kB_stable_pool,0.00114422,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (kPhRbCd param),Cdk4,deg_rate_ktransfer,0.0559879,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(kPhRbCd param),Cdk4,mrna_half_life,8.03747,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (kPhRbCd param),Cdk4,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (kPhRbCd param),Cdk6,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q64261
 (kPhRbCd param),Cdk6,uniprot_human,NA,accession,UniProt,REST api,-,n/a,Q00534
@@ -754,6 +781,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (kPhRbCd param),Cdk6,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (kPhRbCd param),Cdk6,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (kPhRbCd param),Cdk6,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(kPhRbCd param),Cdk6,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 (kPhRbCd param),Cdk6,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Ce/Ca partner),Cdk2,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P97377
 (Ce/Ca partner),Cdk2,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P24941
@@ -781,6 +809,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (Ce/Ca partner),Cdk2,deg_rate_kA_fast_pool,3.65462e-06,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (Ce/Ca partner),Cdk2,deg_rate_kB_stable_pool,0.0711023,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (Ce/Ca partner),Cdk2,deg_rate_ktransfer,0.127559,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Ce/Ca partner),Cdk2,mrna_half_life,3.91817,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (Ce/Ca partner),Cdk2,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (P21 pool),Cdkn1b,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,P46414
 (P21 pool),Cdkn1b,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P46527
@@ -808,6 +837,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (P21 pool),Cdkn1b,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (P21 pool),Cdkn1b,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (P21 pool),Cdkn1b,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(P21 pool),Cdkn1b,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 (P21 pool),Cdkn1b,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (p18 param),Cdkn2c,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q60772
 (p18 param),Cdkn2c,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P42773
@@ -835,6 +865,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (p18 param),Cdkn2c,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (p18 param),Cdkn2c,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (p18 param),Cdkn2c,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(p18 param),Cdkn2c,mrna_half_life,NA,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,gene absent from the SLAM-seq table
 (p18 param),Cdkn2c,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (p19 param),Cdkn2d,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,Q60773
 (p19 param),Cdkn2d,uniprot_human,NA,accession,UniProt,REST api,-,n/a,P55273
@@ -862,6 +893,7 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (p19 param),Cdkn2d,deg_rate_kA_fast_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (p19 param),Cdkn2d,deg_rate_kB_stable_pool,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (p19 param),Cdkn2d,deg_rate_ktransfer,NA,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(p19 param),Cdkn2d,mrna_half_life,1.85236,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (p19 param),Cdkn2d,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
 (Chk1 assignment),Chek1,uniprot_mouse,NA,accession,UniProt,REST api,-,n/a,O35280
 (Chk1 assignment),Chek1,uniprot_human,NA,accession,UniProt,REST api,-,n/a,O14757
@@ -889,4 +921,5 @@ Smo_active,Smo,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H12
 (Chk1 assignment),Chek1,deg_rate_kA_fast_pool,0.851393,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: newly made / unassembled pool
 (Chk1 assignment),Chek1,deg_rate_kB_stable_pool,0.112447,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: assembled / complexed pool -- match model species to THIS when the species represents the functional complexed form
 (Chk1 assignment),Chek1,deg_rate_ktransfer,2.80007,1/h,McShane 2016,mmc1 (3T3) / mmc4 (RPE),human RPE,unknown,2-state model: rate of A -> B (maturation / assembly)
+(Chk1 assignment),Chek1,mrna_half_life,2.7596,h,Herzog 2017 (SLAM-seq),Suppl. Table 2,mouse ESC,n/a,"metabolic labelling -- PREFER THIS over Schwanhausser, which runs 2.31x long; same cell type as Larsson Table S3 (ESC) so burst frequency converts self-consistently: f[1/h] = f[per delta]*ln2/this"
 (Chk1 assignment),Chek1,protein_half_life_effective,NA,h,Eden 2011,SOM Table S4,human H1299 (living),no,gene absent from the 100-protein set
