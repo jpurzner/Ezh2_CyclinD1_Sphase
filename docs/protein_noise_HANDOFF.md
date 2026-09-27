@@ -318,7 +318,8 @@ safer borrow than the lineage-matched but post-mitotic ones.
 | "Set τ_ext to 1.75 generations would double-count dilution" | **too strong** — Eden×Sigal shows memory is 2.7× longer than removal alone; the extrinsic term is real and dominant |
 | "`kDeEZm` is 8.4× too fast and should be corrected" | **wrong** — breaks 7 targets; and §4.2 suggests it is compensating for a missing mechanism |
 | Battich rates read as min–max normalised | **wrong** — they are log2(rate ÷ cycle median) |
-| "PRC2 modulates burst frequency and size oppositely; frequency-only understates the noise" | **overstated** — frequency arm holds (~1.6×), size arm is <1% of variance and marginally sign-reversed. See `protein_noise_bursting_chromatin.md` §2b |
+| "PRC2 modulates burst frequency and size oppositely; frequency-only understates the noise" | **overstated** — see `protein_noise_bursting_chromatin.md` §2b–2c. Frequency arm replicates at ~0.5–0.6× across two antigens (WT-only). Size arm is **unestablished**: Ochiai's evidence is a tail-selected correlation with no published effect size, and my peak-based test is too coarse to detect a small one. Model `k_on`; treat `B` as sensitivity. |
+| "I independently tested Ochiai's claim" | **overstated** — my test used ChIP-Atlas peak scores at TSS ±10 kb pooled over 333 experiments (37% KO-contaminated, since filtered); Ochiai used curated ENCODE/ENA BAMs, RPM at −1000/+100 and gene body separately, Spearman on the top/bottom 5%. Different analysis, not a replication. **H3K27me3 itself was never tested** — ChIP-Atlas Target Genes excludes histone marks. |
 
 ---
 

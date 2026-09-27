@@ -174,6 +174,120 @@ overwhelmingly lowly expressed, so expression-matching is what limits power. App
 GNP/MB ChIP will need enough bound-and-expressed genes to match on — which is more likely in your
 system than in ESC, since *Ccnd1* is a PRC2 target that is also well expressed.
 
+### 2c. Provenance audit of my own test — it is cruder than Ochiai's, and my verdict needs softening again
+
+Asked what exactly I measured. The honest answer materially weakens §2b.
+
+**What I used.** ChIP-Atlas precomputed *Target Genes* tables (`mm10/target/Suz12.10.tsv`,
+`Ezh2.10.tsv`). **No BAM files and no reprocessing on my side** — these are gene-level aggregates.
+Per their documentation the value is the **MACS2 score, −10·log10(Q-value)**, for peaks (called at
+Q < 1e-5) whose interval overlaps a gene's TSS within ±N kb; 0 means no peak. The underlying data
+is **all public ChIP-seq in SRA/GEO, uniformly reprocessed by ChIP-Atlas** — *not* ENCODE
+specifically, and *not* Ochiai's own data. I aggregated across the 333 `ES_cells` Suz12 experiments
+(133 for Ezh2).
+
+**What Ochiai used.** Table S4 `data_source` lists **one curated dataset per antigen**: **ENCODE**
+for the histone marks and several factors (H3K4me1/me3, H3K9ac/me3, H3K27ac, H3K36me3,
+**H3K27me3**, POLR2A, EP300, CTCF, DNase), and **individual ENA/GEO studies** for the rest
+(Ezh2 `SRS46…`, Suz12 `SRS46…`, Jarid2, Aff4, Spt5, Ctr9, …). They downloaded FASTQ, mapped with
+Bowtie to mm10, and computed **RPM read density** with `ngs.plot` over **−1000 to +100 from the
+TSS** and over the **gene body separately**. Fig. 2E is **Spearman's rank correlation**, computed
+**on the upper and lower 5% of transcripts** for each outcome.
+
+**So my test is not a replication.** It differs in five ways, and every one of them attenuates a
+real effect:
+
+| | Ochiai | mine |
+|---|---|---|
+| signal | continuous RPM read density | MACS2 peak score, **0 for ~97% of genes** |
+| region | −1000/+100 **and** gene body, separately | TSS ±10 kb, pooled |
+| datasets | one curated set per antigen | 333 pooled heterogeneous experiments |
+| gene set | upper/lower **5%** of the outcome | all genes |
+| statistic | Spearman | Pearson on log |
+
+Two of these deserve emphasis. Their **top/bottom-5% design selects on the outcome**, which
+inflates |r| substantially — so their heatmap values are not population effect sizes and are not
+comparable to a genome-wide r. And my **pooled experiment set was contaminated**: checking
+ChIP-Atlas metadata, **37% of the 333 `ES_cells` Suz12 experiments are KO-flagged** (plus 16%
+"treated", 9% "−/−", including PRC2-pathway perturbations such as shJarid2).
+
+**Re-running WT-only** (dropping KO/treated/shRNA/mutant/degron/inhibitor experiments) changes the
+picture in a way that matters:
+
+| antigen | experiments | matched-expression **f ratio** | **B ratio** |
+|---|---|---|---|
+| Suz12, all | 333 | 0.61× | 1.15× |
+| **Suz12, WT-only** | **193** | **0.57×** | **1.18×** |
+| Ezh2, all | 133 | 0.96× (n=36 bound) | 1.01× |
+| **Ezh2, WT-only** | **89** | **0.51×** (n=62 bound) | **1.11×** |
+
+Ezh2 goes from apparently null to agreeing with Suz12 once the KO experiments are removed. **The
+frequency arm now replicates across both antigens at ~0.5–0.6×** despite every attenuating flaw
+above — which makes it stronger evidence than §2b credited.
+
+**Revised verdict, third pass.** The frequency arm is well supported and I am now more confident
+in it, not less. On burst size, my earlier statement that it "does not hold" was **too strong**:
+my instrument is a sparse binary peak call in a ±10 kb window, which is close to the worst
+available probe for a modest continuous effect, so a null there is **inconclusive rather than
+contradictory**. The correct statement is that the size arm is **unestablished** — Ochiai's
+evidence is a tail-selected correlation with no published effect size, and mine is too coarse to
+detect a small one.
+
+**What a real replication would take**, and it is feasible: pull the same ENCODE/ENA accessions
+from Table S4, and compute promoter (−1000/+100) and gene-body RPM. ENCODE serves processed
+fold-change bigWigs, so the histone marks including **H3K27me3** need no re-mapping — and
+H3K27me3 could not be tested at all here, because ChIP-Atlas's Target Genes feature covers only
+`antigen class = "TFs and others"`, which is why `H3K27me3.10.tsv` 404s. **The mark the model
+actually uses has not been tested against bursting in this work at all.**
+
+### 2d. Proximal clearance with distal retention — a hypothesis the model cannot currently express
+
+Observation from the lab: *Ccnd1*, *Ccnd2* and *Cdk6* carry H3K27me3 yet are well expressed; the
+**proximal promoter looks cleared** while **distal H3K27me3 persists**; and they rise on *Ezh2* KO,
+so the mark is still functional. Reading: the gene can be transiently highly expressed **without
+losing the potential for later Polycomb regulation**.
+
+A partial check using ChIP-Atlas's nested windows (WT-only mESC, shell = ±10 kb minus ±1 kb bound
+fraction; a proximally-cleared, distally-bound gene has a large positive shell):
+
+| gene | proximal ±1 kb | ±10 kb | shell | percentile |
+|---|---|---|---|---|
+| *Ccnd2* | 0.39 | 0.53 | **+0.13** | 82nd |
+| *Cdk6* | 0.31 | 0.33 | +0.02 | 63rd |
+| *Ccnd1* | 0.10 | 0.11 | +0.01 | 45th |
+| *Hoxa1* (classic target) | 0.14 | 0.38 | +0.24 | 87th |
+| *Gata4* | 0.31 | 0.48 | +0.17 | 85th |
+
+Only *Ccnd2* shows a clear distal excess. But **this does not test the hypothesis**, for two
+reasons: mESC is the wrong cell type — there *Ccnd1* is barely a PRC2 target at all (bound in 11%
+of experiments) and the strong targets are developmental TFs — and **binary peak presence in
+nested windows is the wrong instrument**. Detecting "cleared proximally, retained distally" needs
+a **metagene profile**: continuous signal versus distance from the TSS. That is precisely what
+Ochiai did with `ngs.plot`, and it is what the lab's own ChIP-seq should be run through.
+
+**Why this matters for v44.** The model represents H3K27me3 as a **single mean-field scalar `Mk`**
+with a leaky Hill repression. A single scalar cannot simultaneously encode "not currently
+repressing" and "poised to re-repress" — those are two states, and the hypothesis says a gene can
+be in both at once.
+
+A **two-compartment mark** would express it directly, and it is a small extension rather than a
+new mechanism, because the existing AUM module already has autocatalytic read-write spreading:
+
+* `Mk_prox` — sets current repression of *Ccnd1* transcription. Cleared fast by the existing
+  transcription→PRC2 eviction arm.
+* `Mk_dist` — a reservoir. Not repressing, evicted much more slowly, and **re-seeds `Mk_prox`**
+  through the read-write reaction already in the model.
+
+That reproduces the described behaviour: a mitogenic burst clears the proximal mark and the gene
+fires; the distal reservoir persists; when drive falls, read-write spreading restores proximal
+repression. It also predicts **asymmetric kinetics** — fast de-repression, slow re-repression —
+and makes EZH2i dose-dependent in a specific way, since a catalytic inhibitor would block
+re-seeding while leaving the existing distal reservoir in place until it dilutes.
+
+This is a hypothesis with a clean experimental handle (proximal vs distal H3K27me3 CUT&RUN/ChIP
+across ±vismodegib and ±EZH2i) and a clean modelling consequence. It is not currently anywhere in
+the task list and may be more consequential for the EZH2/CyclinD1 story than the noise work is.
+
 ---
 
 ## 3. Sequence explains burst size a little and burst frequency not at all
