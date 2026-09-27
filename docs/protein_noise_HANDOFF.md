@@ -16,8 +16,8 @@ for whoever implements the noise modules (brief tasks T1–T8). Nothing in `src/
    frozen heterogeneity. Default to **long** drift correlation times.
 3. **`Skp2` is the burst candidate the brief missed** — the only v44 species with genuinely fast
    noise (τ = 4.0 h), and it sits on the Skp2–p27 commitment switch.
-4. **PRC2 modulates burst frequency *and* burst size, in opposite directions.** The brief specifies
-   `k_on` only. That gets the mean roughly right and **understates the noise**.
+4. **PRC2 lowers burst frequency** (~1.6× at matched expression, two independent datasets). It may
+   also raise burst size, but that arm is weak — see §4.1, which was **revised after review**.
 5. **mRNA degradation is cycle-modulated** for 90% of genes (median 3.3×). v44 treats it as
    constant. This may be the missing mechanism behind the model's worst standing target.
 6. **Do NOT "fix" `kDeEZm`** to its measured value — it breaks 7 targets. Tested. See §2.
@@ -185,23 +185,36 @@ A diploid cell fires twice as often. GNP cycle ≈ 22 h.
 
 ## 4. Structural changes worth making
 
-### 4.1 PRC2 must modulate burst size as well as frequency
+### 4.1 PRC2 lowers burst frequency; the burst-size arm is weak  *(revised after review)*
 
-Ochiai 2020, genome-wide in mESC with ChIP-seq at promoter and gene body:
+Ochiai 2020, genome-wide in mESC with ChIP-seq at promoter and gene body, state that PRC2 promoter
+occupancy "correlated inversely with burst frequency, while they correlated positively with burst
+size and normalized intrinsic noise". **An earlier version of this handoff recommended coupling
+H3K27me3 to both `k_on` and `B` as a default structural change. That was overstated.**
 
-> *"Promoter localization of PRC2 subunits (EZH2, SUZ12, and JARID2) correlated **inversely with
-> burst frequency**, while they correlated **positively with burst size** and normalized intrinsic
-> noise."*
+Ochiai give this as one sentence pointing at a heatmap — no coefficients, no statistics — and
+their causal test is four genes, one of which (*Peg3*) goes the opposite way. An independent
+rebuild from ChIP-Atlas `ES_cells` binding × Larsson ESC bursting
+(`simulations/test_prc2_bursting.py`) gives:
 
-The brief's §3.2 has H3K27me3 acting on `k_on` only. The two arms **partly cancel for the mean but
-add for the noise**, so a frequency-only coupling gets mean repression roughly right and
-**understates the noise PRC2 introduces** — the quantity the project exists to estimate.
+| | marginal r | partial r given expression | bound/unbound at matched expression |
+|---|---|---|---|
+| burst **frequency** | **−0.23** | −0.02 | **0.61×** (Suz12), 0.96× (Ezh2, n=16) |
+| burst **size** | **−0.06** | +0.09 | 1.15× (Suz12), 1.01× (Ezh2) |
 
-Caveats: their SUZ12 knockouts went both directions by gene (prior direction, not a transferable
-coefficient), and they perturbed the **complex**, not catalysis. Since the correlation is with PRC2
-*occupancy* rather than H3K27me3 level, and tazemetostat leaves PRC2 bound, this predicts **EZH2i
-de-represses the mean while leaving PRC2-imposed burstiness largely intact** — testable, and it
-follows from the repo's existing catalytic-inhibitor distinction.
+The confounder matters: PRC2 marks lowly expressed genes and both f and B correlate positively
+with expression, so marginal correlations are negative for both and only expression-conditioned
+estimates are interpretable.
+
+**Recommendation:** couple PRC2/H3K27me3 to **`k_on` (down)** — supported, ~1.6×. Treat the
+**burst-size arm as a sensitivity**, not a default: it is worth <1% of variance and marginally the
+sign reverses. The earlier "frequency-only coupling understates the noise" claim is technically
+true but worth only **~6% on CV**, not a qualitative correction.
+
+Still worth keeping: they perturbed the **complex**, not catalysis. Since the correlation is with
+PRC2 *occupancy* and tazemetostat leaves PRC2 bound, this predicts **EZH2i de-represses the mean
+while leaving PRC2-imposed burstiness largely intact** — testable, and it follows from the repo's
+existing catalytic-inhibitor distinction.
 
 ### 4.2 Cycle-modulated mRNA degradation — and a possible resolution of F3
 
@@ -305,6 +318,7 @@ safer borrow than the lineage-matched but post-mitotic ones.
 | "Set τ_ext to 1.75 generations would double-count dilution" | **too strong** — Eden×Sigal shows memory is 2.7× longer than removal alone; the extrinsic term is real and dominant |
 | "`kDeEZm` is 8.4× too fast and should be corrected" | **wrong** — breaks 7 targets; and §4.2 suggests it is compensating for a missing mechanism |
 | Battich rates read as min–max normalised | **wrong** — they are log2(rate ÷ cycle median) |
+| "PRC2 modulates burst frequency and size oppositely; frequency-only understates the noise" | **overstated** — frequency arm holds (~1.6×), size arm is <1% of variance and marginally sign-reversed. See `protein_noise_bursting_chromatin.md` §2b |
 
 ---
 

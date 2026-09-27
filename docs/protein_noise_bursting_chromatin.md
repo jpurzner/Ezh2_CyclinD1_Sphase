@@ -84,6 +84,98 @@ ChIP-seq — which is the interesting version for you.
 
 ---
 
+## 2b. Review of the PRC2 claim — I overstated it. The frequency arm holds; the size arm does not.
+
+The §2 claim was carried into the handoff as a recommended structural change. On review it does
+not support that weight. Reproducible: `python3 simulations/test_prc2_bursting.py`.
+
+### What Ochiai actually provides
+
+**One sentence pointing at a correlation heatmap (Fig. 2E).** No coefficients, no effect sizes, no
+p-values in the text, and the deposited tables are the raw count matrices rather than the fitted
+kinetics — so the claim cannot be checked from their own supplement. It is one row of a large
+panel, and the paper's argument does not rest on it.
+
+Their causal test is **four genes**, and it does not cleanly confirm the correlation:
+
+| gene | SUZ12 K/O effect on burst size | on burst frequency |
+|---|---|---|
+| *Dnmt3l* | down | up | ✔ consistent |
+| *Dnmt3b* | down | not reported | ✔ partial |
+| ***Peg3*** | **up** | **down** | �’ **opposite** |
+| *Ctcf* | not reported | not reported | — |
+
+The authors' own conclusion is that PRC2 control of bursting is "**context dependent**" and acts
+"in a **gene-specific** manner". My §2 reported those caveats but still presented the direction as
+a general rule.
+
+### The confounder that has to be handled
+
+PRC2 marks lowly expressed genes, and in Larsson's data **both** burst frequency **and** burst size
+correlate positively with mean expression (ESC: r = +0.50 and +0.32). So any repressive mark will
+correlate *negatively with both* marginally, and "frequency down, size up" can only be assessed
+after conditioning on expression. Marginally f and B are uncorrelated (r ≈ 0.00), but at fixed
+mean they trade off (partial r = −0.20 to −0.30) — so conditioning is not optional.
+
+### Independent test: ChIP-Atlas × Larsson, same cell type
+
+ChIP-Atlas gene-level binding in `ES_cells` (Suz12, 333 experiments; Ezh2, 133) joined to Larsson
+Table S3 burst kinetics in mouse ESC — the same cell type, independent of Ochiai.
+
+| | Suz12 marginal r | Suz12 partial r \| expr | Ezh2 marginal r | Ezh2 partial r \| expr |
+|---|---|---|---|---|
+| burst **frequency** | **−0.232** | −0.024 | **−0.221** | −0.022 |
+| burst **size** | **−0.061** | **+0.093** | **−0.056** | **+0.090** |
+| mean expression | −0.423 | — | −0.404 | — |
+
+Effect sizes, bound (>50% of experiments) vs unbound (<5%), **matched on expression**:
+
+| | f ratio | B ratio | n bound |
+|---|---|---|---|
+| **Suz12** | **0.61** | **1.15** | 118 |
+| Ezh2 | 0.96 | 1.01 | 16 |
+
+### Verdict
+
+**The frequency arm holds.** Suz12-bound genes fire ~1.6× less often at matched expression
+(marginal r = −0.23, consistent across both matchable expression bins). Ezh2 is null here but has
+only 16 bound genes in the matchable range, so it is underpowered rather than contradictory.
+
+**The size arm does not.** Marginally the correlation is **negative** (r = −0.06), the opposite of
+what Ochiai's sentence states. It turns positive only after conditioning on expression, and then
+r = +0.09 — under **1% of variance** — with an effect size of 1.15× (Suz12) and 1.01× (Ezh2).
+
+**So the noise argument in §2 is overstated.** Going from B = 3.9 to B = 4.5 raises CV² by ~13%,
+i.e. **CV by ~6%**. That is real but it is not the qualitative correction I implied; a
+frequency-only coupling is not badly wrong.
+
+Caveats on *my* test, in fairness to Ochiai: ChIP-Atlas `ES_cells` pools 333 heterogeneous
+experiments across labs and ES sub-states; gene-level aggregation at ±10 kb of the TSS is cruder
+than their promoter/gene-body split; Larsson's burst inference is not Ochiai's; and PRC2 targets
+are so skewed to low expression that **only the bottom two expression octiles have enough bound
+genes to match on** — this is a low-expression-only result. Any of these could attenuate a real
+size effect.
+
+### Revised recommendation
+
+* **Model the frequency arm.** `k_on` down with PRC2 occupancy is supported by two independent
+  datasets and a ~1.6× effect size.
+* **Treat the size arm as sensitivity, not default.** Direction is plausible and mechanistically
+  coherent, but it is worth <1% of variance in the only independent test available, and marginally
+  the sign reverses.
+* **Do not treat either as a transferable coefficient.** Gene-specific by the authors' own causal
+  test, and measured only in mESC at low expression.
+
+### The method itself is validated
+
+This is exactly the analysis proposed for the lab's own ChIP-seq, and it runs end-to-end on public
+data. The blocker is not the pipeline, it is the **expression confound**: PRC2 targets are
+overwhelmingly lowly expressed, so expression-matching is what limits power. Applying it to
+GNP/MB ChIP will need enough bound-and-expressed genes to match on — which is more likely in your
+system than in ESC, since *Ccnd1* is a PRC2 target that is also well expressed.
+
+---
+
 ## 3. Sequence explains burst size a little and burst frequency not at all
 
 Larsson's own Table S2 (three OLS regressions on core promoter elements) quantifies this:
