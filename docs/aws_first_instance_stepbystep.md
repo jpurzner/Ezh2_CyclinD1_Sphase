@@ -170,7 +170,10 @@ Then set up:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y python3-pip bedtools
+sudo apt-get install -y python3-pip bedtools unzip
+# AWS CLI v2 -- `apt-get install awscli` may install v1; use the official installer
+curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+unzip -q awscliv2.zip && sudo ./aws/install && aws --version   # expect 2.x
 pip3 install --break-system-packages pyBigWig numpy pandas scikit-learn pyarrow
 
 # faster bulk S3 transfers than the aws cli

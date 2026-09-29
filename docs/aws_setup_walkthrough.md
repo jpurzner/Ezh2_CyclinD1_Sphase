@@ -66,7 +66,10 @@ df -h /scratch
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y bowtie2 samtools bedtools macs2 fastp pigz awscli
+sudo apt-get install -y bowtie2 samtools bedtools macs2 fastp pigz unzip
+# AWS CLI v2 -- do NOT use `apt-get install awscli`, which may give the old v1
+curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+unzip -q awscliv2.zip && sudo ./aws/install && aws --version   # expect 2.x
 # or conda/mamba if you want pinned versions
 ```
 
@@ -102,7 +105,7 @@ either way.
 `c6i.2xlarge`, 150 GB gp3 root (**gp3, not gp2** — 3000 IOPS / 125 MB/s baseline included).
 
 ```bash
-sudo apt-get update && sudo apt-get install -y python3-pip bedtools awscli
+sudo apt-get update && sudo apt-get install -y python3-pip bedtools unzip
 pip3 install --break-system-packages pyBigWig numpy pandas scikit-learn pyarrow
 ```
 
