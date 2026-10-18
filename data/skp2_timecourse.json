@@ -1,0 +1,1 @@
+{"found": true, "unit": "log2 fold change vs gene mean, aligned across datasets", "pseudo_time": ["E15","P0","P1","P7","P12","P14","P18","P21","P56"], "gene": "Skp2", "summary": {"t50_day": "P12", "log2fc": 1.7341, "direction": "down", "time_of_max": "E20"}, "abs_MB_table": {"GNP_E15": 2369, "GNP_P1": 2524, "GNP_P7": 1584, "MB": 3605}}

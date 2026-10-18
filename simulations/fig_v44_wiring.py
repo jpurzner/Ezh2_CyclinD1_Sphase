@@ -6,15 +6,25 @@ CyclinD1 PROTEIN is the central convergence node. The gene-expression axis runs 
 Mitogen (Hedgehog/Gli + MYCN) activates the promoter; the EZH2/PRC2 H3K27me3 mark represses it. CyclinD1 then
 hands off to the two-step Rb restriction point and the cell-cycle engine.
 
-Reflects the current default model:
+Reflects the CURRENT default model (updated 2026-07-21 for this session's changes):
   * TWO-STEP Rb: CyclinD-CDK4/6 mono-phosphorylates (Rb -> Rbm), CyclinE/A-CDK2 hyper-phosphorylates (Rbm -> pRb)
     and releases E2F -- the R-point.
   * SERIAL H3K27 chain me1 -> me2 -> me3 at the Ccnd1 promoter (me2->me3 rate-limiting); Mk = me3 represses.
-  * PRC2 = EZH2 x (accessory + read-write a_rw*Mk); writer cycle-gated (E2F target), eraser Gli->Jmjd3/Kdm6b
-    mitogen-gated; nascent-Ccnd1 RNA evicts PRC2 (double-negative).
-  * EZH2 is a CONCENTRATION (preserved at division, reset by ~10h turnover -- not amount-halved).
-  * MB-specific BIRTH p27 (P21_div: GNP 0.6 -> MB 1.8) makes MB p27-high/G0-rich; Skp2-p27 toggle is the switch.
-  * Feature C: commitment carryover across division (committed daughters re-enter G1, not deep G0).
+  * FOUR mark mechanisms (baked): COOPERATIVE read-write (a_rw*me3^n_rw), NERFED-ON Gli->Jmjd3/Kdm6b eraser
+    (k_jmjd3_gli=0.005, mitogen-gated -> ChIP MB<GNP), CONTINUOUS fork-gated S-phase dilution (k_dil_S), and
+    H3.3 transcription-coupled turnover. MB/GNP CyclinD1 fold still carried by DIRECT Gli/MYCN transcription.
+  * CyclinD1-as-a-target = the SPEED-LIMITER GOVERNOR: H3K27me3 caps division rate so writing keeps up.
+  * 2nd PRC2 target (off by default, with_diff_gene): POISED BIVALENT differentiation genes (heavy me3 + H3K4me3,
+    HIGH threshold) -- a tripwire that PREMATURELY ACTIVATES if division is too fast (writer can't outrun S-dilution)
+    or EZH2i, then drives G0 exit (completes final mitosis; differentiation itself is complex/downstream).
+    PRC2 = EZH2 x (a0 + cooperative read-write a_rw*me3^n_rw).
+  * EZH2 = BASELINE (kEZbas) + MITOGEN-DOSE (kEZbas_Cd*Cd) + E2F/S-phase (kEZE2f) synthesis; DILUTED at division
+    (halving convention) and degraded by APC/C-Cdh1 (kDeEZ_C1*C1) -- so EZH2 is HIGH in committed/S cells (Cdh1 off,
+    diluted-but-rewritten) and CLEARED in G0 (Cdh1 on) -> elongated/arrested S ACCUMULATES EZH2.
+  * SKP2 = E2F target + MITOGEN-DOSE (kSySkp2_Cd*Cd), degraded by APC/C-Cdh1 (C1) -> HIGH in MB (~2.3x GNP).
+  * GRADED G1 LENGTHENING: subthreshold mitogen SLOWS growth (mu_eff prop. CyclinD1) -> longer Tc, no transient G0.
+  * Birth-p27 crutch RETIRED (P21_div at GNP baseline); MB G0 emerges from the CDK4/6-INK4 balance. Feature-C
+    commitment carryover across division kept.
 
 Generates simulations/fig_v44_wiring.{png,pdf}. Pure schematic (no simulation).
 Run:  ./venv/bin/python simulations/fig_v44_wiring.py
@@ -43,8 +53,8 @@ C = dict(
     act="#229954", inh="#c0392b", fb="#7d3c98", drug="#e74c3c", erase="#1f8a70",
 )
 
-fig, ax = plt.subplots(figsize=(18.4, 11.0))
-ax.set_xlim(0, 18.4); ax.set_ylim(0, 11.0); ax.set_aspect("equal"); ax.axis("off")
+fig, ax = plt.subplots(figsize=(18.4, 12.6))
+ax.set_xlim(0, 18.4); ax.set_ylim(-1.6, 11.0); ax.set_aspect("equal"); ax.axis("off")
 
 
 def region(x, y, w, h, fc, ec, label, lx=None, ly=None, fs=10.5):
@@ -81,9 +91,9 @@ def inhibit(p1, p2, color=C["inh"], lw=1.8, rad=0.0, z=2, shrink=7):
 
 
 # ===================== title =====================
-ax.text(9.2, 10.68, "v44 cell-cycle model — CyclinD1-centric wiring", fontsize=16, fontweight="bold", ha="center")
-ax.text(9.2, 10.22, "Ccnd1 PROMOTER (epigenetic locus) -> Ccnd1 mRNA (transcript) -> CyclinD1 protein (central node) -> two-step Rb restriction point -> cycle",
-        fontsize=9.0, ha="center", color="#555", style="italic")
+ax.text(9.2, 10.68, "v44 cell-cycle model — CyclinD1-centric wiring  (updated 2026-07-21: 4-mechanism mark · nerfed eraser · CyclinD1 = speed-limiter GOVERNOR · poised differentiation TRIPWIRE)", fontsize=12.2, fontweight="bold", ha="center")
+ax.text(9.2, 10.22, "Ccnd1 PROMOTER (epigenetic locus) -> Ccnd1 mRNA -> CyclinD1 protein (central node) -> two-step Rb R-point -> cycle    |    H3K27me3 = graded writing/dilution rate-sensor governing division",
+        fontsize=8.6, ha="center", color="#555", style="italic")
 
 # ===================== module regions =====================
 region(0.25, 6.35, 5.9, 3.9, C["hh"], C["hh_b"], "Mitogenic drive  —  Hedgehog / Gli + MYCN")
@@ -92,7 +102,7 @@ region(11.15, 5.55, 7.0, 4.7, C["cc"], C["cc_b"], "Cell-cycle engine  —  two-s
 region(11.15, 0.35, 7.0, 4.9, C["rep"], C["rep_b"], "DNA replication + mitotic switch / checkpoint")
 
 # ===================== central node: CyclinD1 protein =====================
-cd = node(8.55, 5.55, "CyclinD1\n(Cd protein)", w=2.35, h=1.15, fc=C["cd"], ec=C["cd_b"], fs=12, bold=True, lw=2.4)
+cd = node(8.55, 5.55, "CyclinD1  (Cd protein)\n= Hh MEMORY carrier\n(slow ~12h, inherited at ÷)", w=2.55, h=1.2, fc=C["cd"], ec=C["cd_b"], fs=9.5, bold=True, lw=2.4)
 
 # ===================== gene axis: PROMOTER -> mRNA -> CyclinD1 =====================
 prom = node(3.05, 5.55, "Ccnd1 PROMOTER\n(H3K27me3 locus)", w=2.55, h=1.0, fc=C["prom"], ec=C["prom_b"], fs=8.6, bold=True, lw=1.8)
@@ -117,15 +127,19 @@ ax.text(0.4, 7.95, "neg-fb Gli→Ptch1⊣Smo (broken in MB: Ptch1 f 1.0→~0.1 �
 # Gli + MYCN activate the PROMOTER
 arrow((smo[0]-0.3, smo[1]-0.32), (prom[0]-0.2, prom[1]+0.52), C["act"], rad=0.16, lw=1.7)   # Gli → promoter
 arrow((mycn[0], mycn[1]-0.31), (prom[0]+0.7, prom[1]+0.52), C["mycn_b"], rad=-0.12, lw=1.7)  # MYCN → promoter
-ax.text(3.05, 6.72, "activate transcription", fontsize=6.6, color=C["hh_b"], ha="center", style="italic")
+ax.text(3.05, 6.72, "activate transcription\n(direct Gli/MYCN drive k_Cd_tx_* carries the MB/GNP fold)", fontsize=6.2, color=C["hh_b"], ha="center", style="italic")
 
 # ===================== EZH2 / PRC2 / H3K27me3 (writes the promoter mark) =====================
-ezh2m = node(1.35, 4.15, "EZH2 mRNA\n(E2F target)", w=1.9, h=0.6, fc="#ffffff", ec=C["ezh2_b"], fs=7.6)
-ezh2 = node(1.35, 3.4, "EZH2 protein\n(concentration:\npreserved at ÷)", w=1.9, h=0.86, fc="#f4ecf7", ec=C["ezh2_b"], fs=7.2, bold=True)
+ezh2m = node(1.35, 4.2, "EZH2 mRNA\n(baseline + mitogen-dose\n+ E2F/S-phase)", w=2.0, h=0.78, fc="#ffffff", ec=C["ezh2_b"], fs=6.9)
+ezh2 = node(1.35, 3.3, "EZH2 protein\n(DILUTED at ÷;\nCdh1-degraded in G0)", w=2.0, h=0.86, fc="#f4ecf7", ec=C["ezh2_b"], fs=6.9, bold=True)
 prc2 = node(1.55, 1.55, "PRC2 complex\n(EZH2 × [a0 + a_rw·me3])", w=2.5, h=0.82, fc="#d7bde2", ec=C["ezh2_b"], fs=7.6, bold=True)
-mark = node(4.55, 2.55, "H3K27me3 @ Ccnd1\nme1 → me2 → me3\n(me2→me3 rate-limiting)", w=2.9, h=1.05, fc="#e8daef", ec=C["ezh2_b"], fs=7.8, bold=True)
-jmjd3 = node(4.7, 4.35, "Jmjd3 / Kdm6b\n(Gli1-induced eraser)", w=2.2, h=0.66, fc="#d5f5e3", ec=C["erase"], fs=7.2, bold=True)
+mark = node(4.55, 2.55, "H3K27me3 @ Ccnd1  (me1→me2→me3)\nWRITE (cooperative a_rw·me3^n_rw)\nvs erase + turnover + H3.3 + S-dilution", w=2.95, h=1.05, fc="#e8daef", ec=C["ezh2_b"], fs=6.9, bold=True)
+jmjd3 = node(4.7, 4.35, "Jmjd3 / Kdm6b eraser\n(Gli1-gated, NERFED-ON\nk_jmjd3_gli=0.005)", w=2.3, h=0.82, fc="#d1f2eb", ec=C["erase"], fs=6.6, bold=True)
 ezi = node(0.95, 0.72, "EZH2i (taz)", w=1.5, h=0.46, fc="#fdedeb", ec=C["drug"], fs=7.4, bold=True)
+# APC/C-Cdh1 (C1) degrades EZH2 in G0 (stabilized in S/G2 -> elongated S accumulates EZH2)
+cdh1e = node(3.5, 3.55, "APC/Cdh1\n(C1, active in G0)", w=1.7, h=0.62, fc="#fdf2e9", ec="#ca6f1e", fs=6.6, bold=True)
+inhibit((cdh1e[0]-0.55, cdh1e[1]-0.10), (ezh2[0]+0.62, ezh2[1]+0.10), "#ca6f1e", rad=0.15, shrink=3)
+ax.text(3.5, 4.02, "G0: degrade EZH2\n(S/G2: stable→accumulate)", fontsize=5.7, color="#ca6f1e", ha="center", style="italic")
 arrow(edge_pt(ezh2m, "b"), edge_pt(ezh2, "t"), C["act"])
 arrow(edge_pt(ezh2, "b"), (prc2[0]-0.2, prc2[1]+0.42), C["ezh2_b"], rad=0.12, lw=1.7)
 inhibit((ezi[0]+0.35, ezi[1]+0.22), (prc2[0]-0.55, prc2[1]-0.30), C["drug"], rad=-0.2, shrink=3)
@@ -133,19 +147,19 @@ inhibit((ezi[0]+0.35, ezi[1]+0.22), (prc2[0]-0.55, prc2[1]-0.30), C["drug"], rad
 arrow((prc2[0]+1.15, prc2[1]+0.18), (mark[0]-1.15, mark[1]-0.30), C["ezh2_b"], rad=-0.12, lw=1.9)  # write
 ax.text(3.1, 1.72, "methylate (write)", fontsize=6.4, color=C["ezh2_b"], ha="center", style="italic")
 arrow((mark[0]-1.25, mark[1]-0.05), (prc2[0]+1.1, prc2[1]+0.35), C["ezh2_b"], rad=-0.35, lw=1.6, ls=(0,(4,2)))  # read-write
-ax.text(2.35, 2.62, "read-write\nrecruit (a_rw·me3)", fontsize=6.1, color=C["ezh2_b"], ha="center", style="italic")
-inhibit((jmjd3[0]+0.2, jmjd3[1]-0.35), (mark[0]+0.2, mark[1]+0.55), C["erase"], shrink=3)   # Jmjd3 ⊣ mark
-ax.text(5.85, 3.5, "erase", fontsize=6.5, color=C["erase"], ha="left", style="italic")
-arrow((smo[0]+0.9, smo[1]-0.2), (jmjd3[0]+0.2, jmjd3[1]+0.36), C["erase"], rad=-0.28, lw=1.5, ls=(0,(5,2)))  # Gli→Jmjd3
-ax.text(6.0, 5.15, "Gli→Jmjd3: mitogen-gated eraser\n(high-Gli MB strips mark → ChIP MB<GNP)", fontsize=6.3, color=C["erase"], ha="left", fontweight="bold")
+ax.text(2.35, 2.62, "COOPERATIVE read-write\nrecruit (a_rw·me3^n_rw)", fontsize=6.0, color=C["ezh2_b"], ha="center", style="italic")
+inhibit((jmjd3[0]+0.2, jmjd3[1]-0.42), (mark[0]+0.2, mark[1]+0.55), C["erase"], shrink=3)   # Jmjd3 ⊣ mark (nerfed ON)
+ax.text(5.95, 3.55, "erase me3→me2\n(mitogen-gated)", fontsize=6.0, color=C["erase"], ha="left", style="italic")
+arrow((smo[0]+0.9, smo[1]-0.2), (jmjd3[0]+0.2, jmjd3[1]+0.44), C["erase"], rad=-0.28, lw=1.4, ls=(0,(5,2)))  # Gli→Jmjd3 (ON)
+ax.text(6.05, 5.2, "eraser NERFED-ON: MB (high Gli) strips me3\n→ ChIP MB<GNP; fold still via direct transcription", fontsize=6.1, color=C["erase"], ha="left", fontweight="bold")
 # H3K27me3 basal turnover loop (the S-phase ÷2 arrow from DNA replication is drawn later, once `dna` exists)
 arrow((mark[0]-1.5, mark[1]+0.15), (mark[0]-1.5, mark[1]-0.15), C["rep_b"], rad=-1.7, lw=1.3, shrink=2)   # + turnover loop
 ax.text(2.75, 2.55, "+ turnover", fontsize=5.8, color=C["rep_b"], ha="center", va="center", style="italic")
 
 # ===================== the epigenetic gate on the PROMOTER =====================
 inhibit((mark[0]-0.4, mark[1]+0.55), (prom[0]+0.0, prom[1]-0.52), C["fb"], rad=-0.15, lw=2.4, shrink=4)  # me3 ⊣ promoter
-ax.text(6.75, 4.62, "H3K27me3 closes the Ccnd1 promoter\n(↓ transcription; Hill on PRC2, floor f0)",
-        fontsize=6.6, color=C["fb"], ha="center", fontweight="bold")
+ax.text(6.75, 4.62, "H3K27me3 closes Ccnd1 = SPEED-LIMITER GOVERNOR\n(caps division rate; Hill on PRC2, floor f0)",
+        fontsize=6.5, color=C["fb"], ha="center", fontweight="bold")
 # nascent Ccnd1 RNA ⊣ PRC2 (eviction; double-negative)
 inhibit((mrna[0]-0.35, mrna[1]-0.36), (prc2[0]+1.0, prc2[1]+0.42), C["tx_b"], rad=0.45, shrink=3)
 ax.text(6.6, 3.95, "nascent RNA ⊣ PRC2 (eviction)", fontsize=6.0, color=C["tx_b"], ha="left", style="italic")
@@ -179,12 +193,16 @@ ax.text(9.7, 7.72, "Vmax block", fontsize=6.0, color=C["drug"], ha="center", sty
 
 # ===================== Skp2-p27 toggle + MB birth-p27 =====================
 p27 = node(11.75, 6.6, "p27 (=P21)", w=1.5, h=0.58, fc="#fbeee6", ec="#b9770e", fs=8.2, bold=True)
-skp2 = node(13.4, 6.55, "Skp2", w=1.05, h=0.52, fs=8.2)
-inhibit((p27[0]+0.55, p27[1]-0.15), (skp2[0]-0.5, skp2[1]+0.1), C["inh"], rad=-0.15, shrink=3)  # p27 side
-inhibit((skp2[0]-0.35, skp2[1]-0.2), (p27[0]+0.45, p27[1]-0.28), C["inh"], rad=0.3, shrink=3)   # Skp2 ⊣ p27 (degrade)
-arrow((e2f[0]-0.2, e2f[1]+0.28), (skp2[0]+0.2, skp2[1]-0.28), C["act"], rad=-0.35, lw=1.3)       # E2F → Skp2
+skp2 = node(13.4, 6.55, "Skp2\n(E2F + mitogen-dose)", w=1.85, h=0.62, fs=7.0, bold=True)
+cdh1s = node(13.4, 5.6, "APC/Cdh1 (C1)", w=1.85, h=0.5, fc="#fdf2e9", ec="#ca6f1e", fs=7.0, bold=True)
+inhibit((p27[0]+0.55, p27[1]-0.15), (skp2[0]-0.85, skp2[1]+0.1), C["inh"], rad=-0.15, shrink=3)  # p27 side
+inhibit((skp2[0]-0.7, skp2[1]-0.2), (p27[0]+0.45, p27[1]-0.28), C["inh"], rad=0.3, shrink=3)     # Skp2 ⊣ p27 (degrade)
+arrow((e2f[0]-0.2, e2f[1]+0.28), (skp2[0]+0.35, skp2[1]-0.28), C["act"], rad=-0.35, lw=1.3)       # E2F → Skp2
+inhibit(edge_pt(cdh1s, "t"), edge_pt(skp2, "b"), "#ca6f1e", shrink=3)                             # Cdh1 ⊣ Skp2 (degrade)
+arrow((cd[0]+1.1, cd[1]+0.1), (skp2[0]-0.5, skp2[1]-0.32), "#0e6251", rad=-0.30, lw=1.3, ls=(0,(4,2)))  # CyclinD1 dose → Skp2
 inhibit((p27[0]+0.4, p27[1]+0.28), (rbm[0]-0.3, rbm[1]-0.34), C["inh"], rad=-0.2, shrink=3)      # p27 ⊣ CDK2
-ax.text(11.75, 5.95, "birth p27:  GNP 0.6 → MB 1.8\n→ MB p27-high / G0-rich (fold-safe)", fontsize=6.6, color="#b9770e", ha="center", fontweight="bold")
+ax.text(15.35, 6.55, "Skp2 mitogen-induced\n→ HIGH in MB (~2.3×);\nCdh1 degrades it in G0", fontsize=6.2, color="#ca6f1e", ha="left", fontweight="bold")
+ax.text(11.4, 5.85, "birth-p27 crutch RETIRED\n(P21_div at GNP baseline;\nMB G0 from CDK4/6–INK4 balance)", fontsize=6.0, color="#b9770e", ha="center", style="italic")
 
 # ===================== S-phase / replication / mitosis =====================
 ori = node(16.7, 6.35, "origins fire\n(Rc→aRc)", w=1.55, h=0.66, fc="#ffffff", ec=C["rep_b"], fs=7.6)
@@ -193,8 +211,8 @@ dna = node(14.3, 3.3, "DNA replication\nDna: 0 → 1", w=2.05, h=0.72, fc="#ffff
 arrow(edge_pt(ori, "b"), (dna[0]+0.7, dna[1]+0.4), C["act"], rad=0.25)
 # DNA replication HALVES the H3K27me3 mark (replicative dilution at S)
 arrow((dna[0]-1.05, dna[1]-0.35), (mark[0]+1.5, mark[1]-0.32), C["rep_b"], rad=0.45, lw=1.6, ls=(0,(5,2)))
-ax.text(9.35, 1.72, "S-PHASE ÷2:  DNA replication halves H3K27me3\n(DNA doubles, new histones unmethylated → dilution)",
-        fontsize=6.3, color=C["rep_b"], ha="center", va="center", style="italic", fontweight="bold")
+ax.text(9.15, 1.78, "S-PHASE dilution — CONTINUOUS, fork-gated (k_dil_S);\nelongated S → more concurrent re-write",
+        fontsize=6.1, color=C["rep_b"], ha="center", va="center", style="italic", fontweight="bold")
 hu = node(11.95, 3.3, "HU", w=0.85, h=0.5, fc="#fdedeb", ec=C["drug"], fs=8.2, bold=True)
 inhibit(edge_pt(hu, "r"), (dna[0]-1.05, dna[1]), C["drug"], shrink=3)
 ax.text(12.05, 2.7, "↓ fork speed → S↑", fontsize=6.6, color=C["drug"], ha="center", style="italic")
@@ -209,13 +227,16 @@ arrow((mpf[0]-1.3, mpf[1]-0.3), (mit[0]+1.35, mit[1]+0.02), "#922b21", rad=0.2, 
 arrow((mit[0]+1.1, mit[1]+0.25), (dna[0]-0.15, dna[1]-0.38), "#922b21", rad=-0.15, lw=1.3, ls=(0,(3,2)))  # Dna → 0 (re-license)
 arrow((mit[0]-0.6, mit[1]+0.28), (cd[0]+0.85, cd[1]-0.56), C["cc_b"], rad=-0.28, lw=2.2)            # daughter restarts → CyclinD1 / G1
 ax.text(10.15, 4.05, "daughter\nre-enters G1", fontsize=6.3, color=C["cc_b"], ha="center", style="italic", fontweight="bold")
-ax.text(8.15, 0.5, "at division (E_div):  Dna→0 · mass÷2 · MPF/Cdc20→0 · cyclins→low · p27→BIRTH (P21_div; MB 1.8)\n"
-        "PRESERVED across ÷:  EZH2 = concentration (NOT halved) · Feature-C carryover (pRb / CycE / low-p27)",
-        fontsize=6.1, color="#922b21", ha="center", fontweight="bold")
+ax.text(8.15, 0.5, "at division (E_div):  Dna→0 · mass÷2 · MPF/Cdc20→0 · cyclins→low · p27→BIRTH (P21_div, GNP baseline) · EZH2 ÷2 (diluted)\n"
+        "Feature-C carryover across ÷ (pRb / CycE / low-p27) · EZH2 re-written in S/G2 (Cdh1 off) so committed cells stay EZH2-high",
+        fontsize=6.0, color="#922b21", ha="center", fontweight="bold")
 
 # ===================== growth / size gates =====================
 region(6.75, 0.35, 4.15, 3.15, C["growth"], C["growth_b"], "Cell growth & size", fs=9.5)
-mass = node(8.8, 2.55, "cell mass\n(grows, ÷2 at ÷)", w=2.2, h=0.68, fc="#ffffff", ec=C["growth_b"], fs=7.8)
+mass = node(8.8, 2.62, "cell mass  (grows at mu_eff, ÷2 at ÷)\nmu_eff ∝ CyclinD1  →  GRADED G1 lengthening", w=3.35, h=0.78, fc="#ffffff", ec=C["growth_b"], fs=6.7)
+# CyclinD1 sets the growth rate: subthreshold mitogen slows growth -> longer Tc (no transient G0)
+arrow((cd[0]-0.55, cd[1]-0.58), (mass[0]+0.3, mass[1]+0.42), "#0e6251", rad=0.2, lw=1.3, ls=(0,(4,2)))
+ax.text(7.35, 3.32, "low Shh → slow growth → long G1\n(EZH2 S-supply falls slowly = buffer)", fontsize=5.9, color="#607d8b", ha="center", style="italic", fontweight="bold")
 mcommit = node(7.75, 1.25, "M_commit\n(G0→G1)", w=1.55, h=0.6, fc="#ffffff", ec=C["growth_b"], fs=7.2)
 msize = node(9.85, 1.25, "M_size\n(→ S-entry)", w=1.55, h=0.6, fc="#ffffff", ec=C["growth_b"], fs=7.2)
 arrow((mass[0]-0.5, mass[1]-0.3), edge_pt(mcommit, "t"), C["growth_b"], ls=":", lw=1.3, rad=0.15)
@@ -227,6 +248,22 @@ arrow(edge_pt(msize, "r"), (ori[0]-0.6, ori[1]-0.3), C["growth_b"], ls=":", lw=1
 # ===================== E2F → EZH2 writer feedback (cycle-gated) =====================
 arrow((e2f[0]-0.35, e2f[1]-0.2), (ezh2m[0]+0.6, ezh2m[1]+0.28), C["ezh2_b"], rad=0.30, lw=1.5, ls=(0,(6,2)))
 ax.text(11.7, 4.45, "E2F drives EZH2\n(writer is cycle-gated)", fontsize=6.6, color=C["ezh2_b"], ha="center", style="italic", fontweight="bold")
+
+# ===================== 2nd PRC2 target: poised BIVALENT differentiation genes (the speed-limit tripwire) =====================
+region(0.25, -1.5, 11.35, 1.5, "#fdf6e3", "#b9770e",
+       "Poised BIVALENT differentiation genes  —  the SPEED-LIMIT tripwire  (2nd PRC2 target; off by default, with_diff_gene)", lx=0.45, ly=-0.16)
+dgloc = node(2.55, -0.88, "diff-locus me3 (HEAVY)\nme1→me2→me3 + H3K4me3 poise\nHIGH threshold · diluted by S-phase", w=3.5, h=0.98, fc="#e8daef", ec=C["ezh2_b"], fs=6.2, bold=True)
+dgact = node(6.55, -0.88, "PREMATURE ACTIVATION\n(Diff: me3 < threshold;\nself-erases → latches)", w=2.7, h=0.9, fc="#fadbd8", ec=C["inh"], fs=6.4, bold=True)
+dgexit = node(9.85, -0.88, "→ G0 EXIT\n(completes final mitosis;\ndifferentiation downstream)", w=2.7, h=0.9, fc="#fbeee6", ec="#b9770e", fs=6.2, bold=True)
+arrow((prc2[0]+0.15, prc2[1]-0.42), (dgloc[0]-1.1, dgloc[1]+0.52), C["ezh2_b"], rad=0.18, lw=1.5, ls=(0,(4,2)))    # same PRC2 writer
+ax.text(1.05, 0.42, "same EZH2/PRC2\nwriter (slow me3)", fontsize=5.6, color=C["ezh2_b"], ha="center", style="italic")
+arrow(edge_pt(dgloc, "r"), edge_pt(dgact, "l"), C["inh"], lw=1.9)                                                  # me3 lost -> activation
+ax.text(5.05, -0.5, "too fast /\nEZH2i", fontsize=5.8, color=C["inh"], ha="center", style="italic", fontweight="bold")
+arrow(edge_pt(dgact, "r"), edge_pt(dgexit, "l"), "#b9770e", lw=1.9)                                                # activation -> G0 exit
+inhibit((dgexit[0]-0.1, dgexit[1]+0.52), (mcommit[0]+0.35, mcommit[1]-0.32), "#b9770e", rad=-0.25, lw=1.5, shrink=4)  # ⊣ re-commitment
+ax.text(9.55, 0.55, "⊣ CyclinD1 re-commitment\n(post-mitotic)", fontsize=5.7, color="#b9770e", ha="center", style="italic")
+ax.text(5.9, -1.4, "fires ONLY if division is TOO FAST (writer can't outrun S-dilution) OR the writer is lost (EZH2i)  —  the 'too fast → premature differentiation-gene activation' event",
+        fontsize=6.2, color="#922b21", ha="center", fontweight="bold", style="italic")
 
 # ===================== phase bar + legend =====================
 pm = [("G0", "#fbeee6", "#b9770e"), ("G1", "#eaf2f8", C["cc_b"]), ("S", "#d1f2eb", C["rep_b"]), ("G2/M", "#fdebd0", C["chk_b"])]
@@ -240,10 +277,12 @@ leg = [Line2D([0],[0], color=C["act"], lw=2, label="activation"),
        Line2D([0],[0], color=C["inh"], lw=2, label="inhibition (⊣)"),
        Line2D([0],[0], color=C["fb"], lw=2.4, label="H3K27me3 closes the Ccnd1 promoter"),
        Line2D([0],[0], color=C["ezh2_b"], lw=1.6, ls=(0,(4,2)), label="PRC2 read-write / E2F→EZH2 writer"),
-       Line2D([0],[0], color=C["erase"], lw=1.6, ls=(0,(5,2)), label="Gli→Jmjd3 mark eraser"),
+       Line2D([0],[0], color="#ca6f1e", lw=1.8, label="APC/Cdh1 (C1) degrades EZH2 & Skp2 in G0"),
+       Line2D([0],[0], color="#0e6251", lw=1.4, ls=(0,(4,2)), label="CyclinD1 mitogen-dose (→EZH2, Skp2, growth)"),
+       Line2D([0],[0], color=C["erase"], lw=1.6, ls=(0,(5,2)), label="Gli→Jmjd3 eraser (NERFED-ON, k_jmjd3_gli=0.005)"),
        Line2D([0],[0], color=C["cd_b"], lw=2.2, label="CyclinD1 axis / hand-off"),
        Line2D([0],[0], color=C["rb_b"], lw=1.7, label="two-step Rb (mono-P → hyper-P)"),
-       Line2D([0],[0], color=C["growth_b"], lw=1.6, ls=":", label="size gate"),
+       Line2D([0],[0], color="#b9770e", lw=1.9, label="poised differentiation tripwire → G0 exit"),
        Line2D([0],[0], color=C["drug"], lw=2, label="drug / input")]
 ax.legend(handles=leg, loc="lower right", fontsize=7.6, framealpha=0.93, ncol=2,
           columnspacing=1.1, handlelength=1.8).set_zorder(10)

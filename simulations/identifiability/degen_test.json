@@ -1,0 +1,78 @@
+{
+ "base": {
+  "CyclinD1 GNP+HHi/GNP": 0.10013626481728105,
+  "CyclinD1 MB+HHi/MB": 0.11243896719284323,
+  "CyclinD1 MB/GNP": 4.115878132451318,
+  "CyclinD2 MB/GNP": 2.392237037591258,
+  "CyclinD2 GNP+HHi/GNP": 0.6607013212505675,
+  "CyclinD2 MB+HHi/MB": 0.7719403434624906,
+  "MYCN GNP+HHi/GNP": 0.9084517548765747,
+  "MYCN MB+HHi/MB": 0.9382867901256312,
+  "MYCN MB/GNP": 2.710968396125652,
+  "Gli1 GNP+HHi reduction": 0.999999468070011,
+  "Gli1 MB/GNP": 7.1527796814323015,
+  "EZH2 MB/GNP": 2.449266291955207,
+  "Skp2 MB/GNP": 2.2321890874355645,
+  "EZH2i CycD1 fold (GNP)": 1.5995087292011223,
+  "EZH2 G0/cycling (~0.6)": 0.6347648054189254,
+  "GNP+SHH cycles (>0 div)": 1.0,
+  "GNP-SHH arrest (0 div)": 0.0,
+  "GNP+HHi arrest (0 div)": 0.0,
+  "GNP serum-starve arrest": 0.0,
+  "MB cycles (>0 div)": 1.0,
+  "MB+CDK4/6i arrest (0)": 0.0,
+  "MB+CDK4/6i+EZH2i no rescue": 0.0,
+  "Period GNP (~22h)": 17.2045250942728,
+  "MB 2N (G0+G1) count% (flow)": 68.33022897260508,
+  "MB S count% (flow; BrdU Ts~3h)": 22.171476051595615,
+  "MB G2+M duration ~2.5h (direct)": 3.5002888515038504,
+  "MB HU S fold": 0.6716637413498082,
+  "MB HU G2 fold": 0.33964701100928896,
+  "EZH2 transcript S/G0 (1.8-2.5)": 1.7980428552479295,
+  "EZH2 protein G2/G0 (1.48)": 1.8758837405548265,
+  "EZH2 Palbo mRNA drop (~0.44)": 0.5183202482343733,
+  "HU EZH2-in-S boost (1.31)": 1.3202968501784644
+ },
+ "report": {
+  "A_2.0": {
+   "max_rel_diff": 2.4324064234010067e-07,
+   "worst": "Skp2 MB/GNP",
+   "n_changed": 0
+  },
+  "A_0.5": {
+   "max_rel_diff": 3.435546745073745e-07,
+   "worst": "EZH2 transcript S/G0 (1.8-2.5)",
+   "n_changed": 0
+  },
+  "B_2.0": {
+   "max_rel_diff": 0.008254294890511353,
+   "worst": "CyclinD1 GNP+HHi/GNP",
+   "n_changed": 17
+  },
+  "B_0.5": {
+   "max_rel_diff": 0.01640798966105214,
+   "worst": "CyclinD1 GNP+HHi/GNP",
+   "n_changed": 17
+  },
+  "C_2.0": {
+   "max_rel_diff": 0.0026706476259102364,
+   "worst": "CyclinD1 GNP+HHi/GNP",
+   "n_changed": 17
+  },
+  "C_0.5": {
+   "max_rel_diff": 0.005317669024226531,
+   "worst": "CyclinD1 GNP+HHi/GNP",
+   "n_changed": 17
+  },
+  "ctrl_2.0": {
+   "max_rel_diff": 0.4475520983509374,
+   "worst": "CyclinD1 MB+HHi/MB",
+   "n_changed": 17
+  },
+  "ctrl_0.5": {
+   "max_rel_diff": 0.380410182418056,
+   "worst": "CyclinD1 MB+HHi/MB",
+   "n_changed": 17
+  }
+ }
+}

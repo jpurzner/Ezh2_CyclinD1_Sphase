@@ -454,8 +454,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_mitogen_tracker=False, with_diff_gene=False, decouple_commit=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
                     with_p27_optionB=True, with_cdk6_gli=True, with_cd_hyper_escape=True,
-                    with_mark_amplifier=False, with_proximal_distal=False,
-                    params=None):   # 2026-08-09 BAKED (JP): integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0) = default. Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
+                    with_mark_amplifier=False, with_proximal_distal=True,
+                    measured_ccnd1=True,
+                    params=None):   # 2026-09-21 BAKED (JP): with_proximal_distal ON = default (two-compartment PRC2: distal Mk reservoir + proximal P_prox occupancy; expressed-but-marked while cycling P_prox~0, deep reservoir-sustained repression in arrest P_prox~0.70; MB transient G0 preserved via escape). Costs 1 noisy target (CyclinD1 GNP+HHi/GNP 0.08 vs 0.157) -> 30/32; loss is structural (deeper arrest raises shared mark), not w_cd_prox (barely moves it). Legacy via with_proximal_distal=False (31/32). 2026-08-09 BAKED: integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0). Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -1063,8 +1064,15 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             m = m.replace("CycD1_transcription: => Cd_mRNA; (", "CycD1_transcription: => Cd_mRNA; mark_amp*(")
             assert "mark_amp :=" in m and "Cell*mark_amp*(" in m and "Cd_mRNA; mark_amp*(" in m, "mark amplifier wiring failed"
 
-        if with_proximal_distal:
-            # ===== JP 2026-08-09 TWO-COMPARTMENT PRC2 / H3K27me3 (EXPLORATION, default OFF). Requires with_cdk6_gli + chain. =====
+        # proximal/distal is the BAKED default (2026-09-21); it needs the chain (Mk) + with_cdk6_gli (CDK6
+        # synthesis) arms and is incompatible with the amplifier. A legacy/exploration caller that turns any
+        # of those off (or requests with_mark_amplifier) auto-falls-back to single-compartment PRC2 instead
+        # of erroring -- so build_model_v44(with_cdk6_gli=False, ...) etc. keep working.
+        _prox_ok = (with_proximal_distal and not with_mark_amplifier
+                    and "species Mk in Cell" in m and "Cdk6_synthesis: => cdk6; Cell*(" in m
+                    and m.count("CycD1_transcription: => Cd_mRNA; (") == 1)
+        if _prox_ok:
+            # ===== JP 2026-08-09 TWO-COMPARTMENT PRC2 / H3K27me3 (BAKED default 2026-09-21). Requires with_cdk6_gli + chain. =====
             # JP's molecular mechanism: CDK6 & CyclinD1 are heavily H3K27me3-marked yet highly EXPRESSED because the
             # PROXIMAL promoter/TSS is kept DEPLETED of mark+complex (Pol2 elongation clears it), while the broad DISTAL
             # region holds H3K27me3 as a RESERVOIR. Repression is the PRC2 COMPLEX (not the mark); the mark recruits/holds
@@ -1083,10 +1091,9 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
             # sharp elong_gate keep normal G1 E2f-dips from loading P_prox (only SUSTAINED arrest does). a_P/n_anch =
             # reservoir-sustain strength (SCENARIO knob: small->EZH2-gated/leaky 'B'; large->reservoir-sustained 'A');
             # K_el/n_el = elongation gate; k_onP/k_offP = proximal kinetics; f_P/K_P/n_P = extra repression strength.
-            assert not with_mark_amplifier, "with_proximal_distal supersedes with_mark_amplifier; do not enable both (double-wrap)"
-            assert "species Mk in Cell" in m, "proximal/distal needs the H3K27 chain reservoir (Mk)"
-            assert "Cdk6_synthesis: => cdk6; Cell*(" in m, "proximal/distal needs with_cdk6_gli (CDK6 synthesis)"
-            assert m.count("CycD1_transcription: => Cd_mRNA; (") == 1, "proximal/distal: CyclinD1 transcription not in expected form"
+            # prerequisites verified by _prox_ok above (chain Mk + with_cdk6_gli CDK6-synthesis + single
+            # CyclinD1 transcription, and NOT with_mark_amplifier) -- if unmet, the block is skipped and the
+            # model falls back to single-compartment PRC2 (see the _prox_ok guard).
             m = m.replace("\nend",
                 "\n  a_P = 0.10; n_anch = 4; K_el = 0.20; n_el = 6;   // proximal load = reservoir a_P*Mk^n_anch gated by elongation-OFF; elong_gate = E2f Hill (K_el,n_el). DEFAULT = transient scenario 'C'."
                 "\n  k_onP = 0.05; k_offP = 0.1; basal_offP = 0.002;   // proximal PRC2 loading / eviction kinetics (slow enough that transient G1 E2f-dips do not load P_prox)"
@@ -1203,6 +1210,22 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                        'w_p19': 0.6655007434943913, 'k_Cd_tx_Gli_max': 0.24197652013556434,
                        'k_Cd_tx_MYCN': 0.11031706915457935, 'w_cd_hyper': 0.1}
         m = _apply_overrides(m, {k: v for k, v in _integrated.items() if (k + ' = ') in m})
+        # 2026-10-16 (JP): accept the MEASURED CyclinD1 mRNA half-life. The stability-catalog whole-cell
+        # median is ~3.4 h (135 measurements; confirmed in dividing neural progenitors mufteev2026 NPC 2.0 h /
+        # serdar2025 embryonic cortex 3.5 h), NOT the 11-12 h the slow reservoir implied. The Hh-withdrawal
+        # memory is NOT a slow half-life -- it is the LARGE CyclinD1 pool (GNP ~5x, MB ~21x above the K_CdRb
+        # commitment threshold) DRAINING past threshold: coast ~ tau*ln(reservoir/threshold) ~1 cycle (GNP 14 h,
+        # MB 17 h; sim_ccnd1_reservoir_test.py). The old 11.5 h reservoir OVERSHOT to ~3 cycles. Swap
+        # k_Cd_mRNA_deg 0.001 -> 0.003246 (t1/2 3.4 h; UPH=62.8 model-units/h) and scale ALL tx params by the
+        # SAME ratio (3.246) so the reservoir LEVEL is held (fold ratios, g_prc2 and H3.3 terms reading Cd_mRNA
+        # unchanged) -- only the DRAIN TIME changes. Legacy slow reservoir via measured_ccnd1=False.
+        if measured_ccnd1:
+            _r = 3.2462   # = (ln2 / (3.4 h * 62.8 units/h)) / 0.001
+            _ccnd1 = {'k_Cd_mRNA_deg': 0.001 * _r,
+                      'k_Cd_tx_basal': 0.000529 * _r,
+                      'k_Cd_tx_Gli_max': 0.24197652013556434 * _r,
+                      'k_Cd_tx_MYCN': 0.11031706915457935 * _r}
+            m = _apply_overrides(m, {k: v for k, v in _ccnd1.items() if (k + ' = ') in m})
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
     if params:

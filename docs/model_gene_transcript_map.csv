@@ -1,0 +1,35 @@
+gene_mouse,gene_human,category,mrna_species,protein_or_other_species,has_mrna_species,rnaseq_target,rnaseq_fold_note,role,module
+Ccnd1,CCND1,transcript_in_model,Cd_mRNA,Cd,yes,yes,MB/GNP 5.07x; EZH2i ~2.2x,Mitogen vs EZH2 convergence node; drives Rb,HH
+Ezh2,EZH2,transcript_in_model,EZH2m,EZH2,yes,yes,cycling/G0 ~2.0x; G2/G0 1.48x; MB/GNP 2.05x,PRC2 writer; S-phase-duration integrator,EZH2
+Gli1,GLI1,transcript_in_model,Gli1_mRNA,Gli1;Gli1_epi,yes,yes,MB/GNP 6.9x; +HHi >98% down,HH amplifier/readout,HH
+Ptch1,PTCH1,transcript_in_model,Ptch1_mRNA,Ptch1_free;SHH_Ptch,yes,partial,copy-number pinned by Gli1 fold,SHH receptor; Gli target; broken loop in MB,HH
+Mycn,MYCN,protein_only,,MYCN,no,yes,MB/GNP 2.86x,Mitogen-independent CyclinD1 floor; no mRNA species,HH
+Shh,SHH,input,,SHH,no,no,,Pathway ligand input,HH
+Smo,SMO,protein_only,,Smo_active,no,no,,HH transducer; vismodegib target,HH
+Gli2/Gli3,GLI2/GLI3,protein_only_lumped,,Gli_act;Gli_rep,no,no,,Activator/repressor Gli forms; lumped no transcript,HH
+Rb1,RB1,protein_only,,Rb;Rbm;pRb;RbE2f;RbmE2f,no,no,,Restriction-point switch; pRb(hyper)=Ser807/811,CC
+E2f1,E2F1,protein_only,,E2f;RbE2f;RbmE2f,no,palbo_qpcr,E2f1 down 56.7% palbo,Restriction-point TF,CC
+Ccne1,CCNE1,protein_only,,Ce;CeP21,no,no,,Cyclin E (with Cdk2); S-entry,CC
+Ccna2,CCNA2,protein_only,,Ca;CaP21,no,no,,Cyclin A (with Cdk2); S/G2,CC
+Ccnb1,CCNB1,protein_only,,MPF;preMPF,no,no,,Cyclin B (with Cdk1); mitotic switch,MIT
+Cdk4,CDK4,implicit,,,no,no,,CyclinD1 partner kinase; palbociclib target,CC
+Cdk6,CDK6,implicit,,,no,no,,CyclinD1 partner kinase; palbociclib target,CC
+Cdk2,CDK2,implicit,,,no,no,,CyclinE/A partner kinase,CC
+Cdk1,CDK1,implicit,,,no,no,,CyclinB partner kinase,MIT
+Skp2,SKP2,protein_only,,Skp2,no,no,,E2F-target F-box; degrades p27,CC
+Fzr1,FZR1,protein_only,,C1;pC1;E1C1,no,no,,APC/C-Cdh1,CC
+Fbxo5,FBXO5,protein_only,,E1;E1C1,no,no,,Emi1; APC/C-Cdh1 inhibitor,CC
+Cdc20,CDC20,protein_only,,Cdc20,no,no,,Mitotic APC/C activator,MIT
+Chek1,CHEK1,protein_only,,Chk1,no,no,,Intra-S replication checkpoint,MIT
+Cdc25a,CDC25A,protein_only,,Cdc25a,no,no,,MPF-activating phosphatase,MIT
+Wee1,WEE1,protein_only,,Wee1a,no,no,,MPF-inhibiting kinase,MIT
+Pcna,PCNA,protein_only,,aPcna;iPcna,no,no,,Replication processivity; p21 sink,CC
+Dtl,DTL,constant,,Cdt2,no,no,,CRL4-Cdt2 p21 degradation; constant,CC
+Trp53,TP53,protein_only,,P53,no,no,,DNA-damage arm,CC
+Kdm6b,KDM6B,eraser_term,,k_jmjd3_gli*Gli1,no,direction_only,,Gli-driven H3K27me3 demethylase,H3K27
+Eed,EED,complex_term,,PRC2 read-write,no,no,,PRC2 allosteric reader,H3K27
+Suz12,SUZ12,complex_term,,PRC2 accessory,no,no,,PRC2 core/recruitment,H3K27
+Cdkn2a,CDKN2A,cki_constant,,p16,no,cki_panel,GNP 0 -> MB high (~139x),p16 INK4; H3K27me3-silenced GNP,CKI
+Cdkn2c,CDKN2C,cki_constant,,p18,no,cki_panel,GNP 0.464 -> MB higher,p18 constitutive INK4,CKI
+Cdkn1b,CDKN1B,cki_constant,,P21 pool,no,cki_panel,high at birth (P21_div),p27 dominant CIP/KIP (see problem #1),CKI
+Cdkn1a,CDKN1A,cki_constant,,P21 species,no,cki_panel,,p21 Heldt literal; conflated with p27 (problem #1),CKI

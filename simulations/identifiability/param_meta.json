@@ -1,0 +1,332 @@
+{
+"K_CdRb": {
+"module": "Rb-E2F",
+"role": "CyclinD-Rb phos half-max",
+"prov": "INHERITED",
+"range": [
+0.24,
+0.42
+],
+"celltype": null
+},
+"K_E2f_EZ": {
+"module": "EZH2",
+"role": "E2f-EZH2 half-max",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"K_Skp2_Cd": {
+"module": "Skp2-p27/CKI",
+"role": "Skp2 CyclinD-dose half-max",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"K_g1len": {
+"module": "Growth-size",
+"role": "G1-lengthening growth half-max",
+"prov": "FREE",
+"range": null,
+"celltype": null
+},
+"K_prc2": {
+"module": "EZH2",
+"role": "PRC2 repression half-max",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"Kez_cd": {
+"module": "EZH2",
+"role": "CyclinD-dose half-max EZH2 synth",
+"prov": "SOFT",
+"range": null,
+"celltype": null
+},
+"KmHU_fire": {
+"module": "HU",
+"role": "HU origin-firing half-max",
+"prov": "SOFT",
+"range": null,
+"celltype": null
+},
+"M_commit": {
+"module": "Growth-size",
+"role": "commitment size threshold",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"M_size": {
+"module": "Growth-size",
+"role": "S-entry critical size",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"P21_div": {
+"module": "Skp2-p27/CKI",
+"role": "birth p27/p21 at division",
+"prov": "MEASURED",
+"range": null,
+"celltype": [
+0.0,
+0.6
+]
+},
+"Ptch1_copy_number": {
+"module": "Hedgehog",
+"role": "Ptch1 functional copy number",
+"prov": "MEASURED",
+"range": null,
+"celltype": [
+1.0,
+0.1
+]
+},
+"a0_prc2": {
+"module": "H3K27me3",
+"role": "PRC2 basal nucleation rate",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"a_rw_prc2": {
+"module": "H3K27me3",
+"role": "PRC2 read-write rate",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"del_mk": {
+"module": "H3K27me3",
+"role": "mark baseline removal rate",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"f0_prc2": {
+"module": "EZH2",
+"role": "PRC2 basal repression fraction",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"f_commit_carry": {
+"module": "Rb-E2F",
+"role": "committed-state carryover fraction",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"g_prc2": {
+"module": "H3K27me3",
+"role": "PRC2 repression gain",
+"prov": "FREE",
+"range": null,
+"celltype": null
+},
+"kDeEZ": {
+"module": "EZH2",
+"role": "EZH2 protein degradation",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"kDeEZ_C1": {
+"module": "EZH2",
+"role": "EZH2 degradation by Cdh1",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"kDeP21Cd": {
+"module": "Skp2-p27/CKI",
+"role": "p21 clearance CyclinD-gated",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"kDsRbmE2f": {
+"module": "Rb-E2F",
+"role": "RbP:E2f dissociation rate",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"kEZE2f": {
+"module": "EZH2",
+"role": "EZH2 synthesis via E2f",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"kEZbas": {
+"module": "EZH2",
+"role": "EZH2 basal synthesis",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"kEZbas_Cd": {
+"module": "EZH2",
+"role": "EZH2 basal synth CyclinD-gated",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"kPhRbCd": {
+"module": "Rb-E2F",
+"role": "Rb phos by CyclinD",
+"prov": "MEASURED",
+"range": [
+0.1,
+0.2
+],
+"celltype": null
+},
+"kSyDna": {
+"module": "DNA-replication",
+"role": "DNA synthesis rate",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"kSySkp2_Cd": {
+"module": "Skp2-p27/CKI",
+"role": "Skp2 synth CyclinD-dose",
+"prov": "MEASURED",
+"range": null,
+"celltype": null
+},
+"k_Cd_mRNA_deg": {
+"module": "CyclinD1",
+"role": "CyclinD1 mRNA degradation",
+"prov": "FREE",
+"range": null,
+"celltype": null
+},
+"k_Cd_tx_Gli_max": {
+"module": "CyclinD1",
+"role": "CyclinD1 Gli-driven tx max",
+"prov": "MEASURED",
+"range": [
+0.1,
+0.2
+],
+"celltype": null
+},
+"k_Cd_tx_MYCN": {
+"module": "CyclinD1",
+"role": "CyclinD1 MYCN-driven tx",
+"prov": "MEASURED",
+"range": [
+0.02,
+0.045
+],
+"celltype": null
+},
+"k_Cd_tx_basal": {
+"module": "CyclinD1",
+"role": "CyclinD1 basal transcription",
+"prov": "MEASURED",
+"range": [
+0.00016,
+0.00034
+],
+"celltype": null
+},
+"k_dil_S": {
+"module": "H3K27me3",
+"role": "S-phase mark dilution rate",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"k_h33": {
+"module": "H3K27me3",
+"role": "H3.3 turnover mark loss",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"k_jmjd3_gli": {
+"module": "H3K27me3",
+"role": "Gli-driven JMJD3 erasure",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"k_mu_cki": {
+"module": "Growth-size",
+"role": "CKI-growth slowdown coupling",
+"prov": "SOFT",
+"range": [
+0.2,
+0.4
+],
+"celltype": null
+},
+"mu": {
+"module": "Growth-size",
+"role": "base growth rate",
+"prov": "SOFT",
+"range": [
+0.00072,
+0.0009
+],
+"celltype": null
+},
+"mu_min_frac": {
+"module": "Growth-size",
+"role": "min growth-rate fraction",
+"prov": "FREE",
+"range": null,
+"celltype": null
+},
+"n_prc2": {
+"module": "EZH2",
+"role": "PRC2 repression Hill",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"n_rw": {
+"module": "H3K27me3",
+"role": "read-write cooperativity Hill",
+"prov": "INHERITED",
+"range": null,
+"celltype": null
+},
+"p16": {
+"module": "Skp2-p27/CKI",
+"role": "p16/INK4 abundance",
+"prov": "MEASURED",
+"range": null,
+"celltype": [
+0.0,
+0.306
+]
+},
+"p18": {
+"module": "Skp2-p27/CKI",
+"role": "p18/INK4 abundance",
+"prov": "MEASURED",
+"range": null,
+"celltype": [
+0.464,
+1.553
+]
+},
+"MYCN_expr": {
+"module": "MYCN",
+"role": "MB elevated expression (Gli-set)",
+"prov": "MEASURED",
+"range": null,
+"celltype": [
+0.0,
+0.54
+]
+}
+}

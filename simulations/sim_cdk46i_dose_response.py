@@ -82,10 +82,12 @@ def _reentry_one(a):
     for k, v in base.items(): rr[k] = v
     rr['kPhRbCd'] = _KP * resid
     with _quiet_cvode():
-        try: rr.simulate(0, 4000 + T, int((4000 + T) / 2.5))
-        except Exception: return (resid, float('nan'))
-        rr['kPhRbCd'] = _KP                    # WASHOUT
-        r2 = rr.simulate(4000 + T, 4000 + T + 9000, 3600, selections=['time', 'Dna'])
+        try:
+            rr.simulate(0, 4000 + T, int((4000 + T) / 2.5))
+            rr['kPhRbCd'] = _KP                # WASHOUT
+            r2 = rr.simulate(4000 + T, 4000 + T + 9000, 3600, selections=['time', 'Dna'])
+        except Exception:
+            return (resid, float('nan'))       # deep-arrest stiff integration death (either arrest or washout leg) -> no measured re-entry
     dna = np.asarray(r2['Dna']); tt = np.asarray(r2['time'])
     div = np.where((dna[:-1] > 0.9) & (dna[1:] < 0.1))[0]
     return (resid, float(tt[div[0]] - (4000 + T)) if len(div) else float('nan'))

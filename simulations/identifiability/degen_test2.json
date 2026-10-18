@@ -1,0 +1,18 @@
+{
+ "B_2.0": {
+  "max_rel_diff": 0.0,
+  "worst": "CyclinD1 GNP+HHi/GNP"
+ },
+ "B_0.5": {
+  "max_rel_diff": 0.0,
+  "worst": "CyclinD1 GNP+HHi/GNP"
+ },
+ "C_2.0": {
+  "max_rel_diff": 6.294551418651215e-07,
+  "worst": "EZH2 transcript S/G0 (1.8-2.5)"
+ },
+ "C_0.5": {
+  "max_rel_diff": 3.8553993950763054e-07,
+  "worst": "HU EZH2-in-S boost (1.31)"
+ }
+}

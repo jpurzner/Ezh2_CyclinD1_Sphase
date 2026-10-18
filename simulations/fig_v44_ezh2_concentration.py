@@ -1,7 +1,12 @@
-"""Soluble EZH2 is a CONCENTRATION, not an amount. At a symmetric division a daughter inherits half the
-protein in half the volume -> the CONCENTRATION is preserved (with_ezh2_conc=True, DEFAULT). The legacy
-convention (with_ezh2_conc=False) discretely HALVES EZH2 at every mitosis (EZH2 = EZH2/2), treating it as an
-amount while every downstream Hill reads it as a concentration -- an abrupt ~2x sawtooth drop with no physical
+"""EZH2 dilution at division: DILUTION convention (with_ezh2_conc=False) is now the DEFAULT (2026-07-19).
+Although a soluble protein's CONCENTRATION is nominally preserved at symmetric division (half protein in half
+volume; with_ezh2_conc=True), the EXPERIMENTAL fact that an ELONGATED / HU-ARRESTED S ACCUMULATES EZH2 requires
+that division DILUTE it -- dividing cells reset EZH2, arrested cells (no division) bank it. So the dilution
+convention (discrete EZH2=EZH2/2 at mitosis, paired with low kDeEZ + APC/Cdh1-gated kDeEZ_C1) is the biologically
+faithful choice here; the concentration convention preserved EZH2 across division and left the S-elongation boost
+FLAT (1.009). This figure contrasts the two: the halving sawtooth (default) vs the smooth concentration carryover.
+Legacy note: the concentration convention was default 2026-07-13..07-19.
+Historical framing below described concentration as default -- that is superseded.
 basis. Because kTlEZ is re-fit (x0.78 -> 0.011771) so the two conventions sit at the SAME mean level, the swap
 is validation-NEUTRAL: it only replaces the discontinuous jump with a smooth, turnover-limited (~10 h) decay of
 the writer carried from mother to daughter.
@@ -27,8 +32,8 @@ SEL = ["time", "EZH2", "EZH2m", "Cd", "P21", "aRc", "Dna", "MPF", "mass"]
 T_END, N_PTS = 15000, 60000          # dt = 0.25 min -> resolves the discontinuous halving
 
 # ---- two model builds: concentration-preserved (default) vs legacy amount-halving ----
-M_CONC = build_model_v44(with_ezh2_conc=True)    # DEFAULT: no halving, kTlEZ re-fit x0.78
-M_LEG  = build_model_v44(with_ezh2_conc=False)   # legacy: EZH2 = EZH2/2 at each mitosis
+M_CONC = build_model_v44(with_ezh2_conc=True)    # legacy concentration: no halving, kTlEZ re-fit x0.78
+M_LEG  = build_model_v44(with_ezh2_conc=False)   # DEFAULT (dilution): EZH2 = EZH2/2 at each mitosis
 
 # ---- conditions ----
 GNP = dict(shh=0.5, ptch1=1.0, mycn=1.0, p16=0.0, p18=None, ksyp21=None, p21div=0.6)
@@ -115,8 +120,8 @@ divC = division_times(rC) / 60.0
 w0, w1 = 100, 200   # hours
 for d in divC[(divC >= w0) & (divC <= w1)]:
     axA.axvline(d, color='0.55', ls=':', lw=0.9, zorder=0)
-axA.plot(tL, rL['EZH2'], color='#c0392b', lw=1.5, label='legacy amount-halving (÷2 sawtooth)')
-axA.plot(tC, rC['EZH2'], color='#1f6f8b', lw=1.7, label='concentration-preserved (default)')
+axA.plot(tL, rL['EZH2'], color='#c0392b', lw=1.5, label='dilution ÷2 sawtooth (DEFAULT)')
+axA.plot(tC, rC['EZH2'], color='#1f6f8b', lw=1.7, label='concentration-preserved (legacy)')
 axA.set_xlim(w0, w1)
 axA.set_xlabel('time (h)'); axA.set_ylabel('EZH2 protein (a.u.)')
 axA.set_title('(a) EZH2 across divisions (GNP): sawtooth vs smooth', fontweight='bold', fontsize=11)
@@ -134,11 +139,11 @@ def aligned_trace(r, target_h=140.0, half=3.5):
 relC, ezC, dC = aligned_trace(rC)
 relL, ezL, dL = aligned_trace(rL)
 axB.axvline(0, color='k', ls='--', lw=1.0, alpha=0.6)
-axB.plot(relL, ezL, color='#c0392b', lw=2.0, label=f'legacy: discontinuous ÷2 jump')
-axB.plot(relC, ezC, color='#1f6f8b', lw=2.0, label='concentration: smooth carryover')
+axB.plot(relL, ezL, color='#c0392b', lw=2.0, label='dilution: ÷2 jump (default)')
+axB.plot(relC, ezC, color='#1f6f8b', lw=2.0, label='concentration: smooth (legacy)')
 # annotate the halving jump
 jump_hi = ezL[np.argmin(np.abs(relL + 0.05))]
-axB.annotate('÷2 at mitosis\n(no physical basis)', xy=(0, jump_hi * 0.72), xytext=(0.6, jump_hi * 0.5),
+axB.annotate('÷2 at mitosis\n(resets EZH2 each cycle -> arrest accumulates it)', xy=(0, jump_hi * 0.72), xytext=(0.6, jump_hi * 0.5),
              fontsize=8, color='#c0392b',
              arrowprops=dict(arrowstyle='->', color='#c0392b', lw=1.2))
 _yb = axB.get_ylim()[0]
@@ -156,7 +161,7 @@ vals_conc = [stats[('conc', 'GNP')]['lvl'], stats[('conc', 'MB')]['lvl'], fold_c
 vals_leg  = [stats[('leg',  'GNP')]['lvl'], stats[('leg',  'MB')]['lvl'], fold_leg,
              stats[('leg',  'GNP')]['mrna']]
 x = np.arange(len(metrics)); bw = 0.38
-axC.bar(x - bw/2, vals_conc, bw, color='#1f6f8b', label='concentration (default)')
+axC.bar(x - bw/2, vals_conc, bw, color='#1f6f8b', label='concentration (legacy)')
 axC.bar(x + bw/2, vals_leg,  bw, color='#c0392b', label='legacy halving')
 for xi, (vc, vl) in enumerate(zip(vals_conc, vals_leg)):
     axC.text(xi - bw/2, vc, f'{vc:.2f}', ha='center', va='bottom', fontsize=7.5)
