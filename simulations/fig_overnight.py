@@ -10,8 +10,8 @@ DT = 30.0; THR = 1.5
 
 # ---------- Figure 1: locked reference ----------
 fig = plt.figure(figsize=(14, 8.5))
-fig.suptitle(f"Locked reference — CDKI mRNA bursting drives MB transient-G0 ({mb['occ']:.0%}), GNPs stay cycling ({gnp['occ']:.0%})  [two-step model, N={mb['N']}]",
-             fontsize=12.5, fontweight='bold')
+fig.suptitle(f"CDKI mRNA bursting → MB transient-G0: snapshot-G0 {mb['occ']:.0%} (IF ~34%), {mb['transient']:.0%} of cells transiently arrest; GNPs stay cycling ({gnp['occ']:.0%}, N={mb['N']})",
+             fontsize=12, fontweight='bold')
 gs = fig.add_gridspec(2, 2, height_ratios=[1.15, 1], hspace=0.33, wspace=0.22)
 
 axA = fig.add_subplot(gs[0, :])
@@ -34,7 +34,7 @@ axB.bar(x + w/2, [gnp['cyc'], gnp['transient'], gnp['perm']], w, color='#2c6fa6'
 for xi, v in zip(x - w/2, [mb['cyc'], mb['transient'], mb['perm']]): axB.text(xi, v + 0.01, f'{v:.0%}', ha='center', fontsize=8, color='#c0392b')
 for xi, v in zip(x + w/2, [gnp['cyc'], gnp['transient'], gnp['perm']]): axB.text(xi, v + 0.01, f'{v:.0%}', ha='center', fontsize=8, color='#2c6fa6')
 axB.set_xticks(x); axB.set_xticklabels(cats, fontsize=9); axB.set_ylim(0, 1.08); axB.set_ylabel('fraction of cells'); axB.legend(fontsize=8.5)
-axB.set_title(f"(B) Cell fate over ~115h\nsnapshot G0: MB {mb['occ']:.0%} (IF ~34%) vs GNP {gnp['occ']:.0%}", fontsize=10.5)
+axB.set_title(f"(B) Cell fate over ~115h\nsnapshot-G0 occupancy: MB {mb['occ']:.0%} (IF ~34%) vs GNP {gnp['occ']:.0%}", fontsize=10.5)
 
 axC = fig.add_subplot(gs[1, 1])
 labels = ['p21\nmRNA', 'p21\nprotein', 'p18\nprotein', 'p27\n(P21)']
@@ -43,7 +43,12 @@ axC.bar(range(4), vals, color=['#c0392b', '#e8a33d', '#2c6fa6', '#7f8c8d'])
 for i, v in enumerate(vals): axC.text(i, v + 0.02, f'{v:.2f}', ha='center', fontsize=8.5)
 axC.set_xticks(range(4)); axC.set_xticklabels(labels, fontsize=8.5); axC.set_ylabel('temporal CV (within-cell)')
 axC.set_title(f"(C) Variance (MB): p21 carries it\nEZH2 quiescent {mb['ezh2_q']:.2f} vs cycling {mb['ezh2_c']:.2f} (fold {mb['ezh2_q']/mb['ezh2_c']:.2f})", fontsize=10.5)
-plt.tight_layout(rect=[0, 0, 1, 0.95])
+fig.text(0.5, 0.012,
+         f"Snapshot-G0 {mb['occ']:.0%} is a FLOOR: integrator attrition ({mb['mortality']:.0%} of MB cells) is arrest-biased, so permanent-G0 ({mb['perm']:.0%}) is under-counted; "
+         f"a data-grounded measured-protein variant gives ~50–57% (both pass 30/32) → report MB snapshot-G0 as ~36–55% across INK4/CIP protein-stability. "
+         f"GNP 0% reflects GNPs' ~10× lower p21 (measured CDKN1A MB>GNP), not the SHH drive.",
+         ha='center', va='bottom', fontsize=7.6, color='#555', wrap=True)
+plt.tight_layout(rect=[0, 0.045, 1, 0.95])
 f1 = os.path.join(OUT, 'fig_overnight_lock.png'); plt.savefig(f1, dpi=135); print('saved', f1)
 
 # ---------- Figure 2: 2x2 attribution ----------

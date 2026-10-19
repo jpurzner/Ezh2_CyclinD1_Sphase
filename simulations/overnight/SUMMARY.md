@@ -20,5 +20,12 @@ Started 2026-10-18 21:02:21.019220 · finished 2026-10-18 21:10:52.125929
 - baked default (two-step ON): VALIDATION SUMMARY: 30/32 targets passed
 - legacy single-step (CDKI_MRNA=0): VALIDATION SUMMARY: 30/32 targets passed
 
+## Caveats for the locked claim (post-review 2026-10-19)
+- **36% is a snapshot-G0 occupancy (fraction of time below pRb<1.5), IF-comparable (~34%); 72% is the fraction of CELLS with a transient-G0 excursion.** Do not call 36% "the transient-G0 fraction".
+- **36% is a FLOOR.** The ~39% MB integrator attrition is arrest-biased (failing cells die at pRb~1.38, in the arrested state), so arrest is under-counted and "permanent 2%" is an under-estimate. Fate fractions are over survivors.
+- **The number is not identifiable from validation alone:** the data-grounded measured-protein variant gives ~50–57% and *also* passes 30/32. Report MB snapshot-G0 as **~36–55% across INK4/CIP protein-stability assumptions**, with model-tuned 36% as the lower, cleaner-permanent (2%) point.
+- **GNP 0% is carried by GNPs' ~10× lower p21** (GNP_P21_FAC=0.1, the measured CDKN1A MB>GNP difference), NOT the SHH drive — at MB-level p21 with the same high drive, GNP also arrests. The dichotomy is the p21 difference (consistent with the "MB has substantially higher CDKI" mechanism).
+- The mRNA low-pass **reduces** the deep-arrest integrator mortality (GNP 0%, MB ~50%→~39%); it does not eliminate it.
+
 ## Files
-- overnight/results.json (all metrics) · overnight/progress.log (timeline)
+- overnight/results.json (all metrics) · overnight/progress.log (timeline) · fig_overnight_lock.png / fig_overnight_attribution.png

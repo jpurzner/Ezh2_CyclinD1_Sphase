@@ -8,7 +8,8 @@ NEVER leaks into mu_eff (which reads the static p18 level). This replaces the ea
 
 p21 is the dominant crossing driver (short protein tracks its mRNA); p18 secondary. GNP is genuinely
 low-CDKI + high-SHH (proliferating) -> stays cycling. Records mRNA AND protein so we can see the two-stage
-filtering. Bonus check: whether the smooth mRNA low-pass cures the deep-arrest integrator mortality.
+filtering. Bonus: the smooth mRNA low-pass REDUCES the deep-arrest integrator mortality (GNP 0%, MB ~50%->~39%
+with the baked config) -- it does NOT eliminate it; residual MB failures remain concentrated in deep arrest.
 """
 import sys, os, json, numpy as np, tellurium as te
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

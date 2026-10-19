@@ -260,7 +260,12 @@ try:
     lines.append("\n## Phase C — bake confirmation")
     lines.append(f"- baked default (two-step ON): {g('phaseC_baked_default','summary')}")
     lines.append(f"- legacy single-step (CDKI_MRNA=0): {g('phaseC_legacy','summary')}")
-    lines.append("\n## Files\n- overnight/results.json (all metrics) · overnight/progress.log (timeline)")
+    lines.append("\n## Caveats for the locked claim (post-review 2026-10-19)")
+    lines.append("- 36% is a snapshot-G0 OCCUPANCY (fraction of time in G0, IF-comparable ~34%); the fraction of CELLS with a transient-G0 excursion is the 'transient' number above (~72%). Do not call 36% 'the transient-G0 fraction'.")
+    lines.append("- 36% is a FLOOR: ~39% MB integrator attrition is arrest-biased, so arrest/permanent are under-counted (fate fractions are over survivors).")
+    lines.append("- Not identifiable from validation: the measured-protein variant gives ~50-57% and also passes 30/32 -> report MB snapshot-G0 as ~36-55% across INK4/CIP protein-stability.")
+    lines.append("- GNP 0% is carried by GNPs' ~10x lower p21 (GNP_P21_FAC=0.1, measured CDKN1A MB>GNP), NOT the SHH drive. The mRNA low-pass REDUCES (not cures) MB mortality (~50%->~39%; GNP 0%).")
+    lines.append("\n## Files\n- overnight/results.json (all metrics) · overnight/progress.log (timeline) · fig_overnight_lock.png / fig_overnight_attribution.png")
     open(os.path.join(OUT, 'SUMMARY.md'), 'w').write("\n".join(lines) + "\n")
     log("SUMMARY.md written.")
 except Exception as e:
