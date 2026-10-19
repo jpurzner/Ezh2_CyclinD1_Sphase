@@ -1,6 +1,7 @@
-"""Wireframe — Module 1: Mitogenic drive (SHH ⊣ Ptch1 ⊣ Smo → Gli → {Ptch1, Gli1, MYCN} → Ccnd1 drive).
+"""Wireframe — Module 1: Mitogenic drive (SHH ⊣ Ptch1 ⊣ Smo → Gli → {Ptch1, Gli1, MYCN} → Ccnd1 / Ccnd2 / Cdk6).
 
-Boxes = species in HH_MYCN_BLOCK of src/build_model_v44_heldt.py; arrows = fluxes. No equations.
+Boxes = species in HH_MYCN_BLOCK of src/build_model_v44_heldt.py (2026-10 default: two-cyclin model, MYCN as
+elevated expression, measured Ccnd1 mRNA half-life, CDK6 as a Gli target); arrows = fluxes. No equations.
 Run:  python3 simulations/wireframe/build_all.py
 """
 import os, sys
@@ -15,8 +16,8 @@ def build():
     YM, HM = 112, 26
     s.membrane(YM, HM, x0=0, x1=W)
     s.text(24, 34, "Module 1 — Mitogenic drive", fs=20, bold=True)
-    s.text(24, 56, "SHH ⊣ Ptch1 ⊣ Smo → Gli → {Ptch1, Gli1, MYCN} → Ccnd1 transcriptional drive", fs=11,
-           fill=PAL["grey"], italic=True)
+    s.text(24, 56, "SHH ⊣ Ptch1 ⊣ Smo → Gli → {Ptch1, Gli1, MYCN} → Ccnd1 (governed), Ccnd2 (buffered), Cdk6 (governed)",
+           fs=11, fill=PAL["grey"], italic=True)
 
     # ---- membrane proteins ----
     shh = s.ligand(300, 82, "SHH  (ligand input)", "#f6d55c")
@@ -69,7 +70,7 @@ def build():
     s.label(580, 436, "Gli-A activates, Gli-R represses", fs=9.5, anchor="start")
     s.label(580, 532, "Gli1  MB/GNP ≈ 7×", fs=10, color=PAL["hh_line"], anchor="start", bold=True)
 
-    mem = s.node(250, 500, 190, 62, "Gli1 locus memory", sub="MB only · charged by Smo · slow (~14 h)",
+    mem = s.node(250, 500, 190, 62, "Gli1 locus memory", sub="MB only · charged by Smo · slow (~1 day)",
                  fs=12, fill=PAL["mem_fill"], stroke=PAL["mem_line"], dashed=True)
     s.edge([mem["r"], g1m["l"]], kind="fb", width=1.4, curve=(400, 470))
     s.label(250, 555, "optional: explains the Gli1 residual\nthat persists ~1 day after vismodegib", fs=9.5)
@@ -85,11 +86,12 @@ def build():
                   fs=14, fill=PAL["prom_fill"], stroke=PAL["prom_line"], sw=2.2)
     s.dna(1065, 340, 170)
     s.edge([G["r"], (1100, GY), (1100, prom["b"][1])], kind="act", width=3.0)
-    s.label(620, GY - 8, "Gli drive  (≈ 86 % of MB Cyclin D1)", fs=10, color=PAL["act"], bold=True, anchor="start")
+    s.label(620, GY - 8, "Gli drive  (the dominant Ccnd1 input; basal is near zero → Shh-dependence is structural)",
+            fs=10, color=PAL["act"], bold=True, anchor="start")
     s.edge([gliR["t"], (gliR["t"][0], 222), (1020, 222), (1020, 378), (prom["l"][0], 378)], kind="inh", width=1.2, opacity=0.7)
     s.label(820, 216, "Gli-R dampens", fs=9.5)
     s.edge([(1300, 395), prom["r"]], kind="act", width=1.4, color=PAL["prom_line"])
-    s.label(1306, 399, "basal", fs=10, anchor="start")
+    s.label(1306, 399, "basal (tiny)", fs=10, anchor="start")
 
     # ---- MYCN ----
     MX = 990
@@ -98,38 +100,50 @@ def build():
     s.edge([(MX, GY), mycn["b"]], kind="act", width=1.6)
     s.label(MX + 8, 560, "Gli target", fs=9.5, anchor="start")
     s.edge([(MX, 400), mycn["t"]], kind="act", width=1.6, color=PAL["mycn_line"])
-    s.label(MX - 12, 400, "basal × amplification", fs=10, anchor="end", color=PAL["mycn_line"])
+    s.label(MX - 12, 400, "basal + MB-elevated expression", fs=10, anchor="end", color=PAL["mycn_line"])
     s.edge([mycn["r"], (1065, 470), (1065, prom["b"][1])], kind="act", width=2.0, color=PAL["mycn_line"])
     s.label(1140, 503, "MYCN drive", fs=9.5, color=PAL["mycn_line"], bold=True, anchor="end")
-    s.label(940, 528, "mitogen-INDEPENDENT floor · amplified in MB", fs=9.5, color=PAL["mycn_line"], anchor="end", bold=True)
+    s.label(940, 528, "mitogen-INDEPENDENT floor · elevated in SHH-MB as a Gli target (not amplified)", fs=9.5, color=PAL["mycn_line"], anchor="end", bold=True)
     s.label(940, 544, "→ vismodegib is only a PARTIAL withdrawal in MB", fs=9.5, color=PAL["mycn_line"], anchor="end")
 
-    # ---- output ----
+    # ---- CDK6 hand-off (Gli target, governed in Module 2) ----
+    s.dot(690, GY)
+    cdk6 = s.io(690, 672, "Cdk6 transcription", sub="Gli target → Module 2 (PRC2-governed)", w=200)
+    s.edge([(690, GY), cdk6["t"]], kind="act", width=1.4)
+
+    # ---- outputs: Ccnd1 mRNA -> Cyclin D1; Cyclin D2 ----
     mrna = s.node(1150, 650, 150, 42, "Ccnd1 mRNA", fs=12.5, fill="#eafaf1", stroke=PAL["teal"])
     s.edge([prom["b"], mrna["t"]], kind="act", width=3.0, color=PAL["teal"])
     s.rect(1170, 515, 170, 26, "#ffffff", PAL["fb"], rx=6, sw=1.2, dashed=True)
-    s.text(1255, 532, "× repression (Module 2)", fs=10.5, anchor="middle", fill=PAL["fb"], bold=True)
-    cd = s.node(1150, 745, 190, 64, "Cyclin D1", sub="protein — tracks its mRNA within minutes", fs=17,
+    s.text(1255, 532, "× PRC2 repression (Module 2)", fs=10.5, anchor="middle", fill=PAL["fb"], bold=True)
+    cd = s.node(1150, 745, 170, 64, "Cyclin D1", sub="protein — fast readout of the mRNA", fs=17,
                 fill=PAL["cd_fill"], stroke=PAL["cd_line"], sw=2.6)
     s.edge([mrna["b"], cd["t"]], kind="act", width=3.0, color=PAL["teal"])
+    s.label(1062, 690, "mRNA pool t½ ≈ 3.4 h; the LARGE pool above the\ncommitment threshold is the Hedgehog memory\n(drains ~1 cycle after Hh-off)", fs=9, color=PAL["teal"], anchor="end")
+
+    cd2 = s.node(1320, 748, 150, 70, "Cyclin D2", sub="Hh-BUFFERED: basal floor (dominant)\n+ small Gli input + MB elevation\nno PRC2 repression", fs=14,
+                 fill="#eafaf1", stroke=PAL["cd_line"], sw=1.8, sub_fs=8.5)
+    s.edge([(1100, GY), (1320, GY), cd2["t"]], kind="act", width=1.2, opacity=0.7)
+    s.label(1212, GY - 8, "Gli (minor)", fs=9, color=PAL["act"])
+    s.label(1150, 797, "D1 + D2 both drive CDK4/6 → Rb (Module 3); D2 weight is low, so Shh-gating survives", fs=9, anchor="middle", color=PAL["cd_line"])
 
     # ---- condition table ----
     tx, ty = 40, 640
     s.text(tx, ty, "Context inputs per condition", fs=12, bold=True)
-    rows = [("", "SHH", "vismodegib", "functional Ptch1", "MYCN copy"),
-            ("GNP", "on", "–", "1.0", "1×"),
-            ("Ptch1+/−", "on", "–", "0.5", "1×"),
-            ("MB", "on", "– / +", "0.1", "2.8×")]
-    cols = [0, 90, 140, 230, 350]
+    rows = [("", "SHH", "vismodegib", "functional Ptch1", "MYCN", "Cyclin D2"),
+            ("GNP", "on", "–", "1.0", "baseline", "baseline"),
+            ("Ptch1+/−", "on", "–", "0.5", "baseline", "baseline"),
+            ("MB", "on", "– / +", "0.1", "elevated ×2.8", "elevated")]
+    cols = [0, 90, 140, 230, 350, 450]
     for r, row in enumerate(rows):
         yy = ty + 22 + r * 20
         for c, cell in enumerate(row):
             s.text(tx + cols[c], yy, cell, fs=11, bold=(r == 0 or c == 0))
-    s.line([(tx, ty + 28), (tx + 420, ty + 28)], color="#d1d5db")
+    s.line([(tx, ty + 28), (tx + 530, ty + 28)], color="#d1d5db")
     s.label(tx, ty + 112, "Whole module is fast (~minutes) except the Gli1 locus memory: it acts as a\n"
-                          "quasi-static input that sets the Ccnd1 transcriptional drive.", fs=10, anchor="start")
+                          "quasi-static input that sets the Ccnd1 / Ccnd2 / Cdk6 transcriptional drives.", fs=10, anchor="start")
 
-    s.legend(560, 660, [("act", "activation / conversion"), ("inh", "inhibition"),
+    s.legend(575, 700, [("act", "activation / conversion"), ("inh", "inhibition"),
                         ("drug", "drug (input)"), ("fb", "slow / optional (dashed)")])
     return s
 
