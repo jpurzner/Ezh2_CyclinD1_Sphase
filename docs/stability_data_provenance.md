@@ -118,6 +118,34 @@ are closer to the ~25 h the model's EZH2 turnover approximates.
 
 ---
 
+## 6. Outliers & normalization robustness (sim_mrna_normalization_impact.py)
+
+**What the outliers are.** The up-to-1000-fold "range across arms" is driven almost entirely by **`agarwal2022`
+compendium arms** — actinomycin-D transcription-arrest and 4sU-labeling measurements that produce both near-zero
+(~0.003 h) and ultra-long (200–625 h) mRNA values. These are **methodology artifacts** (ActD confounds decay by
+blocking transcription). For protein, the long tail is instead **real post-mitotic tissue** (Li 2025 brain/organ,
+up to 998 h) — not an artifact, but inapplicable to cycling progenitors; naive normalization would *inflate* the
+protein values (e.g. p18 23.9 h → 84 h), so it is the wrong move for protein.
+
+**Normalized central values** (log-IQR-trimmed geometric mean, outliers removed): p18 3.7→2.6 h, p19 3.6→2.7 h,
+**p21 5.2→2.1 h**, **p27 3.6→1.2 h**, Skp2 3.4→3.8 h, CyclinD1 3.5→3.4 h, EZH2 4.2→3.5 h. The Serdar neural
+values sit on the high side for p21 and p27; the rest are close.
+
+**Impact on the model — tested by swapping the normalized set in:**
+- **Validation: none.** 30/32, identical to baseline (same two misses; every target value unchanged). The
+  two-step restructure is steady-state-neutral (translation rate = mRNA decay rate), so the mRNA half-life is
+  validation-irrelevant — the outliers and the choice of central value do not affect any calibration target.
+- **Transient-G0: modest, dynamics only.** Shortening p21 mRNA (the driver) 5.2→2.1 h lowered MB snapshot-G0
+  occupancy from ~46% to ~32% (shorter mRNA → shorter protein excursions → shorter G0 dwells; less permanent
+  arrest). This stays within the ~36–55% identifiability band (§5 of the protein doc / overnight review) and
+  does not change the qualitative result (large MB transient-G0, GNP 0%, p21-driven).
+
+Conclusion: the mRNA half-life enters the model only as a burst-filtering timescale, not as a calibration
+constraint, so the exact value (chosen vs normalized) is immaterial to validation and only fine-tunes the
+transient-G0 dwell within the range we already report.
+
+---
+
 ## 4. Draft methods paragraph
 
 > **Transcript and protein stability.** Messenger-RNA half-lives used to parameterise the model's two-step
