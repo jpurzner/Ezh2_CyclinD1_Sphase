@@ -1,0 +1,39 @@
+[21:02:21] === PHASE A: two-step (model-tuned protein) — fine sweep for MB ~34% ===
+[21:02:32]   MB a_on=2.0 duty=0.28: occ=25.2% trans=63% perm=0% n=41
+[21:02:43]   MB a_on=2.0 duty=0.33: occ=27.2% trans=60% perm=0% n=45
+[21:02:54]   MB a_on=2.3 duty=0.28: occ=17.1% trans=57% perm=6% n=35
+[21:03:04]   MB a_on=2.3 duty=0.33: occ=41.8% trans=67% perm=8% n=36
+[21:03:14]   MB a_on=2.6 duty=0.28: occ=26.3% trans=58% perm=2% n=43
+[21:03:24]   MB a_on=2.6 duty=0.33: occ=34.6% trans=58% perm=9% n=45
+[21:03:34]   MB a_on=2.9 duty=0.28: occ=39.2% trans=75% perm=2% n=44
+[21:03:44]   MB a_on=2.9 duty=0.33: occ=37.9% trans=57% perm=10% n=42
+[21:03:44]   -> locked config: a_on=2.9 duty=0.28 tau=700 (sweep occ 39.2%)
+[21:03:44]   locking MB (N=300, REC=7000) ...
+[21:04:43]     MB lock: occ=36.2% trans=72% perm=2% n=182
+[21:04:43]   locking GNP (N=300, REC=7000) ...
+[21:06:47]     GNP lock: occ=0.0% cyc=100% n=300
+[21:06:47]   PHASE A done in 4.4 min
+[21:06:47] === PHASE B: measured-protein INK4 variant — validation + 2x2 attribution ===
+[21:06:47]   validating [two-step + measured-protein] env={'CDKI_MRNA': '1', 'CDKI_MEASURED_PROTEIN': '1'} ...
+[21:07:03]   [two-step + measured-protein] VALIDATION SUMMARY: 30/32 targets passed
+[21:07:03]       [-] CyclinD1 GNP+HHi/GNP              :    0.078  (target 0.157)
+[21:07:03]       [-] MB HU G2 fold                     :    0.457  (target 0.23)
+[21:07:35]   MB [tuned/p21+p18]: occ=32.8% trans=73% perm=0% CV(p18=0.34 p21=1.34) n=101
+[21:08:05]   MB [tuned/p21only]: occ=38.0% trans=71% perm=4% CV(p18=0.00 p21=1.06) n=102
+[21:08:29]   MB [measured/p21+p18]: occ=56.6% trans=74% perm=16% CV(p18=0.16 p21=1.05) n=96
+[21:08:56]   MB [measured/p21only]: occ=49.9% trans=67% perm=11% CV(p18=0.02 p21=0.98) n=107
+[21:09:38]   GNP [tuned]: occ=0.0% cyc=100% n=120
+[21:10:20]   GNP [measured]: occ=0.3% cyc=97% n=119
+[21:10:20]   PHASE B done in 3.6 min
+[21:10:20] === PHASE C: BAKE confirmation ===
+[21:10:20]   validating [baked default (with_cdki_mrna ON)] env={} ...
+[21:10:36]   [baked default (with_cdki_mrna ON)] VALIDATION SUMMARY: 30/32 targets passed
+[21:10:36]       [-] CyclinD1 GNP+HHi/GNP              :    0.078  (target 0.157)
+[21:10:36]       [-] MB HU G2 fold                     :    0.458  (target 0.23)
+[21:10:36]   validating [legacy single-step (CDKI_MRNA=0)] env={'CDKI_MRNA': '0'} ...
+[21:10:52]   [legacy single-step (CDKI_MRNA=0)] VALIDATION SUMMARY: 30/32 targets passed
+[21:10:52]       [-] CyclinD1 GNP+HHi/GNP              :    0.078  (target 0.157)
+[21:10:52]       [-] MB HU G2 fold                     :    0.456  (target 0.23)
+[21:10:52]   PHASE C done in 0.5 min
+[21:10:52] SUMMARY.md written.
+[21:10:52] === OVERNIGHT MASTER COMPLETE ===

@@ -455,8 +455,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     mycn_autoreg=False, with_cdki_species=True, with_p21_pip_degron=True,
                     with_p27_optionB=True, with_cdk6_gli=True, with_cd_hyper_escape=True,
                     with_mark_amplifier=False, with_proximal_distal=True,
-                    measured_ccnd1=True,
-                    params=None):   # 2026-09-21 BAKED (JP): with_proximal_distal ON = default (two-compartment PRC2: distal Mk reservoir + proximal P_prox occupancy; expressed-but-marked while cycling P_prox~0, deep reservoir-sustained repression in arrest P_prox~0.70; MB transient G0 preserved via escape). Costs 1 noisy target (CyclinD1 GNP+HHi/GNP 0.08 vs 0.157) -> 30/32; loss is structural (deeper arrest raises shared mark), not w_cd_prox (barely moves it). Legacy via with_proximal_distal=False (31/32). 2026-08-09 BAKED: integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0). Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
+                    measured_ccnd1=True, with_cdki_mrna=True, cdki_measured_protein=False,
+                    params=None):   # 2026-10-18 BAKED (JP overnight): with_cdki_mrna ON = default. Two-step CDKI expression (transcription->mRNA species->translation->protein); each CDKI carries an independent MEASURED mRNA t1/2 (~3.4-5.2h) + its protein t1/2; steady-state-neutral (30/32 = prior baseline); burst knobs *_tx don't leak to mu_eff; mRNA low-pass also removes the deep-arrest integrator stiffness. Legacy single-step via with_cdki_mrna=False. cdki_measured_protein (default OFF) additionally sets the INK4 p18 + p21 protein t1/2 to measured values.   # 2026-09-21 BAKED (JP): with_proximal_distal ON = default (two-compartment PRC2: distal Mk reservoir + proximal P_prox occupancy; expressed-but-marked while cycling P_prox~0, deep reservoir-sustained repression in arrest P_prox~0.70; MB transient G0 preserved via escape). Costs 1 noisy target (CyclinD1 GNP+HHi/GNP 0.08 vs 0.157) -> 30/32; loss is structural (deeper arrest raises shared mark), not w_cd_prox (barely moves it). Legacy via with_proximal_distal=False (31/32). 2026-08-09 BAKED: integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0). Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -1226,6 +1226,63 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                       'k_Cd_tx_Gli_max': 0.24197652013556434 * _r,
                       'k_Cd_tx_MYCN': 0.11031706915457935 * _r}
             m = _apply_overrides(m, {k: v for k, v in _ccnd1.items() if (k + ' = ') in m})
+    if with_cdki_mrna and with_cdki_species:
+        # ===== Two-step CDKI gene expression: transcription -> mRNA species -> translation -> protein =====
+        # JP 2026-10-18. Mirrors the EZH2 EZH2m->EZH2 structure (EZH2_CORE_BLOCK). Each CDKI's de-novo
+        # SYNTHESIS flux S is redirected from the protein into a new mRNA species; the mRNA decays at the
+        # MEASURED mRNA rate (stability-catalog: serdar2025 embryonic cortex, the closest neural-progenitor
+        # arm), and is translated into the protein with kTl = kDe_mRNA. Algebra: X_m_ss = S/d_m and protein
+        # synthesis flux = kTl*X_m_ss = d_m*(S/d_m) = S -> protein synthesis flux and STEADY STATE are
+        # UNCHANGED (the protein's existing decay reactions are untouched) -> validation-neutral. What changes
+        # is the DYNAMICS: a transcriptional burst is now filtered by the mRNA half-life THEN the protein
+        # half-life (two low-passes), so mRNA and protein each carry their own measured stability, and the
+        # effective response timescale is the SLOWER stage. This also fixes the p18->growth leak: mu_eff now
+        # reads the buffered protein p18_prot, not the (burstable) transcription set-point p18.
+        # mRNA species are NOT halved at division (fast re-equilibration; matches the p18_prot/p21a carry-through
+        # convention). The transcription-rate knobs (p18/p19 levels, kSyp21a, kSyP21, kSySkp2) are what a
+        # bursting sim modulates. DEFAULT-OFF; nothing baked until validated.
+        _LN2 = 0.6931471805599453
+        # (synthesis token in m, mRNA species, kDe_mRNA param, mRNA t1/2 [h, measured], mRNA init ~ S/d_m,
+        #  protein name, transcription-burst multiplier param). The *_tx param (default 1) is the knob a
+        #  bursting sim telegraphs: it scales ONLY transcription -> mRNA -> protein, so the burst never leaks
+        #  into mu_eff (which reads the static p18 level) -> no growth artifact, validation stays 30/32.
+        _cdki_mrna_rows = [
+            ("=> p18_prot; Cell*kDe_p18*p18;", "p18_m", "kDe_p18m", 3.73, 0.45, "p18_prot", "p18_tx"),
+            ("=> p19_prot; Cell*kDe_p19*p19;", "p19_m", "kDe_p19m", 3.62, 3.4,  "p19_prot", "p19_tx"),
+            ("=> p21a; Cell*(kSyp21a + kSyp21aP53*P53);", "p21a_m", "kDe_p21am", 5.18, 0.01, "p21a", "p21a_tx"),
+            ("=> P21; Cell*(kSyP21 + kSyP21P53*P53);", "P21_m", "kDe_P21m", 3.61, 0.15, "P21", "P21_tx"),
+            ("=> Skp2; Cell*(kSySkp2bas + kSySkp2*E2f + kSySkp2_Cd*Cd/(K_Skp2_Cd + Cd));", "Skp2_m", "kDe_Skp2m", 3.38, 0.6, "Skp2", "Skp2_tx"),
+        ]
+        _decls, _rxns = [], []
+        for _tok, _mrna, _kp, _t12, _init, _prot, _tx in _cdki_mrna_rows:
+            assert _tok in m, f"with_cdki_mrna: synthesis token not found: {_tok}"
+            _head, _, _rate = _tok.partition("Cell*")          # wrap the synthesis rate with the burst multiplier
+            _rate = _rate.rstrip(";").rstrip()
+            _new = f"{_head.replace('=> '+_prot+';', '=> '+_mrna+';', 1)}Cell*({_rate})*{_tx};"
+            m = m.replace(_tok, _new, 1)
+            _kv = _LN2 / (_t12 * 60.0)
+            _decls.append(f"\n  species {_mrna} in Cell; {_mrna} = {_init};"
+                          f"\n  {_kp} = {_kv:.7g};   // mRNA t1/2 {_t12}h (measured, serdar2025)"
+                          f"\n  {_tx} = 1;   // transcriptional-burst multiplier (1 = baseline; a sim telegraphs this)")
+            _rxns.append(f"\n  {_mrna}_deg: {_mrna} => ; Cell*{_kp}*{_mrna};"
+                         f"\n  {_prot}_translation: {_mrna} => {_mrna} + {_prot}; Cell*{_kp}*{_mrna};")
+        m = m.replace("\nend", "".join(_decls) + "".join(_rxns) + "\nend", 1)
+        # OPTIONAL (default OFF): make the growth slowdown read the buffered INK4 PROTEIN instead of the p18
+        # set-point. More correct, but perturbs the elongated HU-S growth window -> costs the noisy MB-HU-S fold
+        # (30/32 -> 29/32) unless k_mu_cki is re-tuned. Not needed when bursting via *_tx. CDKI_MRNA_MUEFF=1 to engage.
+        if os.environ.get('CDKI_MRNA_MUEFF', '0') == '1':
+            m = m.replace("k_mu_cki*(p16 + p18))", "k_mu_cki*(p16 + p18_prot))", 1)
+        if cdki_measured_protein:
+            # Use the MEASURED protein half-lives for the UNREGULATED INK4 brake p18 (stability-catalog:
+            # CDKN2C 23.9h zecha2018) and the CIP p21 (CDKN1A 0.98h li2021). NOT p27/Skp2: those measured
+            # degradation-only t1/2 (44h/6.8h, non-cycling lines) are inappropriate for the model's actively
+            # cell-cycle-regulated clearances (KPC, SCF-Skp2, APC/Cdh1) which drive the commitment switch.
+            # p18/p19 synthesis is relaxation-form (kDe*level), so changing kDe is SELF-NORMALIZING: p18_prot_ss
+            # stays = p18, only the DYNAMICS slow (stable INK4 that no longer tracks fast mRNA bursts) -> tests
+            # whether p18 drops out as a transient-G0 driver, leaving p21. p21a basal change is minor (its
+            # clearance is Skp2/Cdt2-dominated in cycling cells). CDKI_MEASURED_PROTEIN=1 in the harness.
+            m = _apply_overrides(m, {'kDe_p18': _LN2 / (23.87 * 60.0),      # CDKN2C 23.9h (was 3.9h)
+                                     'kDep21a': _LN2 / (0.98 * 60.0)})       # CDKN1A 0.98h (was ~0.6h)
     if hu is not None:
         m = m.replace("HU = 0;", f"HU = {hu};")
     if params:

@@ -204,3 +204,4 @@ simulations/optimize_twostep_best.json
 papers/
 data/*.rds
 data/*.csv
+simulations/overnight/master.out
