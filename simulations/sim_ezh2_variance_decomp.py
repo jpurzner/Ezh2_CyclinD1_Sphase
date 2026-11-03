@@ -7,13 +7,18 @@ A no-bursting control (VD_BURST=0: gene always on at the mean rate, only the fro
 isolates the cell-cycle part of V_within, so V_within(burst) - V_within(noburst) = the BURSTING part.
 Config via env: VD_N, VD_SIG_EXT (frozen cell-to-cell knob), VD_DUTY/VD_TAU (bursting temporal knob),
 VD_BURST (1/0), VD_OUT (json path), VD_LABEL. No arrest tail (modest CDKI) so all cells cycle -> clean.
-Run e.g.:  VD_OUT=/tmp/vd_baked.json VD_SIG_EXT=0.10 VD_DUTY=0.62 venv/bin/python simulations/sim_ezh2_variance_decomp.py
+VD_OUT defaults into CACHE (simulations/_cache, override with PS_OUT); fig_ezh2_variance_decomp.py reads
+CACHE/vd_<label>.json for labels baked / noburst / frozen / bursty.
+Run e.g.:  VD_OUT=simulations/_cache/vd_baked.json VD_SIG_EXT=0.10 VD_DUTY=0.62 \
+             venv/bin/python simulations/sim_ezh2_variance_decomp.py
 """
 import sys, os, json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np, tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
 N = int(os.environ.get('VD_N', '120'))
 DT = 30.0
 WARM = 5400.0; REC = 12000.0          # 90 h warmup (protein near stationary), 200 h recorded
@@ -22,7 +27,7 @@ DUTY = float(os.environ.get('VD_DUTY', '0.62'))
 SIG_EXT = float(os.environ.get('VD_SIG_EXT', '0.10'))
 BURST = os.environ.get('VD_BURST', '1') == '1'
 LABEL = os.environ.get('VD_LABEL', 'baked')
-OUT = os.environ.get('VD_OUT', '/tmp/vd.json')
+OUT = os.environ.get('VD_OUT', os.path.join(CACHE, 'vd.json'))
 SIG_CDKI = 0.30                        # modest CDKI spread, NO arrest tail -> all cells cycle
 REC_EVERY = 4                          # record every 4 chunks = 2 h
 SEL = ['EZH2']

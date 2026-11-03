@@ -7,6 +7,9 @@ import sys, os, json, numpy as np, tellurium as te
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.build_model_v44_heldt import build_model_v44
 
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
+
 N = int(os.environ.get('PS_N', '72')); DT = 30.0; WARM = 7000.0; REC = float(os.environ.get('REC', '6000'))
 CONTEXT = os.environ.get('CONTEXT', 'MB')
 P21_LVL = float(os.environ.get('P21_LVL', '0.03')); A_ON = float(os.environ.get('A_ON', '4.0'))
@@ -80,7 +83,7 @@ print(f"=== {CONTEXT} SHH={rr['SHH']} p21L={P21_LVL}(GNPfac {GNP_P21_FAC if CONT
 print(f"  snapshot G0 {occ:.1%} | pure-cycling {cyc:.0%} transient {transient:.0%} permanent {perm:.0%}")
 print(f"  CDKI CV: p18 {tcv('p18_prot'):.2f} p21 {tcv('p21a'):.2f} p27 {tcv('P21'):.2f} | EZH2 q {ezq:.2f} vs c {ezc:.2f} (fold {ezq/ezc:.2f})")
 
-SC = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad"
+OUT = os.path.join(CACHE, f"cdki_burst_{CONTEXT}.json")
 ex = [i for i, c in enumerate(cells) if (c['pRb'] < PRB_G0).any() and (c['pRb'] >= PRB_G0).any()][:4] or list(range(min(4, n)))
 sub = slice(None, None, 2)
 json.dump({'context': CONTEXT, 'shh': rr['SHH'], 'n': n, 'occ': occ, 'transient': float(transient), 'perm': float(perm),
@@ -88,5 +91,5 @@ json.dump({'context': CONTEXT, 'shh': rr['SHH'], 'n': n, 'occ': occ, 'transient'
            'dt': DT, 'prb_thr': PRB_G0, 'config': {'p21L': P21_LVL, 'A_ON': A_ON, 'duty': DUTY, 'tau': TAU},
            'examples': [{k: cells[i][k][sub].round(4).tolist() for k in ['pRb', 'p18_prot', 'p21a', 'EZH2']} for i in ex],
            'prb_pool': allpr[::7].round(3).tolist(), 'ezh2_pool': ez[::7].round(3).tolist(), 'q_pool': q[::7].tolist()},
-          open(f"{SC}/cdki_burst_{CONTEXT}.json", 'w'))
-print(f"  saved cdki_burst_{CONTEXT}.json")
+          open(OUT, 'w'))
+print(f"  saved {OUT}")

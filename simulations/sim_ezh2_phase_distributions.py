@@ -11,6 +11,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np, tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 
+# repo-relative data cache (PS_OUT below overrides the full output path, as before)
+CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache')
+os.makedirs(CACHE, exist_ok=True)
+
 N = int(os.environ.get('PS_N','160')); DT = 30.0
 CONTEXT = os.environ.get('CONTEXT', 'MB')   # MB (high CDKI -> transient G0) or GNP (low CDKI -> cycling)
 WARM = 5400.0; TREAT = 1440.0
@@ -111,6 +115,6 @@ for t, cells in res.items():
     boost = f"prot S/G0 {med(prot,'S')/g0p:.1f} G2/G0 {med(prot,'G2')/g0p:.1f} | mRNA S/G0 {med(mrna,'S')/g0m:.1f} G2/G0 {med(mrna,'G2')/g0m:.1f}"
     print(f"{t:8s} frac {frac} | {boost}", flush=True)
 
-SCO = os.environ.get('PS_OUT', "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad/model_ezh2_phase_dist.json")
+SCO = os.environ.get('PS_OUT', os.path.join(CACHE, "model_ezh2_phase_dist.json"))
 os.makedirs(os.path.dirname(SCO), exist_ok=True)
 json.dump(out, open(SCO, 'w')); print('saved', SCO)

@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tellurium as te
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from src.build_model_v44_heldt import build_model_v44
+FIGDIR = os.path.dirname(os.path.abspath(__file__))        # figures go next to the script (repo-relative)
 UPH = 62.8; LN2 = np.log(2); KCDRB = 0.4025; THR_M = KCDRB / 0.801   # Cd=0.801*Cd_mRNA -> mRNA threshold ~0.50
 def divs(d): d = np.asarray(d); return np.where((d[:-1] > 0.9) & (d[1:] < 0.1))[0]
 def smooth(x, t, w_h=8.0):
@@ -83,5 +84,5 @@ fig.suptitle("Accept the measured CyclinD1 mRNA half-life (3.4 h): the Hh-withdr
              "(same reservoir level in all arms; only the drain time differs). Slow 11 h OVERSHOOTS; measured 3.4 h coasts ~1 cycle; instant arrests at once.",
              fontsize=11.5, fontweight='bold')
 plt.tight_layout(rect=[0, 0, 1, 0.9])
-out = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad/fig_ccnd1_reservoir_test.png"
+out = os.path.join(FIGDIR, "fig_ccnd1_reservoir_test.png")
 plt.savefig(out, dpi=135); print('saved', out)

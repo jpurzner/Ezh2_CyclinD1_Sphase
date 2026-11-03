@@ -1,10 +1,12 @@
 """EZH2 protein abundance distributions per cell-cycle class x treatment: model vs IF (JP 2026-10-18).
 Grid: rows = treatment, cols = phase (G0/G1/S/G2). Model (green fill) + IF (blue step), each aligned to its
 OWN DMSO-G1 (cycling) median so they share a 'log10 EZH2 / cycling' axis (the arbitrary a.u. differ)."""
-import json, numpy as np
+import json, os, numpy as np
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-SC = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad"
-m = json.load(open(f"{SC}/model_ezh2_phase_dist.json"))
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
+FIGDIR = os.path.dirname(os.path.abspath(__file__))
+m = json.load(open(os.path.join(CACHE, "model_ezh2_phase_dist.json")))
 t = json.load(open("/Users/jpurzner/Dropbox/Q_research/py_projects/Ezh2_CyclinD1_Sphase/data/if_ezh2_phase_targets.json"))
 mc = 0.5 * (np.array(m['bins_log10'])[1:] + np.array(m['bins_log10'])[:-1])
 ic = 0.5 * (np.array(t['bins_log10'])[1:] + np.array(t['bins_log10'])[:-1])
@@ -37,5 +39,5 @@ from matplotlib.patches import Patch
 fig.legend(handles=[Patch(color='#1f6f54', alpha=0.5, label='model'), Patch(color='#3b7fb8', alpha=0.5, label='IF (measured)')],
            loc='upper right', fontsize=10, bbox_to_anchor=(0.995, 0.965))
 plt.tight_layout(rect=[0, 0, 1, 0.95])
-out = f"{SC}/fig_ezh2_phase_dist_grid.png"
+out = os.path.join(FIGDIR, "fig_ezh2_phase_dist_grid.png")
 plt.savefig(out, dpi=130); print('saved', out)

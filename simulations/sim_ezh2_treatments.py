@@ -18,6 +18,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np, tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
+
 N = 400
 SIG_CDKI = 0.55          # per-cell CDKI log-sd (bulk variance -> fate spread + arrest tail)
 TAIL_FRAC, TAIL_X = 0.12, 4.0   # a high-CDKI tail (Atoh1+ G0 fraction) -> DMSO EZH2-low mode
@@ -80,7 +83,7 @@ for t, cells in res.items():
                             'phase': ph.tolist(),
                             'median': float(np.median(ez)),
                             'cv': float(ez.std(ddof=1) / ez.mean())}
-sc = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad/model_ezh2_treatments.json"
+sc = os.path.join(CACHE, "model_ezh2_treatments.json")
 json.dump(out, open(sc, 'w'))
 print('saved', sc)
 for t in res:

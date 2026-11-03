@@ -13,7 +13,8 @@ import numpy as np, tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 
-DT = 30.0; WARM = 5400.0; REC = 15000.0    # 90 h warmup + 250 h recorded
+FIGDIR = os.path.dirname(os.path.abspath(__file__))
+DT = 30.0; WARM = 5400.0; REC = 15000.0   # 90 h warmup + 250 h recorded
 DUTY = 0.62; NCELL = 8
 TAUS = [200.0, 1200.0, 2400.0]             # min: 3.3 h (current), 20 h, 40 h
 SEL = ['EZH2', 'Dna', 'pRb']
@@ -74,5 +75,5 @@ for ax, tau in zip(axes, TAUS):
     ax.set_xlabel('time (h)')
 axes[0].set_ylabel('EZH2 protein (a.u.)')
 plt.tight_layout(rect=[0, 0, 1, 0.9])
-out = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad/fig_ezh2_tau_sweep.png"
+out = os.path.join(FIGDIR, "fig_ezh2_tau_sweep.png")
 plt.savefig(out, dpi=130); print('saved', out)

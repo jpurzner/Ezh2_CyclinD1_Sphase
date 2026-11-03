@@ -456,7 +456,8 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                     with_p27_optionB=True, with_cdk6_gli=True, with_cd_hyper_escape=True,
                     with_mark_amplifier=False, with_proximal_distal=True,
                     measured_ccnd1=True, with_cdki_mrna=True, cdki_measured_protein=False,
-                    params=None):   # 2026-10-18 BAKED (JP overnight): with_cdki_mrna ON = default. Two-step CDKI expression (transcription->mRNA species->translation->protein); each CDKI carries an independent MEASURED mRNA t1/2 (~3.4-5.2h) + its protein t1/2; steady-state-neutral (30/32 = prior baseline); burst knobs *_tx don't leak to mu_eff; mRNA low-pass REDUCES (does not eliminate) the deep-arrest integrator stiffness (GNP mortality 0%, MB ~50%->~39%). Legacy single-step via with_cdki_mrna=False. cdki_measured_protein (default OFF) additionally sets the INK4 p18 + p21 protein t1/2 to measured values.   # 2026-09-21 BAKED (JP): with_proximal_distal ON = default (two-compartment PRC2: distal Mk reservoir + proximal P_prox occupancy; expressed-but-marked while cycling P_prox~0, deep reservoir-sustained repression in arrest P_prox~0.70; MB transient G0 preserved via escape). Costs 1 noisy target (CyclinD1 GNP+HHi/GNP 0.08 vs 0.157) -> 30/32; loss is structural (deeper arrest raises shared mark), not w_cd_prox (barely moves it). Legacy via with_proximal_distal=False (31/32). 2026-08-09 BAKED: integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0). Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
+                    with_cdki_bursting=True,
+                    params=None):   # 2026-11-02 BAKED (JP): with_cdki_bursting ON = default — the CDKI transcriptional-burst SPECIFICATION (burst_* params: duty, tau, on/off amplitudes for p21 and p18) is carried BY THE MODEL, so every sim inherits one canonical burst configuration instead of re-declaring it. Inert in the ODE (nothing reads burst_*) -> validation-neutral; the stochastic telegraph itself is driven by src/bursting.py (CdkiBurstDriver), because a deterministic ODE cannot generate independent per-cell switching internally.   # 2026-10-18 BAKED (JP overnight): with_cdki_mrna ON = default. Two-step CDKI expression (transcription->mRNA species->translation->protein); each CDKI carries an independent MEASURED mRNA t1/2 (~3.4-5.2h) + its protein t1/2; steady-state-neutral (30/32 = prior baseline); burst knobs *_tx don't leak to mu_eff; mRNA low-pass REDUCES (does not eliminate) the deep-arrest integrator stiffness (GNP mortality 0%, MB ~50%->~39%). Legacy single-step via with_cdki_mrna=False. cdki_measured_protein (default OFF) additionally sets the INK4 p18 + p21 protein t1/2 to measured values.   # 2026-09-21 BAKED (JP): with_proximal_distal ON = default (two-compartment PRC2: distal Mk reservoir + proximal P_prox occupancy; expressed-but-marked while cycling P_prox~0, deep reservoir-sustained repression in arrest P_prox~0.70; MB transient G0 preserved via escape). Costs 1 noisy target (CyclinD1 GNP+HHi/GNP 0.08 vs 0.157) -> 30/32; loss is structural (deeper arrest raises shared mark), not w_cd_prox (barely moves it). Legacy via with_proximal_distal=False (31/32). 2026-08-09 BAKED: integrated governor (optionB p27 + CDK6-Gli 2nd arm) + CDK4/6-alone escape (MB transient G0). Legacy via the flags=False. 2026-07-30 BAKED: dynamic CDKI. 2026-08-01 BAKED: with_p21_pip_degron (un-map — restore inherited PIP-degron machinery p27->p21; species-correct re-cal, 30/32). 2026-08-05: with_p27_optionB (EXPLORATION, default OFF; Fan-Meyer p27-inhibitory CDK4/6 — buffered p27 = INACTIVE Cd, not counted in the Rb drive; needs re-cal before default)
     """Build v44 = Heldt 2018 core + mitotic switch + HU->fork-speed coupling.
 
     with_ezh2=True (default): add the EZH2 epigenetic layer and make CyclinD (Cd) dynamic.
@@ -1266,6 +1267,23 @@ def build_model_v44(hu=None, with_ezh2=True, with_hh=True, with_growth=True,
                           f"\n  {_tx} = 1;   // transcriptional-burst multiplier (1 = baseline; a sim telegraphs this)")
             _rxns.append(f"\n  {_mrna}_deg: {_mrna} => ; Cell*{_kp}*{_mrna};"
                          f"\n  {_prot}_translation: {_mrna} => {_mrna} + {_prot}; Cell*{_kp}*{_mrna};")
+        if with_cdki_bursting:
+            # ===== CDKI transcriptional-burst SPECIFICATION (carried by the model) =====
+            # JP 2026-11-02. The locked reference burst configuration lives HERE, as model parameters, so
+            # every downstream sim/figure inherits one canonical setting instead of hard-coding its own.
+            # These parameters are INERT in the ODE (no rate law reads burst_*) -> validation-neutral; they
+            # are read by src/bursting.py:CdkiBurstDriver, which drives the telegraph on p21a_tx / p18_tx.
+            # A deterministic ODE cannot itself generate independent per-cell stochastic switching (that
+            # would need SSA, infeasible for this 65-species event-driven model), so the switching is
+            # applied by the driver while its SPEC is baked. Values = the N=300 locked reference
+            # (MB snapshot-G0 ~36%, GNP 0%): p21 is the dominant driver, p18 a milder secondary.
+            _decls.append(
+                "\n  burst_duty = 0.28;        // fraction of time a CDKI transcription burst is ON"
+                "\n  burst_tau = 700;          // burst correlation time (min); ~1 cell cycle"
+                "\n  burst_a_on = 2.9;         // p21a_tx multiplier while ON   (p21 = dominant driver)"
+                "\n  burst_a_off = 0.15;       // p21a_tx multiplier while OFF"
+                "\n  burst_a_on_p18 = 1.6;     // p18_tx multiplier while ON    (p18 = secondary)"
+                "\n  burst_a_off_p18 = 0.5;    // p18_tx multiplier while OFF")
         m = m.replace("\nend", "".join(_decls) + "".join(_rxns) + "\nend", 1)
         # OPTIONAL (default OFF): make the growth slowdown read the buffered INK4 PROTEIN instead of the p18
         # set-point. More correct, but perturbs the elongated HU-S growth window -> costs the noisy MB-HU-S fold

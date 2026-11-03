@@ -14,23 +14,28 @@ with the baked config) -- it does NOT eliminate it; residual MB failures remain 
 import sys, os, json, numpy as np, tellurium as te
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.build_model_v44_heldt import build_model_v44
+from src.bursting import CdkiBurstDriver        # canonical driver; burst SPEC comes from the model
 
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
 N = int(os.environ.get('PS_N', '72')); DT = 30.0; WARM = 7000.0; REC = float(os.environ.get('REC', '6000'))
 CONTEXT = os.environ.get('CONTEXT', 'MB')
 P21_LVL = float(os.environ.get('P21_LVL', '0.03'))     # baseline kSyp21a (transcription); burst multiplies on top
-A_ON    = float(os.environ.get('A_ON', '4.0'))         # transcription-burst ON multiplier (p21a_tx / p18_tx)
-A_OFF   = float(os.environ.get('A_OFF', '0.15'))
-A_ON18  = float(os.environ.get('A_ON18', '1.6'))       # milder p18 transcription burst
-DUTY    = float(os.environ.get('DUTY', '0.40'))
-TAU     = float(os.environ.get('TAU', '1200'))         # telegraph tau (min); mRNA adds its own ~5h filter on top
 GNP_P21_FAC = float(os.environ.get('GNP_P21_FAC', '0.1'))
 SIG_FROZ = 0.35; PRB_G0 = 1.5; SEED = int(os.environ.get('SEED', '11'))
 rng = np.random.default_rng(SEED)
 froz = np.clip(rng.lognormal(0, SIG_FROZ, N), 0.5, 2.0)
 warm = rng.uniform(600.0, WARM, N)
 
-rr = te.loada(build_model_v44(with_cdki_mrna=True))
+rr = te.loada(build_model_v44())                # with_cdki_mrna + with_cdki_bursting are baked defaults
 rr.integrator.setValue('maximum_num_steps', 20000000)
+# Burst configuration is INHERITED from the model (burst_duty/burst_tau/burst_a_on/...); env vars override.
+_ovr = {k: float(os.environ[e]) for k, e in
+        [('burst_a_on', 'A_ON'), ('burst_a_off', 'A_OFF'), ('burst_a_on_p18', 'A_ON18'),
+         ('burst_duty', 'DUTY'), ('burst_tau', 'TAU')] if e in os.environ}
+burst = CdkiBurstDriver(rr, seed=SEED, p21_only=(os.environ.get('P21_ONLY') == '1'), **_ovr)
+A_ON, A_OFF, DUTY, TAU = burst.amp['p21a_tx'][0], burst.amp['p21a_tx'][1], burst.duty, burst.tau
+A_ON18 = burst.amp['p18_tx'][0]
 KS0_P27 = rr['kSyP21']
 SEL = ['pRb', 'EZH2', 'p18_prot', 'p21a', 'p21a_m', 'P21', 'Dna']
 
@@ -58,19 +63,12 @@ def run_cell(i):
         rr['p18'] = 1.73 * froz[i]; rr['p19'] = 0.58 * froz[i]
         rr['kSyp21a'] = P21_LVL * froz[i]
     rr['kSyP21'] = KS0_P27 * froz[i]
-    k_on = DUTY / TAU; k_off = (1 - DUTY) / TAU
-    g21 = rng.random() < DUTY; g18 = rng.random() < DUTY
+    burst.reset()                                   # independent telegraph realization for this cell
 
     def step(t0, t1, rec):
-        nonlocal g21, g18
         tr = {k: [] for k in SEL}; t = t0
         while t < t1:
-            if g21 and rng.random() < k_off * DT: g21 = False
-            elif (not g21) and rng.random() < k_on * DT: g21 = True
-            if g18 and rng.random() < k_off * DT: g18 = False
-            elif (not g18) and rng.random() < k_on * DT: g18 = True
-            rr['p21a_tx'] = A_ON if g21 else A_OFF          # burst TRANSCRIPTION knobs (two-step: -> mRNA -> protein)
-            rr['p18_tx'] = A_ON18 if g18 else 0.5
+            burst.step(DT)                          # drives p21a_tx / p18_tx (-> mRNA -> protein)
             r = _sim(t)
             if r is None: return None
             if rec:
@@ -97,7 +95,7 @@ print(f"  snapshot G0 {occ:.1%} | pure-cycling {cyc:.0%} transient {transient:.0
 print(f"  temporal CV: p21a_mRNA {tcv('p21a_m'):.2f} -> p21a_protein {tcv('p21a'):.2f} | p18_prot {tcv('p18_prot'):.2f} | p27 {tcv('P21'):.2f}")
 print(f"  EZH2 quiescent {ezq:.2f} vs cycling {ezc:.2f} (fold {ezq/ezc:.2f})")
 
-SC = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad"
+SC = CACHE
 ex = [i for i, c in enumerate(cells) if (c['pRb'] < PRB_G0).any() and (c['pRb'] >= PRB_G0).any()][:4] or list(range(min(4, n)))
 sub = slice(None, None, 2)
 json.dump({'context': CONTEXT, 'shh': rr['SHH'], 'n': n, 'N': N, 'occ': occ, 'transient': float(transient),

@@ -2,10 +2,12 @@
 drug DIRECTION right (CDK4/6i->arrest, HU->hold in G1, RO-3306->G2 block + EZH2 accumulation) but its
 responses are far too COMPLETE -- it collapses ~all cells into one phase, while the IF shows modest, graded
 phase shifts. Reads the model sim + the committed IF targets."""
-import json, numpy as np
+import json, os, numpy as np
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-SC = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad"
-m = json.load(open(f"{SC}/model_ezh2_phase_dist.json"))
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
+FIGDIR = os.path.dirname(os.path.abspath(__file__))
+m = json.load(open(os.path.join(CACHE, "model_ezh2_phase_dist.json")))
 # IF full-population phase fractions (from extract_if_ezh2_targets)
 IF = {'DMSO': [.277, .471, .125, .08], 'CDK4/6i': [.419, .367, .112, .057],
       'HU_10': [.285, .589, .084, .027], 'HU_100': [.265, .501, .123, .073], 'RO3306': [.298, .424, .123, .107]}
@@ -50,7 +52,7 @@ axB.set_ylabel('EZH2 median / G1 (log)'); axB.legend(fontsize=9)
 axB.set_title("(B) EZH2 over the cycle (DMSO)\nboost shared; within-cycle model rises vs IF flat/declines", fontsize=10.5)
 
 plt.tight_layout(rect=[0, 0, 1, 0.9])
-out = f"{SC}/fig_ezh2_perturbation_phases.png"
+out = os.path.join(FIGDIR, "fig_ezh2_perturbation_phases.png")
 plt.savefig(out, dpi=135); print('saved', out)
 for c in CONDS:
     mfr = m['treatments'][c]['phase_frac']

@@ -6,10 +6,12 @@ Reads the 4 population JSONs from sim_ezh2_variance_decomp.py. Three panels:
  C  THE GUESS: baked vs mostly-frozen reach the SAME snapshot CV with opposite temporal fractions -> the IF
     snapshot (which sees only the marginal) cannot resolve the split.
 """
-import json, numpy as np
+import os, json, numpy as np
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-SC = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad"
-D = {k: json.load(open(f"{SC}/vd_{k}.json")) for k in ['baked', 'noburst', 'frozen', 'bursty']}
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
+FIGDIR = os.path.dirname(os.path.abspath(__file__))
+D = {k: json.load(open(os.path.join(CACHE, f"vd_{k}.json"))) for k in ['baked', 'noburst', 'frozen', 'bursty']}
 
 fig = plt.figure(figsize=(16, 5.2))
 gs = fig.add_gridspec(1, 3, width_ratios=[1.5, 1, 1.1], wspace=0.30)
@@ -64,7 +66,7 @@ axC.annotate('', xy=(1, 1.10), xytext=(0, 1.10), arrowprops=dict(arrowstyle='<->
 axC.text(0.5, 1.115, 'IF snapshot identical', ha='center', fontsize=8, color='#555', style='italic')
 
 plt.tight_layout(rect=[0, 0, 1, 0.92])
-out = f"{SC}/fig_ezh2_variance_decomp.png"
+out = os.path.join(FIGDIR, "fig_ezh2_variance_decomp.png")
 plt.savefig(out, dpi=135); print('saved', out)
 print(f"baked split: cell-to-cell {f_c2c:.0%} / cell-cycle {f_cyc:.0%} / bursting {f_burst:.0%}  (total CV {b['cv_total']:.3f})")
 print(f"guess: baked temporal {1-D['baked']['frac_cell2cell']:.0%} vs frozen temporal {1-D['frozen']['frac_cell2cell']:.0%} at CV {D['baked']['cv_total']:.2f}/{D['frozen']['cv_total']:.2f}")

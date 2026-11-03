@@ -22,6 +22,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np, tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
 N = 120
 DT = 30.0                 # min per chunk
 WARM = 5400.0; TREAT = 1440.0     # 90 h warmup (EZH2 t1/2 ~42 h, start at stationary), then 24 h treatment
@@ -101,7 +103,7 @@ for t, cells in res.items():
     out['treatments'][t] = {'log10_ezh2': np.log10(ez).round(4).tolist(), 'phase': ph.tolist(),
                             'median': float(np.median(ez)), 'cv': float(ez.std(ddof=1) / ez.mean()),
                             'g1_cv': float(g1.std(ddof=1) / g1.mean()) if len(g1) > 5 else None}
-sc = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad/model_ezh2_bursting.json"
+sc = os.path.join(CACHE, "model_ezh2_bursting.json")
 json.dump(out, open(sc, 'w')); print('saved', sc)
 for t in res:
     d = out['treatments'][t]

@@ -2,18 +2,23 @@
   (A) single-cell EZH2 traces over time  -> slow drift from bursty transcription
   (B) DMSO model vs IF abundance distribution (model median-aligned to the IF bright/G1 peak)
   (C) drug response (median EZH2 / DMSO): model vs IF, IF ratios computed from per-phase G1 medians
-Reads the scratchpad JSONs; writes simulations/fig_ezh2_bursting.png.
+Reads the cached JSONs from CACHE (simulations/_cache, override with PS_OUT):
+  model_ezh2_bursting.json  <- sim_ezh2_bursting.py
+  if_EZH2_target.json, ezh2_hist.json  <- IF/AMOS export (see sim_async_marker_vs_if.py)
+Writes simulations/fig_ezh2_bursting.png.
 Run:  venv/bin/python simulations/fig_ezh2_bursting.py
 """
-import json, numpy as np
+import os, json, numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-SC = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad"
-m = json.load(open(f"{SC}/model_ezh2_bursting.json"))
-iftgt = json.load(open(f"{SC}/if_EZH2_target.json"))
-hist = json.load(open(f"{SC}/ezh2_hist.json"))
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)
+FIGDIR = os.path.dirname(os.path.abspath(__file__))
+m = json.load(open(os.path.join(CACHE, "model_ezh2_bursting.json")))
+iftgt = json.load(open(os.path.join(CACHE, "if_EZH2_target.json")))
+hist = json.load(open(os.path.join(CACHE, "ezh2_hist.json")))
 
 DMSO = m['treatments']['DMSO']
 cv = DMSO['cv']; g1cv = DMSO['g1_cv']; duty = m['params']['DUTY']; tau = m['params']['TAU_BURST']
@@ -71,7 +76,7 @@ axC.set_ylabel('EZH2 median / DMSO'); axC.axhline(1.0, color='k', lw=0.6, alpha=
 axC.set_title("(C) Drug response: model vs IF"); axC.legend(fontsize=9)
 
 plt.tight_layout(rect=[0, 0, 1, 0.94])
-out = "/Users/jpurzner/Dropbox/Q_research/py_projects/Ezh2_CyclinD1_Sphase/simulations/fig_ezh2_bursting.png"
+out = os.path.join(FIGDIR, "fig_ezh2_bursting.png")
 plt.savefig(out, dpi=130); print('saved', out)
 print(f"model: CV {cv:.3f} G1_CV {g1cv:.3f} | model ratios CDK4/6i {mdl_ratio['CDK4/6i']:.2f} HU {mdl_ratio['HU']:.2f}")
 print(f"IF(G1) ratios: CDK4/6i {if_ratio['CDK4/6i']:.2f} HU {if_ratio['HU']:.2f} | IF G1 median log10 {if_g1_med:.3f}")

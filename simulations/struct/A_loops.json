@@ -1,16 +1,19 @@
 {
-  "n_species": 47,
-  "n_edges": 203,
-  "n_signflip": 0,
+  "n_species": 65,
+  "n_edges": 252,
+  "n_signflip": 1,
   "core": [
     "C1",
     "Ca",
     "CaP21",
+    "Cap21a",
     "Cd",
+    "CdP21",
     "Cd_mRNA",
     "Cdc20",
     "Ce",
     "CeP21",
+    "Cep21a",
     "Dam",
     "Dna",
     "E1",
@@ -21,6 +24,7 @@
     "MPF",
     "Mk",
     "P21",
+    "P21_m",
     "P53",
     "Rb",
     "RbE2f",
@@ -28,320 +32,455 @@
     "RbmE2f",
     "Rc",
     "Skp2",
+    "Skp2_m",
     "aPcna",
     "aRc",
+    "cdk6",
     "iPcna",
     "iRc",
     "m1_me",
     "m2_me",
+    "mass",
+    "p21a",
+    "p21a_m",
     "pC1",
     "pRb",
     "pRc",
     "preMPF"
   ],
   "core_modules": [
+    "?",
     "CDK2-p27",
     "CyclinD1",
     "EZH2",
     "Emi1-Cdh1",
     "H3K27chain",
     "MPF-mitotic",
+    "Mass",
     "Rb-E2f",
     "Replication",
     "Skp2",
     "p53-damage"
   ],
   "periphery": [
+    "Cap57a",
+    "Cd2",
+    "Cep57a",
     "Gli1",
     "Gli1_epi",
     "Gli1_mRNA",
     "Gli_act",
     "Gli_rep",
     "MYCN",
+    "P_prox",
     "Pr",
     "Ptch1_free",
     "Ptch1_mRNA",
+    "Ptch1_slow",
     "SHH_Ptch",
     "Smo_active",
-    "mass"
+    "p18_m",
+    "p18_prot",
+    "p19_m",
+    "p19_prot",
+    "p57a"
   ],
   "periphery_modules": [
+    "?",
     "Hedgehog",
-    "Mass",
     "p53-damage"
   ],
-  "cycles_pos": 197,
-  "cycles_neg": 178,
+  "cycles_pos": 156,
+  "cycles_neg": 141,
   "cycle_sample": [
     {
       "cycle": [
-        "E1C1",
-        "E1",
-        "C1"
+        "E2f",
+        "Rb",
+        "Rbm"
       ],
-      "sign": "-",
+      "sign": "+",
       "mods": [
-        "Emi1-Cdh1"
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
+        "E2f",
+        "Rb",
+        "Rbm",
+        "RbmE2f"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rb"
+      ],
+      "sign": "+",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rb",
+        "RbE2f"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rb",
+        "RbE2f",
+        "RbmE2f"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rbm",
+        "Rb"
+      ],
+      "sign": "+",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rbm",
+        "Rb",
+        "RbE2f"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rbm"
+      ],
+      "sign": "+",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Rbm",
+        "RbmE2f"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbE2f",
+        "Rb",
+        "Rbm"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbE2f",
+        "Rb"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbE2f"
+      ],
+      "sign": "+",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbE2f",
+        "RbmE2f",
+        "Rbm"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbE2f",
+        "RbmE2f"
+      ],
+      "sign": "+",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbmE2f",
+        "Rbm",
+        "Rb"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbmE2f",
+        "Rbm"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbmE2f",
+        "pRb",
+        "Rbm"
+      ],
+      "sign": "-",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "RbmE2f"
+      ],
+      "sign": "+",
+      "mods": [
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
         "E1",
         "C1",
         "Ca"
       ],
+      "sign": "+",
+      "mods": [
+        "CDK2-p27",
+        "Emi1-Cdh1",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
+        "Rbm",
+        "Rb"
+      ],
+      "sign": "+",
+      "mods": [
+        "CDK2-p27",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
+        "Rbm"
+      ],
+      "sign": "+",
+      "mods": [
+        "CDK2-p27",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
+        "Rbm",
+        "RbmE2f"
+      ],
       "sign": "-",
       "mods": [
         "CDK2-p27",
-        "Emi1-Cdh1"
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
-        "E1"
-      ],
-      "sign": "+",
-      "mods": [
-        "Emi1-Cdh1"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "C1",
-        "E1"
+        "E2f",
+        "Ce",
+        "pRb",
+        "Rbm"
       ],
       "sign": "-",
       "mods": [
-        "Emi1-Cdh1"
+        "CDK2-p27",
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
-        "C1"
-      ],
-      "sign": "+",
-      "mods": [
-        "Emi1-Cdh1"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "C1",
-        "P21",
+        "E2f",
         "Ce"
       ],
       "sign": "+",
       "mods": [
         "CDK2-p27",
-        "Emi1-Cdh1"
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
+        "E2f",
+        "Ce",
+        "RbmE2f",
+        "Rbm"
+      ],
+      "sign": "+",
+      "mods": [
+        "CDK2-p27",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
+        "RbmE2f"
+      ],
+      "sign": "-",
+      "mods": [
+        "CDK2-p27",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
         "C1",
+        "Ca"
+      ],
+      "sign": "+",
+      "mods": [
+        "CDK2-p27",
+        "Emi1-Cdh1",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
         "P21",
         "Ca"
       ],
       "sign": "+",
       "mods": [
         "CDK2-p27",
-        "Emi1-Cdh1"
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
-        "C1",
-        "Ca",
-        "E1"
+        "E2f",
+        "Ce",
+        "P21",
+        "Cd"
       ],
-      "sign": "-",
+      "sign": "+",
       "mods": [
         "CDK2-p27",
-        "Emi1-Cdh1"
+        "CyclinD1",
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
-        "C1",
+        "E2f",
+        "Ce",
+        "Ca",
+        "Rbm"
+      ],
+      "sign": "+",
+      "mods": [
+        "CDK2-p27",
+        "Rb-E2f"
+      ]
+    },
+    {
+      "cycle": [
+        "E2f",
+        "Ce",
         "Ca"
       ],
       "sign": "+",
       "mods": [
         "CDK2-p27",
-        "Emi1-Cdh1"
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
-        "C1",
+        "E2f",
+        "Ce",
         "Ca",
-        "Ce"
+        "RbmE2f"
       ],
       "sign": "-",
       "mods": [
         "CDK2-p27",
-        "Emi1-Cdh1"
+        "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "E1C1",
-        "C1",
+        "E2f",
+        "Ce",
         "CaP21",
         "Ca"
       ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Emi1-Cdh1"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "C1",
-        "Skp2",
-        "Ce"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Emi1-Cdh1",
-        "Skp2"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "C1",
-        "Skp2",
-        "Ca"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Emi1-Cdh1",
-        "Skp2"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "pC1",
-        "C1",
-        "E1"
-      ],
-      "sign": "-",
-      "mods": [
-        "Emi1-Cdh1"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "pC1",
-        "C1"
-      ],
-      "sign": "+",
-      "mods": [
-        "Emi1-Cdh1"
-      ]
-    },
-    {
-      "cycle": [
-        "E1C1",
-        "pC1",
-        "C1",
-        "Ca"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Emi1-Cdh1"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "Rb",
-        "Rbm",
-        "E2f"
-      ],
-      "sign": "-",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "Rb",
-        "E2f"
-      ],
-      "sign": "-",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "Rb"
-      ],
-      "sign": "+",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "E2f",
-        "Rb"
-      ],
-      "sign": "-",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "E2f",
-        "Rbm",
-        "Rb"
-      ],
-      "sign": "-",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "E2f"
-      ],
-      "sign": "+",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "E2f",
-        "Ce",
-        "P21"
-      ],
       "sign": "-",
       "mods": [
         "CDK2-p27",
@@ -350,84 +489,22 @@
     },
     {
       "cycle": [
-        "RbE2f",
         "E2f",
         "Ca",
-        "P21"
-      ],
-      "sign": "-",
-      "mods": [
-        "CDK2-p27",
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "E2f",
-        "Skp2",
-        "P21"
-      ],
-      "sign": "-",
-      "mods": [
-        "CDK2-p27",
-        "Rb-E2f",
-        "Skp2"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "RbmE2f",
         "Rbm",
         "Rb"
       ],
       "sign": "+",
       "mods": [
+        "CDK2-p27",
         "Rb-E2f"
       ]
     },
     {
       "cycle": [
-        "RbE2f",
-        "RbmE2f",
-        "Rbm",
-        "E2f"
-      ],
-      "sign": "-",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "RbmE2f",
         "E2f",
-        "Rb"
-      ],
-      "sign": "-",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "RbE2f",
-        "RbmE2f",
-        "E2f"
-      ],
-      "sign": "+",
-      "mods": [
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
         "Ca",
-        "Rbm",
-        "Rb",
-        "E2f"
+        "Rbm"
       ],
       "sign": "+",
       "mods": [
@@ -437,49 +514,10 @@
     },
     {
       "cycle": [
-        "Ca",
-        "Rbm",
         "E2f",
-        "Ce"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
         "Ca",
         "Rbm",
-        "E2f"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "Ca",
-        "Rbm",
-        "E2f",
-        "Skp2"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Rb-E2f",
-        "Skp2"
-      ]
-    },
-    {
-      "cycle": [
-        "Ca",
-        "Rbm",
-        "RbmE2f",
-        "E2f"
+        "RbmE2f"
       ],
       "sign": "-",
       "mods": [
@@ -489,10 +527,10 @@
     },
     {
       "cycle": [
+        "E2f",
         "Ca",
         "pRb",
-        "Rbm",
-        "E2f"
+        "Rbm"
       ],
       "sign": "-",
       "mods": [
@@ -502,38 +540,8 @@
     },
     {
       "cycle": [
-        "Ca",
         "E2f",
-        "E1",
-        "C1"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Emi1-Cdh1",
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "Ca",
-        "E2f",
-        "Ce",
-        "C1"
-      ],
-      "sign": "+",
-      "mods": [
-        "CDK2-p27",
-        "Emi1-Cdh1",
-        "Rb-E2f"
-      ]
-    },
-    {
-      "cycle": [
-        "Ca",
-        "E2f",
-        "Ce",
-        "P21"
+        "Ca"
       ],
       "sign": "+",
       "mods": [
@@ -543,9 +551,10 @@
     },
     {
       "cycle": [
-        "Ca",
         "E2f",
-        "Ce"
+        "Ca",
+        "RbmE2f",
+        "Rbm"
       ],
       "sign": "+",
       "mods": [
@@ -555,10 +564,9 @@
     },
     {
       "cycle": [
-        "Ca",
         "E2f",
-        "Ce",
-        "CaP21"
+        "Ca",
+        "RbmE2f"
       ],
       "sign": "-",
       "mods": [
@@ -646,14 +654,25 @@
     "P53": -1,
     "Dam": -1,
     "Pr": -1,
+    "Cep21a": -1,
+    "Cep57a": -1,
+    "Cap21a": -1,
+    "Cap57a": -1,
+    "CdP21": -1,
+    "p21a": -1,
     "Cd": -1,
+    "Cd2": -1,
+    "p18_prot": -1,
+    "p19_prot": -1,
+    "cdk6": -1,
+    "P21_m": -1,
     "Skp2": -1,
     "MPF": -1,
     "preMPF": -1,
     "Cdc20": -1,
     "mass": 1,
-    "EZH2m": -1,
     "EZH2": -1,
+    "EZH2m": -1,
     "SHH_Ptch": -1,
     "Ptch1_free": -1,
     "Ptch1_mRNA": -1,
@@ -665,8 +684,15 @@
     "Gli1_epi": -1,
     "MYCN": -1,
     "Cd_mRNA": -1,
+    "Ptch1_slow": -1,
+    "Skp2_m": -1,
     "m1_me": -1,
     "m2_me": -1,
-    "Mk": -1
+    "Mk": -1,
+    "p18_m": -1,
+    "p19_m": -1,
+    "p21a_m": -1,
+    "p57a": -1,
+    "P_prox": -1
   }
 }

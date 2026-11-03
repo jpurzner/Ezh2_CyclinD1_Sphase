@@ -22,8 +22,11 @@ from src.build_model_v44_heldt import build_model_v44
 
 MINI = '--mini' in sys.argv
 FRESH = '--fresh' in sys.argv or MINI
-CACHE = 'simulations/fig_v44_g0_bistability_confirm_cache.npz' if not MINI else 'simulations/fig_v44_g0_bistability_confirm_mini.npz'
-SCRATCH = '/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/81291f88-7d19-4149-be27-53b1162ee52d/scratchpad'
+CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
+os.makedirs(CACHE, exist_ok=True)                          # roadrunner saveState() IC checkpoints
+FIGDIR = os.path.dirname(os.path.abspath(__file__))        # figures go next to the script
+# npz stays in simulations/ under its existing name (fig_v44_g0_mark_dynamics.py reads it), now cwd-independent
+NPZ = os.path.join(FIGDIR, 'fig_v44_g0_bistability_confirm_cache.npz' if not MINI else 'fig_v44_g0_bistability_confirm_mini.npz')
 
 M = build_model_v44(with_ezh2=True, with_hh=True)
 GNP = dict(MYCN_amplification=1.0, Ptch1_copy_number=1.0, p16=0.0, p18=0.464, kSyP21=0.002, HHi=0, EZH2i=0)
@@ -84,10 +87,10 @@ def run_from_ic(kdeez, delmk, shh, icfile):
     return rate, float(np.nanmean(res['Mk'])), float(np.nanmean(res['Cd']))
 
 
-if FRESH or not os.path.exists(CACHE):
+if FRESH or not os.path.exists(NPZ):
     RATE_ARR, RATE_CYC, MK_ARR, MK_CYC, CD_ARR, CD_CYC = ([] for _ in range(6))
     for s in SETTINGS:
-        af = os.path.join(SCRATCH, 'ic_arr.dat'); cf = os.path.join(SCRATCH, 'ic_cyc.dat')
+        af = os.path.join(CACHE, 'ic_arr.dat'); cf = os.path.join(CACHE, 'ic_cyc.dat')
         build_ic(s['kDeEZ'], s['del_mk'], 0.05, T_PRE_ARR, af)
         build_ic(s['kDeEZ'], s['del_mk'], 1.00, T_PRE_CYC, cf)
         ra, rc, ma, mc, ca, cc = [], [], [], [], [], []
@@ -98,11 +101,11 @@ if FRESH or not os.path.exists(CACHE):
             rc.append(r2[0]); mc.append(r2[1]); cc.append(r2[2])
             print(f"  {s['name'][:22]:22s} SHH={shh:.2f}  arrIC[div {r1[0]:.1f} Mk {r1[1]:.2f} Cd {r1[2]:.2f}]  cycIC[div {r2[0]:.1f} Mk {r2[1]:.2f} Cd {r2[2]:.2f}]", flush=True)
         RATE_ARR.append(ra); RATE_CYC.append(rc); MK_ARR.append(ma); MK_CYC.append(mc); CD_ARR.append(ca); CD_CYC.append(cc)
-        np.savez(CACHE, SHHG=SHHG, RATE_ARR=RATE_ARR, RATE_CYC=RATE_CYC, MK_ARR=MK_ARR, MK_CYC=MK_CYC,
+        np.savez(NPZ, SHHG=SHHG, RATE_ARR=RATE_ARR, RATE_CYC=RATE_CYC, MK_ARR=MK_ARR, MK_CYC=MK_CYC,
                  CD_ARR=CD_ARR, CD_CYC=CD_CYC, names=[x['name'] for x in SETTINGS], cols=[x['col'] for x in SETTINGS])
-    print('cached ->', CACHE, flush=True)
+    print('cached ->', NPZ, flush=True)
 
-z = np.load(CACHE, allow_pickle=True)
+z = np.load(NPZ, allow_pickle=True)
 SHHG = z['SHHG']; names = list(z['names']); cols = list(z['cols'])
 RATE_ARR, RATE_CYC = z['RATE_ARR'], z['RATE_CYC']; MK_ARR, MK_CYC = z['MK_ARR'], z['MK_CYC']; CD_ARR, CD_CYC = z['CD_ARR'], z['CD_CYC']
 
@@ -134,7 +137,7 @@ fig.suptitle('Definitive bistability test — same SHH, two initial conditions, 
 fig.text(0.5, 0.005, 'Gold = SHH where the arrested (high-mark) and cycling (low-mark) starts settle to DIFFERENT stable states → two coexisting attractors → bistable G0 lock.',
          ha='center', fontsize=9, color='#555')
 plt.tight_layout(rect=[0, 0.015, 1, 0.97])
-plt.savefig('simulations/fig_v44_g0_bistability_confirm.png', dpi=150, bbox_inches='tight')
-plt.savefig('simulations/fig_v44_g0_bistability_confirm.pdf', bbox_inches='tight')
+plt.savefig(os.path.join(FIGDIR, 'fig_v44_g0_bistability_confirm.png'), dpi=150, bbox_inches='tight')
+plt.savefig(os.path.join(FIGDIR, 'fig_v44_g0_bistability_confirm.pdf'), bbox_inches='tight')
 plt.close()
 print('Saved fig_v44_g0_bistability_confirm.png')

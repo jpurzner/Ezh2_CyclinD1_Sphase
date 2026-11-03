@@ -205,3 +205,4 @@ papers/
 data/*.rds
 data/*.csv
 simulations/overnight/master.out
+simulations/_cache/

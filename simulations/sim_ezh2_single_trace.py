@@ -10,7 +10,8 @@ import numpy as np, tellurium as te
 from src.build_model_v44_heldt import build_model_v44
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 
-DT = 15.0                 # min per chunk (fine, to resolve the ~1.2 h mRNA decay)
+FIGDIR = os.path.dirname(os.path.abspath(__file__))
+DT = 15.0               # min per chunk (fine, to resolve the ~1.2 h mRNA decay)
 WARM = 5400.0             # 90 h warmup (start near stationary)
 REC = 9000.0             # 150 h of recorded trace
 TAU_BURST = 200.0; DUTY = 0.62
@@ -69,6 +70,6 @@ ax2.set_ylabel('EZH2 protein (a.u.)'); ax2.set_xlabel('time (h)')
 ax2.set_title(f"protein  —  t1/2 ~42 h  →  integrates mRNA into slow drift + division sawtooth  "
               f"(temporal CV {cv_p:.2f})", fontsize=10, loc='left')
 plt.tight_layout(rect=[0, 0, 1, 0.93])
-out = "/private/tmp/claude-501/-Users-jpurzner-Dropbox-Q-research-py-projects-ezh2-cyclind1-scheckpoint/79019eb0-7c15-4650-b7d3-81347ccd6a13/scratchpad/fig_ezh2_single_trace.png"
+out = os.path.join(FIGDIR, "fig_ezh2_single_trace.png")
 plt.savefig(out, dpi=130); print('saved', out)
 print(f"seed={SEED}  mRNA: mean {MRNA.mean():.3f} CV {cv_m:.2f} | protein: mean {PROT.mean():.3f} CV {cv_p:.2f} | n_bursts {len(spans)}")

@@ -1,8 +1,12 @@
 # Model figures — which code generates each
 
-## Current status (2026-10-16)
+## Current status (2026-11-02)
 
-**Baked default** (`build_model_v44()`, `src/build_model_v44_heldt.py`): two-step Rb · EZH2 **dilution + APC/Cdh1 S-phase boost** (the concentration-halving convention was REVERSED, see `docs/cdh1_ezh2_sphase_boost_2026-07-19.md`) · serial me1/me2/me3 H3K27 chain · **two-compartment PRC2** (distal reservoir Mk + proximal occupancy P_prox) · dynamic CDKI (INK4 p18/p19; CIP/KIP p27=P21/p21/p57) with option-B p27 · CDK6–Gli second drive arm · CDK4/6-alone hyper-P **escape** (reversible MB transient G0) · Skp2 mitogen-dose · p21-PIP-degron · GLI1-autoregulation memory · **measured CyclinD1 mRNA half-life (3.4 h; `measured_ccnd1=True`, 2026-10-16)**. **Validation 30/32** (two structural misses, both pre-existing: CyclinD1 GNP+HHi/GNP 0.078 vs 0.157; MB HU-G2 0.456 vs 0.23).
+**Baked default** (`build_model_v44()`, `src/build_model_v44_heldt.py`): two-step Rb · EZH2 **dilution + APC/Cdh1 S-phase boost** (the concentration-halving convention was REVERSED, see `docs/cdh1_ezh2_sphase_boost_2026-07-19.md`) · serial me1/me2/me3 H3K27 chain · **two-compartment PRC2** (distal reservoir Mk + proximal occupancy P_prox) · dynamic CDKI (INK4 p18/p19; CIP/KIP p27=P21/p21/p57) with option-B p27 · CDK6–Gli second drive arm · CDK4/6-alone hyper-P **escape** (reversible MB transient G0) · Skp2 mitogen-dose · p21-PIP-degron · GLI1-autoregulation memory · **measured CyclinD1 mRNA half-life (3.4 h; `measured_ccnd1=True`, 2026-10-16)** · **two-step CDKI expression (`with_cdki_mrna=True`, BAKED 2026-10-18)** · **CDKI burst specification (`with_cdki_bursting=True`, BAKED 2026-11-02)**. **Validation 30/32** (two structural misses, both pre-existing: CyclinD1 GNP+HHi/GNP 0.078 vs 0.157; MB HU-G2 0.456 vs 0.23).
+
+- **Two-step CDKI expression** (2026-10-18, BAKED): every CDKI (p18/p19/p21a/P21=p27/Skp2) is now transcription → **mRNA species** → translation → protein, so each carries an independent **measured mRNA t½** (3.4–5.2 h, Serdar 2025 embryonic cortex) and its own protein t½. Parameterised with translation rate = mRNA decay rate ⇒ **steady-state-neutral, 30/32 identical to the legacy single-step** (`CDKI_MRNA=0`). Each gene gets a transcription-burst knob (`p18_tx`, `p21a_tx`, …, default 1) that scales ONLY transcription, so bursting cannot leak into `mu_eff`. Provenance of every half-life: `docs/stability_data_provenance.md`, `docs/protein_stability_provenance.md`, `docs/paper_halflife_table.md`.
+- **CDKI bursting is baked and propagates** (2026-11-02): the burst *specification* lives in the model as parameters (`burst_duty` 0.28, `burst_tau` 700 min, `burst_a_on/off` 2.9/0.15 for p21, `burst_a_on/off_p18` 1.6/0.5) — the N=300 locked reference config. These are **inert in the ODE** (validation-neutral); the telegraph is applied by the single canonical driver **`src/bursting.py:CdkiBurstDriver`**, which every bursting sim now uses instead of re-declaring its own. (A deterministic ODE cannot generate independent per-cell switching internally — SSA is infeasible for this 65-species event-driven model — so the spec is baked and the switching is driven.) Established behaviour encoded there: bursts **independent** per gene (correlating them destroys MB-vs-GNP specificity); **p21 is the dominant transient-G0 driver, p18 secondary**.
+- **Reproducibility fix (2026-11-02):** all figure/sim scripts that previously wrote to an ephemeral session scratchpad now use a repo-relative `simulations/_cache/` (overridable with `PS_OUT`) for data caches and write figures into `simulations/`. No script hardcodes a `/private/tmp/claude-…` path any more.
 
 - **CyclinD1 memory is NOT a slow transcript** (2026-10-16): the measured CCND1 mRNA t½ is ~3.4 h (stability-catalog, 135 measurements; 0.5 h cytoplasmic), not the old 11 h reservoir. The ~1-cycle Hh-withdrawal coast comes from the **large CyclinD1 reservoir draining past the commitment threshold** (GNP ~5×, MB ~21× above `K_CdRb`; coast ≈ τ·ln(ratio) ≈ GNP 14 h / MB 17 h). The old 11 h reservoir OVERSHOT to ~3 cycles. See `sim_ccnd1_reservoir_test.py` + `fig_ccnd1_halflife.py`. ⇒ the CyclinD1-memory narrative in `fig_cyclind1_memory` / `fig_pool_vs_halflife` is now **stale (needs caption rework)** even though they re-run.
 - **EZH2 protein t½ baked ~42 h** (`kDeEZ`=2.77e-4) + Cdh1-gated G0 clearance; stability-catalog grounds EZH2 at ~20–30 h (dividing NP) / ~57 h (pure degradation). **Older entries citing "t½ ≈ 77 h" / `kDeEZ`=1.5e-4 (e.g. `fig_v44_g0_mark_*`, `sim_ezh2_kdeez_sweep`, `sim_mark_kdeez_ramp_sweep`) are SUPERSEDED.**
@@ -22,7 +26,20 @@ Noise/decomposition figures write to the session scratchpad (ephemeral) — reru
 | `fig_ccnd1_reservoir_test.png` | `sim_ccnd1_reservoir_test.py` | Measured CcnD1 t½ (3.4 h) + the large reservoir ⇒ ~1-cycle Hh-withdrawal coast (GNP 14 h / MB 17 h); slow 11 h overshoots to 44 h; instant collapses in 3–4 h. Grounds `measured_ccnd1`. |
 | `fig_ccnd1_halflife.pdf` | `fig_ccnd1_halflife.py` | CCND1 mRNA half-life vs the model — **UPDATED**: the model now sits AT the measured 3.4 h (thesis inverted from "reservoir too slow"). RNAdecayCafe + stability-catalog. |
 
-> **Known gaps:** `fig_param_heatmap/_settings/_biplot` depend on precomputed `allparams.json`/`sensitivity.json`/`param_meta.json` (no in-repo generator found) — stale, not regenerable here. `fig_ezh2_bursting`/`_variance_decomp` need their scratchpad JSONs regenerated before plotting.
+### Transient-G0 / CDKI-bursting set (2026-10-18→11-02) — committed outputs, reproducible
+
+These three are the locked story for CDKI bursting → MB transient G0. Unlike the noise figures above they
+write **committed** outputs under `simulations/overnight/` and read the committed `overnight/results.json`,
+so they regenerate anywhere.
+
+| Output | Generating script | What it shows |
+|---|---|---|
+| `overnight/fig_overnight_lock.png` | `fig_overnight.py` | **Locked reference (N=300).** MB **snapshot-G0 occupancy 36%** (IF-comparable ~34%) with **72% of cells** showing a transient-G0 excursion and only 2% permanent, vs **GNP 0%** (100% cycling). Panel A = one cell's burst → mRNA → protein → pRb dip → recovery; C = p21 carries the variance. Footer carries the honest caveats (36% is a floor; ~36–55% across protein-stability; GNP 0% is set by GNPs' ~10× lower p21, not the drive). |
+| `overnight/fig_overnight_attribution.png` | `fig_overnight.py` | **2×2 attribution**: {model-tuned, measured protein} × {burst p21+p18, p21-only}. p21-only ≈ p21+p18 in both ⇒ **p21 is the driver, p18 marginal**; giving p18 its measured 24 h protein t½ collapses its temporal CV 0.34→0.16 (a stable protein filters its own bursts). |
+| `overnight/fig_pulse_response.png` | `sim_pulse_response.py` | **Mechanism.** A defined 4× / 8 h transcription burst on p18 (cell-cycle-decoupled, so the trace is the pure two-stage filter): mRNA peaks 3.3×, protein 2.5×. Panel B varies protein t½ at fixed mRNA stage — 0.6 h → 3.2×, 3.9 h → 2.5×, 23.9 h → 1.5× — i.e. **a stable protein filters the burst out**, which is why p21 transmits and p18/p27 buffer. |
+| `—` (metrics) | `sim_cdki_mrna_burst_g0.py` | The canonical bursting sim; now inherits the baked burst spec via `CdkiBurstDriver`. `sim_overnight_master.py` produced the locked `results.json` (inline telegraph, same spec) and is kept as the record of that run. `sim_mrna_normalization_impact.py` tests half-life normalization (validation unchanged; transient-G0 shifts within the reported band). |
+
+> **Known gaps:** `fig_param_heatmap/_settings/_biplot` depend on precomputed `allparams.json`/`sensitivity.json`/`param_meta.json` (no in-repo generator found) — stale, not regenerable here (archived). `fig_ezh2_bursting`/`_variance_decomp` need their caches built first — run the paired `sim_*` script, which now writes to `simulations/_cache/`. **Remaining data-provenance gap:** `fig_ezh2_bursting` also reads `if_EZH2_target.json` and `ezh2_hist.json`, which **no in-repo script generates** (they are external AMOS/IF exports); until those are placed in `simulations/_cache/` or committed, that one figure is not regenerable from a clean checkout. This is a data gap, not a path bug.
 
 ---
 
@@ -233,7 +250,19 @@ Write caches / optimizer output read by the figure scripts, or are prototypes / 
 
 ---
 
-## Archived — stale narrative or broken (18; kept for provenance, NOT current)
+## Archived — stale narrative or broken (22; kept for provenance, NOT current)
+
+**Added 2026-11-02** — the pre-two-step **parameter-bursting** generation, superseded by the two-step
+mRNA→protein model + `CdkiBurstDriver`. They bursted a synthesis *parameter* directly (which leaked into
+`mu_eff`) and hardcoded an ephemeral scratchpad path:
+
+| Script | Why archived |
+|---|---|
+| `fig_cdki_bursting_g0` | _superseded + broken path_ — param-bursting figure; replaced by `fig_overnight.py` (N=300, reads committed `results.json`). |
+| `sim_cdki_bursting_g0` | _superseded_ — param-bursting sim; replaced by `sim_cdki_mrna_burst_g0.py` (two-step + baked burst spec). |
+| `sim_cdki_bursting_sweep` | _superseded_ — config sweep for the param-bursting generation. |
+| `sim_cdki_p21_sweep` | _superseded_ — p21-amplitude sweep for the param-bursting generation. |
+
 
 **Moved to `simulations/archive/` (2026-10-17)** — out of the active set, git-tracked (reversible). See `simulations/archive/README.md`. These describe a **superseded model state** (old EZH2 t½ ~77 h, 11–12 h CyclinD1 mRNA reservoir, EZH2-concentration convention, bistable / "lock-in" G0, old validation scores, the v42 architecture) or read data files that no longer exist. **Do not cite as current.**
 
