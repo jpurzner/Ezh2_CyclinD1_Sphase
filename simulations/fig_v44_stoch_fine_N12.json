@@ -1,0 +1,122 @@
+{
+  "rows": [
+    {
+      "f_P": 0.745,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.745,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 24,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.75,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.75,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 24,
+      "errs": 0,
+      "pct_locked": 95.83333333333333,
+      "median_dwell": 115.17946438493163
+    },
+    {
+      "f_P": 0.755,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.755,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 24,
+      "errs": 0,
+      "pct_locked": 75.0,
+      "median_dwell": 121.6801866874097
+    },
+    {
+      "f_P": 0.76,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.76,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 24,
+      "errs": 0,
+      "pct_locked": 4.166666666666667,
+      "median_dwell": 115.0127791976886
+    },
+    {
+      "f_P": 0.765,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 147.68307589732194
+    },
+    {
+      "f_P": 0.765,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 24,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 104.01155683964886
+    },
+    {
+      "f_P": 0.77,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 108.67874208245357
+    },
+    {
+      "f_P": 0.77,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 24,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 98.01089009889989
+    }
+  ],
+  "nsites": 12.0,
+  "cells": 24,
+  "mult": 5.0,
+  "a_P": 0.1,
+  "scale": 0.019773512970146765,
+  "band": [
+    40.0,
+    1500.0
+  ],
+  "modes": 48
+}

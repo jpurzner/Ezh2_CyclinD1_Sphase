@@ -1,0 +1,58 @@
+[
+  {
+    "variant": "v1 local kernel",
+    "core_me3": 0.04779166666666667,
+    "plateau": 0.4279375,
+    "depletion": 0.38014583333333335,
+    "edge_bp": 2300.0,
+    "width_bp": 1140.0
+  },
+  {
+    "variant": "v2 3D contact 1/d",
+    "core_me3": 0.14904166666666668,
+    "plateau": 0.17743750000000003,
+    "depletion": 0.028395833333333342,
+    "edge_bp": 20.0,
+    "width_bp": 0.0
+  },
+  {
+    "variant": "v2b 3D contact 1/d^2",
+    "core_me3": 0.07554166666666667,
+    "plateau": 0.44675000000000004,
+    "depletion": 0.37120833333333336,
+    "edge_bp": 2680.0,
+    "width_bp": 1520.0
+  },
+  {
+    "variant": "v3 collapsed me chain",
+    "core_me3": 0.1505,
+    "plateau": 0.7628125,
+    "depletion": 0.6123125,
+    "edge_bp": 1540.0,
+    "width_bp": 1330.0
+  },
+  {
+    "variant": "v4 no read-write",
+    "core_me3": 0.25425000000000003,
+    "plateau": 0.045875000000000006,
+    "depletion": -0.20837500000000003,
+    "edge_bp": null,
+    "width_bp": null
+  },
+  {
+    "variant": "v5 no KDM6B",
+    "core_me3": 0.29229166666666667,
+    "plateau": 0.5066249999999999,
+    "depletion": 0.2143333333333332,
+    "edge_bp": 1920.0,
+    "width_bp": 1330.0
+  },
+  {
+    "variant": "v6 no p300",
+    "core_me3": 0.050375,
+    "plateau": 0.49125,
+    "depletion": 0.440875,
+    "edge_bp": 2490.0,
+    "width_bp": 1520.0
+  }
+]

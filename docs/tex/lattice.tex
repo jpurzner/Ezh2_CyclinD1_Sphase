@@ -1,0 +1,215 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,graphicx,booktabs,xcolor}
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue]{hyperref}
+% caption.sty unavailable in this TeX install; use the kernel default
+\makeatletter\renewcommand{\@makecaption}[2]{\vskip 6pt
+  \small\sbox\@tempboxa{\textbf{#1.} #2}%
+  \ifdim \wd\@tempboxa >\hsize \textbf{#1.} #2\par
+  \else \global\@minipagefalse \hb@xt@\hsize{\hfil\box\@tempboxa\hfil}\fi}\makeatother
+\setlength{\parskip}{0.45em}\setlength{\parindent}{0pt}
+\newcommand{\me}{\mathrm{me}}
+\title{\vspace{-1.6cm}\textbf{The promoter lattice model}\\[2pt]
+\large How the mathematics works, and why it cannot be bistable}
+\author{\normalsize Notes for the GNP/MB H3K27me3 project}
+\date{\normalsize 25 October 2026}
+
+\begin{document}\maketitle\vspace{-0.9em}
+
+\section{State space}
+
+The lattice is $N$ sites (nucleosomes, 200\,bp pitch). Each site $i$ carries
+exactly one state
+\[
+s_i \in \{\,\mathrm{U},\ \me 1,\ \me 2,\ \me 3,\ \mathrm{AC}\,\},
+\]
+so acetylation and methylation of H3K27 exclude one another by construction
+rather than by a rule. H3K4me3 is a separate static field $k_i\in[0,1]$ taken
+from the measured ChIP profile, not simulated.
+
+\begin{figure}[h]\centering\includegraphics{fig_ladder.pdf}
+\caption{States and transitions. Forward steps carry the relative rates
+$8.7:1.0:1.3$ for $\mathrm{U}\!\to\!\me1\!\to\!\me2\!\to\!\me3$.}
+\end{figure}
+
+\section{Time stepping}
+
+A fixed step $\Delta t = 30$\,s, not Gillespie. Each step applies discrete
+enzyme events, then per-site field processes. $\Delta t$ is small enough that
+every per-site probability stays well below one.
+
+\section{Enzyme binding as a renewal process}
+
+Each enzyme molecule alternates searching and bound, so one cycle costs
+$\tau_{\mathrm{search}} + \tau_{\mathrm{bound}}$ and the number of binding
+events in a step is
+\[
+N_{\mathrm{ev}} \sim \mathrm{Poisson}\!\left(\frac{n_{\mathrm{mol}}\,\Delta t}
+{\tau_{\mathrm{search}}+\tau_{\mathrm{bound}}}\right).
+\]
+Each event selects a site from a weight vector $w$ ($\sum_i w_i=1$) and draws a
+dwell $d\sim\mathrm{Exp}(\tau_{\mathrm{bound}})$. PRC2 has two binding modes:
+\[
+P(\text{stable}) = p_{\mathrm{stable}}\,(0.3 + 0.7\,\nu_i),
+\qquad
+d \sim \begin{cases}\mathrm{Exp}(10\,\mathrm{s}) & \text{stable}\\
+\mathrm{Exp}(0.9\,\mathrm{s}) & \text{transient,}\end{cases}
+\]
+with $\nu_i$ the nucleation weight, so nucleation sites receive \emph{longer}
+visits as well as more of them.
+
+\section{Catalysis within a dwell}
+
+Writing is first order over the dwell,
+\[
+P(\text{write}) = 1-e^{-k_i d},
+\qquad
+k_i = \frac{k_{\mathrm{cat}}}{60}\cdot
+\frac{\rho_s}{\min_s \rho_s}\cdot \alpha_i \cdot \eta_i ,
+\]
+where $\rho = (8.7,\,1.0,\,1.3)$. Dividing by $\min_s\rho_s$ makes
+$k_{\mathrm{cat}}$ refer to the \emph{rate-limiting} step; normalising to the
+fastest step instead penalises the limiting one roughly ninefold, twice over.
+
+\section{The two modulating fields}
+
+Neighbours are coupled by a kernel that excludes self, decays over
+$\lambda=2.5$ nucleosomes and is truncated at six, then row-normalised:
+\[
+K_{ij} \propto \exp\!\left(-\frac{|i-j|-1}{\lambda}\right),\quad
+K_{ii}=0,\quad K_{ij}=0 \text{ for } |i-j|>6 .
+\]
+
+\begin{figure}[h]\centering\includegraphics{fig_kernel.pdf}
+\caption{The coupling kernel. Read-write is strictly short range.}
+\end{figure}
+
+\textbf{Read-write} (allosteric stimulation of EED by neighbouring $\me3$):
+\[
+\alpha_i = 1 + (A-1)\,(Km)_i,\qquad m_j = \mathbf{1}[s_j=\me3].
+\]
+\textbf{Antagonism} by the active marks:
+\[
+\eta_i = \mathrm{clip}\big(1 - w_{\mathrm{inh}}\,(Ka)_i,\ 0,\ 1\big),\qquad
+a_j = \mathrm{clip}\big(k_j + \mathbf{1}[s_j=\mathrm{AC}],\ 0,\ 1\big).
+\]
+Both multiply the catalytic rate. \textbf{Neither changes where PRC2 binds}, and
+that turns out to decide everything in \S\ref{sec:mono}.
+
+\section{Field processes and replication}
+
+Per site per step, independent Bernoulli trials at rate $\times\,\Delta t$:
+$\mathrm{AC}\to\mathrm{U}$ by HDAC; $\me3\to\me2\to\me1\to\mathrm{U}$ at the
+basal rate $\delta$, iterated low to high so one random draw cannot cascade a
+site down three levels in a single step; and exchange, which resets any state
+to U at rate $k_{\mathrm{exch}}\,e_i$ with $e_i$ a Gaussian on the NDR (centre
+$+150$\,bp, $\sigma=450$\,bp). Every 24\,h each site independently resets to U
+with probability $0.5$.
+
+\begin{figure}[h]\centering\includegraphics{fig_exch.pdf}
+\caption{The exchange geometry matters more than it looks: at Ccnd2's me3 block
+the weight is $2.4\times10^{-7}$ against $0.994$ at the NDR, so turnover acts
+essentially only at the promoter core. The committed
+$k_{\mathrm{exch}}=0.60/\mathrm{h}$ works \emph{because} it is NDR-local;
+applied uniformly it erases every domain.}
+\end{figure}
+
+\section{The ensemble}
+
+$C$ cells run independently, cell $c$ drawing
+$n_{\mathrm{PRC2}}^{(c)}\sim\mathrm{lognormal}$ (CV $0.4$) and an active-zone
+scale $\sim\mathcal{N}(1,0.25)$. Each cell's profile is time-averaged over the
+second half of the run, then averaged across cells. That ensemble mean is what
+is compared to bulk ChIP --- the comparison has to be made there, because bulk
+ChIP cannot distinguish a uniform intermediate from a mixture.
+
+\begin{figure}[h]\centering\includegraphics{fig_ensemble.pdf}
+\caption{Ccnd2 with PRC2 seeded at the neighbouring promoter Gm56941. The
+ensemble reproduces the measured block ($r=0.876$), and the cells agree with
+each other everywhere except a ${\sim}1$\,kb zone at each domain edge.}
+\end{figure}
+
+\section{Why the model is monostable}\label{sec:mono}
+
+Reduce to a single number $m$, the local $\me3$ fraction. Writing acts on
+unmarked sites and is stimulated by neighbours; loss is first order:
+\[
+\frac{dm}{dt} \;=\; \underbrace{\beta\,(1-m)\big[1+(A-1)m\big]}_{W(m)}
+\;-\; \underbrace{\gamma m}_{L(m)}
+\;=\; -\beta(A\!-\!1)m^{2} + \big[\beta(A\!-\!2)-\gamma\big]m + \beta .
+\]
+This is a downward parabola with
+\[
+f(0) = +\beta > 0, \qquad f(1) = -\gamma < 0
+\]
+for \emph{any} positive $\beta,\gamma,A$. A continuous curve that is positive at
+$0$ and negative at $1$ crosses zero exactly once on $(0,1)$. There is one fixed
+point for every parameter choice: \textbf{the model is monostable, and no
+allosteric gain can change that.}
+
+Geometrically, $W(0)=\beta>0$ --- bare chromatin still gets methylated at the
+basal rate --- and a straight loss line through the origin can cut such a curve
+only once.
+
+\begin{figure}[h]\centering\includegraphics{fig_flux.pdf}
+\caption{Left: as built. Right: with recruitment. The only structural
+difference is whether the writing curve passes through the origin.}
+\end{figure}
+
+This is confirmed empirically. Across 102 hysteresis pairs --- each parameter
+set run from a fully marked domain and from a bare one --- the two starts always
+settle at the same level.
+
+\begin{figure}[h]\centering\includegraphics{fig_hysteresis.pdf}
+\caption{Allosteric gain $1$--$50\times$, turnover $0.05$--$2.5/\mathrm{h}$ both
+NDR-local and uniform, recruitment from strictly local to fully domain-wide,
+replication on and off. Largest gap anywhere $0.043$, signs flipping at random.}
+\end{figure}
+
+\section{What would make it bistable}
+
+Let $\me3$ \emph{recruit} PRC2 rather than only stimulate it. The writing flux
+gains a factor $m$:
+\[
+\frac{dm}{dt} = m\,g(m), \qquad g(m) = \beta(1-m)\big[1+(A-1)m\big]-\gamma .
+\]
+Now $m=0$ is always a fixed point --- bare chromatin attracts no enzyme, so
+nothing starts it --- and $g$ can vanish twice, giving three fixed points with
+the outer two stable. The bistable window is
+\[
+1 \;<\; \frac{\gamma}{\beta} \;<\; 1 + \frac{(A-2)^{2}}{4(A-1)} ,
+\]
+the upper limit being the saddle-node fold where the two interior roots merge.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{rrlll}
+\toprule
+$A$ & $\gamma/\beta$ & $m=0$ & interior roots & regime\\
+\midrule
+9  & 0.5 & unstable & $0.941$ & monostable high\\
+9  & 1.5 & stable & $0.079,\ 0.797$ & \textbf{bistable}\\
+9  & 2.0 & stable & $0.180,\ 0.695$ & \textbf{bistable}\\
+9  & 4.0 & stable & --- & monostable off\\
+25 & 2.0 & stable & $0.046,\ 0.913$ & \textbf{bistable}\\
+25 & 4.0 & stable & $0.156,\ 0.803$ & \textbf{bistable}\\
+25 & 8.0 & stable & --- & monostable off\\
+\bottomrule
+\end{tabular}
+\caption{Fixed points of the recruitment-coupled model. Bistability requires
+loss to outrun basal writing, and is a window rather than a guarantee.}
+\end{table}
+
+\begin{figure}[h]\centering\includegraphics{fig_bifurcation.pdf}
+\caption{The fold sits at $\gamma/\beta = 2.53$ for $A=9$ and $6.51$ for
+$A=25$: stronger read-write widens the window but does not remove the
+requirement $\gamma>\beta$.}
+\end{figure}
+
+In the code the missing ingredient is one line. The binding weights
+\texttt{w\_prc2} are computed once in \texttt{\_\_init\_\_} from nucleation and
+never updated, so the enzyme lands in the same places regardless of what is
+already marked. Closing that loop is a departure from what the in-cis
+measurements support, so it should be framed as a hypothesis to test rather
+than a correction.
+
+\end{document}

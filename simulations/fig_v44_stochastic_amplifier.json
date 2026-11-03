@@ -1,0 +1,194 @@
+{
+  "rows": [
+    {
+      "f_P": 0.72,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.72,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.74,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.74,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.76,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 100.0,
+      "median_dwell": null
+    },
+    {
+      "f_P": 0.76,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 3.125,
+      "median_dwell": 115.0127791976886
+    },
+    {
+      "f_P": 0.77,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 108.67874208245357
+    },
+    {
+      "f_P": 0.77,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 98.01089009889989
+    },
+    {
+      "f_P": 0.78,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 95.51061229025449
+    },
+    {
+      "f_P": 0.78,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 90.92676964107122
+    },
+    {
+      "f_P": 0.79,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 88.84320480053339
+    },
+    {
+      "f_P": 0.79,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 86.0095566174019
+    },
+    {
+      "f_P": 0.8,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 84.50938993221467
+    },
+    {
+      "f_P": 0.8,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 82.67585287254138
+    },
+    {
+      "f_P": 0.81,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 81.17568618735416
+    },
+    {
+      "f_P": 0.81,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 79.84220468940991
+    },
+    {
+      "f_P": 0.82,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 78.5087231914657
+    },
+    {
+      "f_P": 0.82,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 77.59195466162907
+    },
+    {
+      "f_P": 0.85,
+      "a_P": 0.1,
+      "mode": "deterministic",
+      "n": 1,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 72.84142682520282
+    },
+    {
+      "f_P": 0.85,
+      "a_P": 0.1,
+      "mode": "stochastic N=12",
+      "n": 32,
+      "errs": 0,
+      "pct_locked": 0.0,
+      "median_dwell": 72.34137126347372
+    }
+  ],
+  "nsites": 12.0,
+  "cells": 32,
+  "mult": 5.0,
+  "a_P": 0.1,
+  "scale": 0.019773512970146765,
+  "band": [
+    40.0,
+    1500.0
+  ],
+  "modes": 48
+}
