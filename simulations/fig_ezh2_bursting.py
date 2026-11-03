@@ -2,11 +2,14 @@
   (A) single-cell EZH2 traces over time  -> slow drift from bursty transcription
   (B) DMSO model vs IF abundance distribution (model median-aligned to the IF bright/G1 peak)
   (C) drug response (median EZH2 / DMSO): model vs IF, IF ratios computed from per-phase G1 medians
-Reads the cached JSONs from CACHE (simulations/_cache, override with PS_OUT):
-  model_ezh2_bursting.json  <- sim_ezh2_bursting.py
-  if_EZH2_target.json, ezh2_hist.json  <- IF/AMOS export (see sim_async_marker_vs_if.py)
+Inputs:
+  model_ezh2_bursting.json            <- sim_ezh2_bursting.py, in CACHE (simulations/_cache, PS_OUT-overridable)
+  data/if_EZH2_target.json,
+  data/ezh2_hist.json                 <- COMMITTED IF/AMOS export; regenerate with the amos python via
+                                         simulations/extract_if_ezh2_bursting_inputs.py
 Writes simulations/fig_ezh2_bursting.png.
-Run:  venv/bin/python simulations/fig_ezh2_bursting.py
+Run:  venv/bin/python simulations/sim_ezh2_bursting.py   # builds the model cache
+      venv/bin/python simulations/fig_ezh2_bursting.py
 """
 import os, json, numpy as np
 import matplotlib
@@ -16,9 +19,10 @@ import matplotlib.pyplot as plt
 CACHE = os.environ.get('PS_OUT', os.path.join(os.path.dirname(os.path.abspath(__file__)), '_cache'))
 os.makedirs(CACHE, exist_ok=True)
 FIGDIR = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(os.path.dirname(FIGDIR), 'data')        # committed IF exports
 m = json.load(open(os.path.join(CACHE, "model_ezh2_bursting.json")))
-iftgt = json.load(open(os.path.join(CACHE, "if_EZH2_target.json")))
-hist = json.load(open(os.path.join(CACHE, "ezh2_hist.json")))
+iftgt = json.load(open(os.path.join(DATA, "if_EZH2_target.json")))
+hist = json.load(open(os.path.join(DATA, "ezh2_hist.json")))
 
 DMSO = m['treatments']['DMSO']
 cv = DMSO['cv']; g1cv = DMSO['g1_cv']; duty = m['params']['DUTY']; tau = m['params']['TAU_BURST']
